@@ -68,7 +68,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
-                    'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                    'cc:license' => @content.license_classification.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
                     'url' => @content.attribution_url,
                     'copyrightNotice' => @content.copyright_notice_computed
@@ -85,7 +85,7 @@ module DataCycleCore
                       'streetAddress' => @content.address.street_address,
                       'postalCode' => @content.address.postal_code,
                       'addressLocality' => @content.address.address_locality,
-                      'addressCountry' => @content.country_code.first.classification_aliases.first.name,
+                      'addressCountry' => @content.country_code.first.name,
                       'name' => @content.contact_info.contact_name,
                       'telephone' => @content.contact_info.telephone,
                       'faxNumber' => @content.contact_info.fax_number,
@@ -116,7 +116,7 @@ module DataCycleCore
                   }
                 end
 
-                assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+                assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)

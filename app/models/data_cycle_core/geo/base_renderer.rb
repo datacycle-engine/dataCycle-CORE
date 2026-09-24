@@ -81,7 +81,7 @@ module DataCycleCore
         fields_parameters = @fields_parameters.select { |p| p.first == 'dc:classification' }.map { |p| p.except('dc:classification') }.compact_blank.flatten
         json_object = []
         json_object.push("'@id', concepts.id") if fields_parameters.blank? || fields_parameters.include?('@id')
-        json_object.push("'dc:path', classification_alias_paths.full_path_names") if fields_parameters.blank? || fields_parameters.include?('dc:path')
+        json_object.push("'dc:path', concept_paths.full_path_names") if fields_parameters.blank? || fields_parameters.include?('dc:path')
 
         {
           identifier: '"dc:classification"',
@@ -90,10 +90,10 @@ module DataCycleCore
           )',
           joins: "LEFT OUTER JOIN LATERAL (
                 SELECT json_build_object(#{json_object.join(', ')}) AS \"dc:classification\"
-                FROM collected_classification_contents ccc
-                  INNER JOIN concepts ON concepts.id = ccc.classification_alias_id
+                FROM collected_concept_contents ccc
+                  INNER JOIN concepts ON concepts.id = ccc.concept_id
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
-                  #{'INNER JOIN classification_alias_paths ON classification_alias_paths.id = concepts.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
+                  #{'INNER JOIN concept_paths ON concept_paths.id = concepts.id' if fields_parameters.blank? || fields_parameters.include?('dc:path')}
                 WHERE 'api' = ANY(concept_schemes.visibility)
                   #{concept_scheme_filter_sql}
                   AND ccc.thing_id = #{base_table}.id
@@ -106,7 +106,7 @@ module DataCycleCore
       # Primary icons ("Haupt-Icon") stored by the PRIMARY_ICON_RELATION computed
       # attribute: one concept id per classification tree, aggregated to a csv string —
       # a request filtered on a single tree therefore gets exactly one id. Reads
-      # classification_contents instead of collected_classification_contents: it holds
+      # concept_contents instead of collected_concept_contents: it holds
       # exactly the direct assignments of the relation (no transitive rows), while the
       # collected link_type is unreliable when another attribute assigns the same
       # classification (its trigger partitions without the relation column).
@@ -116,12 +116,12 @@ module DataCycleCore
           select: 'MAX(tmp3."dc:iconId")',
           joins: "LEFT OUTER JOIN LATERAL (
                 SELECT string_agg(concepts.id::text, ',' ORDER BY concepts.concept_scheme_id) AS \"dc:iconId\"
-                FROM classification_contents
-                  INNER JOIN concepts ON concepts.classification_id = classification_contents.classification_id
+                FROM concept_contents
+                  INNER JOIN concepts ON concepts.id = concept_contents.concept_id
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
                 WHERE 'api' = ANY(concept_schemes.visibility)
-                  AND classification_contents.content_data_id = #{base_table}.id
-                  AND classification_contents.relation = '#{PRIMARY_ICON_RELATION}'
+                  AND concept_contents.content_data_id = #{base_table}.id
+                  AND concept_contents.relation = '#{PRIMARY_ICON_RELATION}'
                   #{concept_scheme_filter_sql('concepts.concept_scheme_id')}
               ) AS tmp3 ON TRUE"
         }

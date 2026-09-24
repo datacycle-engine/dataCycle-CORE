@@ -21,12 +21,12 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(1, DataCycleCore::Search.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
 
       ds_a = DataCycleCore::Thing.new(template_name: 'Artikel')
       ds_a.is_part_of = data_set.id
@@ -59,12 +59,12 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Thing.count - template)
       assert_equal(2, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(7, DataCycleCore::ClassificationContent.count)
+      assert_equal(7, DataCycleCore::ConceptContent.count)
       assert_equal(2, DataCycleCore::Search.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
 
       assert_equal(1, data_set.children.count)
       save_time = Time.zone.now
@@ -73,12 +73,12 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Thing.count - template)
       assert_equal(0, DataCycleCore::Thing::Translation.count - template_trans)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::ConceptContent.count)
       assert_equal(0, DataCycleCore::Search.count)
       assert_equal(2, DataCycleCore::Thing::History.count)
       assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(7, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(7, DataCycleCore::ConceptContent::History.count)
 
       DataCycleCore::Thing::History.find_each do |item|
         assert_equal(current_user.id, item.updated_by)

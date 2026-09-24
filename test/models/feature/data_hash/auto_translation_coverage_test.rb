@@ -12,8 +12,8 @@ module DataCycleCore
       # stubbed so no external translation service is called.
       class AutoTranslationCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
         before(:all) do
-          @description_type = DataCycleCore::ClassificationAlias
-            .classifications_for_tree_with_name('Externe Informationstypen', 'description')
+          @description_type = DataCycleCore::Concept
+            .ids_for_tree_with_name('Externe Informationstypen', 'description')
         end
 
         def create_poi(name)
@@ -79,9 +79,9 @@ module DataCycleCore
           # classification property, so attach one to the embedded info at runtime
           # (scoped to this test) the way production content carries it.
           info = poi.additional_information.first
-          classification = DataCycleCore::ClassificationAlias
-            .for_tree('Externe Informationstypen').with_name(['description']).first.primary_classification
-          DataCycleCore::ClassificationContent.create!(content_data: info, classification:, relation: 'description_type')
+          concept = DataCycleCore::Concept
+            .for_tree('Externe Informationstypen').with_name(['description']).first
+          DataCycleCore::ConceptContent.create!(content_data: info, concept:, relation: 'description_type')
           poi.reload
 
           result = poi.create_update_translations

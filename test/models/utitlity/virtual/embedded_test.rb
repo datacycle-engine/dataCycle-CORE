@@ -29,6 +29,28 @@ module DataCycleCore
           assert_equal(['Embedded Name'], value)
         end
 
+        test 'map skips an embedded whose template does not declare the key' do
+          embedded_objects = [
+            struct_double(first_available_locale: :de, price: 12),
+            struct_double(first_available_locale: :de, name: 'Embedded Name')
+          ]
+          relation = Struct.new(:items) {
+            def includes(*_args) = items
+          }.new(embedded_objects)
+          content = Struct.new(:relation) {
+            def load_embedded_objects(*_args) = relation
+          }.new(relation)
+
+          value = subject.map(
+            virtual_parameters: ['overlays'],
+            virtual_definition: { 'virtual' => { 'key' => 'name' } },
+            language: :de,
+            content:
+          )
+
+          assert_equal(['Embedded Name'], value)
+        end
+
         test 'map skips parameters without embedded objects' do
           content = Struct.new(:relation) {
             def load_embedded_objects(*_args) = relation

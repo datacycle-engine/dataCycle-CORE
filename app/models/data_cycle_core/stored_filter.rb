@@ -5,7 +5,7 @@ module DataCycleCore
   #
   # c => one of 'd', 'a', 'p', 'u', 'uf'                | für 'default', 'advanced', 'permanent advanced', 'user', 'user forced'
   #
-  # t => String                                         | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
+  # t => String                                         | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'concept_ids')
   #
   # v => String, Array, Hash                            | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])
   #
@@ -194,7 +194,7 @@ module DataCycleCore
       data_type_definition = content.properties_for('data_type') || content.properties_for('schema_types')
       tree_label = data_type_definition&.dig('tree_label')
       internal_name = content.respond_to?(:data_type) ? data_type_definition&.dig('default_value') : content.schema_ancestors&.flatten&.last
-      classification_alias_ids = DataCycleCore::ClassificationAlias.for_tree(tree_label).with_internal_name(internal_name).pluck(:id)
+      concept_ids = DataCycleCore::Concept.for_tree(tree_label).with_internal_name(internal_name).pluck(:id)
 
       filter = new(language: [I18n.locale.to_s], parameters: [
                      {
@@ -208,8 +208,8 @@ module DataCycleCore
                        'c' => 'a',
                        'm' => 'i',
                        'n' => tree_label,
-                       't' => 'classification_alias_ids',
-                       'v' => classification_alias_ids,
+                       't' => 'concept_ids',
+                       'v' => concept_ids,
                        'identifier' => SecureRandom.hex(10)
                      }
                    ])
@@ -273,6 +273,25 @@ module DataCycleCore
       "stored_filter_#{id.to_s.tr('-', '_')}"
     end
 
+    # Whether a submitted filter would narrow nothing, and is therefore dropped before it reaches the
+    # query or the chips. Usually that means an empty value.
+    #
+    # Both paths that drop a filter have to reach the same verdict: FilterConcern#pre_filters for a
+    # submitted dashboard, and the add_tag_group view for the chip the open form rebuilds on every
+    # change. A helper cannot serve the first of those - the api controllers descend from
+    # ActionController::API, whose helpers proxy carries none of the application helpers.
+    #
+    # export_status is the one type with a required part, the status: a value selecting none asks
+    # exactly what the external_system filter with type 'export' already answers. Which values count
+    # as a selection is the query's own rule, so this asks it rather than inspecting `v` a second
+    # time here - see Filter::Common::External.export_status_values.
+    def self.narrows_nothing?(filter)
+      value = filter['v']
+      return DataCycleCore::Filter::Common::External.export_status_values(value).blank? if filter['t'] == 'export_status'
+
+      DataCycleCore::DataHashService.blank?(value)
+    end
+
     # The stored-filter ids referenced by the given `parameters` array via relation/filter_ids types.
     # `v` holds id string(s) for these types; non-string entries (e.g. nested hashes) are ignored.
     def self.referenced_stored_filter_ids(parameters)
@@ -283,13 +302,13 @@ module DataCycleCore
       }.uniq
     end
 
-    # Every named stored filter that uses the given classification_alias id or classification_tree_label
+    # Every named stored filter that uses the given concept id or concept_scheme
     # id as a filter criterion - directly, or indirectly through another stored filter that includes
     # it (see SELF_REFERENCE_FILTER_TYPES).
     #
-    # The whole affected subtree is included: for a classification_alias, its descendants (a subtree
+    # The whole affected subtree is included: for a concept, its descendants (a subtree
     # filter on a parent also matches content in its children, and deleting a classification deletes
-    # its descendants too); for a classification_tree_label, every alias in that tree (deleting the
+    # its descendants too); for a concept_scheme, every alias in that tree (deleting the
     # tree deletes them all). So a saved search referencing any of those is reported as well.
     #
     # Returns a Hash of StoredFilter => direct (Boolean): true if the filter references one of the ids
@@ -334,22 +353,22 @@ module DataCycleCore
       where(id: found_ids.to_a).named.index_with { |filter| direct_set.include?(filter.id) }
     end
 
-    # The classification_alias or classification_tree_label behind a .used_by_classification id, or
+    # The concept or concept_scheme behind a .used_by_classification id, or
     # nil if it no longer exists. Shared by classification_usage_target_ids below and the
     # classification-usage chip on the saved-searches page (see StoredFiltersController#saved_searches).
     def self.classification_usage_record(id)
-      DataCycleCore::ClassificationAlias.where(id:).first || DataCycleCore::ClassificationTreeLabel.where(id:).first
+      DataCycleCore::Concept.where(id:).first || DataCycleCore::ConceptScheme.where(id:).first
     end
 
     # The set of ids whose usage counts as "using" the given classification: the id itself plus the
-    # whole subtree it owns. For a classification_alias that is its descendant alias ids; for a
-    # classification_tree_label it is every alias id in that tree. An unknown id resolves to itself.
+    # whole subtree it owns. For a concept that is its descendant alias ids; for a
+    # concept_scheme it is every alias id in that tree. An unknown id resolves to itself.
     def self.classification_usage_target_ids(id)
       case (record = classification_usage_record(id))
-      when DataCycleCore::ClassificationAlias
+      when DataCycleCore::Concept
         [id] + record.descendants.ids
-      when DataCycleCore::ClassificationTreeLabel
-        [id] + record.classification_aliases.ids
+      when DataCycleCore::ConceptScheme
+        [id] + record.concepts.ids
       else
         [id]
       end.to_set

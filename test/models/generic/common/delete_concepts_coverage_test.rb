@@ -7,7 +7,7 @@ module DataCycleCore
     module Common
       # Coverage for DeleteConcepts. import_data is driven through the stubbed
       # delete_data pipeline (self-returning mongo_item, no real Mongo) and
-      # process_concepts is exercised directly over an empty ClassificationTree.
+      # process_concepts is exercised directly over an empty ConceptLink.
       class DeleteConceptsCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
         def subject
           DataCycleCore::Generic::Common::DeleteConcepts
@@ -51,7 +51,8 @@ module DataCycleCore
             define_method(:step_label) { |_options| 'delete step' }
             define_method(:source_object) { src_obj }
             define_method(:source_type) { :things }
-            define_method(:last_successful_try) { nil }
+            # DeleteConcepts forces :full, and a full import has no lower bound to filter by
+            define_method(:changed_from) { nil }
             define_method(:external_source) { source }
             define_method(:step_name) { 'delete step' }
           }.new

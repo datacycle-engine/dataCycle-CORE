@@ -31,6 +31,18 @@ module DataCycleCore
 
           class_methods do
             include Attributes::GeographicAttributes
+            include Attributes::ClassificationAttributes
+
+            # AR picks the STI subclass from the attributes it is handed, before initialize runs.
+            # Content#initialize derives template_name from thing_template too late for that, so
+            # Thing.new(thing_template: tt) would build a base Thing without the template's generated
+            # attribute methods (DataHashService.create_internal_object, the webhook import).
+            #
+            # @param attributes [Hash, nil] Attributes passed to new.
+            # @return [DataCycleCore::Thing] Instance of the template's STI subclass.
+            def new(attributes = nil, &)
+              super(normalize_template_attributes(attributes), &)
+            end
 
             # :nodoc:
             def ensure_sti_subclasses_initialized_once!
@@ -41,6 +53,12 @@ module DataCycleCore
               # recorded before the flag is published: a thread that skips the init below must still
               # be able to map a constant it has not generated yet back to its template (const_missing)
               @sti_template_names = DataCycleCore::ThingTemplate.pluck(:template_name)
+
+              # The pin is taken before the subclasses below are generated, never after: an import
+              # landing in between would be inside the fingerprint but outside those subclasses, and
+              # the process would then report itself current while already trailing that import.
+              DataCycleCore::StaleProcess.pin!(@sti_template_names)
+
               @sti_subclasses_initialized = true
 
               create_sti_subclasses_from_thing_templates!
@@ -145,6 +163,29 @@ module DataCycleCore
               super
             end
 
+            # The constant name +template_name+ generates. It strips and transliterates, so two
+            # template names can share one - which TemplateValidator rejects, because the second
+            # template would silently keep the first one's class.
+            #
+            # @param template_name [String, Symbol, nil] Template name.
+            # @return [String] Generated subclass name.
+            def sti_subclass_name_for(template_name)
+              # camelize (not classify) so plural-ish template names are not singularized,
+              # which would mangle names and risk constant collisions. parameterize strips
+              # blanks, so the camelized result has no spaces.
+              #
+              # Pin transliteration to a fixed locale: parameterize -> I18n.transliterate uses
+              # the ACTIVE locale, so "Übersetzung" transliterates to "Uebersetzung" under :de
+              # but "Ubersetzung" under :it/:sl. This method both generates the subclass constant
+              # AND resolves it on every record instantiation (find_sti_class), which frequently
+              # runs inside I18n.with_locale(target_locale) blocks (e.g. auto-translation). A
+              # locale-dependent name would generate and look up different constants, so the
+              # lookup falls back to the base class and AR raises SubclassNotFound. Pinning the
+              # locale (equivalent to underscore_blanks with a stable locale) keeps the name
+              # consistent across locales.
+              template_name.to_s.underscore.parameterize(separator: '_', locale: I18n.default_locale).camelize
+            end
+
             private
 
             # The subclass for +template+, not yet registered as a constant.
@@ -158,6 +199,7 @@ module DataCycleCore
               end
 
               define_geo_attributes_for(subclass, template, geometry_association_name:)
+              define_classification_attributes_for(subclass, template)
 
               subclass
             end
@@ -183,23 +225,6 @@ module DataCycleCore
               return [] unless thing_templates_available?
 
               DataCycleCore::ThingTemplate.pluck(:template_name) - sti_template_names
-            end
-
-            def sti_subclass_name_for(template_name)
-              # camelize (not classify) so plural-ish template names are not singularized,
-              # which would mangle names and risk constant collisions. parameterize strips
-              # blanks, so the camelized result has no spaces.
-              #
-              # Pin transliteration to a fixed locale: parameterize -> I18n.transliterate uses
-              # the ACTIVE locale, so "Übersetzung" transliterates to "Uebersetzung" under :de
-              # but "Ubersetzung" under :it/:sl. This method both generates the subclass constant
-              # AND resolves it on every record instantiation (find_sti_class), which frequently
-              # runs inside I18n.with_locale(target_locale) blocks (e.g. auto-translation). A
-              # locale-dependent name would generate and look up different constants, so the
-              # lookup falls back to the base class and AR raises SubclassNotFound. Pinning the
-              # locale (equivalent to underscore_blanks with a stable locale) keeps the name
-              # consistent across locales.
-              template_name.to_s.underscore.parameterize(separator: '_', locale: I18n.default_locale).camelize
             end
 
             def sti_root_class?

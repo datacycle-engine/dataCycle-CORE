@@ -21,7 +21,7 @@ module DataCycleCore
       tour_data_hash[:logo] = [image_data.id]
       tour_data_hash[:waypoint] = [poi_data.id]
       tour_data_hash[:author] = [organization.id]
-      tour_data_hash[:universal_classifications] = ['Juni'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) }
+      tour_data_hash[:universal_classifications] = ['Juni'].map { |m| DataCycleCore::Concept.id_for_tree_with_name('Monate', m) }
       tour_data_hash.deep_stringify_keys!
 
       content = DataCycleCore::Thing.where(template_name: 'Tour').where_translated_value(tour_data_hash.slice('name')).first
@@ -54,8 +54,8 @@ module DataCycleCore
       image_data = image
 
       poi_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', "api_poi_#{I18n.locale}")
-      country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
-      poi_data_hash[:country_code] = [country_classification.id]
+      country_concept = DataCycleCore::Concept.for_tree('Ländercodes').with_internal_name('AT').first
+      poi_data_hash[:country_code] = [country_concept.id]
       poi_data_hash[:image] = [image_data.id]
       poi_data_hash[:primary_image] = [image_data.id]
       poi_data_hash[:logo] = [image_data.id]
@@ -79,8 +79,8 @@ module DataCycleCore
         .sort_by { |a| a['name'] }
         .zip(
           [
-            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'description'),
-            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', 'parking')
+            DataCycleCore::Concept.id_for_tree_with_name('Externe Informationstypen', 'description'),
+            DataCycleCore::Concept.id_for_tree_with_name('Externe Informationstypen', 'parking')
           ]
         ).map { |data, classification| data.merge('universal_classifications' => Array.wrap(classification)) }
       hash
@@ -88,18 +88,18 @@ module DataCycleCore
 
     def person
       person_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'api_person')
-      gender_classification = DataCycleCore::Classification.find_by(name: 'Männlich')
-      country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
+      gender_classification = DataCycleCore::Concept.find_by(name: 'Männlich')
+      country_concept = DataCycleCore::Concept.for_tree('Ländercodes').with_internal_name('AT').first
       person_data_hash[:gender] = [gender_classification.id]
-      person_data_hash[:country_code] = [country_classification.id]
+      person_data_hash[:country_code] = [country_concept.id]
       person_data_hash[:image] = [image.id]
       DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash, user: @user)
     end
 
     def organization
       organization_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'api_organization')
-      country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
-      organization_data_hash[:country_code] = [country_classification.id]
+      country_concept = DataCycleCore::Concept.for_tree('Ländercodes').with_internal_name('AT').first
+      organization_data_hash[:country_code] = [country_concept.id]
       organization_data_hash[:image] = [image.id]
       DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: organization_data_hash, user: @user)
     end
@@ -137,9 +137,9 @@ module DataCycleCore
 
     def recipe
       recipe_data_hash = creative_work_dummy_hash('api_recipe')
-      recipe_category = DataCycleCore::Classification.find_by(name: 'Rezept-Kategorie 1')
+      recipe_category = DataCycleCore::Concept.find_by(name: 'Rezept-Kategorie 1')
       recipe_data_hash[:recipe_category] = [recipe_category.id]
-      recipe_course = DataCycleCore::Classification.find_by(name: 'Rezept-Gang 1')
+      recipe_course = DataCycleCore::Concept.find_by(name: 'Rezept-Gang 1')
       recipe_data_hash[:recipe_course] = [recipe_course.id]
 
       DataCycleCore::TestPreparations.create_content(template_name: 'Rezept', data_hash: recipe_data_hash, user: @user)
@@ -181,7 +181,7 @@ module DataCycleCore
       creative_work_data_hash[:about] = [organization.id]
       creative_work_data_hash[:image] = [image.id]
       creative_work_data_hash[:content_location] = [poi.id]
-      tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
+      tag_classification = DataCycleCore::Concept.find_by(name: 'Tag 1')
       creative_work_data_hash[:tags] = [tag_classification.id]
       creative_work_data_hash[:validity_period] = validity_period
       creative_work_data_hash

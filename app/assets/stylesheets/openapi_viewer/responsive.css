@@ -1,0 +1,411 @@
+
+/* ============================ wide screens ============================ */
+/* On large displays the content stayed capped and narrow, leaving a lot of
+   empty space on the right. Let it grow toward fullscreen, widen the sidebar
+   and open up the main padding as the viewport gets bigger. */
+@media (min-width: 1500px) {
+  main.ov-shell { --ov-sidebar-w: 340px; }
+  .ov-main { padding: var(--ov-7) var(--ov-7); }
+  #swagger-ui .swagger-ui { max-width: 1680px; }
+}
+
+@media (min-width: 1920px) {
+  main.ov-shell { --ov-sidebar-w: 380px; }
+  .ov-main { padding: var(--ov-7) 4.5rem; }
+  #swagger-ui .swagger-ui { max-width: 2100px; font-size: 17px; }
+  #swagger-ui .swagger-ui .info .title { font-size: 3.1rem; }
+}
+
+/* ============================ responsive ============================ */
+/* Wide Swagger content (parameter/response tables, model rows) scrolls inside
+   its own block instead of widening the page. Applied at every width so a long
+   URL or wide table never forces horizontal page scroll. */
+#swagger-ui .swagger-ui table.parameters,
+#swagger-ui .swagger-ui table.responses-table,
+#swagger-ui .swagger-ui .responses-inner table,
+#swagger-ui .swagger-ui .model-box {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#swagger-ui .swagger-ui .parameters-col_description,
+#swagger-ui .swagger-ui .response-col_description,
+#swagger-ui .swagger-ui .model,
+#swagger-ui .swagger-ui .model-title,
+#swagger-ui .swagger-ui .json-schema-2020-12 {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* tablet / small laptop: sidebar becomes a top bar */
+@media (max-width: 900px) {
+  main.ov-shell { overflow-x: hidden; } /* sidebar is static here, so this can't break sticky */
+  /* stack the columns; stretch them to full width so .ov-main doesn't
+     collapse to its min-content width (the row layout top-aligns with
+     align-items: flex-start, which would otherwise shrink-wrap here) */
+  .ov-shell { flex-direction: column; align-items: stretch; }
+  .ov-main { width: 100%; }
+  .ov-sidebar {
+    position: static; width: 100%; flex-basis: auto; height: auto;
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    border-right: 0; border-bottom: 1px solid var(--ov-border);
+    gap: var(--ov-4);
+  }
+  /* span the full top-bar row so the brand's space-between pushes the theme
+     toggle to the far right edge (instead of hugging the logo) */
+  .ov-brand { flex: 1 1 100%; }
+  .ov-nav-wrap { flex: 1 1 100%; order: 3; }
+  .ov-nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex: 1 1 100%;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ov-nav-item {
+    flex: 0 0 auto;
+    max-width: 14rem;
+    white-space: nowrap;
+  }
+  .ov-nav-divider { display: none; } /* the top bar scrolls horizontally */
+  /* the horizontal top bar has no vertical hierarchy — flatten the sub-items */
+  .ov-nav-item--child {
+    margin-left: 0;
+    border-left: 0;
+    border-radius: var(--ov-radius-sm);
+  }
+  .ov-doc-card { flex: 1 1 18rem; }
+  .ov-main { padding: var(--ov-5) var(--ov-4); }
+  .ov-dots { display: none; }
+  #swagger-ui .swagger-ui { max-width: 100%; }
+  #swagger-ui .swagger-ui .info .title { font-size: 1.9rem; }
+
+  /* nested schemas (Schemas list + response/parameter models): the 2020-12
+     renderer indents EVERY nesting level — 20px margin + 20px padding on each
+     .json-schema-2020-12, plus a 20px margin on each dashed .__children guide.
+     A deeply nested schema (e.g. the JSON-LD models) runs out of horizontal room
+     on a narrow screen and collapses into a one-character-per-line sliver. Flatten
+     the per-level indentation so nested properties keep usable width. (#50192) */
+  #swagger-ui .swagger-ui .json-schema-2020-12 {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: var(--ov-3);
+  }
+  #swagger-ui .swagger-ui .model-box .json-schema-2020-12,
+  #swagger-ui .swagger-ui .responses-inner .model-box > .json-schema-2020-12,
+  #swagger-ui .swagger-ui .parameters-col_description .model-box > .json-schema-2020-12 {
+    padding-left: var(--ov-3);
+  }
+  #swagger-ui .swagger-ui .json-schema-2020-12-keyword__children,
+  #swagger-ui .swagger-ui .json-schema-2020-12-json-viewer__children {
+    margin-left: var(--ov-3);
+  }
+  #swagger-ui .swagger-ui .json-schema-2020-12-keyword__name,
+  #swagger-ui .swagger-ui .json-schema-2020-12-keyword--description {
+    margin-left: var(--ov-1);
+  }
+  /* long property names / titles / descriptions wrap instead of forcing width */
+  #swagger-ui .swagger-ui .json-schema-2020-12,
+  #swagger-ui .swagger-ui .json-schema-2020-12__title,
+  #swagger-ui .swagger-ui .json-schema-2020-12-keyword__name,
+  #swagger-ui .swagger-ui .json-schema-2020-12 .renderedMarkdown,
+  #swagger-ui .swagger-ui .json-schema-2020-12 .renderedMarkdown p {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+  /* the schema cards fit now — don't let them shrink-wrap or scroll sideways */
+  #swagger-ui .swagger-ui section.models .model-container,
+  #swagger-ui .swagger-ui section.models .model-box { min-width: 0; }
+}
+
+/* phones: tighten spacing, let operation summaries wrap, shrink headings */
+@media (max-width: 600px) {
+  /* flatten nested-schema indentation further still — the JSON-LD schemas nest
+     deeply and every rem of left padding counts on a ~360px screen (see the
+     max-width: 900px block for the full rationale) */
+  #swagger-ui .swagger-ui .json-schema-2020-12,
+  #swagger-ui .swagger-ui .model-box .json-schema-2020-12,
+  #swagger-ui .swagger-ui .responses-inner .model-box > .json-schema-2020-12,
+  #swagger-ui .swagger-ui .parameters-col_description .model-box > .json-schema-2020-12 {
+    padding-left: var(--ov-2);
+  }
+  #swagger-ui .swagger-ui .json-schema-2020-12-keyword__children,
+  #swagger-ui .swagger-ui .json-schema-2020-12-json-viewer__children {
+    margin-left: var(--ov-2);
+  }
+
+  .ov-sidebar {
+    padding: var(--ov-3);
+    gap: var(--ov-3);
+    align-items: stretch;
+  }
+  .ov-brand { padding: 0; }
+  .ov-brand .logo img { max-width: 8.5rem; height: 1.55rem; }
+  .ov-nav-item { padding: 0.5rem 0.6rem; font-size: 0.86rem; }
+  .ov-doc-card { flex: 1 1 100%; }
+  .ov-doc-card-sub { font-size: 0.74rem; }
+  .ov-locales { max-width: 100%; overflow-x: auto; }
+  .ov-main { padding: var(--ov-4) 0 var(--ov-4) var(--ov-2); }
+  #swagger-ui,
+  #swagger-ui .swagger-ui,
+  #swagger-ui .swagger-ui .wrapper,
+  #swagger-ui .swagger-ui .information-container,
+  #swagger-ui .swagger-ui .info,
+  #swagger-ui .swagger-ui .opblock,
+  #swagger-ui .swagger-ui .opblock-tag-section {
+    width: 100%;
+    max-width: 100%;
+  }
+  #swagger-ui .swagger-ui .info .title { font-size: 1.5rem; }
+  #swagger-ui .swagger-ui .info .main,
+  #swagger-ui .swagger-ui .info hgroup.main,
+  #swagger-ui .swagger-ui .info .description {
+    display: block !important;
+    clear: both;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #swagger-ui .swagger-ui .info .description,
+  #swagger-ui .swagger-ui .renderedMarkdown,
+  #swagger-ui .swagger-ui .renderedMarkdown p {
+    max-width: 100%;
+    min-width: 0;
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+  /* method badge + path + description wrap instead of overflowing the row */
+  #swagger-ui .swagger-ui .opblock .opblock-summary {
+    display: block !important;
+    padding: 0.7rem;
+  }
+  #swagger-ui .swagger-ui .opblock .opblock-summary-method {
+    display: inline-block;
+    min-width: 4.25rem;
+    margin: 0 0 0.45rem;
+  }
+  #swagger-ui .swagger-ui .opblock .opblock-summary-path {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 0.25rem;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  #swagger-ui .swagger-ui .opblock .opblock-summary-path a,
+  #swagger-ui .swagger-ui .opblock .opblock-summary-path span,
+  #swagger-ui .swagger-ui .opblock .opblock-summary-path__deprecated {
+    display: inline;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+  #swagger-ui .swagger-ui .opblock .opblock-summary-description {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0;
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+  /* ===== parameter + response ("Code") tables become a stacked list =====
+     A two-column table (Name│Description, Code│Description) can't fit a ~360px
+     screen without collapsing each cell to a sliver. Drop the table layout and
+     render each row as a card with its cells stacked vertically, so the content
+     flows top-to-bottom as a readable list instead of squeezed columns. (#50192) */
+  #swagger-ui .swagger-ui table.parameters,
+  #swagger-ui .swagger-ui table.responses-table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    overflow-x: visible;
+  }
+  /* Swagger wraps the table in a .table-container with a flat 20px padding on
+     every side. That padding is the space OUTSIDE the group frame (the tbody
+     border) — drop it left/right so the group frame reaches closer to the edge
+     and lines up with the section header; keep the vertical padding. */
+  #swagger-ui .swagger-ui .table-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  /* the column header row carries no weight once cells are stacked and labelled
+     by their own content (bold name / status code) — hide it */
+  #swagger-ui .swagger-ui table.parameters > thead,
+  #swagger-ui .swagger-ui table.responses-table > thead {
+    display: none;
+  }
+  /* the tbody keeps its Foundation border here (only the <table> border is
+     dropped above) — that border is the "group" frame around all the stacked
+     rows. Each row below is its own bordered card, and without padding the two
+     borders sit right on top of each other (you can only tell them apart by the
+     rows' rounded corners). Pad the tbody so every card is inset from the group
+     frame, leaving a clear gap between the outer frame and the inner card frames. */
+  #swagger-ui .swagger-ui table.parameters > tbody,
+  #swagger-ui .swagger-ui table.responses-table > tbody {
+    display: block;
+    width: 100%;
+    /* vertical gap stays generous; horizontal is a touch tighter so the cards
+       keep usable width on narrow screens */
+    padding: var(--ov-4) var(--ov-3);
+  }
+  /* the last card's own bottom margin would otherwise add to the tbody's bottom
+     padding — drop it so the gap is even on all four sides */
+  #swagger-ui .swagger-ui table.parameters > tbody > tr:last-child,
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr:last-child {
+    margin-bottom: 0;
+  }
+  #swagger-ui .swagger-ui table.parameters > tbody > tr,
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr {
+    display: block;
+    width: 100%;
+    margin: 0 0 var(--ov-3);
+    padding: var(--ov-3);
+    border: 1px solid var(--ov-border);
+    border-radius: var(--ov-radius-sm);
+    background: var(--ov-surface);
+  }
+  #swagger-ui .swagger-ui table.parameters > tbody > tr > td,
+  #swagger-ui .swagger-ui table.parameters > tbody > tr > th,
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr > td,
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr > th {
+    display: block;
+    width: 100%;
+    /* Swagger clamps the schema cell with `td:has(.model-box){max-width:1px}` —
+       harmless in table layout, but as a block box it collapses the cell to 1px
+       (empty schema + sliver). Release it so the stacked cell fills the card. */
+    max-width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+  /* the schema/model preview and its inner column fill the full card width */
+  #swagger-ui .swagger-ui table.parameters .model-example,
+  #swagger-ui .swagger-ui table.parameters .model-box,
+  #swagger-ui .swagger-ui table.parameters .model-container,
+  #swagger-ui .swagger-ui table.responses-table .model-example,
+  #swagger-ui .swagger-ui table.responses-table .model-box,
+  #swagger-ui .swagger-ui table.responses-table .model-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  /* space the stacked cells within a card apart from each other */
+  #swagger-ui .swagger-ui table.parameters > tbody > tr > td + td,
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr > td + td {
+    margin-top: var(--ov-2);
+  }
+  #swagger-ui .swagger-ui .parameters-col_description,
+  #swagger-ui .swagger-ui .response-col_description,
+  #swagger-ui .swagger-ui .response-col_status {
+    word-break: normal;
+    overflow-wrap: normal;
+    white-space: normal;
+  }
+  /* The stacked cells share the card's padding as their common left edge. The
+     status code keeps a desktop-table `padding-left: var(--ov-4)` (swagger_theme
+     lines 442/446) that outranks the generic `td { padding: 0 }` above, so "200"
+     hangs indented while the description and schema below start flush. Drop it so
+     every cell in the card lines up on the same left edge. */
+  #swagger-ui .swagger-ui table.responses-table > tbody > tr > td.response-col_status,
+  #swagger-ui .swagger-ui .opblock-body table.responses-table tbody tr td.response-col_status {
+    padding-left: 0;
+  }
+  #swagger-ui .swagger-ui .opblock-body { padding: var(--ov-3); }
+  #swagger-ui .swagger-ui .scheme-container { padding: var(--ov-6) var(--ov-4) var(--ov-5); }
+  #swagger-ui .swagger-ui .scheme-container .schemes {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--ov-4);
+    margin: 0;
+  }
+  /* Swagger wraps the server <select> in a label whose default vertical margins
+     eat into the card's top padding, making the gap above the select look
+     smaller than the gap below the button. Zero them so the card padding is the
+     only spacing top and bottom. */
+  #swagger-ui .swagger-ui .scheme-container .schemes .schemes-server-container,
+  #swagger-ui .swagger-ui .scheme-container .schemes > label {
+    margin: 0;
+  }
+  /* stack the Authorize button under the server select and let it fill the card
+     width so its glow/border stays inside the card instead of hanging over the
+     card edge on narrow screens */
+  #swagger-ui .swagger-ui .scheme-container .auth-wrapper {
+    justify-content: flex-start;
+    margin: 0;
+  }
+  #swagger-ui .swagger-ui .scheme-container .auth-wrapper .btn.authorize {
+    width: 100%;
+    justify-content: center;
+  }
+  #swagger-ui .swagger-ui .opblock-tag { font-size: 1.15rem; }
+  #swagger-ui .swagger-ui .opblock-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--ov-2);
+  }
+  /* Swagger hangs the active title's underline bar 15px BELOW the text
+     (span:after { position:absolute; bottom:-15px }). On the tight phone layout
+     that blue GET bar runs into the "Try it out" button stacked below it — add
+     room beneath the title block so the bar clears whatever follows it. */
+  #swagger-ui .swagger-ui .opblock-section-header .tab-header {
+    margin-bottom: var(--ov-4);
+  }
+  #swagger-ui .swagger-ui .opblock-section-header .tab-header .tab-item.active h4 span:after {
+    bottom: -0.5rem;
+  }
+  /* modal fits small viewports */
+  #swagger-ui .swagger-ui .dialog-ux .modal-ux { width: 94vw; min-width: 0; }
+
+  /* copy-path button next to the endpoint path: Swagger keeps it at width:0 and
+     only expands it to width:24px on :hover (.opblock-summary:hover .view-line-link).
+     A touch screen has no hover, so it never appears. Pin it to the top-right of
+     the summary and keep it permanently visible. The summary is display:block here,
+     so anchor it absolutely and reserve room on the right so it clears the collapse
+     arrow (~20px svg + padding). */
+  #swagger-ui .swagger-ui .opblock .opblock-summary {
+    position: relative;
+    padding-right: 4rem;
+  }
+  #swagger-ui .swagger-ui .opblock .opblock-summary .view-line-link.copy-to-clipboard,
+  #swagger-ui .swagger-ui .opblock .opblock-summary:hover .view-line-link.copy-to-clipboard {
+    position: absolute;
+    top: 0.6rem;
+    right: 2rem;
+    width: 24px;
+    height: 26px;
+    margin: 0;
+    opacity: 1;
+    visibility: visible;
+  }
+  /* lock (authorize) icon: keep it on the same line/height it flows to now, but
+     push it to the right edge instead of hanging on the left. margin-left:auto on
+     a block box right-aligns it without moving it vertically. */
+  #swagger-ui .swagger-ui .opblock .opblock-summary .authorization__btn {
+    display: block;
+    width: -moz-fit-content;
+    width: fit-content;
+    /* right-align, but pull out by (padding-right 4rem − copy's right 2rem) so the
+       lock keeps the same 2rem gap from the edge as the copy icon above it */
+    margin-left: auto;
+    margin-right: -2rem;
+    padding: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .ov-main { padding: var(--ov-3) 0 var(--ov-3) var(--ov-1); }
+  .openapi-viewer-loading {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: var(--ov-5) var(--ov-2);
+  }
+  #swagger-ui .swagger-ui .info .title { font-size: 1.32rem; }
+  #swagger-ui .swagger-ui .opblock-body,
+  #swagger-ui .swagger-ui .auth-container,
+  #swagger-ui .swagger-ui .dialog-ux .modal-ux-content { padding: var(--ov-3); }
+}

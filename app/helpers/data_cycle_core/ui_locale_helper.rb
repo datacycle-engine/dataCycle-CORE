@@ -62,9 +62,9 @@ module DataCycleCore
 
       tag.span(
         label,
-        class: "tag #{additional_classes} #{classification_path_classes(concept)}".squish,
-        style: classification_style(concept),
-        data: { dc_tooltip: classification_tooltip(concept) }
+        class: "tag #{additional_classes} #{concept_path_classes(concept)}".squish,
+        style: concept_color_style(concept),
+        data: { dc_tooltip: concept_tooltip(concept) }
       )
     end
 

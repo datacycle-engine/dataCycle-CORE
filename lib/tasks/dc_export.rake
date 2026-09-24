@@ -45,30 +45,6 @@ namespace :dc do
       logger = Logger.new('log/dc_export_jsonld.log')
       start_time = Time.zone.now
 
-      # [C] Memory management for glibc. This task renders `full.recursive` graphs for thousands of
-      # things across several worker threads, churning tens of thousands of transient objects per item.
-      # Under glibc, freed memory is retained in per-thread arena free lists (up to 8*CPU arenas by
-      # default) and is NOT handed back to the OS on GC alone - so RSS climbs into multiple GB even
-      # though the live Ruby heap stays flat (measured: live slots flat, RSS 700MB->1GB+ and rising).
-      # Cap the arenas (set before the worker threads spawn) and call malloc_trim after freeing to
-      # return the pages to the OS. Both degrade to a no-op on non-glibc allocators (macOS / jemalloc /
-      # tcmalloc): the symbols are simply absent, so `release_memory` falls back to a plain GC.start.
-      malloc_trim = nil
-      begin
-        require 'fiddle'
-        libc = Fiddle.dlopen(nil)
-        Fiddle::Function.new(libc['mallopt'], [Fiddle::TYPE_INT, Fiddle::TYPE_INT], Fiddle::TYPE_INT)
-          .call(-8, ENV.fetch('DC_EXPORT_JSONLD_ARENA_MAX', 2).to_i) # -8 == M_ARENA_MAX
-        trim = Fiddle::Function.new(libc['malloc_trim'], [Fiddle::TYPE_SIZE_T], Fiddle::TYPE_INT)
-        malloc_trim = -> { trim.call(0) }
-      rescue StandardError => e
-        logger.info("[MEMORY][#{endpoint.id}] arena cap / malloc_trim unavailable (#{e.class}); using GC.start only")
-      end
-      release_memory = lambda do
-        GC.start
-        malloc_trim&.call
-      end
-
       dir = Rails.public_path.join('uploads', 'export')
       dir = dir.join(*folder_path) if folder_path.present?
       FileUtils.mkdir_p(dir)
@@ -90,7 +66,7 @@ namespace :dc do
 
       if File.exist?(finalpath) && File.exist?(fingerprintpath) && File.read(fingerprintpath).strip == fingerprint
         logger.info("[SKIPPED][#{endpoint.id}] unchanged (#{size} things) after #{Time.zone.now - start_time}s")
-        release_memory.call
+        GC.start # [C]
         next
       end
 
@@ -250,14 +226,19 @@ namespace :dc do
             processed += id_slice.size
             logger.info("[SLICE][#{endpoint.id}]: #{processed}/#{size} things")
 
-            # [C] Reclaim at every batch boundary (workers are idle here, so it never competes with a
-            # render). GC.start collects the batch's transient `full.recursive` graphs and rendered
-            # strings before they age into the old generation and inflate the heap; malloc_trim then
-            # returns the freed pages to the OS - the step glibc skips on its own, which is what let RSS
-            # climb into multiple GB. Trim without a preceding GC is nearly useless (nothing freed to
-            # return), and GC without trim leaves the pages parked in glibc's arenas - both are needed.
-            # A full GC over the ~flat live heap costs tens of ms against seconds of rendering per batch.
-            release_memory.call
+            # [C] Reclaim at every batch boundary (workers are idle here, so it never competes with
+            # a render). Rendering `full.recursive` graphs for thousands of things churns tens of
+            # thousands of transient objects per item, and Ruby returns what it frees to its
+            # allocator rather than to the OS: measured, the live slot count stayed flat while RSS
+            # climbed 700MB->1GB+ and kept rising. GC.start collects the batch's graphs and rendered
+            # strings before they age into the old generation and inflate the heap, and hands them
+            # to the allocator, giving jemalloc's decay purge something to unmap
+            # (config/initializers/jemalloc.rb keeps that thread alive across forks). Nothing asks
+            # glibc for the same: capping its arenas via mallopt and calling malloc_trim is what this
+            # did instead, and reached only a bare-metal run, since a process that preloads jemalloc
+            # resolves both glibc symbols without either governing the allocator it runs on. A full
+            # GC over the ~flat live heap costs tens of ms against seconds of rendering per batch.
+            GC.start
           end
         end
 
@@ -280,7 +261,7 @@ namespace :dc do
       end
 
       logger.info("[FINISHED][#{endpoint.id}] after #{Time.zone.now - start_time}s")
-      release_memory.call
+      GC.start # [C]
     end
   end
 end

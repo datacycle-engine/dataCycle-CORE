@@ -214,6 +214,21 @@ class AdditionalValuesFilterControl {
 		});
 	}
 	async #selectFeatures(features, key) {
+		// queryRenderedFeatures hands back GeoJSONFeature instances, and the collection we push
+		// them into reaches the map's worker through GeoJSONSource.setData:
+		//
+		// Up to maplibre-gl 5.12 setData ran JSON.stringify over that collection, so toJSON()
+		// flattened every instance on the way out. Since 5.13 it hands the object to MapLibre's
+		// own serializer, which would raise "can't serialize object of unregistered class
+		// GeoJSONFeature", so we keep only the GeoJSON members the source reads.
+		const plainFeatures = features.map(
+			({ type, id, geometry, properties }) => ({
+				type,
+				id,
+				geometry,
+				properties,
+			}),
+		);
 		const featureIds = features.map((feature) => feature.properties["@id"]);
 
 		if (featureIds.length >= 100) {
@@ -226,7 +241,9 @@ class AdditionalValuesFilterControl {
 				new ConfirmationModal({
 					text: text,
 					confirmationCallback: () => {
-						this.editor._additionalValuesByKey(key).features.push(...features);
+						this.editor
+							._additionalValuesByKey(key)
+							.features.push(...plainFeatures);
 						resolve(this.#triggerImport(featureIds, key));
 					},
 					cancelable: true,
@@ -234,7 +251,7 @@ class AdditionalValuesFilterControl {
 				});
 			});
 		} else {
-			this.editor._additionalValuesByKey(key).features.push(...features);
+			this.editor._additionalValuesByKey(key).features.push(...plainFeatures);
 			return this.#triggerImport(featureIds, key);
 		}
 	}
@@ -434,7 +451,7 @@ class AdditionalValuesFilterControl {
 		).map((v) => v.value);
 
 		this.#addActiveFilter(target.dataset.groupKey, {
-			t: "classification_alias_ids",
+			t: "concept_ids",
 			m: "i",
 			v: ids,
 		});

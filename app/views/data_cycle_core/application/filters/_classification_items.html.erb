@@ -1,9 +1,9 @@
 <% excluded_types ||= [] %>
-<% children = item.sub_classification_alias %>
+<% children = item.children %>
 <% if item.assignable || children.any?(&:assignable) %>
   <%= tag.li(data: { children: children.present? ? children.size : nil }) do %>
     <%= check_box_tag "f[#{identifier}][v][]", item.id, local_assigns[:value]&.include?(item.id), id: "#{identifier}_#{item.id}", disabled: !item.assignable %>
-    <label for="<%= identifier %>_<%= item.id %>" data-dc-tooltip="<%= classification_tooltip(item) %>" style="<%= "--classification-color: #{item.color}" if item.color? %>" class="<%= 'has-color' if item.color? %>">
+    <label for="<%= identifier %>_<%= item.id %>" data-dc-tooltip="<%= concept_tooltip(item) %>" style="<%= "--classification-color: #{item.color}" if item.color? %>" class="<%= 'has-color' if item.color? %>">
       <span class="title">
         <span class="inner-title"><%= item.internal_name %></span>
       </span>

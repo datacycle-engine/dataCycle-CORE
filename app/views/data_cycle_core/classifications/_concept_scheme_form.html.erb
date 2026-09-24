@@ -1,0 +1,130 @@
+<%= form_with(model: concept_scheme, url: classifications_path, namespace: concept_scheme&.id, local: true, class: 'classification-tree-label-form') do |f| %>
+  <div class="ca-buttons">
+    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw') }) %>
+
+    <button class="button-prime small discard secondary" type="reset">
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <%= f.hidden_field :id %>
+
+  <div class="ca-input required">
+    <%= f.label :name, concept_scheme.class.human_attribute_name(:name, locale: active_ui_locale), class: 'ca-label' %>
+    <%= f.text_field :name, class: 'ca-input-field', disabled: !can?(:update, concept_scheme), required: true %>
+  </div>
+
+  <% if can?(:update_internal, concept_scheme) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox">
+        <%= f.check_box :internal %>
+        <%= f.label :internal, concept_scheme.class.human_attribute_name(:internal, locale: active_ui_locale) %>
+      </span>
+    </div>
+  <% end %>
+
+  <% if can?(:update_mappable, concept_scheme) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox">
+        <%= f.check_box :mappable %>
+        <%= f.label :mappable, concept_scheme.class.human_attribute_name(:mappable, locale: active_ui_locale) %>
+      </span>
+    </div>
+  <% end %>
+
+  <%# 47172/50677: concepts of this tree stay invisible on contents that only got them through a mapping %>
+  <% if can?(:update_hidden_mappings, concept_scheme) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox">
+        <%= f.check_box :hidden_mappings %>
+        <%= f.label :hidden_mappings, concept_scheme.class.human_attribute_name(:hidden_mappings, locale: active_ui_locale) %>
+      </span>
+    </div>
+  <% end %>
+
+  <% concept_scheme.visibility = DataCycleCore.default_classification_visibilities if concept_scheme.new_record? %>
+
+  <div class="ca-input">
+    <div class="ca-collection-checkboxes concept-scheme-visibilities">
+      <%= f.label :visibility, concept_scheme.class.human_attribute_name(:visibility, locale: active_ui_locale) %>
+
+      <% grouped_visibilities = grouped_concept_scheme_visibilities(concept_scheme) %>
+
+      <ul
+        class="tabs concept-scheme-visibility-groups-tabs"
+        data-tabs
+        id="concept-scheme-visibility-groups-<%= concept_scheme.id %>"
+      >
+        <% grouped_visibilities.each do |group| %>
+          <li class="tabs-title <%= 'is-active' if group[:selected] %>">
+            <a
+              href="#<%= group[:identifier] %>"
+              aria-selected="<%= group[:selected] %>"
+              data-tabs-target="<%= group[:identifier] %>"
+            >
+              <%= group[:title] %>
+              <i class="fa fa-info-circle" aria-hidden="true" data-dc-tooltip="<%= group[:tooltip] %>"></i>
+            </a>
+          </li>
+        <% end %>
+      </ul>
+
+      <div
+        class="tabs-content concept-scheme-visibility-groups-content"
+        data-tabs-content="concept-scheme-visibility-groups-<%= concept_scheme.id %>"
+      >
+        <% grouped_visibilities.each do |group| %>
+          <div class="tabs-panel <%= 'is-active' if group[:selected] %>" id="<%= group[:identifier] %>">
+            <div class="concept-scheme-visibility-group-container">
+              <%= f.collection_check_boxes :visibility,
+              group[:visibilities].map { |v|
+                  OpenStruct.new(
+                    name: v,
+                    title: safe_join([
+                      t("classification_visibilities.entries.#{v}", locale: active_ui_locale, default: v),
+                      concept_scheme_visibility_icon(v),
+                    ], ' '),
+                    checked: f.object.visibility.include?(v)
+                  )
+                },
+                :name,
+                :title do |l| %>
+                <span class="dc-checkbox"><%= l.check_box %><%= I18n.with_locale(active_ui_locale) { l.label } %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if can?(:update_change_behaviour, concept_scheme) %>
+    <div class="ca-input">
+      <div class="ca-collection-checkboxes">
+        <%= f.label :change_behaviour, concept_scheme.class.human_attribute_name(:change_behaviour, locale: active_ui_locale) %>
+
+        <%= f.collection_check_boxes :change_behaviour,
+          DataCycleCore.classification_change_behaviour.map { |v|
+            OpenStruct.new(
+              name: v,
+              title: t("classification_change_behaviour.#{v}", locale: active_ui_locale, default: v),
+              checked: f.object.change_behaviour.include?(v)
+            )
+          },
+          :name,
+          :title do |l| %>
+          <span class="dc-checkbox"><%= l.check_box %><%= I18n.with_locale(active_ui_locale) { l.label } %></span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if concept_scheme.persisted? && can?(:view_all, concept_scheme) %>
+    <div class="ca-input">
+      <%= f.label :external_key, concept_scheme.class.human_attribute_name(:external_key, locale: active_ui_locale), class: 'ca-label' %>
+      <%= f.text_field :external_key, class: 'ca-input-field', disabled: true %>
+    </div>
+  <% end %>
+
+  <%= f.submit class: 'success button' %>
+<% end %>

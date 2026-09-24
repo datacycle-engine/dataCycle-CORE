@@ -25,7 +25,7 @@ module DataCycleCore
         end
 
         test 'xml for specific classificaiton_trees' do
-          classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+          classification_tree = DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')
           get xml_v1_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
@@ -37,14 +37,14 @@ module DataCycleCore
         end
 
         test 'xml of classifications within a classification_tree' do
-          classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+          classification_tree = DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')
           get classifications_xml_v1_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
           assert_equal('application/xml; charset=utf-8', response.content_type)
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
 
-          total = classification_tree.classification_trees.count
+          total = classification_tree.concepts.count
 
           assert_equal(total, xml_data['RDF']['classifications']['classification'].count)
         end

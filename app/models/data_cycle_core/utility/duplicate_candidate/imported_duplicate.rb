@@ -12,11 +12,12 @@ module DataCycleCore
 
             external_keys = [content.external_key] + content.external_system_syncs.where(external_system_id: content.external_source_id).pluck(:external_key)
 
-            DataCycleCore::Thing
+            thing_ids = DataCycleCore::Thing
               .by_external_key(content.external_source_id, external_keys)
               .where.not(id: content.id)
               .pluck(:id)
-              .map { |d| { thing_duplicate_id: d, method: identifier, score: 100 } }
+
+            candidate_rows(thing_ids, score: 100)
           end
         end
       end

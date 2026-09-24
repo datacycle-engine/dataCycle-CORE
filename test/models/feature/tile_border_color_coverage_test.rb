@@ -23,7 +23,7 @@ module DataCycleCore
         path = Object.new
         path.define_singleton_method(:full_path_names) { full_path_names }
         ca = Object.new
-        ca.define_singleton_method(:classification_alias_path) { path }
+        ca.define_singleton_method(:concept_path) { path }
         aliases = [ca]
         aliases.define_singleton_method(:loaded?) { true }
         aliases
@@ -33,7 +33,7 @@ module DataCycleCore
         tree_label = Object.new
         tree_label.define_singleton_method(:name) { tree_label_name }
         ca = Object.new
-        ca.define_singleton_method(:classification_tree_label) { tree_label }
+        ca.define_singleton_method(:concept_scheme) { tree_label }
         ca.define_singleton_method(:internal_name) { internal_name }
         aliases = Object.new
         aliases.define_singleton_method(:loaded?) { false }
@@ -41,11 +41,11 @@ module DataCycleCore
         aliases
       end
 
-      def thing_double(template_name: 'POI', classification_aliases: nil, event_schedule: :undefined)
+      def thing_double(template_name: 'POI', concepts: nil, event_schedule: :undefined)
         obj = Object.new
         obj.define_singleton_method(:is_a?) { |klass| klass == DataCycleCore::Thing || Kernel.instance_method(:is_a?).bind_call(self, klass) }
         obj.define_singleton_method(:template_name) { template_name }
-        obj.define_singleton_method(:classification_aliases) { classification_aliases }
+        obj.define_singleton_method(:concepts) { concepts }
         obj.define_singleton_method(:event_schedule) { event_schedule } unless event_schedule == :undefined
         obj
       end
@@ -68,7 +68,7 @@ module DataCycleCore
       end
 
       test 'tree_label_classes builds classes from loaded classification aliases' do
-        content = thing_double(classification_aliases: loaded_aliases(full_path_names: ['Region', 'Tirol']))
+        content = thing_double(concepts: loaded_aliases(full_path_names: ['Region', 'Tirol']))
 
         result = Subject.stub(:configuration, { tree_label: 'Tirol' }) do
           Subject.send(:tree_label_classes, content)
@@ -79,7 +79,7 @@ module DataCycleCore
       end
 
       test 'tree_label_classes builds classes via for_tree when aliases are not loaded' do
-        content = thing_double(classification_aliases: unloaded_aliases(tree_label_name: 'Border', internal_name: 'Red'))
+        content = thing_double(concepts: unloaded_aliases(tree_label_name: 'Border', internal_name: 'Red'))
 
         result = Subject.stub(:configuration, { tree_label: 'Border' }) do
           Subject.send(:tree_label_classes, content)
@@ -112,7 +112,7 @@ module DataCycleCore
       test 'class_string concatenates tree_label and event_schedule classes for a Thing' do
         content = thing_double(
           template_name: 'POI',
-          classification_aliases: loaded_aliases(full_path_names: ['Region', 'Tirol']),
+          concepts: loaded_aliases(full_path_names: ['Region', 'Tirol']),
           event_schedule: [schedule_double(next_occurrence: nil)]
         )
 

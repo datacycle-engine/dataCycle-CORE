@@ -254,6 +254,79 @@ module DataCycleCore
       assert_equal 'readonly @type: not allowed to create', response[:error].first[:message]
     end
 
+    test 'can link an existing thing with a template it may not write' do
+      # @external_system_minimal may neither create nor link 'Bild'. An @id-only reference writes
+      # nothing to the image, so the allowed templates - which gate writing - do not apply to it.
+      response = api_strategy_minimal.create(
+        {
+          '@type' => 'POI',
+          '@id' => 'test-link-existing-bild',
+          'name' => 'Test TouristAttraction',
+          'image' => [{ '@type' => 'Bild', '@id' => @content['bild'].id }]
+        }, @external_system_minimal, @current_user
+      )
+
+      assert response[:success]
+      assert_equal [@content['bild'].id], DataCycleCore::Thing.find(response.dig(:meta, :thing_id)).image.pluck(:id)
+    end
+
+    test 'still cannot update a linked thing with a template it may not write' do
+      response = api_strategy_minimal.create(
+        {
+          '@type' => 'POI',
+          '@id' => 'test-update-linked-bild',
+          'name' => 'Test TouristAttraction',
+          'image' => [{ '@type' => 'Bild', '@id' => @content['bild'].id, 'name' => 'renamed' }]
+        }, @external_system_minimal, @current_user
+      )
+
+      assert_equal 'partial', response[:success]
+      assert_equal 'forbidden @type', response[:error].first[:message]
+    end
+
+    test 'resolves @type from the api type APIv4 publishes a template under' do
+      system = push_external_system('push_api_v4_api_type_alias', ['Api-Type-Alias-Renamed'])
+      response = push_to(system, { '@type' => 'dcls:Api-Type-Alias-Legacy', '@id' => 'test-api-type-alias', 'name' => 'Alias' })
+
+      assert response[:success]
+      assert_equal 'Api-Type-Alias-Renamed', DataCycleCore::Thing.find(response.dig(:meta, :thing_id)).template_name
+    end
+
+    test 'an api type that is also a template name resolves to the one the system may write' do
+      system = push_external_system('push_api_v4_api_type_legacy', ['Api-Type-Alias-Legacy'])
+      response = push_to(system, { '@type' => 'dcls:Api-Type-Alias-Legacy', '@id' => 'test-api-type-legacy', 'name' => 'Legacy' })
+
+      assert response[:success]
+      assert_equal 'Api-Type-Alias-Legacy', DataCycleCore::Thing.find(response.dig(:meta, :thing_id)).template_name
+    end
+
+    test 'resolves @type from an api type a template publishes as one of a list' do
+      system = push_external_system('push_api_v4_api_type_listed', ['Api-Type-Alias-Listed'])
+      response = push_to(system, { '@type' => 'dcls:Api-Type-Alias-Renamed', '@id' => 'test-api-type-listed', 'name' => 'Listed' })
+
+      assert response[:success]
+      assert_equal 'Api-Type-Alias-Listed', DataCycleCore::Thing.find(response.dig(:meta, :thing_id)).template_name
+    end
+
+    test 'an api type the system may write under either name resolves to the template it names' do
+      system = push_external_system('push_api_v4_api_type_both', ['Api-Type-Alias-Listed', 'Api-Type-Alias-Renamed'])
+      response = push_to(system, { '@type' => 'dcls:Api-Type-Alias-Renamed', '@id' => 'test-api-type-both', 'name' => 'Renamed' })
+
+      assert response[:success]
+      assert_equal 'Api-Type-Alias-Renamed', DataCycleCore::Thing.find(response.dig(:meta, :thing_id)).template_name
+    end
+
+    test 'a missing @type is reported apart from a non-string one' do
+      missing = api_strategy.create({ 'name' => 'no type at all' }, @external_system, @current_user)
+      # the @type APIv4 renders is an array, and pasting it back is not a template name
+      non_string = api_strategy.create({ '@type' => ['Event', 'dcls:Event'], 'name' => 'api output pasted back' }, @external_system, @current_user)
+
+      assert_not missing[:success]
+      assert_equal 'missing @type', missing[:error].first[:message]
+      assert_not non_string[:success]
+      assert_equal 'template must be a string', non_string[:error].first[:message]
+    end
+
     test 'data_cycle_api_v4 webhook: "@id" field is saved as external key' do
       external_key = 'some-external-key'
       response = api_strategy.create(
@@ -763,8 +836,8 @@ module DataCycleCore
     end
 
     test 'create thing via data_cycle_api_v4 webhook with classification' do
-      tags = DataCycleCore::ClassificationAlias.for_tree('Tags').to_a
-      tag_primary_classifications = tags.flat_map(&:primary_classification).pluck(:id)
+      tags = DataCycleCore::Concept.for_tree('Tags').to_a
+      tag_ids = tags.pluck(:id)
 
       results = ['Event', 'POI'].map do |template|
         api_strategy.create({
@@ -777,12 +850,12 @@ module DataCycleCore
       results.each do |result|
         content = DataCycleCore::Thing.find(result.dig(:meta, :thing_id))
 
-        assert_equal tag_primary_classifications.to_set, content.tags.pluck(:id).to_set
+        assert_equal tag_ids.to_set, content.tags.pluck(:id).to_set
       end
     end
 
     test 'create thing via data_cycle_api_v4 webhook with universal classifications' do
-      cc0_classification = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
+      cc0_classification = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC0').first
 
       result = api_strategy.create({
         '@type' => 'Event',
@@ -793,7 +866,7 @@ module DataCycleCore
 
       content = DataCycleCore::Thing.find(result.dig(:meta, :thing_id))
 
-      assert_equal cc0_classification.primary_classification.id, content.universal_classifications.first.id
+      assert_equal cc0_classification.id, content.universal_classifications.first.id
     end
 
     test 'create thing via data_cycle_api_v4 webhook with image and asset (remote_file_url)' do

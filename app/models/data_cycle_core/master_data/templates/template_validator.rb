@@ -14,7 +14,6 @@ module DataCycleCore
           @template_property_contract = TemplatePropertyContract.new
           @object_property_contract = ObjectPropertyContract.new
           @existing_template_names = @templates.pluck(:name)
-          @overlay_key = DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
           @errors = []
         end
 
@@ -24,6 +23,8 @@ module DataCycleCore
 
         def validate
           return [] if @templates.blank?
+
+          validate_unique_model_names!
 
           @templates.each do |template|
             prefix = [template[:set], template[:name]]
@@ -36,6 +37,7 @@ module DataCycleCore
             validate_overlay_properties(template[:data], prefix)
             validate_schema_types!(template[:data], prefix)
             validate_locale_inheritance!(template[:data], prefix)
+            validate_compute_deferral_order!(template.dig(:data, :properties), prefix)
           end
 
           @errors
@@ -47,10 +49,26 @@ module DataCycleCore
           end
         end
 
-        def validate_overlay_properties(template, prefix)
-          return if @overlay_key.blank?
+        # Thing generates one STI subclass per template, named by StiSubclasses#sti_subclass_name_for,
+        # which transliterates and strips punctuation: "Angebot" and "Angebot -" both camelize to
+        # DataCycleCore::Thing::Angebot. The second template finds that constant defined and keeps the
+        # first one's class, whose sti_name makes the STI type condition select the FIRST template's
+        # rows, so Thing::Angebot.find and reload raise RecordNotFound on a row the second template
+        # owns, and whose classification writers are the first template's, so set_data_hash raises
+        # NotImplementedError for every property the two do not share.
+        #
+        # Exact duplicates never reach this: TemplateImporter#merge_duplicate_template! merges them.
+        def validate_unique_model_names!
+          @templates.group_by { |template| DataCycleCore::Thing.sti_subclass_name_for(template[:name]) }.each do |model_name, templates|
+            next if templates.size < 2
 
-          belongs_to_templates = @templates.filter { |t| t.dig(:data, :features, :overlay, :allowed) && template[:name] == t.dig(:data, :properties, @overlay_key, 'template_name') }
+            first, *rest = templates
+            @errors.push("#{[first[:set], first[:name], :name].compact.join('.')} => generates the same model as #{rest.pluck(:name).map(&:inspect).join(', ')} (DataCycleCore::Thing::#{model_name}) (HINT: template names have to stay distinct once transliterated and stripped of punctuation, rename one of them)")
+          end
+        end
+
+        def validate_overlay_properties(template, prefix)
+          belongs_to_templates = Extensions::Overlay.legacy_originals(@templates, template[:name])
 
           return if belongs_to_templates.blank?
 
@@ -177,6 +195,45 @@ module DataCycleCore
             next if @existing_template_names.include?(key)
 
             @errors.push("#{[*prefix, :template_name].join('.')} => template for '#{key}' missing!")
+          end
+        end
+
+        # A compute is handed the values of its :parameters: before it runs, so no parameter may
+        # sit later in ComputeDeferral::ORDER than the compute reading it. A parameter of a later
+        # pass is served from the record rather than computed: Compute::Base#load_missing_values
+        # runs a parameter only where it shares the reading compute's deferral, and reads
+        # content.attribute_to_h for every other one. So the depending compute is handed what the
+        # later pass stored the last time it ran - a value derived from the previous state of the
+        # record, and nil on a create, where that pass has never run at all.
+        #
+        # That is what dc_ai_degree_of_involvement naming contributor_generated was (#51643): the
+        # inline pass read the marking of the previous save and stored a degree derived from it.
+        # compute.after_save reading compute.async is the same read from one pass further on:
+        # DataHash#set_data_hash recomputes the after_save keys inside the write transaction and
+        # enqueues the UpdateAsyncComputedPropertiesJob only after it, so the async value the
+        # after_save pass reads is no fresher than the one the inline pass reads.
+        #
+        # Only computes constrain each other. A parameter naming a plain attribute is always
+        # readable, and a :virtual: one is derived on read, so neither can be too late. Non-String
+        # entries are skipped: TemplatePropertyContract constrains :parameters: to an array without
+        # constraining its entries, and an entry that is not a property name is not this rule's to
+        # report.
+        #
+        # @param properties [Hash] the template's properties, mixins resolved and injections added
+        # @return [void]
+        def validate_compute_deferral_order!(properties, prefix)
+          return if properties.blank?
+
+          properties.each do |key, definition|
+            Array.wrap(definition&.dig('compute', 'parameters')).each do |parameter|
+              next unless parameter.is_a?(::String)
+
+              parameter_key = parameter.split('.').first
+              parameter_definition = properties[parameter_key]
+              next unless ComputeDeferral.later?(parameter_definition, than: definition)
+
+              @errors.push("#{[*prefix, :properties, key].join('.')} => compute (#{ComputeDeferral.of(definition)}) depends on '#{parameter_key}', which is computed later (#{ComputeDeferral.of(parameter_definition)})")
+            end
           end
         end
 

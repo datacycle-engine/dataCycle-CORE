@@ -18,7 +18,7 @@ module DataCycleCore
           # configured as an empty string is used as such, it does not fall back.
           def concat(virtual_parameters:, content:, virtual_definition:, **_args)
             values = virtual_parameters.map do |param|
-              classifcation_alias_value(content.send(param), virtual_definition.dig(:virtual, :key))
+              concept_values(content.send(param), virtual_definition.dig(:virtual, :key))
             end
 
             values.compact_blank!
@@ -31,19 +31,14 @@ module DataCycleCore
           def by_tree_label(content:, virtual_definition:, **_args)
             return if virtual_definition['tree_label'].blank?
 
-            content.full_classification_aliases
+            content.full_concepts
               .for_tree(virtual_definition['tree_label'])
-              .primary_classifications
           end
 
-          def classifcation_alias_value(classifications, key)
-            aliases = if classifications.loaded?
-                        classifications&.map(&:classification_aliases)&.flatten
-                      else
-                        classifications&.classification_aliases
-                      end
-
-            aliases&.map { |ca| ca.send(key) || ca.internal_name }
+          # A classification property holds concepts since Redmine #41458; it used to hold
+          # classifications and needed the hop to their aliases.
+          def concept_values(concepts, key)
+            concepts&.map { |concept| concept.send(key) || concept.internal_name }
           end
 
           # example config:
@@ -58,7 +53,7 @@ module DataCycleCore
 
             key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
 
-            content.full_classification_aliases.for_tree(concept_scheme).pick(key)
+            content.full_concepts.for_tree(concept_scheme).pick(key)
           end
 
           # example config:
@@ -73,7 +68,7 @@ module DataCycleCore
 
             key = virtual_definition.dig(:virtual, :key).presence || 'internal_name'
 
-            content.full_classification_aliases.for_tree(concept_scheme).pluck(key).join(', ')
+            content.full_concepts.for_tree(concept_scheme).pluck(key).join(', ')
           end
 
           def to_mapped_value(virtual_parameters:, content:, virtual_definition:, **_args)

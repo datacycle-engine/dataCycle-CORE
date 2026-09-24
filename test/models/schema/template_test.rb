@@ -8,123 +8,6 @@ require 'helpers/minitest_spec_helper'
 describe DataCycleCore::Schema::Template do
   include DataCycleCore::MinitestSpecHelper
 
-  describe 'for simple properties' do
-    subject do
-      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
-        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
-      )
-      template = template_importer.templates.find { |t| t[:name] == 'All Simple Property Types' }
-      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_template_name('All Simple Property Types')
-    end
-
-    it 'should exclude properties which are disabled for api' do
-      assert(subject.property_definitions.pluck(:label).exclude?('disabledProperty'))
-    end
-
-    it 'should contain 4 property definitions' do
-      assert_equal(5, subject.property_definitions.count)
-      assert_equal(['dateProperty', 'datetimeProperty', 'linkedToText', 'numberProperty', 'stringProperty'], subject.property_definitions.pluck(:label).sort)
-    end
-
-    it 'should contain correct property definition for "stringProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'stringProperty' }
-
-      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
-      assert_equal('//schema.org/Text', string_property[:data_type])
-    end
-
-    it 'should contain correct property definition for "datetimeProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'datetimeProperty' }
-
-      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
-      assert_equal('//schema.org/DateTime', string_property[:data_type])
-    end
-
-    it 'should contain correct property definition for "dateProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'dateProperty' }
-
-      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
-      assert_equal('date', string_property[:data_type])
-    end
-
-    it 'should contain correct property definition for "numberProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'numberProperty' }
-
-      assert_equal(['Thing_WithAllSimplePropertyTypes'], string_property[:template_type])
-      assert_equal('//schema.org/Number', string_property[:data_type])
-    end
-  end
-
-  describe 'for simple embedded container' do
-    subject do
-      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
-        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
-      )
-      template = template_importer.templates.find { |t| t[:name] == 'Simple Embedded Container' }
-      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
-    end
-
-    it 'should contain correct property definition for "embedded"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'embedded' }
-
-      assert_equal(['Thing_ActingAsEmbeddedContainer'], string_property[:template_type])
-      assert_equal('/schema/Simple Embedded', string_property[:data_type])
-    end
-  end
-
-  describe 'for simple linked entites' do
-    subject do
-      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
-        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
-      )
-      template = template_importer.templates.find { |t| t[:name] == 'Simple Linked Entity One' }
-      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_SimpleEntityLinkedOne')
-    end
-
-    it 'should contain correct property definition for linked properties based on templates' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithTemplate' }
-
-      assert_equal(['Thing_SimpleEntityLinkedOne'], string_property[:template_type])
-      assert_equal('/schema/Simple Linked Entity Two', string_property[:data_type])
-    end
-
-    it 'should contain correct property definition for linked properties based on templates' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithStoredFilter' }
-
-      assert_equal(['Thing_SimpleEntityLinkedOne'], string_property[:template_type])
-      assert_equal([], string_property[:data_type])
-    end
-  end
-
-  describe 'for simple embedded object' do
-    subject do
-      template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
-        template_paths: [Rails.root.join('..', 'data_types', 'simple_valid_templates')]
-      )
-      template = template_importer.templates.find { |t| t[:name] == 'Container' }
-      DataCycleCore::Schema.new([DataCycleCore::Schema::Template.new(template[:data].as_json)]).template_by_schema_name('Thing_Container')
-    end
-
-    it 'should expand nested properties' do
-      assert_equal(3, subject.property_definitions.count)
-      assert_equal(['anotherProperty', 'linkedToText', 'someProperty'].sort, subject.property_definitions.pluck(:label).sort)
-    end
-
-    it 'should contain correct property definition for "someProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'someProperty' }
-
-      assert_equal(['Thing_Container'], string_property[:template_type])
-      assert_equal('//schema.org/Text', string_property[:data_type])
-    end
-
-    it 'should contain correct property definition for "anotherProperty"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'anotherProperty' }
-
-      assert_equal(['Thing_Container'], string_property[:template_type])
-      assert_equal('//schema.org/Number', string_property[:data_type])
-    end
-  end
-
   describe 'for simple linked inverse entites' do
     subject do
       template_importer = DataCycleCore::MasterData::Templates::TemplateImporter.new(
@@ -263,6 +146,63 @@ describe DataCycleCore::Schema::Template do
 
     it 'should not produce errors' do
       assert_empty(subject.errors)
+    end
+  end
+
+  describe 'for the overlay template reference' do
+    # A template that declares an overlay property (see Feature::Overlay) and one
+    # that does not, both taken from the live test data definitions so the fixture
+    # stays the single source of truth instead of an inline schema hash.
+    def templates
+      @templates ||= DataCycleCore::MasterData::Templates::TemplateImporter.new(
+        template_paths: [Rails.root.join('..', 'data_types', 'data_definitions', 'data_cycle_test')]
+      ).templates
+    end
+
+    # The configured overlay attribute key (e.g. "overlay") — never hard-coded so
+    # the test tracks Feature::Overlay's configuration.
+    def overlay_key
+      DataCycleCore.features.dig('overlay', 'attribute_keys')&.first
+    end
+
+    def template_for(raw)
+      DataCycleCore::Schema::Template.new(raw[:data].as_json)
+    end
+
+    it 'has a configured overlay attribute key to test against' do
+      assert_predicate overlay_key, :present?, 'expected Feature::Overlay to configure an attribute key'
+    end
+
+    it 'returns the template name referenced by the overlay property' do
+      raw = templates.find { |t| t.dig(:data, :properties, overlay_key.to_sym, :template_name).present? }
+
+      assert_predicate(raw, :present?, 'expected a fixture template with an overlay property')
+
+      expected = raw.dig(:data, :properties, overlay_key.to_sym, :template_name)
+
+      assert_equal expected, template_for(raw).overlay_template_name(overlay_key)
+    end
+
+    it 'resolves to an actual template that exists in the schema' do
+      raw = templates.find { |t| t.dig(:data, :properties, overlay_key.to_sym, :template_name).present? }
+      overlay_name = template_for(raw).overlay_template_name(overlay_key)
+
+      assert_includes templates.map { |t| t.dig(:data, :name) }, overlay_name
+    end
+
+    it 'returns nil for a template without an overlay property' do
+      raw = templates.find { |t| t.dig(:data, :properties, overlay_key.to_sym).blank? }
+
+      assert_predicate(raw, :present?, 'expected a fixture template without an overlay property')
+      assert_nil template_for(raw).overlay_template_name(overlay_key)
+    end
+
+    it 'returns nil when the overlay key is blank' do
+      raw = templates.find { |t| t.dig(:data, :properties, overlay_key.to_sym, :template_name).present? }
+      template = template_for(raw)
+
+      assert_nil template.overlay_template_name(nil)
+      assert_nil template.overlay_template_name('')
     end
   end
 

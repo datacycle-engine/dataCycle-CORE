@@ -9,21 +9,21 @@ module DataCycleCore
         class ClassificationFacetsTest < DataCycleCore::V4::Base
           before(:all) do
             DataCycleCore::Thing.delete_all
-            @tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
-            @aliases = @tree_label.classification_aliases.order(internal_name: :asc)
+            @tree_label = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
+            @aliases = @tree_label.concepts.order(internal_name: :asc)
             @current_user = User.find_by(email: 'tester@datacycle.at')
             @current_user.update(access_token: SecureRandom.hex)
             @endpoint = DataCycleCore::StoredFilter.create(api: true, user: @current_user)
             @contents = []
             @count_mapping = {}
-            @mapped_classification = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test Mapping').classifications.first
+            @mapped_concept = DataCycleCore::ConceptScheme.find_by(name: 'Test Mapping').concepts.first
             @aliases.limit(@aliases.size - 1).each do |ca|
-              c = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: ca.id, tags: [ca.primary_classification.id], universal_classifications: [@mapped_classification.id] })
+              c = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: ca.id, tags: [ca.id], universal_classifications: [@mapped_concept.id] })
               @contents.push(c)
               @count_mapping[ca.id] ||= []
               @count_mapping[ca.id].push(c.id)
 
-              ca.classification_alias_path.ancestor_classification_aliases.each do |aca|
+              ca.concept_path.ancestor_concepts.each do |aca|
                 @count_mapping[aca.id] ||= []
                 @count_mapping[aca.id].push(c.id)
               end
@@ -120,7 +120,7 @@ module DataCycleCore
           end
 
           test 'api/v4/endpoints/:endpoint/facets with mappings' do
-            @tag1.classification_ids += [@mapped_classification.id]
+            @tag1.mapped_concept_ids += [@mapped_concept.id]
             tmp_mapping = @count_mapping.deep_dup
             tmp_mapping[@tag1.id] = @contents.pluck(:id)
 

@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         test 'count_classifications_by_tree_label counts classifications within the tree' do
-          ids = get_classification_ids('Tags', 'Tag 1', 'Tag 2')
+          ids = get_concept_ids('Tags', 'Tag 1', 'Tag 2')
 
           assert_operator(ids.size, :>, 0)
 

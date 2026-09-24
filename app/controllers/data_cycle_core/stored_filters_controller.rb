@@ -229,7 +229,7 @@ module DataCycleCore
 
     def stored_filter_params
       params
-        .expect(stored_filter: [:id, :name, :api, :user_id, :linked_stored_filter_id, :description, :cache_ttl, :slug, { shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], classification_tree_labels: [] }])
+        .expect(stored_filter: [:id, :name, :api, :user_id, :linked_stored_filter_id, :description, :cache_ttl, :slug, { shared_user_ids: [], shared_user_group_ids: [], shared_role_ids: [], concept_scheme_ids: [] }])
         .tap do |p|
           p[:name] ||= p.delete(:id) unless p[:id].to_s.uuid?
           p[:description] = DataCycleCore::MasterData::DataConverter.string_to_string(p[:description]) if p.key?(:description)

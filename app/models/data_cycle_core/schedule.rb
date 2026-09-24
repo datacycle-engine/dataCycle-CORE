@@ -549,6 +549,20 @@ module DataCycleCore
     end
 
     module ClassMethods
+      # Combines the until date with the time of day of +until_time+ into the rrule's UNTIL.
+      #
+      # The time of day is labelled +00:00 rather than converted, which is right only where the
+      # caller already passes a UTC time of day. .to_h_from_schedule_params and
+      # .to_h_from_opening_time_params pass a local start_time and so store a wall time in a field
+      # that means UTC; the schedule hash path a few lines below passes a UTC one. Reading it in the
+      # start time's zone instead therefore fixes two call sites and breaks the third
+      # (test/integration/api/v4/attributes/schedule_test.rb:28 pins it). Straightening this out
+      # means giving all three call sites the same contract and is left to its own change; the
+      # occurrences function reads whatever lands here the same way IceCube does.
+      #
+      # @param until_date [Date, Time, Hash] the last day of the series, optionally as {time:, zone:}
+      # @param until_time [Time, String] supplies the time of day
+      # @return [DateTime, nil] the UNTIL instant, or nil when either part is missing
       def until_as_utc(until_date, until_time)
         return if until_date.blank? || until_time.blank?
 
@@ -960,7 +974,11 @@ module DataCycleCore
       find_by(query, external_system_id:, external_key:)
     end
 
-    def self.rebuild_occurrences
+    # Resolves the configured window occurrences are materialized for.
+    #
+    # @return [Hash{Symbol => Date}] +:range_start+ and +:range_end+ ready for
+    #   .schedule_occurrences_sql
+    def self.occurrences_range
       range_start, range_end = DataCycleCore.schedule_occurrences_range.values_at(:start, :end)
 
       range_start = range_start.call if range_start.is_a?(Proc)
@@ -969,22 +987,72 @@ module DataCycleCore
       range_end = range_end.call if range_end.is_a?(Proc)
       range_end = range_end.in_time_zone if range_end.is_a?(::String)
       range_end = 5.years.from_now if range_end.nil?
-      range_start = range_start.to_date
-      range_end = range_end.to_date
 
+      { range_start: range_start.to_date, range_end: range_end.to_date }
+    end
+
+    # Recreates the occurrences function and forces every schedule with an rrule to recompute its
+    # generated occurrences columns (a stored generated column is not refreshed by replacing the
+    # function it is built from).
+    #
+    # The rewrite runs in batches, each its own transaction. Both generated columns are indexed, so
+    # no row updates in place: one transaction over the whole table would hold the cluster's xmin
+    # horizon for the duration, block autovacuum everywhere, and bloat heap, TOAST and GIN index
+    # before committing. Each batch suppresses the statement timeout of its own accord - the one
+    # database.yml sets is 1min, and a batch of rows carrying thousands of occurrences each can
+    # exceed it.
+    #
+    # Every row is rewritten, not only those carrying an rrule: rdate, exdate and the duration
+    # arithmetic reach the function as well, and a schedule that is nothing but a dtstart and a
+    # duration spanning a DST change materializes a different end than it did before.
+    #
+    # @param batch_size [Integer] rows rewritten per transaction
+    # @return [void]
+    def self.rebuild_occurrences(batch_size: 5_000)
       ActiveRecord::Base.transaction do
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
-        ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(range_start:, range_end:))
+        ActiveRecord::Base.connection.exec_query(schedule_occurrences_sql(**occurrences_range))
+      end
 
-        unscoped.where.not(rrule: nil).update_all('rrule = rrule')
+      unscoped.in_batches(of: batch_size) do |batch|
+        ActiveRecord::Base.transaction do
+          ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
+          batch.update_all('rrule = rrule')
+        end
       end
     end
 
+    # Builds the CREATE OR REPLACE statement for +generate_schedule_occurences+, the immutable
+    # function backing the generated +occurrences+/+occurrences_array+ columns.
+    #
+    # The expansion runs on Europe/Vienna wall time, via pg_rrule's naive +get_occurrences+ overload:
+    # wall time is what keeps a recurrence at the same local time across a DST change, which is also
+    # the timeline IceCube expands on. +dtstart+ is converted into that zone and the results are
+    # converted back out of it. Expanding in UTC instead would move every occurrence after a DST
+    # change by an hour and put the two engines at odds.
+    #
+    # IceCube's +to_ical+, the only writer of +rrule+, emits +UNTIL+ as a UTC instant (trailing +Z+)
+    # -- what RFC-5545 3.3.10 requires for a zoned +DTSTART+. It is therefore the one part of the
+    # rule that arrives on a different timeline and has to be translated into the expansion's zone
+    # first; comparing it raw against Vienna wall times cuts the series short by the UTC offset and
+    # silently drops trailing occurrences. The regex is deliberately limited to that UTC form: a
+    # +DATE+ or floating +UNTIL+ (such as the +range_end+ fallback appended below) is already on the
+    # expansion's timeline and must be left alone. Values that do not survive the conversion -- an
+    # impossible date, or a year that overflows past 9999 -- are left alone as well, since pg_rrule
+    # handles them the way it did before.
+    #
+    # Known limitation: the autumn fall-back hour exists twice in wall time, so an +UNTIL+ landing
+    # in it resolves to the standard-time instant. A sub-daily rule ending there can run up to an
+    # hour past its own +UNTIL+, where IceCube, comparing absolute instants, stops.
+    #
+    # @param range_start [Date] occurrences ending before this date are discarded
+    # @param range_end [Date] upper bound for the expansion and default +UNTIL+ for endless rules
+    # @return [String] sanitized SQL statement
     def self.schedule_occurrences_sql(range_start:, range_end:)
       # public prefix is required for types and functions from pg_rrule extension
 
       sql = <<~SQL.squish
-        CREATE OR REPLACE FUNCTION generate_schedule_occurences(
+        CREATE OR REPLACE FUNCTION public.generate_schedule_occurences(
             s_dtstart timestamp WITH time zone,
             s_rrule character varying,
             s_rdate timestamp WITH time zone [],
@@ -993,9 +1061,21 @@ module DataCycleCore
           ) RETURNS setof tstzrange LANGUAGE plpgsql IMMUTABLE PARALLEL SAFE AS $$
         DECLARE schedule_duration INTERVAL;
 
+        local_rrule character varying;
+
+        local_until text;
+
         all_occurrences timestamp WITHOUT time zone [];
 
-        BEGIN IF s_dtstart > ? THEN RETURN;
+        window_start timestamp WITH time zone;
+
+        window_end timestamp WITH time zone;
+
+        BEGIN window_start := ?::timestamp AT TIME ZONE 'Europe/Vienna';
+
+        window_end := (?::timestamp + INTERVAL '1 day') AT TIME ZONE 'Europe/Vienna';
+
+        IF s_dtstart > window_end AND coalesce(cardinality(s_rdate), 0) = 0 THEN RETURN;
 
         END IF;
 
@@ -1004,23 +1084,66 @@ module DataCycleCore
 
         WHEN s_duration <= INTERVAL '0 seconds' THEN schedule_duration = INTERVAL '1 seconds';
 
-        ELSE schedule_duration = s_duration;
+        ELSE schedule_duration = make_interval(
+          secs => EXTRACT(
+            epoch
+            FROM (
+              (
+                (
+                  (
+                    s_dtstart AT TIME ZONE 'Europe/Vienna' + make_interval(
+                      months => EXTRACT(year FROM s_duration)::int * 12 + EXTRACT(month FROM s_duration)::int,
+                      days => EXTRACT(day FROM s_duration)::int)
+                  ) AT TIME ZONE 'Europe/Vienna'
+                ) + make_interval(
+                  secs => EXTRACT(hour FROM s_duration) * 3600 + EXTRACT(minute FROM s_duration) * 60 + EXTRACT(second FROM s_duration))
+              ) - s_dtstart
+            )
+          )
+        );
 
         END CASE
         ;
 
-        CASE
-          WHEN s_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone];
+        local_rrule := s_rrule;
 
-        WHEN s_rrule IS NOT NULL THEN all_occurrences := public.get_occurrences (
+        local_until := substring(local_rrule FROM 'UNTIL=([0-9]{8}T[0-9]{6})Z');
+
+        IF local_until IS NOT NULL
+          AND left(local_until, 4)::int BETWEEN 1 AND 9998
+          AND substring(local_until FROM 5 FOR 2)::int BETWEEN 1 AND 12
+          AND substring(local_until FROM 7 FOR 2)::int BETWEEN 1 AND EXTRACT(
+            day
+            FROM (
+              make_date(left(local_until, 4)::int, substring(local_until FROM 5 FOR 2)::int, 1)
+              + INTERVAL '1 month' - INTERVAL '1 day'
+            )
+          )
+          AND substring(local_until FROM 10 FOR 2)::int < 24
+          AND substring(local_until FROM 12 FOR 2)::int < 60
+          AND substring(local_until FROM 14 FOR 2)::int < 60 THEN local_rrule := regexp_replace(
+            local_rrule,
+            'UNTIL=[0-9]{8}T[0-9]{6}Z',
+            'UNTIL=' || to_char(
+              (local_until::timestamp AT TIME ZONE 'UTC') AT TIME ZONE 'Europe/Vienna',
+              'YYYYMMDD"T"HH24MISS'
+            )
+          );
+
+        END IF;
+
+        CASE
+          WHEN local_rrule IS NULL THEN all_occurrences := ARRAY [(s_dtstart AT TIME ZONE 'Europe/Vienna')::timestamp WITHOUT time zone];
+
+        WHEN local_rrule IS NOT NULL THEN all_occurrences := public.get_occurrences (
           (
             CASE
-              WHEN s_rrule LIKE '%UNTIL%' THEN s_rrule
-              ELSE (s_rrule || ';UNTIL=#{range_end}')
+              WHEN local_rrule LIKE '%UNTIL%' THEN local_rrule
+              ELSE (local_rrule || ';UNTIL=#{range_end.next_day.strftime('%Y%m%d')}T000000')
             END
           )::public.rrule,
           s_dtstart AT TIME ZONE 'Europe/Vienna',
-          ? AT TIME ZONE 'Europe/Vienna'
+          window_end AT TIME ZONE 'Europe/Vienna'
         );
 
         END CASE
@@ -1031,36 +1154,38 @@ module DataCycleCore
           UNION
           SELECT unnest(s_rdate) AS occurence
         ),
+        spans AS (
+          SELECT occurences.occurence,
+            occurences.occurence + schedule_duration AS occurence_end
+          FROM occurences
+          WHERE occurences.occurence IS NOT NULL
+        ),
         exdates AS (
           SELECT tstzrange(
-              DATE_TRUNC('day', s.exdate),
-              DATE_TRUNC('day', s.exdate) + INTERVAL '1 day'
+              DATE_TRUNC('day', s.exdate AT TIME ZONE 'Europe/Vienna') AT TIME ZONE 'Europe/Vienna',
+              (
+                DATE_TRUNC('day', s.exdate AT TIME ZONE 'Europe/Vienna') + INTERVAL '1 day'
+              ) AT TIME ZONE 'Europe/Vienna'
             ) exdate
           FROM unnest(s_exdate) AS s(exdate)
         )
-        SELECT tstzrange(
-            occurences.occurence,
-            occurences.occurence + schedule_duration
-          )
-        FROM occurences
-        WHERE occurences.occurence IS NOT NULL
-          AND occurences.occurence + schedule_duration > ?
+        SELECT tstzrange(spans.occurence, spans.occurence_end)
+        FROM spans
+        WHERE spans.occurence_end > window_start
+          AND spans.occurence < window_end
           AND NOT EXISTS (
             SELECT 1
             FROM exdates
-            WHERE exdates.exdate && tstzrange(
-                occurences.occurence,
-                occurences.occurence + schedule_duration
-              )
+            WHERE exdates.exdate && tstzrange(spans.occurence, spans.occurence_end)
           )
-        ORDER BY occurences.occurence ASC;
+        ORDER BY spans.occurence ASC;
 
         END;
 
         $$;
       SQL
 
-      ActiveRecord::Base.send(:sanitize_sql_array, [sql, range_end, range_end, range_start])
+      ActiveRecord::Base.send(:sanitize_sql_array, [sql, range_start, range_end])
     end
   end
 end

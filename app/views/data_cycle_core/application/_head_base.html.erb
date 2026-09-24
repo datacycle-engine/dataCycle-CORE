@@ -1,0 +1,14 @@
+<%# Head tags every dataCycle page needs, with no application bundle: the shared part of %>
+<%# application/_head (backend pages) and the standalone open_api_viewer layout, which %>
+<%# ships only its own entrypoint. csrf_meta_tags stays here -- the viewer reads the token %>
+<%# for its same-origin spec fetch and "Try it out" requests. %>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title><%= full_title %></title>
+
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+<%= vite_client_tag %>
+
+<%= dc_favicon_link_tags %>

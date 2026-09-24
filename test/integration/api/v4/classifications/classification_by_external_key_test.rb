@@ -9,15 +9,14 @@ module DataCycleCore
         class ClassificationByExternalKeyTest < DataCycleCore::V4::Base
           before(:all) do
             @external_system = DataCycleCore::ExternalSystem.first
-            @classifications = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').classifications
+            @classifications = DataCycleCore::ConceptScheme.find_by(name: 'Tags').concepts
             @external_keys = []
             @current_user = User.find_by(email: 'tester@datacycle.at')
             @current_user.update(access_token: SecureRandom.hex)
 
             @classifications.each.with_index do |c, index|
               key = "test-#{index}"
-              c.update_columns(external_source_id: @external_system.id, external_key: key)
-              c.primary_classification_alias.update_columns(external_source_id: @external_system.id)
+              c.update_columns(external_system_id: @external_system.id, external_key: key)
               @external_keys << key
             end
           end

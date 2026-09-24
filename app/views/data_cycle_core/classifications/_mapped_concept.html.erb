@@ -1,0 +1,19 @@
+<li data-id="<%= mapped_concept.id %>" class="<%= type %>">
+  <span class="inner-item">
+    <%= link_to_if DataCycleCore::Feature::TransitiveClassificationPath.enabled?,
+                  tag.span(
+                    type == 'direct' ? concept_title(mapped_concept) : mapped_concept.full_path,
+                    class: 'name',
+                    data: {
+                      dc_tooltip: mapped_concept.full_path
+                      }
+                    ),
+                  classifications_path(
+                    mapped_concept_id: mapped_concept.id,
+                    concept_scheme_id: concept_scheme.id
+                  ),
+                  class: 'name' %>
+  </span>
+
+  <ul class="children"></ul>
+</li>

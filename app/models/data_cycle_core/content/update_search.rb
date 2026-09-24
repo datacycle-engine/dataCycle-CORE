@@ -27,9 +27,7 @@ module DataCycleCore
         I18n.with_locale(language) do
           search_data = walk_embedded_data(language)
           advanced_search_attributes = walk_advanced
-          classification_mapping = walk_classifications
-          classification_alias_mapping = classification_mapping[:classification_aliases]
-          classification_ancestors_mapping = classification_mapping[:classification_ancestors]
+          concept_mapping = walk_concepts
 
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
@@ -41,7 +39,7 @@ module DataCycleCore
               s.updated_at = Time.zone.now
               s.headline = search_data[:headline]
               s.slug = search_data[:slug]
-              s.classification_string = search_data[:classification_string]
+              s.concept_string = search_data[:concept_string]
               s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
               s.all_text = search_data[:all_text]&.unicode_normalize(:nfkc)
               s.data_type = template_name
@@ -49,8 +47,8 @@ module DataCycleCore
               s.boost = boost
               s.schema_type = schema_type
               s.advanced_attributes = advanced_search_attributes
-              s.classification_aliases_mapping = classification_alias_mapping
-              s.classification_ancestors_mapping = classification_ancestors_mapping
+              s.concepts_mapping = concept_mapping[:concepts]
+              s.concept_ancestors_mapping = concept_mapping[:concept_ancestors]
               s.self_contained = !embedded?
               s.save!
             end
@@ -90,12 +88,12 @@ module DataCycleCore
         if embedded? # only headline of main content gets full boost!
           string_hash[:full_text] = [string_hash[:headline], string_hash[:full_text]].join(' ')
           string_hash[:headline] = ''
-          string_hash[:classification_string] = ''
+          string_hash[:concept_string] = ''
         else
-          string_hash[:classification_string] = display_classification_aliases(['show', 'show_more']).map { |ca| [ca.name, ca.internal_name] }.flatten.compact.uniq.join(' ').gsub("'", "''").squish
+          string_hash[:concept_string] = display_concepts(['show', 'show_more']).map { |ca| [ca.name, ca.internal_name] }.flatten.compact.uniq.join(' ').gsub("'", "''").squish
         end
 
-        string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string], string_hash[:full_text].squish].join(' ')
+        string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:concept_string], string_hash[:full_text].squish].join(' ')
         string_hash
       end
 
@@ -124,18 +122,14 @@ module DataCycleCore
         advanced_data
       end
 
-      def walk_classifications
-        classification_mapping = {
-          classification_aliases: classification_aliases.map(&:id),
-          classification_ancestors: []
+      # Concept#ancestors reaches the concepts above one, and stops there - a scheme is not among
+      # them (see ConceptPath#ancestor_ids), so no type guard is needed the way it was when
+      # ClassificationAlias#ancestors ended in the tree label.
+      def walk_concepts
+        {
+          concepts: full_concepts.map(&:id),
+          concept_ancestors: full_concepts.flat_map { |c| c.ancestors.map(&:id) }.uniq
         }
-        classification_aliases.each do |c|
-          c.ancestors.each do |a|
-            classification_mapping[:classification_ancestors] << a.id if a.instance_of?(DataCycleCore::ClassificationAlias)
-          end
-        end
-        classification_mapping[:classification_ancestors].uniq!
-        classification_mapping
       end
 
       def parse_advanced_data
@@ -164,14 +158,7 @@ module DataCycleCore
         advanced_classification_property_names.each do |property|
           next if virtual_property_names.include?(property)
 
-          ids = []
-          try(property)&.classification_aliases&.each do |c|
-            c.ancestors.each do |a|
-              ids << a.id if a.instance_of?(DataCycleCore::ClassificationAlias)
-            end
-
-            ids << c.id
-          end
+          ids = Array.wrap(try(property)).flat_map { |c| [*c.ancestors.map(&:id), c.id] }
 
           (advanced_data[property] ||= []).concat(ids) if ids.present?
         end

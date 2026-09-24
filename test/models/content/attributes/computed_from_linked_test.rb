@@ -38,14 +38,14 @@ module DataCycleCore
         test 'collects the degree of involvement of the linked agent' do
           image = create_image(agent_for(GENERATED).id)
 
-          assert_equal [concept_for(GENERATED).classification_id], degree_ids(image)
+          assert_equal [concept_for(GENERATED).id], degree_ids(image)
         end
 
         test 'collects the degree of every linked agent' do
           image = create_image([agent_for(GENERATED).id, agent_for(MODIFIED).id])
 
           assert_equal(
-            [concept_for(GENERATED).classification_id, concept_for(MODIFIED).classification_id].sort,
+            [concept_for(GENERATED).id, concept_for(MODIFIED).id].sort,
             degree_ids(image).sort
           )
         end
@@ -56,7 +56,7 @@ module DataCycleCore
           )
           image = create_image([agent_for(GENERATED).id, named.id])
 
-          assert_equal [concept_for(GENERATED).classification_id], degree_ids(image)
+          assert_equal [concept_for(GENERATED).id], degree_ids(image)
         end
 
         test 'collects nothing without a linked content' do
@@ -68,7 +68,7 @@ module DataCycleCore
         test 'collects only the concepts of its own tree' do
           tagged = DataCycleCore::TestPreparations.create_content(
             template_name: 'FromLinked-Tagged',
-            data_hash: { 'name' => 'Not An Agent', 'tags' => [DataCycleCore::Concept.for_tree('Tags').find_by!(name: 'Tag 1').classification_id] }
+            data_hash: { 'name' => 'Not An Agent', 'tags' => [DataCycleCore::Concept.for_tree('Tags').find_by!(name: 'Tag 1').id] }
           )
 
           assert_empty degree_ids(create_image(tagged.id))
@@ -87,7 +87,7 @@ module DataCycleCore
 
           image.set_data_hash(data_hash: { 'contributor' => [agent_for(MODIFIED).id] })
 
-          assert_equal [concept_for(MODIFIED).classification_id], degree_ids(image)
+          assert_equal [concept_for(MODIFIED).id], degree_ids(image)
         end
 
         # a template error must not clear what is stored, unlike an empty result - asserted against
@@ -96,7 +96,7 @@ module DataCycleCore
           image = create_image(agent_for(GENERATED).id)
           stored = degree_ids(image)
 
-          assert_equal [concept_for(GENERATED).classification_id], stored
+          assert_equal [concept_for(GENERATED).id], stored
 
           computed = DataCycleCore::Utility::Compute::Classification.from_linked(
             computed_parameters: { 'contributor' => [agent_for(GENERATED).id] },

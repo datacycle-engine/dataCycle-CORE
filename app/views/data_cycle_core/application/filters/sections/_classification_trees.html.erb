@@ -8,7 +8,7 @@
                     identifier: tree_data[:identifier],
                     excluded_types: tree_label == 'Inhaltstypen' ? config[:excluded_types] : [],
                     value: tree_data[:value],
-                    classification_tree: tree_data[:classification_aliases] unless tree_data&.dig(:classification_aliases).nil? %>
+                    concepts: tree_data[:concepts] unless tree_data&.dig(:concepts).nil? %>
       <% end %>
     </ul>
   </nav>

@@ -86,21 +86,13 @@ namespace :dc do
 
       abort('ExternalSystemId missing!') if external_system_id.blank?
 
-      classifications = DataCycleCore::Classification.where(external_source_id: external_system_id)
-      puts "MIGRATING: classifications (#{classifications.size})..."
-      classifications.update_all(external_source_id: nil, external_key: nil)
+      concepts = DataCycleCore::Concept.where(external_system_id:)
+      puts "MIGRATING: concepts (#{concepts.size})..."
+      concepts.update_all(external_system_id: nil, external_key: nil)
 
-      classification_trees = DataCycleCore::ClassificationTreeLabel.where(external_source_id: external_system_id)
-      puts "MIGRATING: classification_trees (#{classification_trees.size})..."
-      classification_trees.update_all(external_source_id: nil)
-
-      classification_groups = DataCycleCore::ClassificationGroup.where(external_source_id: external_system_id)
-      puts "MIGRATING: classification_groups (#{classification_groups.size})..."
-      classification_groups.update_all(external_source_id: nil)
-
-      classification_aliases = DataCycleCore::ClassificationAlias.where(external_source_id: external_system_id)
-      puts "MIGRATING: classification_aliases (#{classification_aliases.size})..."
-      classification_aliases.update_all(external_source_id: nil)
+      concept_schemes = DataCycleCore::ConceptScheme.where(external_system_id:)
+      puts "MIGRATING: concept_schemes (#{concept_schemes.size})..."
+      concept_schemes.update_all(external_system_id: nil)
 
       puts 'MIGRATION SUCCESSFUL'
     end
@@ -342,7 +334,7 @@ namespace :dc do
 
     desc 'migrate event places from Örtlichkeit to POI'
     task ortlichkeit_to_poi: :environment do
-      poi_class = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'POI')
+      poi_class = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'POI')
       poi_template = DataCycleCore::ThingTemplate.find_by(template_name: 'POI')
 
       systems = ['feratel']
@@ -352,7 +344,7 @@ namespace :dc do
 
         DataCycleCore::Thing.where(template_name: 'Örtlichkeit', external_source_id: es.id).find_each do |place|
           # update data-type
-          DataCycleCore::ClassificationContent.where(content_data_id: place.id, relation: 'data_type').update_all(classification_id: poi_class)
+          DataCycleCore::ConceptContent.where(content_data_id: place.id, relation: 'data_type').update_all(concept_id: poi_class)
           # update template, template definition
           place.template_name = poi_template.template_name
           place.cache_valid_since = Time.zone.now
@@ -368,10 +360,10 @@ namespace :dc do
       es = DataCycleCore::ExternalSystem.find_by(identifier: 'outdooractive')
       exit(1) if es.blank?
 
-      contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:classifications, :translations)
+      contents = DataCycleCore::Thing.where(template_name: 'Ergänzende Information', external_source_id: es.id, external_key: nil).includes(:concepts, :translations)
       progressbar = ProgressBar.create(total: contents.size, title: 'Ergänzende Information')
       contents.each do |item|
-        desc = item.classifications.first.name
+        desc = item.concepts.first.name
         locale = item.available_locales.first
         parent_external_key = DataCycleCore::ContentContent.where(content_b_id: item.id).first.content_a.external_key
         item.external_key = "#{desc}:#{locale}:#{parent_external_key}"
@@ -413,9 +405,9 @@ namespace :dc do
 
       ActiveRecord::Base.connection.execute <<~SQL.squish
         INSERT INTO
-          classification_contents (
+          concept_contents (
             content_data_id,
-            classification_id,
+            concept_id,
             seen_at,
             created_at,
             updated_at,
@@ -423,36 +415,34 @@ namespace :dc do
           )
         SELECT
           cc.content_data_id,
-          cc.classification_id,
+          cc.concept_id,
           cc.seen_at,
           cc.created_at,
           cc.updated_at,
           'universal_classifications'
         FROM
-          classification_contents cc
-          INNER JOIN classifications ON classifications.deleted_at IS NULL
-          AND classifications.id = cc.classification_id
+          concept_contents cc
+          INNER JOIN concepts ON concepts.id = cc.concept_id
         WHERE
           cc.content_data_id IN (#{contents.select(:id).to_sql})
           AND cc.relation != 'universal_classifications'
-          AND classifications.external_source_id IS NOT NULL ON CONFLICT
+          AND concepts.external_system_id IS NOT NULL ON CONFLICT
         DO
           NOTHING;
 
         DELETE FROM
-          classification_contents
+          concept_contents
         WHERE
-          classification_contents.id IN (
+          concept_contents.id IN (
             SELECT
-              classification_contents.id
+              concept_contents.id
             FROM
-              classification_contents
-              INNER JOIN classifications ON classifications.deleted_at IS NULL
-              AND classifications.id = classification_contents.classification_id
+              concept_contents
+              INNER JOIN concepts ON concepts.id = concept_contents.concept_id
             WHERE
-              classification_contents.content_data_id IN (#{contents.select(:id).to_sql})
-              AND classification_contents.relation != 'universal_classifications'
-              AND classifications.external_source_id IS NOT NULL
+              concept_contents.content_data_id IN (#{contents.select(:id).to_sql})
+              AND concept_contents.relation != 'universal_classifications'
+              AND concepts.external_system_id IS NOT NULL
           );
       SQL
     end
@@ -462,35 +452,35 @@ namespace :dc do
       abort('missing stored_filter_id') if args.stored_filter_id.blank?
       abort('missing attribute_key') if args.attribute_key.blank?
 
-      tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: args.tree_name)
+      tree_label = DataCycleCore::ConceptScheme.find_by(name: args.tree_name)
 
       abort('missing tree_label') if tree_label.nil?
 
       contents = DataCycleCore::StoredFilter.find(args.stored_filter_id).apply.query
 
-      query = DataCycleCore::ClassificationContent
-        .joins(classification: [{ primary_classification_alias: :classification_tree_label }])
+      query = DataCycleCore::ConceptContent
+        .joins(:concept)
         .where(
           content_data_id: contents.select(:id),
           relation: 'universal_classifications',
-          classifications: { primary_classification_aliases: { classification_tree_labels: { id: tree_label.id } } }
+          concepts: { concept_scheme_id: tree_label.id }
         )
 
       raw_query = <<~SQL.squish
         UPDATE
-          classification_contents
+          concept_contents
         SET
           relation = :relation
         WHERE
-          classification_contents.id IN (#{query.select(:id).to_sql})
+          concept_contents.id IN (#{query.select(:id).to_sql})
           AND NOT EXISTS (
             SELECT
               1
             FROM
-              classification_contents c1
+              concept_contents c1
             WHERE
-              classification_contents.content_data_id = c1.content_data_id
-              AND classification_contents.classification_id = c1.classification_id
+              concept_contents.content_data_id = c1.content_data_id
+              AND concept_contents.concept_id = c1.concept_id
               AND c1.relation = :relation
           );
       SQL
@@ -511,7 +501,7 @@ namespace :dc do
       contents.each do |thing|
         embedded_contents = DataCycleCore::ContentContent.where(content_a: thing.id, relation_a: args[:embedded])
 
-        DataCycleCore::ClassificationContent
+        DataCycleCore::ConceptContent
           .where(content_data_id: embedded_contents.select(:content_b_id), relation: args[:source_relation])
           .update_all(content_data_id: thing.id, relation: args[:target_relation])
 
@@ -541,12 +531,12 @@ namespace :dc do
           end
         end
 
-        publishers = content.classifications_for_tree(tree_name: 'OutdoorActive - Quellen').map do |classification|
+        publishers = content.concepts_for_tree(scheme_name: 'OutdoorActive - Quellen').map do |concept|
           ContentHelper.find_or_create_content(
             external_source: content.external_source,
-            external_key: Digest::MD5.hexdigest(classification.name),
+            external_key: Digest::MD5.hexdigest(concept.name),
             template_name: 'Organization',
-            data: { name: classification.name }
+            data: { name: concept.name }
           )
         end
 
@@ -659,7 +649,7 @@ namespace :dc do
       external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'pimcore')
       if external_source.present?
         contents = DataCycleCore::Thing.includes(:external_source).where(template_name: 'Event', external_source_id: external_source.id).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
-        action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
+        action_type = DataCycleCore::Concept.ids_for_tree_with_name('ActionTypes', 'View')
         progressbar = ProgressBar.create(total: contents.size, title: 'Progress')
 
         contents.find_each do |content|
@@ -700,7 +690,7 @@ namespace :dc do
       end
 
       contents = DataCycleCore::Thing.where(template_name: ['Event', 'Eventserie']).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'potential_action' IS NOT NULL AND thing_translations.content ->> 'potential_action' != '')")
-      action_type = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('ActionTypes', 'View')
+      action_type = DataCycleCore::Concept.ids_for_tree_with_name('ActionTypes', 'View')
       progressbar = ProgressBar.create(total: contents.size, title: 'Progress')
 
       contents.find_each do |content|
@@ -762,7 +752,7 @@ namespace :dc do
                 new_informations.push({
                   'name' => I18n.t("import.pimcore.#{key}", locale: locale.to_s.in?(['de', 'en']) ? locale : 'de'),
                   'description' => value,
-                  'type_of_information' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', key)
+                  'type_of_information' => DataCycleCore::Concept.ids_for_tree_with_name('Informationstypen', key)
                 })
               end
 
@@ -903,6 +893,132 @@ namespace :dc do
       end
 
       puts "done: #{collapsed_pairs} pair(s) had redundant rows, #{deleted_rows} row(s) #{dry_run ? 'would be' : 'were'} deleted"
+    end
+
+    desc 'Redmine #50874: migrate the legacy text attribute into a leading ContentBlock (dry_run: true|false)'
+    task :text_to_content_block, [:template_names, :dry_run] => [:environment] do |_, args|
+      template_names = args.template_names.to_s.split('|').map(&:strip).compact_blank
+      dry_run = args.dry_run.to_s == 'true'
+
+      abort('ERROR: no template_names given (separate multiple names with "|")') if template_names.blank?
+      abort('ERROR: template ContentBlock not found') if DataCycleCore::ThingTemplate.find_by(template_name: 'ContentBlock').nil?
+
+      puts '###### DRY-RUN: no database changes will be made' if dry_run
+
+      # text is a virtual property since #50874 (datacycle-schema-vcloud, structured_article.yml):
+      # content.text derives its value from the content blocks and returns nothing for a content
+      # that has not been migrated yet, while set_data_hash skips virtual keys instead of writing
+      # them. Both the read here and the clearing below therefore go through the translation rows,
+      # where the legacy value sits under content -> 'text'. An instance whose template still stores
+      # text is read the same way.
+      legacy_texts = lambda do |content|
+        DataCycleCore::Thing::Translation
+          .where(thing_id: content.id)
+          .pluck(:locale, :content)
+          .to_h { |locale, values| [locale.to_sym, values&.dig('text')] }
+          .compact_blank
+          .select { |_locale, text| ContentHelper.comparable_text(text).present? } # a text that is only markup carries nothing to move
+      end
+
+      # asked three times - which block to fill, which locales still need one, and which legacy
+      # values may be dropped - and the three must not drift apart, or a translation gets deleted
+      # without a replacement. content.content_block is read through Thing's locale scope, so this
+      # only ever sees the blocks that exist in the current locale
+      matching_block = lambda do |content, text|
+        comparable_text = ContentHelper.comparable_text(text)
+
+        content.content_block.find { |block| ContentHelper.comparable_text(block.try(:text)) == comparable_text }
+      end
+
+      template_names.each do |template_name|
+        thing_template = DataCycleCore::ThingTemplate.find_by(template_name:)
+
+        next puts("SKIPPED: template #{template_name} not found") if thing_template.nil?
+        next puts("SKIPPED: template #{template_name} has no text or content_block") unless ['text', 'content_block'].all? { |key| thing_template.property_names.include?(key) }
+
+        # the predicate belongs in SQL: without it every content of the template is loaded and its
+        # translations plucked only to find that there is no legacy text, and skipped then means
+        # "nothing to do" rather than "had a text that is already in a block"
+        contents = DataCycleCore::Thing.where(template_name:).where("EXISTS(SELECT 1 FROM thing_translations WHERE thing_translations.thing_id = things.id AND thing_translations.content ->> 'text' IS NOT NULL AND thing_translations.content ->> 'text' != '')")
+        progress_bar = ProgressBar.create(total: contents.size, format: '%t |%w>%i| %a - %c/%C', title: template_name)
+        migrated = 0
+        skipped = 0
+        failed = 0
+
+        contents.find_each do |content|
+          texts = legacy_texts.call(content)
+
+          next(skipped += 1) if texts.blank?
+
+          primary_locale = texts.key?(content.first_available_locale) ? content.first_available_locale : texts.keys.first
+
+          # a rerun after a dc-sync import must not append the same text a second time
+          target_block = I18n.with_locale(primary_locale) { matching_block.call(content, texts[primary_locale]) }
+
+          next(migrated += 1) if dry_run
+
+          # one transaction per content, because the parent's set_data_hash has already committed the
+          # new block and its link by the time a later write can fail: without it a failed content
+          # keeps an empty block in front of its real ones, and leaks another on every rerun.
+          # The rescue below still isolates the contents from each other.
+          ActiveRecord::Base.transaction do
+            if target_block.nil?
+              target_block = I18n.with_locale(primary_locale) do
+                known_block_ids = content.content_block.map(&:id)
+
+                # the siblings are passed by id alone: set_embedded re-saves any item carrying a key
+                # besides the id, which would re-validate a block's template against the current
+                # allow-list and let a legacy template abort the whole content. Their order still
+                # follows the array, that branch runs either way
+                blocks = content.content_block.map { |block| { 'id' => block.id } }
+
+                # the legacy text goes first because the virtual text returns the first block that
+                # carries one - that is what keeps the API emitting the same value as before
+                blocks.unshift({ 'template_name' => 'ContentBlock', 'text' => texts[primary_locale] })
+
+                raise "error saving content_block: #{content.errors.messages.to_json}" unless content.set_data_hash(data_hash: { 'content_block' => blocks })
+
+                content.reload.content_block.find { |block| known_block_ids.exclude?(block.id) }
+              end
+
+              raise 'error saving content_block: new block not found' if target_block.nil?
+            end
+
+            # the remaining translations go onto that same block, never into one of their own:
+            # content_block is read through Thing's locale scope, so a block written under a second
+            # locale is invisible under the first and the two drift apart as unrelated blocks
+            (texts.keys - [primary_locale]).each do |locale|
+              I18n.with_locale(locale) do
+                next if matching_block.call(content, texts[locale])
+
+                raise "error saving content_block (#{locale}): #{target_block.errors.messages.to_json}" unless target_block.set_data_hash(data_hash: { 'text' => texts[locale] })
+              end
+            end
+
+            # only once the text is safely stored in a block, drop the legacy attribute - asked per
+            # locale, so a translation whose text never reached a block is left alone instead of
+            # being dropped with nothing taking its place. The key is removed rather than set to
+            # null so a template that stores text again starts empty
+            content.reload
+            stored_in_block = texts.keys.select { |locale| I18n.with_locale(locale) { matching_block.call(content, texts[locale]).present? } }
+
+            DataCycleCore::Thing::Translation
+              .where(thing_id: content.id, locale: stored_in_block)
+              .update_all("content = content - 'text'")
+          end
+
+          migrated += 1
+        rescue StandardError => e
+          failed += 1
+          progress_bar.log("ERROR: #{template_name} #{content.id} - #{e.message}") # prints above the bar instead of into it
+        ensure
+          progress_bar.increment
+        end
+
+        progress_bar.finish
+
+        puts "done: #{migrated} #{template_name}(s) #{dry_run ? 'would be' : 'were'} migrated, #{skipped} skipped, #{failed} failed"
+      end
     end
   end
 end

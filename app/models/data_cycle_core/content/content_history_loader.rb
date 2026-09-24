@@ -70,10 +70,10 @@ module DataCycleCore
       end
 
       def load_classifications(relation_name, _overlay_flag)
-        DataCycleCore::Classification
-          .joins(:classification_content_histories)
+        DataCycleCore::Concept
+          .joins(:concept_content_histories)
           .where(
-            classification_content_histories: {
+            concept_content_histories: {
               content_data_history_id: id,
               relation: relation_name
             }

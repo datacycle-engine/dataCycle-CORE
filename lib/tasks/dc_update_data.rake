@@ -2,31 +2,25 @@
 
 require 'rake_helpers/time_helper'
 require 'rake_helpers/parallel_helper'
+require 'rake_helpers/content_helper'
 
 namespace :dc do
   namespace :update_data do
-    desc 'update all computed attributes'
-    task :computed_attributes, [:templates_or_collection_id, :webhooks, :computed_name, :dry_run] => [:environment] do |_, args|
+    desc 'update all computed attributes, optionally only for the contents one external system imported'
+    task :computed_attributes, [:templates_or_collection_id, :webhooks, :computed_name, :dry_run, :external_system] => [:environment] do |_, args|
       dry_run = args.dry_run.to_s == 'true'
       prevent_webhooks = args.webhooks.to_s == 'false'
       templates_or_collection_id = args.templates_or_collection_id.to_s
         .then { |t| t.present? && t != 'false' ? t.split('|') : false }
       computed_names = args.computed_name.to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }
       abort('missing computed_name argument!') if computed_names == false
-      selected_thing_templates = DataCycleCore::ThingTemplate.all
-      selected_things = DataCycleCore::Thing
+      external_system = args.external_system.to_s.then { |s| s.presence unless s == 'false' }
+      scope = ContentHelper.backfill_scope(templates_or_collection_id:, external_system:)
+      selected_things = scope.things
 
-      if templates_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: templates_or_collection_id).present?
-        selected_thing_templates = selected_thing_templates.where(template_name: templates_or_collection_id)
-      elsif templates_or_collection_id.present?
-        selected_thing_ids = DataCycleCore::Collection.where(id: templates_or_collection_id).flat_map { |c| c.things.pluck(:id) }
-        selected_things = selected_things.where(id: selected_thing_ids.uniq)
-        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.pluck(:template_name).uniq)
-      end
+      puts "ATTRIBUTES TO UPDATE: #{computed_names.join(', ')}#{" (external system: #{external_system})" if external_system}"
 
-      puts "ATTRIBUTES TO UPDATE: #{computed_names.join(', ')}"
-
-      selected_thing_templates.find_each do |thing_template|
+      scope.thing_templates.find_each do |thing_template|
         template = DataCycleCore::Thing.new(thing_template:)
         next if template.computed_property_names.blank?
 
@@ -68,16 +62,9 @@ namespace :dc do
       default_value_names = args.fetch(:default_value_names, false).to_s.then { |c| c.present? && c != 'false' ? c.split('|') : false }.freeze
       thread_pool_size = [args.thread_pool_size&.to_i, DataCycleCore::WorkerPool.default_num_workers - 1].compact.min
       queue = DataCycleCore::WorkerPool.new(thread_pool_size)
-      selected_thing_templates = DataCycleCore::ThingTemplate.all
-      selected_things = DataCycleCore::Thing
-
-      if template_names_or_collection_id.present? && DataCycleCore::ThingTemplate.where(template_name: template_names_or_collection_id).present?
-        selected_thing_templates = selected_thing_templates.where(template_name: template_names_or_collection_id)
-      elsif template_names_or_collection_id != false
-        selected_thing_ids = DataCycleCore::Collection.find(template_names_or_collection_id).map { |collection| collection.things.map(&:id) }.flatten
-        selected_things = selected_things.where(id: selected_thing_ids)
-        selected_thing_templates = selected_thing_templates.where(template_name: selected_things.map(&:template_name))
-      end
+      scope = ContentHelper.backfill_scope(templates_or_collection_id: template_names_or_collection_id)
+      selected_thing_templates = scope.thing_templates
+      selected_things = scope.things
 
       puts "ATTRIBUTES TO UPDATE: #{default_value_names.present? ? default_value_names.join(', ') : 'all'}, THREADS: #{thread_pool_size}"
 

@@ -16,7 +16,7 @@ module DataCycleCore
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id',
                  'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
-                 'universal_classifications', 'slug', 'schema_types', 'linked_in_text', 'linked_to_text', 'dummy', 'external_key'],
+                 'universal_classifications', 'slug', 'schema_types', 'linked_in_text', 'linked_to_text', 'reusable', 'dummy', 'external_key'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic',
                         'video', 'potential_action', 'slug', 'work_translation', 'translation_of_work'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status', 'slug',
@@ -59,24 +59,24 @@ module DataCycleCore
       options
     end
 
+    # A `related` link attaches its parent concept to every content its child classifies, so
+    # content tagged "Test Veranstaltung geplant" also collects "Test1". The pre-concept fixture
+    # wrote two classification_groups per alias, its own primary plus the mapped one; the primary
+    # is now the concept itself, so only the mapping is left to assert.
     def self.load_classifications(paths)
       importer = DataCycleCore::MasterData::Concepts::ConceptImporter.new(paths: paths)
       importer.import
-      # map classifications (Test1 mapped to Tag 1, Test2 mapped to Tag 2)
-      test_alias = DataCycleCore::ClassificationAlias.find_by(name: 'Test1')
-      return if test_alias.nil?
 
-      unless test_alias.classifications.count == 2
-        test_classification = DataCycleCore::Classification.find_by(name: 'Test1')
-        test_classification1 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung geplant')
-        test_alias.update(classification_ids: [test_classification.id, test_classification1.id])
+      {
+        'Test1' => 'Test Veranstaltung geplant',
+        'Test2' => 'Test Veranstaltung abgesagt'
+      }.each do |name, mapped_name|
+        concept = DataCycleCore::Concept.find_by(name:)
+        mapped = DataCycleCore::Concept.find_by(name: mapped_name)
+        next if concept.nil? || mapped.nil? || concept.mapped_concept_ids == [mapped.id]
+
+        concept.update(mapped_concept_ids: [mapped.id])
       end
-      test_alias2 = DataCycleCore::ClassificationAlias.find_by(name: 'Test2')
-      return if test_alias2.nil? || test_alias2.classifications.count == 2
-
-      test_classification2 = DataCycleCore::Classification.find_by(name: 'Test2')
-      test_classification3 = DataCycleCore::Classification.find_by(name: 'Test Veranstaltung abgesagt')
-      test_alias2.update(classification_ids: [test_classification2.id, test_classification3.id])
     end
 
     def self.load_templates(paths)
@@ -127,14 +127,22 @@ module DataCycleCore
       DataCycleCore::Role.where(rank: 100).first_or_create({ name: 'system_admin' })
     end
 
+    # @admin holds super_admin rather than the highest ranked role: the highest is system_admin,
+    # and User#system_admin_requires_oauth rejects a user holding it unless that user has OAuth
+    # providers - which only @system_admin below has. load_user_roles creates rank 100 in every
+    # app, so the highest ranked role is system_admin everywhere.
+    #
+    # Each user is saved with first_or_create!, so one that cannot be saved aborts the preparation
+    # here rather than leaving a later step to fail on a nil user - create_user_group did, on the
+    # @admin this method silently failed to create.
     def self.create_users
-      @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
+      @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create!({
         given_name: 'Administrator',
         password: 'PME_jeh0nek4tbf8mea',
-        role_id: DataCycleCore::Role.order(rank: :desc).first.id,
+        role_id: DataCycleCore::Role.super_admin.id,
         confirmed_at: 1.day.ago
       })
-      @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
+      @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create!({
         given_name: 'Guest',
         family_name: 'User',
         password: 'vdr5pmx@juv9BMJ6ujt',
@@ -142,7 +150,7 @@ module DataCycleCore
         confirmed_at: 1.day.ago,
         access_token: SecureRandom.hex
       })
-      @system_admin = DataCycleCore::User.where(email: 'system_admin@datacycle.at').first_or_create({
+      @system_admin = DataCycleCore::User.where(email: 'system_admin@datacycle.at').first_or_create!({
         given_name: 'System',
         family_name: 'Administrator',
         password: 'PME_jeh0nek4tbf8mea',

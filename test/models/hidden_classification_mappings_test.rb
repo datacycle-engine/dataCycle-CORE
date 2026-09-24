@@ -5,12 +5,12 @@ require 'minitest/spec'
 
 module DataCycleCore
   # Redmine #47172/#50677: a classification tree can be flagged with hidden_mappings. Its concepts are
-  # then excluded from collected_classification_contents reads (filter, detail, API, search) on every
+  # then excluded from collected_concept_contents reads (filter, detail, API, search) on every
   # content that only reaches them through a mapping, while they stay resolvable for computed
   # attributes via concept_links. Not affected: a direct classification from that tree (and its broader
   # ancestors), and concepts of other trees reached by a mapping *out of* the flagged tree.
   #
-  # The behaviour is exercised against BOTH collected_classification_contents generators: the
+  # The behaviour is exercised against BOTH collected_concept_contents generators: the
   # non-transitive one (core default) and the transitive one (enabled in projects like BayernCloud).
   module HiddenClassificationMappingSharedTests
     extend ActiveSupport::Concern
@@ -21,8 +21,8 @@ module DataCycleCore
         assert_equal [['related', false]], ccc_for(@tt.id)
         assert_equal [['broader', false]], ccc_for(@ttp.id)
 
-        assert_includes @src.concept.mapped_inverse_concepts.pluck(:id), @tt.id
-        assert_includes @content.classification_aliases.map(&:id), @tt.id # search-index source
+        assert_includes @src.mapped_inverse_concepts.pluck(:id), @tt.id
+        assert_includes @content.full_concepts.map(&:id), @tt.id # search-index source
       end
 
       test 'flagging the tree removes its mapped concepts from CCC reads and search but keeps them for computed attributes' do
@@ -35,32 +35,32 @@ module DataCycleCore
         assert_equal [['direct', false]], ccc_for(@src.id)
 
         # read scopes / associations exclude them
-        assert_not_includes @content.collected_classification_contents.without_hidden.pluck(:classification_alias_id), @tt.id
-        assert_not_includes @content.full_classification_aliases.map(&:id), @tt.id
-        assert_not_includes @content.classification_aliases.map(&:id), @tt.id # search-index source
-        assert_includes @content.classification_aliases.map(&:id), @src.id
+        assert_not_includes @content.collected_concept_contents.without_hidden.pluck(:concept_id), @tt.id
+        assert_not_includes @content.full_concepts.map(&:id), @tt.id
+        assert_not_includes @content.full_concepts.map(&:id), @tt.id # search-index source
+        assert_includes @content.full_concepts.map(&:id), @src.id
 
         # concept_links keep link_type='related', so computed attributes still resolve the mapping
         assert_equal 'related', ConceptLink.find(@mapping.id).link_type
-        assert_includes @src.concept.mapped_inverse_concepts.pluck(:id), @tt.id
+        assert_includes @src.mapped_inverse_concepts.pluck(:id), @tt.id
       end
 
       # #50677: search index and webhooks have to fan out over the contents that *reach* this tree, not
-      # over ClassificationTreeLabel#things (the directly classified ones) — a content carrying one of
+      # over ConceptScheme#things (the directly classified ones) — a content carrying one of
       # its concepts only through a mapping is by definition not among those, and it is exactly the one
       # the flag changes.
       test 'flagging the tree reindexes and webhooks the contents reaching it only through a mapping' do
-        label = DataCycleCore::ClassificationTreeLabel.find(@target_tree.id)
+        label = DataCycleCore::ConceptScheme.find(@target_tree.id)
 
         # the premises this guards
         assert_not_includes label.things.ids, @content.id
         assert_includes label.change_behaviour, 'trigger_webhooks'
-        assert_includes indexed_alias_ids, @tt.id
+        assert_includes indexed_concept_ids, @tt.id
 
         hide_target_tree!
 
-        assert_not_includes indexed_alias_ids, @tt.id
-        assert_includes indexed_alias_ids, @src.id
+        assert_not_includes indexed_concept_ids, @tt.id
+        assert_includes indexed_concept_ids, @src.id
 
         # both side effects are fanned out into CacheInvalidationDestroyJob batches — the callback runs
         # the refresh on its own instance, so the scope is asserted by invoking it here
@@ -86,31 +86,31 @@ module DataCycleCore
       test 'a combined name and flag change webhooks the contents only once' do
         original_name = @target_tree.name
 
-        rename_only = DataCycleCore::ClassificationTreeLabel.find(@target_tree.id)
+        rename_only = DataCycleCore::ConceptScheme.find(@target_tree.id)
         rename_only.update!(name: "#{original_name}_renamed")
 
         # the premise this guards: a rename on its own does webhook through the things callback
         assert rename_only.send(:trigger_things_webhooks?)
 
-        combined = DataCycleCore::ClassificationTreeLabel.find(@target_tree.id)
+        combined = DataCycleCore::ConceptScheme.find(@target_tree.id)
         combined.update!(name: "#{original_name}_again", hidden_mappings: true)
 
         # same rename, now accompanied by the flag — refresh_hidden_mappings covers these contents
         assert_not combined.send(:trigger_things_webhooks?)
         assert_predicate combined, :trigger_webhooks?
       ensure
-        DataCycleCore::ClassificationTreeLabel.find(@target_tree.id).update!(name: original_name)
+        DataCycleCore::ConceptScheme.find(@target_tree.id).update!(name: original_name)
       end
 
       test 'a mapping created after the tree was flagged is hidden as well' do
         hide_target_tree!
 
-        second = @target_tree.create_classification_alias('TTP', 'TT2')
-        DataCycleCore::ClassificationGroup.create!(classification: @src.primary_classification, classification_alias: second)
+        second = @target_tree.create_concept('TTP', 'TT2')
+        DataCycleCore::ConceptLink.create!(parent: second, child: @src, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
         @content.reload
 
         assert_equal [['related', true]], ccc_for(second.id)
-        assert_not_includes @content.classification_aliases.map(&:id), second.id
+        assert_not_includes @content.full_concepts.map(&:id), second.id
       end
 
       test 'unflagging the tree makes its mapped concepts visible again' do
@@ -121,7 +121,7 @@ module DataCycleCore
         set_hidden_mappings!(false)
 
         assert_equal [['related', false]], ccc_for(@tt.id)
-        assert_includes @content.classification_aliases.map(&:id), @tt.id
+        assert_includes @content.reload.full_concepts.map(&:id), @tt.id
       end
 
       # the same concepts are reachable twice here: through the hidden mapping and as a direct
@@ -130,51 +130,51 @@ module DataCycleCore
       test 'a direct classification from a flagged tree stays visible, ancestors included' do
         hide_target_tree!
 
-        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.primary_classification.id, @tt.primary_classification.id] })
+        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.id, @tt.id] })
         @content.reload
 
         assert_equal [['direct', false]], ccc_for(@tt.id)
         assert_equal [['broader', false]], ccc_for(@ttp.id)
-        assert_includes @content.classification_aliases.map(&:id), @tt.id
+        assert_includes @content.concepts.map(&:id), @tt.id
       ensure
-        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.primary_classification.id] })
+        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.id] })
       end
 
       test 'a second mapping onto a concept of the flagged tree is hidden too' do
-        DataCycleCore::ClassificationGroup.create!(classification: @src2.primary_classification, classification_alias: @tt)
+        DataCycleCore::ConceptLink.create!(parent: @tt, child: @src2, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
         hide_target_tree!
-        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.primary_classification.id, @src2.primary_classification.id] })
+        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.id, @src2.id] })
         @content.reload
 
         assert_equal [['related', true]], ccc_for(@tt.id)
       ensure
-        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.primary_classification.id] })
+        @content.set_data_hash(data_hash: { name: 'HiddenMappingProbe', universal_classifications: [@src.id] })
       end
     end
 
     # source tree with two leaves (SRC, SRC2) and a target tree TTP -> TT. Content is classified with
     # SRC; a mapping (group on TT pointing at SRC's classification) makes it receive TT + broader TTP.
     def build_hidden_mapping_scenario
-      source_tree = DataCycleCore::ClassificationTreeLabel.create!(name: "HiddenSrc_#{SecureRandom.hex(6)}")
-      @src = source_tree.create_classification_alias('SRC')
-      @src2 = source_tree.create_classification_alias('SRC2')
+      source_tree = DataCycleCore::ConceptScheme.create!(name: "HiddenSrc_#{SecureRandom.hex(6)}")
+      @src = source_tree.create_concept('SRC')
+      @src2 = source_tree.create_concept('SRC2')
 
-      @target_tree = DataCycleCore::ClassificationTreeLabel.create!(name: "HiddenTarget_#{SecureRandom.hex(6)}")
-      @ttp = @target_tree.create_classification_alias('TTP')
-      @tt = @target_tree.create_classification_alias('TTP', 'TT')
+      @target_tree = DataCycleCore::ConceptScheme.create!(name: "HiddenTarget_#{SecureRandom.hex(6)}")
+      @ttp = @target_tree.create_concept('TTP')
+      @tt = @target_tree.create_concept('TTP', 'TT')
 
-      @mapping = DataCycleCore::ClassificationGroup.create!(classification: @src.primary_classification, classification_alias: @tt)
+      @mapping = DataCycleCore::ConceptLink.create!(parent: @tt, child: @src, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
 
       # through the test-case helper rather than TestPreparations: it drains the jobs the creation
       # enqueues, and the search index the tests read is written by one of them
-      @content = create_content('POI', { name: 'HiddenMappingProbe', universal_classifications: [@src.primary_classification.id] })
+      @content = create_content('POI', { name: 'HiddenMappingProbe', universal_classifications: [@src.id] })
     end
 
     def hide_target_tree!
       set_hidden_mappings!(true)
     end
 
-    # The flag is materialised into CCC by ClassificationTreeLabel#refresh_hidden_mappings, which the
+    # The flag is materialised into CCC by ConceptScheme#refresh_hidden_mappings, which the
     # after_update callback enqueues as a CacheInvalidationJob and which fans the search index and the
     # webhooks out into further jobs — so the whole chain has to be drained before CCC is read.
     def set_hidden_mappings!(hidden_mappings)
@@ -189,13 +189,13 @@ module DataCycleCore
     end
 
     def ccc_for(alias_id)
-      @content.collected_classification_contents.where(classification_alias_id: alias_id).pluck(:link_type, :hidden)
+      @content.collected_concept_contents.where(concept_id: alias_id).pluck(:link_type, :hidden)
     end
 
-    # what the materialised search index holds for the content (Content::UpdateSearch#walk_classifications
-    # writes content.classification_aliases into it), not what the association would return now
-    def indexed_alias_ids
-      DataCycleCore::Search.where(content_data_id: @content.id).pluck(:classification_aliases_mapping).flatten.compact
+    # what the materialised search index holds for the content (Content::UpdateSearch#walk_concepts
+    # writes content.full_concepts into it), not what the association would return now
+    def indexed_concept_ids
+      DataCycleCore::Search.where(content_data_id: @content.id).pluck(:concepts_mapping).flatten.compact
     end
   end
 
@@ -231,17 +231,17 @@ module DataCycleCore
     # keeps delivering visibly — chaining through a flagged tree does not taint the rest of the path.
     # Transitive-only: the non-transitive generator does not chain mappings at all.
     test 'a mapping out of the flagged tree stays visible' do
-      chain_tree = DataCycleCore::ClassificationTreeLabel.create!(name: "HiddenChain_#{SecureRandom.hex(6)}")
-      chained = chain_tree.create_classification_alias('CC')
-      DataCycleCore::ClassificationGroup.create!(classification: @tt.primary_classification, classification_alias: chained)
+      chain_tree = DataCycleCore::ConceptScheme.create!(name: "HiddenChain_#{SecureRandom.hex(6)}")
+      chained = chain_tree.create_concept('CC')
+      DataCycleCore::ConceptLink.create!(parent: chained, child: @tt, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
       hide_target_tree!
 
       assert_equal [['related', true]], ccc_for(@tt.id)
       assert_equal [['related', false]], ccc_for(chained.id)
 
-      # chained concepts only ever come from CCC — content.classification_aliases spans a single
+      # chained concepts only ever come from CCC — content.concepts spans a single
       # mapping hop (classification -> classification_groups), so it never contains them
-      visible = @content.full_classification_aliases.map(&:id)
+      visible = @content.full_concepts.map(&:id)
 
       assert_includes visible, chained.id
       assert_not_includes visible, @tt.id

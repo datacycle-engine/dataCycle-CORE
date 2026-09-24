@@ -23,18 +23,23 @@ module DataCycleCore
       sync
     end
 
-    def utility_double(action: :update, discard: true, remove_syncs: false)
+    def utility_double(action: :update, discard: true, remove_syncs: false, filter_checked: false, allowed: false)
       external_system = Object.new
       external_system.define_singleton_method(:name) { 'Webhook System' }
       external_system.define_singleton_method(:remove_external_system_syncs_on_delete?) { remove_syncs }
 
+      asks = []
       utility = Object.new
       utility.define_singleton_method(:external_system) { external_system }
       utility.define_singleton_method(:action) { action }
       utility.define_singleton_method(:endpoint_method) { 'POST' }
       utility.define_singleton_method(:discard_job_on_failure?) { discard }
-      utility.define_singleton_method(:filter_checked?) { false }
-      utility.define_singleton_method(:allowed?) { |_data| false }
+      utility.define_singleton_method(:filter_checked?) { filter_checked }
+      utility.define_singleton_method(:allowed?) do |_data|
+        asks << :allowed?
+        allowed
+      end
+      utility.define_singleton_method(:asks) { asks }
       utility.define_singleton_method(:send_request) { |_data| :response }
       utility
     end
@@ -57,6 +62,41 @@ module DataCycleCore
       job = build_job
 
       assert_equal 'DataCycleCore::WebhookJob/1/es/update', job.concurrency_key
+    end
+
+    test 'the concurrency key names every argument that steers the request' do
+      job = build_job({ data_object: { id: 1 }, external_system_id: 'es', action: :update, endpoint_method: :update_request, type: :licenses, path: '/api/v1/licenses' })
+
+      assert_equal 'DataCycleCore::WebhookJob/1/es/update/update_request/licenses//api/v1/licenses', job.concurrency_key
+    end
+
+    # A status poll follows up on the push that spawned it, and a media archive update sends
+    # /api/v1/photographers and /api/v1/licenses for the same content - deliveries a content, system
+    # and action key holds to be one and the same.
+    test 'deliveries differing only in endpoint_method, type or path keep separate keys' do
+      base = { data_object: { id: 1 }, external_system_id: 'es', action: :update }
+      keys = [
+        base.merge(endpoint_method: :update_request),
+        base.merge(endpoint_method: :job_status_request),
+        base.merge(type: :photographers, path: '/api/v1/photographers'),
+        base.merge(type: :licenses, path: '/api/v1/licenses')
+      ].map { |args| build_job(args).concurrency_key }
+
+      assert_equal keys.size, keys.uniq.size
+    end
+
+    test 'a delivery is dropped once one is running and one is already waiting' do
+      args = { data_object: { id: SecureRandom.uuid }, external_system_id: 'es', action: :update, endpoint_method: :update_request }
+      job = build_job(args)
+
+      create_queue_row(job)
+
+      assert DataCycleCore::WebhookJob.perform_later(**args)
+
+      create_queue_row(job)
+
+      assert_not DataCycleCore::WebhookJob.perform_later(**args)
+      assert_equal 2, SolidQueue::Job.where(concurrency_key: job.concurrency_key).count
     end
 
     test 'discard_on_failure delegates to the utility object' do
@@ -247,6 +287,32 @@ module DataCycleCore
       job.instance_variable_set(:@data, data_double(sync: sync_double))
 
       assert_throws(:abort) { job.check_filter }
+    end
+
+    # An update's verdict does not travel with the job - DataCycleCore::Export::PushObject#allowed? says
+    # why - so the worker asks the filter again, on the content #initialize_context re-read.
+    test 'check_filter asks the filter again and lets a content still in scope through' do
+      job = build_job
+      utility = utility_double(allowed: true)
+      job.instance_variable_set(:@utility_object, utility)
+      job.instance_variable_set(:@data, data_double(sync: sync_double))
+
+      job.check_filter
+
+      assert_equal [:allowed?], utility.asks
+    end
+
+    # A delete's content is gone by the time the worker runs, so the filter has nothing left to ask and
+    # the verdict taken before the enqueue is the only one there is.
+    test 'check_filter takes a verdict that travelled with the job rather than asking again' do
+      job = build_job
+      utility = utility_double(action: :delete, filter_checked: true)
+      job.instance_variable_set(:@utility_object, utility)
+      job.instance_variable_set(:@data, data_double(sync: sync_double))
+
+      job.check_filter
+
+      assert_empty utility.asks
     end
   end
 end

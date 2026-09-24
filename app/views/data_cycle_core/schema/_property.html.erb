@@ -1,0 +1,50 @@
+<%# One attribute row on the /schema detail page (#50201): api_name, %>
+<%# label and the wrapping chip row (expected types, dc flags, classification tree). %>
+<%# `property` is a DataCycleCore::Schema::PropertyPresenter. Attributes whose value is %>
+<%# an embedded content get a violet key (schema-card__key--embedded) as their marker; %>
+<%# the embedded content's own attributes are not expanded here. %>
+<div class="schema-card__head">
+  <code class="schema-card__key api-name<%= ' schema-card__key--embedded' if property.flags[:embedded] %>"><%= property.api_name %></code>
+</div>
+
+<% if property.label.present? && property.label != property.api_name %>
+  <p class="schema-card__label api-label"><%= property.label %></p>
+<% end %>
+
+<% active_flags = property.flags.select { |_, active| active }.keys %>
+<% tree = property.classification_tree %>
+<%# All chips — expected types, flags, the classification-tree link and the embedded %>
+<%# origin marker — share one wrapping row (.schema-card__tags) so they sit side by side. %>
+<% if property.expected_type.present? || active_flags.any? || tree.present? %>
+  <div class="schema-card__tags">
+    <% property.expected_type.each do |descriptor| %>
+      <% type_class = "schema-tag schema-tag--type-#{descriptor[:kind]}#{' schema-tag--embedded' if property.flags[:embedded]}" %>
+      <% type_icon = tag.i(class: schema_type_icon(descriptor), aria: { hidden: true }) %>
+      <% if descriptor[:template].present? %>
+        <%= link_to schema_details_path(descriptor[:template]), class: type_class do %>
+          <%= type_icon %><%= descriptor[:label] %>
+        <% end %>
+      <% elsif descriptor[:href].present? %>
+        <%= link_to descriptor[:href], class: type_class, target: '_blank', rel: 'noopener noreferrer' do %>
+          <%= type_icon %><%= descriptor[:label] %>
+        <% end %>
+      <% else %>
+        <span class="<%= type_class %>"><%= type_icon %><%= descriptor[:label] %></span>
+      <% end %>
+    <% end %>
+
+    <% active_flags.each do |flag| %>
+      <span class="schema-tag schema-tag--flag-<%= flag %>" data-dc-tooltip="<%= t("data_cycle_core.schema.flags.#{flag}.title", locale: @schema_language) %>"><%= t("data_cycle_core.schema.flags.#{flag}.code", locale: @schema_language) %></span>
+    <% end %>
+
+    <% if tree.present? %>
+      <% if tree[:ctl_id].present? %>
+        <%= link_to root_path(mode: 'tree', ctl_id: tree[:ctl_id], reset: true), class: 'schema-tag schema-tag--flag-tree' do %>
+          <%= tree[:label] %>
+        <% end %>
+      <% else %>
+        <span class="schema-tag schema-tag--flag-tree"><%= tree[:label] %></span>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

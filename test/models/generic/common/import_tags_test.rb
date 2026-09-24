@@ -125,7 +125,7 @@ module DataCycleCore
 
       @subject.process_content(utility_object: @utility_object, raw_data:, locale: :de, options:)
 
-      alias_one = DataCycleCore::ClassificationAlias.find_by(external_key: 'IT - t1', external_source_id: @local_system.id)
+      alias_one = DataCycleCore::Concept.find_by(external_key: 'IT - t1', external_system_id: @local_system.id)
 
       assert_not_nil(alias_one)
       assert_equal('Tag One', alias_one.name)

@@ -596,7 +596,7 @@ module DataCycleCore
       test '[#49217] regression: re-importing a deskline POI (essen & trinken) converts in-place to Gastronomischer Betrieb (FoodEstablishment)' do
         poi_template = DataCycleCore::ThingTemplate.find_by(template_name: 'POI')
         gastronomy_template = DataCycleCore::ThingTemplate.find_by(template_name: 'Gastronomischer Betrieb')
-        poi_category_ids = get_classification_ids('POI - Kategorien', ['Restaurant'])
+        poi_category_ids = get_concept_ids('POI - Kategorien', ['Restaurant'])
 
         assert_not_includes gastronomy_template.property_names, 'poi_category', 'guard: poi_category is genuinely POI-only (not defined on the target)'
 
@@ -610,7 +610,7 @@ module DataCycleCore
 
         assert_equal 'POI', poi.template_name, 'first import creates a POI'
         assert_equal 'Restaurant Adler', poi.name
-        assert_equal 1, poi.classification_contents.where(relation: 'poi_category').count, 'the POI-only attribute is set'
+        assert_equal 1, poi.concept_contents.where(relation: 'poi_category').count, 'the POI-only attribute is set'
 
         events = capture_notifications('object_template_converted.datacycle') do
           create_or_update_content(
@@ -625,7 +625,7 @@ module DataCycleCore
         assert_equal id_after_initial_poi_import, poi.id, 'GUID is preserved (in-place, AK2)'
         assert_equal 'Gastronomischer Betrieb', poi.template_name
         assert_equal 'Restaurant Adler', poi.name, 'mapped via import (AK4)'
-        assert_equal 0, poi.classification_contents.where(relation: 'poi_category').count, 'a POI-only attribute the target does not define is removed (Detail 1)'
+        assert_equal 0, poi.concept_contents.where(relation: 'poi_category').count, 'a POI-only attribute the target does not define is removed (Detail 1)'
         assert_equal 1, DataCycleCore::Thing.where(external_key: 'deskline-gastro-1', external_source_id: @external_system.id).count, 'no new record'
         assert_equal 1, events.size
         assert_equal 'Gastronomischer Betrieb', events.first[:template_name]

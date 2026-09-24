@@ -3,15 +3,18 @@
 module DataCycleCore
   module Abilities
     module Segments
+      # The subject is DataCycleCore::ConceptScheme; the class name outlived the model for the
+      # reason given in classification_alias_and_children_not_external_and_not_internal.rb - the
+      # same four projects name this segment by class in their own role definitions.
       class ClassificationTreeLabelAndClassificationAliasesNotExternalAndNotInternal < Base
         attr_reader :subject
 
         def initialize
-          @subject = DataCycleCore::ClassificationTreeLabel
+          @subject = DataCycleCore::ConceptScheme
         end
 
-        def include?(classification_tree_label, *_args)
-          classification_tree_label.external_source_id.nil? && !classification_tree_label.internal && classification_tree_label.classification_aliases&.none?(&:internal) && classification_tree_label.classification_aliases.none?(&:external_source_id)
+        def include?(concept_scheme, *_args)
+          concept_scheme.external_system_id.nil? && !concept_scheme.internal && concept_scheme.concepts&.none?(&:internal) && concept_scheme.concepts.none?(&:external_system_id)
         end
 
         def to_proc

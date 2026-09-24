@@ -220,6 +220,18 @@ module DataCycleCore
         assert_response :success
       end
 
+      # [#51777] The mode reaches the job as a plain request parameter, so the button is the only
+      # thing that makes full_delta reachable from the dashboard at all.
+      test 'import_module offers the full_delta mode in the download and import row' do
+        external_source = DataCycleCore::ExternalSystem.first
+
+        get admin_import_module_path, params: { id: external_source.id }
+
+        assert_response :success
+        assert_includes response.body, admin_download_import_path(id: external_source.id, mode: 'full_delta')
+        assert_not_includes response.body, 'translation missing'
+      end
+
       test 'activity_details returns json for each supported type' do
         ['summary', 'user_summary', 'details'].each do |type|
           get admin_activity_details_path(type)

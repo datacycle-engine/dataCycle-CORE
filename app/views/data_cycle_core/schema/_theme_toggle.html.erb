@@ -1,0 +1,7 @@
+<%# Light/dark toggle (behaviour: schema/theme_toggle.js) — shared by index + detail, see _index.scss's ".schema-theme-toggle" ---- %>
+<button type="button" class="schema-theme-toggle" data-schema-theme-toggle
+        data-label-dark="<%= t('data_cycle_core.schema.theme.toggle_dark', locale: @schema_language) %>"
+        data-label-light="<%= t('data_cycle_core.schema.theme.toggle_light', locale: @schema_language) %>"
+        aria-pressed="false">
+  <i class="fa fa-moon-o" aria-hidden="true"></i>
+</button>

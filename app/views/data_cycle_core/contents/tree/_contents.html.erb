@@ -8,7 +8,7 @@
       <% end %>
 
       <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
-        <%= render 'data_cycle_core/application/watch_lists', content: content, prefix: "#{local_assigns[:classification_parent_tree]&.id || local_assigns[:classification_tree]&.id || local_assigns[:external_system]&.id}-#{local_assigns[:container]&.id}-" %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content, prefix: "#{local_assigns[:parent_concept]&.id || local_assigns[:concept]&.id || local_assigns[:external_system]&.id}-#{local_assigns[:container]&.id}-" %>
       <% end %>
     <% end %>
 
@@ -28,10 +28,10 @@
                       es_id: local_assigns[:external_system].id,
                       page: (page + 1)
                     } : {
-                      ct_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id,
+                      ct_id: local_assigns[:parent_concept]&.id || concept.id,
                       con_id: local_assigns[:container]&.id,
-                      ctl_id: classification_tree_label&.id,
-                      cpt_id: local_assigns[:classification_parent_tree]&.id,
+                      ctl_id: concept_scheme&.id,
+                      cpt_id: local_assigns[:parent_concept]&.id,
                       link_type: link_type.presence || 'direct',
                       page: (page + 1)
                     }).compact.to_json

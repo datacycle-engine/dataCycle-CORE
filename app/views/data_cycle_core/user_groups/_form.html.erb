@@ -72,15 +72,15 @@
 
         <% DataCycleCore::Feature::UserGroupClassification.attribute_relations.each do |key, config| %>
           <div class="form-element">
-            <%= f.label "user_group_classification_ids_#{key}", DataCycleCore::UserGroup.human_attribute_name("classification_ids_#{key}", locale: active_ui_locale) %>
+            <%= f.label "user_group_concept_ids_#{key}", DataCycleCore::UserGroup.human_attribute_name("concept_ids_#{key}", locale: active_ui_locale) %>
             <div class="v-select">
-              <% classification_items = classification_alias_filter_items(config['tree_label'], { internal_name: :asc }) %>
+              <% classification_items = concept_filter_items(config['tree_label'], { internal_name: :asc }) %>
               <% async = classification_items.size > DataCycleCore.max_asynch_classification_items %>
-              <%= hidden_field_tag 'user_group[classification_ids][]' %>
-              <%= select_tag('user_group[classification_ids][]',
-                async ? async_classification_select_options(content.try(key).primary_classifications, DataCycleCore::Classification) : simple_classification_select_options(content.try(key).primary_classifications, classification_items, DataCycleCore::Classification),
+              <%= hidden_field_tag 'user_group[concept_ids][]' %>
+              <%= select_tag('user_group[concept_ids][]',
+                async ? async_concept_select_options(content.try(key)) : simple_concept_select_options(content.try(key), classification_items),
                 {
-                  id: "user_group_classification_ids_#{key}",
+                  id: "user_group_concept_ids_#{key}",
                   multiple: config.key?('multiple') ? config['multiple'] : true,
                   include_blank: true,
                   class: async ? 'async-select' : 'multi-select',

@@ -77,7 +77,7 @@ module DataCycleCore
       default_values = response.parsed_body['data_type']
 
       assert_predicate default_values, :present?
-      assert_includes DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Inhaltstypen', 'Artikel'), default_values.first['value']
+      assert_includes DataCycleCore::Concept.ids_for_tree_with_name('Inhaltstypen', 'Artikel'), default_values.first['value']
     end
 
     test 'content_score returns calculated score' do

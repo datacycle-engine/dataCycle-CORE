@@ -15,12 +15,10 @@ module DataCycleCore
             render json: { error: 'No id given!' }, layout: false, status: :bad_request
           elsif DataCycleCore::Thing.find_by(id: permitted_params[:id]).present?
             redirect_to api_v4_thing_path(id: permitted_params[:id], params: permitted_params.except(:id))
-          elsif DataCycleCore::ClassificationTreeLabel.find_by(id: permitted_params[:id]).present?
+          elsif DataCycleCore::ConceptScheme.find_by(id: permitted_params[:id]).present?
             redirect_to api_v4_concept_scheme_path(id: permitted_params[:id], params: permitted_params.except(:id))
-          elsif (concept = DataCycleCore::ClassificationAlias.find_by(id: permitted_params[:id])).present?
-            redirect_to classifications_api_v4_concept_scheme_path(id: concept.classification_tree_label.id, classification_id: permitted_params[:id], params: permitted_params.except(:id))
-          elsif (concept = DataCycleCore::Classification.find_by(id: permitted_params[:id])&.primary_classification_alias).present?
-            redirect_to classifications_api_v4_concept_scheme_path(id: concept.classification_tree_label.id, classification_id: concept.id, params: permitted_params.except(:id))
+          elsif (concept = DataCycleCore::Concept.find_by(id: permitted_params[:id])).present?
+            redirect_to classifications_api_v4_concept_scheme_path(id: concept.concept_scheme_id, classification_id: permitted_params[:id], params: permitted_params.except(:id))
           elsif (@content = DataCycleCore::Schedule.find_by(id: permitted_params[:id])).present?
             render template: 'data_cycle_core/api/v4/schedules/show', locals: { id: permitted_params[:id] }, layout: false
           elsif (id = DataCycleCore::Thing.find_by('id::VARCHAR ILIKE ?', "#{permitted_params[:id][0..-14]}%")&.id).present? # for generated uuids in e.g. DZT exported Things

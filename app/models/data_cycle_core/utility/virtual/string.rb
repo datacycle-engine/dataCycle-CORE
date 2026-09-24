@@ -37,24 +37,24 @@ module DataCycleCore
           end
 
           def license_uri(content:, **_args)
-            if content.association_cached?(:collected_classification_contents) &&
-               content.collected_classification_contents.present? &&
-               content.collected_classification_contents.all? { |ccc| ccc.association_cached?(:classification_alias) && ccc.classification_alias.association_cached?(:classification_alias_path) && ccc.classification_alias.association_cached?(:classification_tree_label) }
-              content.collected_classification_contents
+            if content.association_cached?(:collected_concept_contents) &&
+               content.collected_concept_contents.present? &&
+               content.collected_concept_contents.all? { |ccc| ccc.association_cached?(:concept) && ccc.concept.association_cached?(:concept_path) && ccc.concept.association_cached?(:concept_scheme) }
+              content.collected_concept_contents
                 .reject(&:hidden) # #47172: hidden mappings are not exposed
-                .sort_by { |ccc| -ccc.classification_alias&.classification_alias_path&.full_path_ids&.size.to_i }
-                .detect { |ccc| ccc.classification_alias&.classification_tree_label&.name == 'Lizenzen' }
-                &.classification_alias
+                .sort_by { |ccc| -ccc.concept&.concept_path&.full_path_ids&.size.to_i }
+                .detect { |ccc| ccc.concept&.concept_scheme&.name == 'Lizenzen' }
+                &.concept
                 &.uri
-            elsif content.association_cached?(:collected_classification_contents) && content.collected_classification_contents.blank?
+            elsif content.association_cached?(:collected_concept_contents) && content.collected_concept_contents.blank?
               nil
             else
-              content.collected_classification_contents
+              content.collected_concept_contents
                 .without_hidden # #47172: hidden mappings are not exposed
-                .classification_aliases
-                .joins(:classification_alias_path)
+                .concepts
+                .joins(:concept_path)
                 .for_tree('Lizenzen')
-                .reorder(Arel.sql('ARRAY_LENGTH(classification_alias_paths.full_path_ids, 1) DESC'))
+                .reorder(Arel.sql('ARRAY_LENGTH(concept_paths.full_path_ids, 1) DESC'))
                 .pick(:uri)
             end
           end
@@ -71,10 +71,9 @@ module DataCycleCore
               next if value.blank?
 
               template.dup.tap do |t|
-                type_of_information = DataCycleCore::ClassificationAlias
+                type_of_information = DataCycleCore::Concept
                   .for_tree('Informationstypen')
                   .with_internal_name(key)
-                  .primary_classifications
 
                 t.attributes = {
                   id: DataCycleCore::UuidService.generate(content.id, key),
@@ -90,7 +89,7 @@ module DataCycleCore
           end
 
           def odta_tourenstatus_as_trail_closed(content:, **_args) # rubocop:disable Naming/PredicateMethod
-            content.classification_aliases
+            content.concepts
               .for_tree('ODTA - Tourenstatus')
               .first
               &.external_key
@@ -120,7 +119,7 @@ module DataCycleCore
 
             key = virtual_definition.dig('virtual', 'key').presence || 'external_key'
 
-            content.full_classification_aliases.for_tree(tree_label).pick(key)
+            content.full_concepts.for_tree(tree_label).pick(key)
           end
         end
       end

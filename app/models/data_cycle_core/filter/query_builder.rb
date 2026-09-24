@@ -248,24 +248,12 @@ module DataCycleCore
         )
       end
 
-      def classification_content
-        DataCycleCore::ClassificationContent.arel_table
+      def concept_content
+        DataCycleCore::ConceptContent.arel_table
       end
 
-      def classification
-        Classification.arel_table
-      end
-
-      def classification_tree
-        ClassificationTree.arel_table
-      end
-
-      def classification_group
-        ClassificationGroup.arel_table
-      end
-
-      def classification_alias
-        ClassificationAlias.arel_table
+      def concept
+        Concept.arel_table
       end
 
       def watch_list_data_hash
@@ -300,8 +288,8 @@ module DataCycleCore
         DataCycleCore::Thing::Translation.arel_table
       end
 
-      def classification_polygon
-        DataCycleCore::ClassificationPolygon.arel_table
+      def concept_polygon
+        DataCycleCore::ConceptPolygon.arel_table
       end
 
       def duplicate_candidate
@@ -333,7 +321,7 @@ module DataCycleCore
       end
 
       def ccc_table
-        DataCycleCore::CollectedClassificationContent.arel_table
+        DataCycleCore::CollectedConceptContent.arel_table
       end
 
       def geometries_table

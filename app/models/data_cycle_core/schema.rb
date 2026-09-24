@@ -42,80 +42,33 @@ module DataCycleCore
         @template_schema['content_type']
       end
 
-      def property_definitions
-        @template_schema['properties']
-          .reject { |_, definition| definition['type'] == 'key' }
-          .reject { |_, definition| definition.dig('api', 'v4', 'disabled').nil? ? definition.dig('api', 'disabled') : definition.dig('api', 'v4', 'disabled') }
-          .map { |key, definition|
-            if definition['type'] == 'object'
-              Template.new(definition).property_definitions.map { |d| d.merge({ template_type: schema_name }) }
-            else
-              {
-                template_type: schema_name,
-                label: key.camelize(:lower),
-                data_type: resolve_data_type(definition),
-                comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
-                comment_link: definition['tree_label'].present? ? DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.id : nil,
-                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name'),
-                fulltext_search: definition['search'] == true,
-                embedded: definition['type'] == 'embedded'
-              }
-            end
-          }.flatten.sort_by { |definition| Array.wrap(definition[:template_type]) + [definition[:label]] }
+      # Name of the overlay template referenced by this template's overlay
+      # property (e.g. "SnowResortOverlay"), or nil if the template has none.
+      # `overlay_key` is the configured overlay attribute (see Feature::Overlay).
+      def overlay_template_name(overlay_key)
+        return if overlay_key.blank?
+
+        @template_schema.dig('properties', overlay_key, 'template_name')
       end
 
       protected
 
       attr_writer :schema
+    end
 
-      private
+    # The three groups every /schema surface colours by — the cards, the
+    # dependency table, the graph nodes and its legend. THE definition: it used to
+    # be restated as a ternary in the view (three times), in the dependency graph
+    # and again in JavaScript, and those five copies did not even agree on the
+    # third group's name. The returned value doubles as the CSS modifier
+    # (`schema-rel__dot--main` …), so there is no mapping table to keep in sync.
+    # A blank content_type means "no own template" (shared schema.org / geo type).
+    GROUPS = ['main', 'embedded', 'external'].freeze
 
-      def classification_template_translator(classification)
-        {
-          'Organisation' => 'Organization'
-        }[classification]
-      end
+    def self.node_group(content_type)
+      return 'external' if content_type.blank?
 
-      def resolve_data_type(definition)
-        return "//schema.org/#{definition.dig('api', 'type')}" if definition.dig('api', 'type')
-
-        case definition['type']
-        when 'embedded'
-          raise 'Cannot resolve embedded templates without schema' if @schema.nil?
-
-          "/schema/#{definition['template_name']}"
-        when 'linked'
-          if definition['template_name'].present?
-            raise 'Cannot resolve linked templates without schema' if @schema.nil?
-
-            "/schema/#{definition['template_name']}"
-          elsif definition['stored_filter'].present?
-            raise 'Cannot resolve linked templates without schema' if @schema.nil?
-
-            @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
-              .filter_map { |i| i.sub(/^Organisation$/, 'Organization') }
-          else
-            '//schema.org/Thing'
-          end
-        when 'classification'
-          'classification'
-        else
-          case definition['type']
-          when 'string'
-            '//schema.org/Text'
-          when 'datetime'
-            '//schema.org/DateTime'
-          when 'number'
-            '//schema.org/Number'
-          when 'schedule'
-            '//schema.org/Schedule'
-          when 'geographic'
-            '//schema.org/line'
-          else
-            definition['type']
-          end
-        end
-      end
+      content_type == 'embedded' ? 'embedded' : 'main'
     end
 
     def self.content_types
@@ -152,10 +105,10 @@ module DataCycleCore
 
     def template_by_classification(names)
       tree_name = 'Inhaltstypen'
-      aliases = DataCycleCore::ClassificationAlias.for_tree(tree_name).with_internal_name(names).with_descendants
+      aliases = DataCycleCore::Concept.for_tree(tree_name).with_internal_name(names).with_descendants
 
       aliases.filter_map { |i|
-        i.classifications.first.things.first&.template_name || i.internal_name
+        i.things.first&.template_name || i.internal_name
       }.to_a.uniq
     end
 

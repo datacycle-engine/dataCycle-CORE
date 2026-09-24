@@ -11,8 +11,8 @@ module DataCycleCore
 
     before(:all) do
       @routes = Engine.routes
-      @default_tags = DataCycleCore::Classification.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).pluck(:id)
-      @additional_tags = DataCycleCore::Classification.for_tree('Ausgabekanäle').where(name: 'Tag 3').pluck(:id)
+      @default_tags = DataCycleCore::Concept.for_tree('Tags').where(name: ['Tag 1', 'Tag 2']).pluck(:id)
+      @additional_tags = DataCycleCore::Concept.for_tree('Ausgabekanäle').where(name: 'Tag 3').pluck(:id)
       @content = create_content('Artikel', { name: 'TestArtikel', tags: @default_tags })
       @watch_list = create_watch_list(name: 'TestWatchList')
       @current_user = User.find_by(email: 'tester@datacycle.at')

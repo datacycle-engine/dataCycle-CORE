@@ -18,12 +18,12 @@ module DataCycleCore
         data_hash['name'] = "poi_#{SecureRandom.uuid}"
         data_hash['validity_period'] = validity_period
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
 
         data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
@@ -37,12 +37,12 @@ module DataCycleCore
         data_hash['validity_period'] = validity_period
         data_hash['image'] = [image.id]
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
 
         data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
@@ -61,12 +61,12 @@ module DataCycleCore
         data_hash['opening_hours_specification'] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
         data_hash['opening_hours_description'] = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_description')
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
 
         data_hash['location'] = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) if data_hash['latitude'].present? && data_hash['longitude'].present?
@@ -87,12 +87,12 @@ module DataCycleCore
         data_hash['name'] = "image_#{SecureRandom.uuid}"
         # TODO: make this more generic for all kind of classifications
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['tags'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
-          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash:, user: @user)
       end
@@ -102,12 +102,12 @@ module DataCycleCore
         data_hash['name'] = "video_#{SecureRandom.uuid}"
         # TODO: make this more generic for all kind of classifications
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['tags'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
-          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash:, user: @user)
       end
@@ -120,12 +120,12 @@ module DataCycleCore
         data_hash['content_location'] = [poi.id]
         # TODO: make this more generic for all kind of classifications
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['tags'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
-          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = concept.map(&:id) if concept.present?
         end
         data_hash['validity_period'] = validity_period
         data_hash['asset'] = upload_image
@@ -145,16 +145,16 @@ module DataCycleCore
         data_hash['super_event'] = [event_series.id]
         # TODO: add more generic way
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['event_attendance_mode'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
-          data_hash['event_attendance_mode'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
+          data_hash['event_attendance_mode'] = concept.map(&:id) if concept.present?
         end
         if data_hash['event_status'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
-          data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
+          data_hash['event_status'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash:, user: @user)
       end
@@ -167,16 +167,16 @@ module DataCycleCore
         data_hash['performer'] = [person.id]
         data_hash['content_location'] = [poi.id]
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['event_attendance_mode'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
-          data_hash['event_attendance_mode'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
+          data_hash['event_attendance_mode'] = concept.map(&:id) if concept.present?
         end
         if data_hash['event_status'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
-          data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
+          data_hash['event_status'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash:, user: @user)
       end
@@ -192,12 +192,12 @@ module DataCycleCore
       def article
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_article')
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['tags'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
-          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = concept.map(&:id) if concept.present?
         end
         data_hash['image'] = [image.id]
         data_hash['video'] = [image.id]
@@ -210,12 +210,12 @@ module DataCycleCore
       def structured_article
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'v4_structured_article')
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         if data_hash['tags'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
-          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = concept.map(&:id) if concept.present?
         end
         data_hash['image'] = [image.id]
         data_hash['video'] = [image.id]
@@ -229,12 +229,12 @@ module DataCycleCore
       def person
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         data_hash['member_of'] = [organization.id]
         data_hash['image'] = [image.id]
@@ -244,12 +244,12 @@ module DataCycleCore
       def minimal_person
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash:, user: @user)
       end
@@ -257,8 +257,8 @@ module DataCycleCore
       def person_overlay
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person_overlay')
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
         data_hash['image'] = [image.id]
         DataCycleCore::TestPreparations.create_content(template_name: 'PersonOverlay', data_hash:, user: @user)
@@ -275,12 +275,12 @@ module DataCycleCore
         data_hash['image'] = [image.id]
         data_hash['content_location'] = [poi.id]
         if data_hash['country_code'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
-          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = concept.map(&:id) if concept.present?
         end
         if data_hash['license_classification'].present?
-          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
-          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+          concept = DataCycleCore::Concept.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = concept.map(&:id) if concept.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash:, user: @user)
       end

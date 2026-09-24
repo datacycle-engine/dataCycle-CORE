@@ -6,7 +6,7 @@ module DataCycleCore
       module TemplateModels
         # What every template-generated STI subclass (DataCycleCore::Thing::Poi) carries beyond its
         # root: the root's model name and the becomes! cast primitive. StiSubclasses mixes this in
-        # and adds the per-template sti_name and geo attributes when it builds the class.
+        # and adds the per-template sti_name, geo and classification attributes when it builds the class.
         module GeneratedSubclass
           extend ActiveSupport::Concern
 

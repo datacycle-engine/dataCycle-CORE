@@ -1,3 +1,15 @@
+# The gem ships the whole MCP layer off (see config/configurations/features.yml). The dummy app
+# switches it on because it plays the role of the project that wants to run the server here --
+# without it the routes are absent and the MCP suites would run against a 404. write_enabled stays
+# off, so the suites cover the default an installation gets; McpWriteToolsTest flips it per test.
+:mcp:
+  :enabled: true
+  :mounts:
+    :global:
+      :enabled: true
+    :endpoint:
+      :enabled: true
+
 :publication_schedule:
   :enabled: true
 
@@ -107,6 +119,14 @@
     - Aktuelle Inhalte
     - Archiv
 
+:reusable_embedded:
+  :enabled: true
+  :attribute_keys:
+    - reusable
+
+:duplicate_embedded:
+  :enabled: true
+
 :idea_collection:
   :enabled: true
   :dependencies:
@@ -135,6 +155,7 @@
 
 :advanced_filter:
   :external_system: true
+  :export_status: true
   :boolean:
     - duplicate_candidates
   :geo_filter:
@@ -238,4 +259,39 @@
   :enabled: true
 
 :locale_inheritance:
+  :enabled: true
+
+# [#47879/#47881] dataPixies. The two backend features are plugin gems that data-cycle-core's own
+# test environment does not load -- test/dummy/app/models/data_cycle_core/feature/{content_classifier,
+# embedding}.rb stand in for them, so :dependencies: resolve and the pixie routes are drawn at boot.
+:content_classifier:
+  :enabled: true
+  :allowed: true
+
+:embedding:
+  :enabled: true
+  :allowed: true
+
+:classification_pixie:
+  :enabled: true
+  :allowed: true
+  :dependencies:
+    - content_classifier
+
+:annotation_pixie:
+  :enabled: true
+  :allowed: true
+  :dependencies:
+    - content_classifier
+    - embedding
+
+:image_description_pixie:
+  :enabled: true
+  :allowed: true
+  :dependencies:
+    - embedding
+
+# the annotationPixie offers its focus point on the detail page, next to this editor's button and
+# through its endpoint, so the button only exists where the manual editor exists
+:focus_point_editor:
   :enabled: true

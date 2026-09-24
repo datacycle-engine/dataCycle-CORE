@@ -36,8 +36,19 @@ module DataCycleCore
 
         # Only contents an endpoint contains itself are exported; being linked from such a content is
         # explicitly not enough (DataCycleCore::Export::RelatedWebhooks).
+        #
+        # webhook_filter_checked_for names the receiver a caller has already narrowed a whole set to
+        # by these same endpoints - DataCycleCore::Export::RelatedWebhooks#call is the one that does,
+        # in a single query for its fan-out - so the two queries below would ask its question again,
+        # once per content. Here and not around DataCycleCore::Webhook::Base.execute's #allowed?:
+        # that call runs the receiver's export strategy, which may gate on more than the configured
+        # filter (Datacycle::Connector::OutdooractiveV2::Export::Functions.filter wants an owner or a
+        # category on top of it), and only this branch is what the caller answered.
         def self.filter_endpoints(data:, external_system:, method_name:)
           return false if data.try(:embedded?)
+
+          checked_for = data.try(:webhook_filter_checked_for)
+          return true if checked_for.present? && checked_for == external_system.id
 
           endpoints = endpoints_for(external_system, method_name)
 
@@ -51,6 +62,17 @@ module DataCycleCore
         # a second reading of the config is what would let their two halves drift apart.
         def self.endpoint_ids_for(external_system, method_name)
           Array.wrap(external_system.export_config_by_filter_key(method_name, 'endpoints')).uniq
+        end
+
+        # The filters that define an export, from whichever of the two keys configures them and in the
+        # precedence .filter gates by. DataCycleCore::Export::Onlim::Endpoint.serialize_data renders a
+        # content against the first of them, so reading `stored_filters` while the gate reads
+        # `endpoints` would build the payload from a filter that gates nothing - the two keys select
+        # the same set, and a config may carry `endpoints` per method over a root `stored_filters`.
+        # @return [Array<String>] the configured ids, before by_id_or_slug drops unresolvable ones
+        def self.export_filter_ids_for(external_system, method_name)
+          endpoint_ids_for(external_system, method_name).presence ||
+            Array.wrap(external_system.export_config_by_filter_key(method_name, 'stored_filters')).uniq
         end
 
         def self.endpoints_for(external_system, method_name)
@@ -89,18 +111,25 @@ module DataCycleCore
         end
 
         def self.filter_classifications(data:, external_system:, method_name:)
-          classification_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'classifications')).map { |f| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(f['tree_label'], f['aliases']) }
+          classification_ids = Array.wrap(external_system.export_config_by_filter_key(method_name, 'classifications')).map { |f| DataCycleCore::Concept.id_for_tree_with_name(f['tree_label'], f['aliases']) }
 
-          classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true
+          classification_ids.present? ? classification_ids.all? { |c| data.concepts.map(&:id).include?(c) } : true
         end
 
-        def self.filter_watch_lists(data:, external_system:, method_name:)
+        # This and #filter_stored_filters run on the content's save path, now that
+        # DataCycleCore::Webhook::Base.execute checks the filter before it enqueues, so a configured
+        # id that no longer resolves has to leave the content unmatched the way #filter_endpoints
+        # does - the finders they resolved through, WatchList.find and by_id_or_slug(...).first!,
+        # would fail the save instead, and with it an importer's whole batch.
+        #
+        # A watch list holds its things directly, so containment is one watch_list_data_hashes row
+        # over the unique by_watch_list_thing index: the lists themselves need not be loaded, and a
+        # deleted one took its rows with it (dependent: :delete_all).
+        def self.filter_watch_lists(data:, external_system:, method_name:) # rubocop:disable Naming/PredicateMethod
           filter_conf = external_system.export_config_by_filter_key(method_name, 'watch_lists')
           return true if filter_conf.blank?
 
-          Array.wrap(filter_conf)
-            .map { |f| DataCycleCore::WatchList.find(f).things.exists?(id: data.id) }
-            .reduce(&:|)
+          DataCycleCore::WatchListDataHash.exists?(watch_list_id: Array.wrap(filter_conf), thing_id: data.id)
         end
 
         # use preferably filter_endpoints
@@ -108,9 +137,9 @@ module DataCycleCore
           filter_conf = external_system.export_config_by_filter_key(method_name, 'stored_filters')
           return true if filter_conf.blank?
 
-          Array.wrap(filter_conf)
-            .map { |f| DataCycleCore::StoredFilter.by_id_or_slug(f).first!&.things&.exists?(id: data.id) }
-            .reduce(&:|)
+          DataCycleCore::StoredFilter
+            .by_id_or_slug(Array.wrap(filter_conf))
+            .any? { |stored_filter| stored_filter.things.exists?(id: data.id) }
         end
 
         def self.filter_tree_labels(data:, external_system:, method_name:)
@@ -118,9 +147,9 @@ module DataCycleCore
 
           if tree_labels.present?
             data_tree_labels = data
-              .classifications
-              .classification_aliases
-              .map(&:classification_tree_label)
+              .concepts
+              .includes(:concept_scheme)
+              .map(&:concept_scheme)
               .pluck(:name)
               .uniq
           end

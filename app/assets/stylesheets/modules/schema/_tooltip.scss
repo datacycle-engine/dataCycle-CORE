@@ -1,0 +1,7 @@
+
+// The detail-page flag badges carry the shared app tooltip (data-dc-tooltip).
+// Keep the `cursor: help` (question-mark) affordance from components/_tooltip.scss on
+// these chips (#50201 follow-up). !important beats that global rule's high specificity.
+body.schema .schema-tag[data-dc-tooltip] {
+  cursor: help !important;
+}

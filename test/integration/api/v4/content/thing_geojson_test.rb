@@ -14,7 +14,7 @@ module DataCycleCore
 
             @test_tour = DataCycleCore::DummyDataHelper.create_data('tour')
             tour_data_hash = @test_tour.get_data_hash
-            tour_data_hash['universal_classifications'].concat(['Freitag'].map { |m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentage', m) })
+            tour_data_hash['universal_classifications'].concat(['Freitag'].map { |m| DataCycleCore::Concept.id_for_tree_with_name('Wochentage', m) })
             @test_tour.set_data_hash(prevent_history: true, data_hash: tour_data_hash)
 
             @test_poi = DataCycleCore::DummyDataHelper.create_data('poi')
@@ -145,7 +145,7 @@ module DataCycleCore
             params = {
               id: @test_tour.id,
               include: 'dc:classification',
-              classification_trees: [DataCycleCore::ClassificationTreeLabel.where(name: 'Wochentage').first.id]
+              classification_trees: [DataCycleCore::ConceptScheme.where(name: 'Wochentage').first.id]
             }
             post api_v4_thing_path(params), headers: { Accept: 'application/geo+json' }
 

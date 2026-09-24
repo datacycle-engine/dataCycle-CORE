@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rake_helpers/concept_filter_upgrade_helper'
+
 namespace :dc do
   namespace :upgrade do
     desc 'copy core templates to project'
@@ -27,73 +29,48 @@ namespace :dc do
 
     desc 'remove some unused config files'
     task clean_configs: :environment do
-      file_path = Rails.root.join('config', 'spring.rb')
-      if File.exist?(file_path)
-        print 'removing config/spring.rb ... '
+      # Files core once shipped and no longer does. A left-behind config/environments/review.rb is
+      # the one that does more than take up space: it still makes review a Rails environment, and
+      # DataCycleCore::JobQueueValidation then wants a config/queue.yml section for a deployment
+      # nothing runs.
+      obsolete = [
+        'config/spring.rb',
+        'bin/delayed_job',
+        'config/appsignal.yml',
+        'config/content_security_policy.rb',
+        'config/environments/review.rb',
+        'public/favicon.ico',
+        'public/apple-touch-icon-precomposed.png',
+        'public/apple-touch-icon.png'
+      ]
+
+      appsignal_config = Rails.root.join('config', 'appsignal.yml')
+      puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if appsignal_config.exist?
+
+      obsolete.each do |path|
+        file_path = Rails.root.join(path)
+        next unless File.exist?(file_path)
+
+        print "removing #{path} ... "
         FileUtils.rm_f(file_path)
         puts AmazingPrint::Colors.green('✔')
       end
 
-      file_path = Rails.root.join('bin', 'delayed_job')
-      if File.exist?(file_path)
-        print 'removing bin/delayed_job ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
-      end
-
-      file_path = Rails.root.join('config', 'appsignal.yml')
-      if File.exist?(file_path)
-        puts '!!! WARNING: make sure PRODUCTION_ENVIRONMENT in gitlab CI/CD settings includes APPSIGNAL_PUSH_API_KEY !!!' if File.exist?(file_path)
-        print 'removing config/appsignal.yml ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
-      end
-
+      # .npmrc keeps whatever else a project put there, so this is line surgery and not a removal
       file_path = Rails.root.join('.npmrc')
       if File.exist?(file_path)
         text = File.read(file_path)
-        new_text = text.gsub("shamefully-hoist=true\n", '')
-        new_text = new_text.gsub("store-dir=/tmp/pnpm/store\n", '')
+        new_text = text.gsub("shamefully-hoist=true\n", '').gsub("store-dir=/tmp/pnpm/store\n", '')
 
-        if new_text.present?
-          if text != new_text
-            print 'removing useless lines from .npmrc ... '
-            File.write(file_path, new_text)
-            puts AmazingPrint::Colors.green('✔')
-          end
-        else
+        if new_text.blank?
           print 'removing .npmrc ... '
           FileUtils.rm_f(file_path)
           puts AmazingPrint::Colors.green('✔')
+        elsif text != new_text
+          print 'removing useless lines from .npmrc ... '
+          File.write(file_path, new_text)
+          puts AmazingPrint::Colors.green('✔')
         end
-      end
-
-      file_path = Rails.public_path.join('favicon.ico')
-      if File.exist?(file_path)
-        print 'remove public/favicon.ico ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
-      end
-
-      file_path = Rails.public_path.join('apple-touch-icon-precomposed.png')
-      if File.exist?(file_path)
-        print 'remove public/apple-touch-icon-precomposed.png ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
-      end
-
-      file_path = Rails.public_path.join('apple-touch-icon.png')
-      if File.exist?(file_path)
-        print 'remove public/apple-touch-icon.png ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
-      end
-
-      file_path = Rails.root.join('config', 'content_security_policy.rb')
-      if File.exist?(file_path)
-        print 'remove config/content_security_policy.rb ... '
-        FileUtils.rm_f(file_path)
-        puts AmazingPrint::Colors.green('✔')
       end
     end
 
@@ -135,6 +112,19 @@ namespace :dc do
         puts AmazingPrint::Colors.green('✔')
       end
     end
+
+    desc 'move the project configs onto the concept filter vocabulary'
+    task rename_classification_filters_to_concept_filters: :environment do
+      ConceptFilterUpgradeHelper.rename_configs(Rails.root).each do |path|
+        puts "moved #{path.relative_path_from(Rails.root)} onto the concept filter vocabulary #{AmazingPrint::Colors.green('✔')}"
+      end
+
+      stale = ConceptFilterUpgradeHelper.stale_files(Rails.root)
+      next if stale.blank?
+
+      puts AmazingPrint::Colors.red('!!! WARNING: these still name a dropped classification filter or model !!!')
+      stale.each { |path| puts "  #{path.relative_path_from(Rails.root)}" }
+    end
   end
 
   desc 'run all available upgrades'
@@ -152,5 +142,7 @@ namespace :dc do
     Rake::Task['dc:upgrade:init_rubocop_todo'].reenable
     Rake::Task['dc:upgrade:fix_super_admin_role'].invoke
     Rake::Task['dc:upgrade:fix_super_admin_role'].reenable
+    Rake::Task['dc:upgrade:rename_classification_filters_to_concept_filters'].invoke
+    Rake::Task['dc:upgrade:rename_classification_filters_to_concept_filters'].reenable
   end
 end

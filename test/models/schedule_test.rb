@@ -14,6 +14,13 @@ module DataCycleCore
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(@dtend))
       end
       @schedule.serialize_schedule_object
+
+      # Every case reading a generated occurrences column reads whatever definition the database
+      # holds, and the materialization window is interpolated into that definition when it is
+      # created -- so a database set up on an earlier day carries an earlier window edge than
+      # occurrences_range computes now. Installing it here runs the whole file against the current
+      # definition, the one the migration installs too.
+      DataCycleCore::Schedule.connection.exec_query(DataCycleCore::Schedule.schedule_occurrences_sql(**DataCycleCore::Schedule.occurrences_range))
     end
 
     def create_schedule(dtstart, dtend, duration)
@@ -501,6 +508,336 @@ module DataCycleCore
       assert_nothing_raised do
         DataCycleCore::Schedule.rebuild_occurrences
       end
+    end
+
+    # Expands a rule through the database function backing the generated occurrences columns.
+    #
+    # @param dtstart [ActiveSupport::TimeWithZone] start of the series
+    # @param rrule [String, nil] the rule to expand
+    # @param rdate [Array<ActiveSupport::TimeWithZone>] additional dates
+    # @param exdate [Array<ActiveSupport::TimeWithZone>] excluded days
+    # @param time_zone [String, nil] TimeZone to run the statement under, to prove the result is
+    #   independent of the writing connection
+    # @return [Array<ActiveSupport::TimeWithZone>] start of every materialized occurrence
+    def db_occurrences(dtstart, rrule, rdate: [], exdate: [], time_zone: nil)
+      # rendered as text in a fixed zone, so the session TimeZone cannot colour the comparison
+      sql = <<~SQL.squish
+        SELECT to_char(
+          lower(unnest(generate_schedule_occurences_array(
+            ?::timestamp with time zone,
+            ?::character varying,
+            ?::timestamp with time zone[],
+            ?::timestamp with time zone[],
+            INTERVAL '45 minutes'
+          ))) AT TIME ZONE 'Europe/Vienna', 'YYYY-MM-DD HH24:MI:SS'
+        ) AS occurrence
+      SQL
+
+      connection = DataCycleCore::Schedule.connection
+      # SET LOCAL, so the transaction the test runs in undoes it -- SET TIME ZONE DEFAULT would
+      # restore whatever the server hands a fresh session, not the UTC the Rails adapter set
+      connection.exec_query("SET LOCAL TIME ZONE '#{time_zone}'") if time_zone.present?
+      connection.select_values(
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          # iso8601 keeps the offset in the literal, so the binds do not resolve through the session TimeZone either
+          [sql, dtstart.iso8601, rrule, "{#{rdate.map(&:iso8601).join(',')}}", "{#{exdate.map(&:iso8601).join(',')}}"]
+        )
+      ).map { |o| Time.find_zone('Europe/Vienna').parse(o) }
+    end
+
+    test 'occurrences columns keep the last occurrence of a rule with a UTC UNTIL' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      rule_until = dtstart + 1.day
+      schedule = schedule_with_rule(IceCube::Rule.daily.until(rule_until), dtstart:, duration: 45.minutes)
+
+      assert_includes(schedule.rrule, "UNTIL=#{rule_until.utc.strftime('%Y%m%dT%H%M%S')}Z")
+
+      schedule.save
+      schedule.reload
+
+      assert_equal([dtstart, rule_until], schedule.schedule_object.all_occurrences.map(&:start_time))
+      assert_equal([dtstart, rule_until], Array(schedule.occurrences_array).map { |o| o.begin.in_time_zone })
+    end
+
+    test 'generate_schedule_occurences_array interprets a UTC UNTIL as UTC' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      rule_until = dtstart + 1.day
+
+      assert_equal(
+        [dtstart, rule_until],
+        db_occurrences(dtstart, "FREQ=DAILY;UNTIL=#{rule_until.utc.strftime('%Y%m%dT%H%M%S')}Z")
+      )
+    end
+
+    # The series from the ticket, built the way the feed delivers it: six weekdays of BYDAY, the
+    # start time repeated as BYHOUR/BYMINUTE, 45 minutes long, ending on its own last occurrence.
+    # Whichever form that endDate reaches the column in -- the wall time carrying a Z, which is what
+    # to_h_from_schema_org writes, or the UTC instant of that occurrence, which is what a converted
+    # UNTIL looks like -- the last day has to survive. It is the second form that lost it.
+    test '[#51616] regression: an imported weekly series keeps the occurrence its UNTIL falls on' do
+      monday = 1.year.from_now.next_occurring(:monday).change(hour: 11, min: 15)
+      tuesday = monday + 1.day
+      schedule = DataCycleCore::Schedule.new.from_h(DataCycleCore::Schedule.to_h_from_schema_org({
+        'startDate' => monday.to_date.iso8601, 'startTime' => '11:15',
+        'endDate' => tuesday.to_date.iso8601, 'endTime' => '11:15',
+        'duration' => 'PT45M', 'repeatFrequency' => 'P1W',
+        'byDay' => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map { |d| "https://schema.org/#{d}" },
+        'scheduleTimezone' => 'Europe/Vienna'
+      }))
+      schedule.save
+      schedule.reload
+
+      assert_equal("FREQ=WEEKLY;UNTIL=#{tuesday.strftime('%Y%m%dT%H%M%S')}Z;BYHOUR=11;BYMINUTE=15;BYDAY=MO,TU,WE,TH,FR,SA", schedule.rrule)
+      assert_equal(
+        schedule.schedule_object.all_occurrences.map { |o| [o.start_time, o.end_time] },
+        Array(schedule.occurrences_array).map { |o| [o.begin.in_time_zone, o.end.in_time_zone] }
+      )
+      assert_equal([monday, tuesday], Array(schedule.occurrences_array).map { |o| o.begin.in_time_zone })
+
+      as_utc_instant = schedule.rrule.sub(/UNTIL=\d{8}T\d{6}Z/, "UNTIL=#{tuesday.utc.strftime('%Y%m%dT%H%M%S')}Z")
+
+      assert_equal([monday, tuesday], db_occurrences(monday, as_utc_instant), as_utc_instant)
+    end
+
+    # The last Sunday of October and of March, when a duration can run through the change itself.
+    #
+    # @param month [Integer] 10 for the autumn change, 3 for the spring one
+    # @return [Date] the Saturday before it, so a 23:00 occurrence spans the night
+    def evening_before_the_clock_change(month)
+      last = Date.new(1.year.from_now.year, month, -1)
+
+      last.downto(last - 6).find(&:sunday?).prev_day
+    end
+
+    # A series recurring at 23:00 has an occurrence running through the night the clocks change, and
+    # a duration of a day or more can span the change from a dtstart sitting on it. IceCube resolves
+    # the duration once at dtstart -- calendar parts on the wall clock, time parts absolute -- and
+    # reuses those seconds for every occurrence, so a "1 day" event starting that evening lasts 25
+    # hours, and every one of its later occurrences lasts 25 hours too. The materialized column has
+    # to land on the same instants, or filters and detail page part ways again.
+    test 'a series through a clock change materializes what IceCube expands, whatever its duration' do
+      [10, 3].each do |month|
+        saturday = evening_before_the_clock_change(month)
+
+        [["#{saturday} 23:00", nil], ["#{saturday} 23:00", 'FREQ=DAILY;BYHOUR=23'], ["#{saturday - 7} 23:00", 'FREQ=DAILY;BYHOUR=23'], ["#{saturday} 01:00", nil]].each do |start, rule|
+          dtstart = Time.zone.parse(start)
+          rrule = rule && "#{rule};UNTIL=#{(dtstart + 4.days).utc.strftime('%Y%m%dT%H%M%S')}Z"
+
+          [45.minutes, 3.hours, 25.hours, 1.day, DataCycleCore::Schedule.parse_iso8601_duration('P4DT8H'), 1.month].each do |duration|
+            schedule = DataCycleCore::Schedule.new(dtstart:, rrule:, duration:)
+            schedule.save
+            schedule.reload
+
+            assert_equal(
+              schedule.schedule_object.all_occurrences.map { |o| [o.start_time, o.end_time] },
+              Array(schedule.occurrences_array).map { |r| [r.begin.in_time_zone, r.end.in_time_zone] },
+              "#{duration.inspect} from #{start}#{rrule && ', recurring'}"
+            )
+          end
+        end
+      end
+    end
+
+    test 'excluded days do not depend on the writing session TimeZone' do
+      # 01:00 local is 23:00 UTC the day before, so an exdate that evening excludes a different day
+      # depending on the zone the truncation runs in -- at 11:15 the two zones never disagree.
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 01:00")
+      rrule = "FREQ=DAILY;UNTIL=#{(dtstart + 4.days).utc.strftime('%Y%m%dT%H%M%S')}Z"
+      exdate = [dtstart + 1.day + 21.hours] # 07.07. 22:00 local, 20:00 UTC
+
+      assert_equal(
+        db_occurrences(dtstart, rrule, exdate:, time_zone: 'UTC'),
+        db_occurrences(dtstart, rrule, exdate:, time_zone: 'Europe/Vienna')
+      )
+      # the 07.07. occurrence is the one the exdate covers in Europe/Vienna
+      assert_equal(
+        [dtstart, dtstart + 2.days, dtstart + 3.days, dtstart + 4.days],
+        db_occurrences(dtstart, rrule, exdate:)
+      )
+    end
+
+    # The opening hours series recur at midnight, so the last one inside the window sits exactly on
+    # range_end -- and get_occurrences yields it, so the window filter must not drop it again.
+    test 'an occurrence landing exactly on the end of the materialization window survives' do
+      range_end = DataCycleCore::Schedule.occurrences_range[:range_end]
+      dtstart = Time.zone.parse("#{range_end.prev_day.iso8601} 00:00")
+      rrule = "FREQ=DAILY;BYHOUR=0;UNTIL=#{(dtstart + 10.days).utc.strftime('%Y%m%dT%H%M%S')}Z"
+
+      assert_equal([dtstart, dtstart + 1.day], db_occurrences(dtstart, rrule))
+    end
+
+    # The guard at the top of the function skips a row whose dtstart lies past the window, and has to
+    # measure that against the same whole day the filter below it does -- otherwise a schedule that
+    # starts on the window's last day materializes nothing, while the identical occurrence reached
+    # from an earlier dtstart is kept.
+    test 'a schedule whose dtstart falls on the last day of the window is still materialized' do
+      dtstart = Time.zone.parse("#{DataCycleCore::Schedule.occurrences_range[:range_end].iso8601} 10:00")
+      rrule = "FREQ=DAILY;UNTIL=#{(dtstart + 2.hours).utc.strftime('%Y%m%dT%H%M%S')}Z"
+
+      assert_equal([dtstart], db_occurrences(dtstart, rrule))
+    end
+
+    # An endless rule gets the end of the window appended as an UNTIL of its own, and pg_rrule reads
+    # a date as midnight of that date -- so a date would cut the opening-hours series at BYHOUR=0 on
+    # the very day the widened bounds are there to keep.
+    test 'an endless rule keeps a midnight occurrence on the last day of the window' do
+      dtstart = Time.zone.parse("#{DataCycleCore::Schedule.occurrences_range[:range_end].prev_day.iso8601} 00:00")
+
+      assert_equal([dtstart, dtstart + 1.day], db_occurrences(dtstart, 'FREQ=DAILY;BYHOUR=0'))
+    end
+
+    test 'rdates outside the materialization window are dropped, inside it they survive a dtstart past its end' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      in_window = dtstart + 30.days
+      outside = 50.years.from_now.change(hour: 10)
+
+      assert_equal([dtstart, in_window], db_occurrences(dtstart, nil, rdate: [in_window, outside]))
+      assert_equal([in_window], db_occurrences(50.years.from_now, nil, rdate: [in_window]))
+    end
+
+    # One case per bound the conversion checks. Each of these reaches the column as a Z form, so the
+    # conversion has to recognise that the digits are not a date it can safely cast and hand the rule
+    # on unchanged -- the contract being that the Z then makes no difference at all, which is what
+    # comparing against the same rule without it asserts. The two occurrences a day are what makes
+    # the comparison bite: an out of range date makes the cast raise, but an hour of 24, a minute of
+    # 60 and a second of 60 are rolled over by Postgres instead, so without the check they convert
+    # silently and move the end of the series across the 01:00 or the 13:00 occurrence.
+    test 'a UTC UNTIL that cannot be converted expands exactly as if it carried no Z' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 01:00")
+      year = dtstart.year
+
+      {
+        '00001231T230000' => 'a year below 1',
+        '99991231T230000' => 'a year that the shift into Europe/Vienna moves past 9999',
+        "#{year}0006T091500" => 'a month below 1',
+        "#{year}1306T091500" => 'a month above 12',
+        "#{year}0700T091500" => 'a day below 1',
+        "#{year}0632T091500" => 'a day above 31',
+        "#{year}0631T091500" => 'a 31st in a month that has 30 days',
+        "#{year}0229T091500" => 'a 29 February in a year that has none',
+        "#{year}0706T241500" => 'an hour above 23',
+        "#{year}0706T116000" => 'a minute above 59',
+        "#{year}0706T111560" => 'a second above 59'
+      }.each do |until_value, reason|
+        assert_equal(
+          db_occurrences(dtstart, "FREQ=DAILY;BYHOUR=1,13;UNTIL=#{until_value}"),
+          db_occurrences(dtstart, "FREQ=DAILY;BYHOUR=1,13;UNTIL=#{until_value}Z"),
+          "#{reason} (UNTIL=#{until_value}Z) must be handed to pg_rrule unconverted"
+        )
+      end
+    end
+
+    # 23:00 UTC is midnight in Europe/Vienna in winter and 01:00 in summer, so the same UNTIL digits
+    # have to end the series on different sides of a 00:30 occurrence depending on the season. Both
+    # halves fail if the conversion ever hard-codes a fixed offset instead of asking the zone.
+    test 'the same UTC UNTIL converts to one hour later in winter and two hours later in summer' do
+      year = 1.year.from_now.year
+
+      winter = Time.zone.parse("#{year}-01-15 00:30")
+      summer = Time.zone.parse("#{year}-07-15 00:30")
+
+      assert_equal(
+        [winter],
+        db_occurrences(winter, "FREQ=DAILY;UNTIL=#{year}0115T230000Z"),
+        'in winter the UNTIL is midnight, which ends the series before the 00:30 occurrence of the next day'
+      )
+      assert_equal(
+        [summer, summer + 1.day],
+        db_occurrences(summer, "FREQ=DAILY;UNTIL=#{year}0715T230000Z"),
+        'in summer the same UNTIL is 01:00, which keeps the 00:30 occurrence of the next day'
+      )
+    end
+
+    # A rule without an UNTIL is endless, and a generated column cannot be. The materialization
+    # appends the end of the window as an UNTIL of its own, so the series has to stop there.
+    test 'an endless rule is materialized up to the end of the window and no further' do
+      range_end = DataCycleCore::Schedule.occurrences_range[:range_end]
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      yearly = (dtstart.year..range_end.year).map { |year| dtstart.change(year:) }
+
+      assert_operator(yearly.last, :<, range_end.in_time_zone, 'the last expected occurrence has to sit inside the window')
+      assert_equal(yearly, db_occurrences(dtstart, 'FREQ=YEARLY'))
+    end
+
+    # RFC 5545 gives UNTIL three forms and no fourth: a UTC instant (20260707T091500Z), a floating
+    # local time (20260707T091500) and a date (20260707). A zone never travels with UNTIL - TZID
+    # belongs to DTSTART - so the only question the conversion has to answer is whether the digits
+    # are UTC, which the trailing Z answers. The four tests below cover the two writers that decide
+    # which form reaches the column, and the two forms the conversion deliberately does not touch.
+    test 'a rule UNTIL is serialized as a UTC instant, whatever zone it was given in' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      rule_until = dtstart + 1.day
+      expected = "FREQ=DAILY;UNTIL=#{rule_until.utc.strftime('%Y%m%dT%H%M%S')}Z"
+
+      ['Europe/Vienna', 'Europe/Istanbul', 'UTC'].each do |zone|
+        assert_equal(
+          expected,
+          schedule_with_rule(IceCube::Rule.daily.until(rule_until.in_time_zone(zone)), dtstart:).rrule,
+          "an UNTIL given in #{zone} must serialize to the same UTC instant"
+        )
+      end
+    end
+
+    test 'an imported schedule writes its UNTIL as a UTC instant, whatever scheduleTimezone it carries' do
+      ['Europe/Vienna', 'Europe/Istanbul', 'UTC'].each do |zone|
+        hash = DataCycleCore::Schedule.to_h_from_schema_org({
+          'startDate' => '2026-07-06', 'startTime' => '11:15',
+          'endDate' => '2026-07-07', 'endTime' => '11:15',
+          'repeatFrequency' => 'P1D', 'scheduleTimezone' => zone
+        })
+
+        assert_match(
+          /;UNTIL=\d{8}T\d{6}Z(;|\z)/,
+          DataCycleCore::Schedule.new.from_h(hash).rrule,
+          "an import carrying scheduleTimezone #{zone} must still write a UTC UNTIL"
+        )
+      end
+    end
+
+    # A zone-less UNTIL is a floating local time: its digits are a wall clock reading and have to
+    # stay one, which is why the conversion matches the Z form only. An UNTIL an hour before the
+    # next occurrence therefore has to end the series before it - read as UTC, 10:15 would land at
+    # 12:15 in Europe/Vienna and keep the occurrence the rule ends on.
+    test 'a floating UNTIL ends the series at its own wall clock time' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      last_day = dtstart + 1.day
+      on_the_occurrence = "FREQ=DAILY;UNTIL=#{last_day.strftime('%Y%m%dT%H%M%S')}"
+
+      assert_equal(
+        [dtstart],
+        db_occurrences(dtstart, "FREQ=DAILY;UNTIL=#{(last_day - 1.hour).strftime('%Y%m%dT%H%M%S')}"),
+        'an UNTIL of 10:15 ends the series before the 11:15 occurrence of that day'
+      )
+      assert_equal(
+        [dtstart, last_day],
+        db_occurrences(dtstart, on_the_occurrence),
+        'an UNTIL of 11:15 keeps the 11:15 occurrence of that day'
+      )
+      assert_equal(
+        db_occurrences(dtstart, on_the_occurrence, time_zone: 'UTC'),
+        db_occurrences(dtstart, on_the_occurrence, time_zone: 'Europe/Vienna'),
+        'the wall clock reading does not depend on the session TimeZone'
+      )
+    end
+
+    # A date UNTIL carries no time at all, and pg_rrule reads it as midnight of that date, so a
+    # series at 11:15 ends the day before its UNTIL date. This MR leaves that reading untouched;
+    # the test pins it so a pg_rrule upgrade that changes it fails here rather than in the data.
+    test 'a date only UNTIL ends the series at midnight of its date' do
+      dtstart = Time.zone.parse("#{1.year.from_now.year}-07-06 11:15")
+      last_day = dtstart + 1.day
+
+      assert_equal(
+        [dtstart],
+        db_occurrences(dtstart, "FREQ=DAILY;UNTIL=#{last_day.strftime('%Y%m%d')}"),
+        'midnight of the UNTIL date is before the 11:15 occurrence of that day'
+      )
+      assert_equal(
+        [dtstart, last_day],
+        db_occurrences(dtstart, "FREQ=DAILY;UNTIL=#{(last_day + 1.day).strftime('%Y%m%d')}"),
+        'every day before the UNTIL date is kept in full'
+      )
     end
   end
 end

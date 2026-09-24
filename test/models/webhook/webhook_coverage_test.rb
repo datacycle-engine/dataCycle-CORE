@@ -11,22 +11,41 @@ module DataCycleCore
     # flow runs without a real export target or Mongo.
     class WebhookCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
       # --- Webhook::Base ----------------------------------------------------
-      test 'Base.execute skips filtered delete hooks and processes the rest' do
+      test 'Base.execute skips hooks the filter rejects and processes the rest' do
         filtered = Object.new
-        filtered.define_singleton_method(:synchronous_filter?) { |_| true }
         filtered.define_singleton_method(:allowed?) { |_| false }
+        filtered.define_singleton_method(:process) { |_| raise 'must not enqueue a filtered hook' }
 
         assert_nil DataCycleCore::Webhook::Base.execute(filtered, {})
 
         processed = false
         active = Object.new
-        active.define_singleton_method(:synchronous_filter?) { |_| false }
         active.define_singleton_method(:allowed?) { |_| true }
         active.define_singleton_method(:process) { |_| processed = true }
 
         DataCycleCore::Webhook::Base.execute(active, {})
 
         assert processed
+      end
+
+      # #allowed? runs the receiver's export strategy, which may gate on more than the configured
+      # filter, so the mark a caller sets is honoured in Filter.filter_endpoints and never here -
+      # its doc block says why. The utility object claims filter_checked as well, the way
+      # DataCycleCore::Export::StaleCleanup builds one, so a short circuit on either of the two
+      # shows up here as a skipped #allowed?.
+      test 'Base.execute asks the strategy filter even for a content a caller marked' do
+        asked = false
+        marked = Object.new
+        marked.define_singleton_method(:filter_checked?) { true }
+        marked.define_singleton_method(:allowed?) do |_|
+          asked = true
+          false
+        end
+        marked.define_singleton_method(:process) { |_| raise 'must not enqueue a filtered hook' }
+
+        DataCycleCore::Webhook::Base.execute(marked, struct_double(webhook_filter_checked_for: SecureRandom.uuid))
+
+        assert asked
       end
 
       test 'Base.execute_all returns early when webhooks are prevented' do

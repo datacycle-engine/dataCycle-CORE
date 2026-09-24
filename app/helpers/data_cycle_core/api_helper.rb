@@ -224,9 +224,9 @@ module DataCycleCore
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       when DataCycleCore::Thing::History
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{include_params&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
-      when DataCycleCore::ClassificationAlias
+      when DataCycleCore::Concept
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
-      when DataCycleCore::ClassificationTreeLabel, DataCycleCore::Schedule
+      when DataCycleCore::ConceptScheme, DataCycleCore::Schedule
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_depth#{depth}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{include_params.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
@@ -242,7 +242,9 @@ module DataCycleCore
       if item.is_a?(DataCycleCore::Thing) || item.is_a?(DataCycleCore::Thing::History)
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_lsf/#{linked_stored_filter_id}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{item.cache_valid_since&.iso8601(3)}_#{add_params}"
-      elsif item.is_a?(DataCycleCore::ClassificationAlias) || item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
+      elsif item.is_a?(DataCycleCore::Concept) || item.is_a?(DataCycleCore::ConceptScheme) ||
+            item.is_a?(DataCycleCore::Concept::History) || item.is_a?(DataCycleCore::ConceptScheme::History) ||
+            item.is_a?(DataCycleCore::Schedule)
         add_params = Digest::MD5.hexdigest("include/#{include_params}_fields/#{field_params}_trees/#{tree_params}_expand_language/#{@expand_language}")
         key = "#{item.class.name.underscore}/#{item.id}_#{Array(language)&.sort&.join(',')}_#{api_subversion}_#{item.updated_at&.iso8601(3)}_#{add_params}"
       else

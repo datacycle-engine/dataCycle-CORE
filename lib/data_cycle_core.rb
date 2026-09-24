@@ -58,6 +58,9 @@ require 'gretel'
 # rendering json responses
 require 'jbuilder'
 
+# Model Context Protocol server (api/mcp)
+require 'mcp'
+
 require 'acts_as_paranoid'
 
 require 'dry-transformer'
@@ -250,20 +253,36 @@ module DataCycleCore
   mattr_accessor :http_user_agent
   self.http_user_agent = "dataCycle/#{Gem.loaded_specs['data_cycle_core'].version} (#{ENV['COMPOSE_PROJECT_NAME'] || 'generic'})"
 
+  # The queues core enqueues to. A name added here obliges every deployment's config/queue.yml to
+  # serve it, and DataCycleCore::JobQueueValidation reports the ones it does not.
   mattr_accessor :job_queues
-  self.job_queues = {
-    default: 1,
-    importers: 1,
-    importers_short: 1,
-    cache_invalidation: 2,
-    search_update: 3,
-    mailers: 1,
-    webhooks: 1
-  }
+  self.job_queues = [
+    :default,
+    :importers,
+    :importers_short,
+    :cache_invalidation,
+    :content_maintenance,
+    :search_update,
+    :mailers,
+    :webhooks
+  ]
 
   # queues that run external-system download/import jobs (see ExternalSystem#import_queue)
   mattr_accessor :importer_queues
   self.importer_queues = [:importers, :importers_short]
+
+  # RSS in MB above which a SolidQueue worker ends itself after finishing a job, so the supervisor
+  # replaces it with a freshly booted one (see +DataCycleCore::WorkerMemoryGuard+). It has to sit
+  # above what a booted worker weighs, or every job recycles. 0 turns the guard off, and is what an
+  # environment without JOBS_MAX_MEMORY gets; the containers set 2048 in datacycle-docker's
+  # docker-compose-common.yaml.
+  #
+  # Read while +Bundler.require+ loads this file, so the value has to be in the process environment
+  # the way compose passes it. dotenv-rails loads .env from a +before_configuration+ callback, which
+  # config/application.rb reaches only when it subclasses +Rails::Application+, so a JOBS_MAX_MEMORY
+  # put there reads as 0 and turns the guard off silently.
+  mattr_accessor :worker_max_memory
+  self.worker_max_memory = ENV['JOBS_MAX_MEMORY'].to_i
 
   # How many jobs this process runs at the same time, and therefore how many of them share its
   # single connection pool. One everywhere except inside a SolidQueue worker, where the hook in

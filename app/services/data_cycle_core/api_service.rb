@@ -93,7 +93,7 @@ module DataCycleCore
         filter_prefix = operator == :notIn ? 'not_' : ''
         filter&.each do |k, v|
           param_to_classifications(v).each do |classifications|
-            query = query.send(:"#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
+            query = query.send(:"#{filter_prefix}concept_ids_#{k.to_s.underscore}", classifications)
           end
         end
       end
@@ -306,7 +306,7 @@ module DataCycleCore
     end
 
     def apply_classification_tree_id_filters(query, filters)
-      apply_union_filter_methods(query, filters, 'classification_tree_ids')
+      apply_union_filter_methods(query, filters, 'concept_scheme_ids')
     end
 
     def apply_search_filters(query, filters)
@@ -419,8 +419,11 @@ module DataCycleCore
       api_advanced_attribute_mapping(path).first
     end
 
+    # Nothing constrains the shape of a request parameter, so a client can send filter[attribute]=x
+    # where a hash of nested filters is expected. Each level therefore reports a wrong shape as an
+    # invalid_parameter error instead of assuming the value can be walked.
     def validate_api_filters(filters, key_path = [:filter], validator = DataCycleCore::MasterData::Contracts::ApiFilterContract.new)
-      raise 'API Bad Request Error' unless filters.is_a?(Hash)
+      return invalid_parameter_errors(parameter_path(key_path), 'must be a hash') unless filters.is_a?(Hash)
 
       validation_errors = []
 
@@ -433,23 +436,37 @@ module DataCycleCore
           ), 'API Bad Request Error'
         end
 
-        filters.delete(f).each do |key, filter|
-          new_filter = API_VALIDATE_ATTRIBUTES.include?(key) ? { key => filter } : filter
-          new_key_path = API_VALIDATE_ATTRIBUTES.include?(key) ? key_path : key_path + [f, key]
-
-          validation_errors.concat(validate_api_filters(new_filter, new_key_path, validator))
-        end
+        validation_errors.concat(validate_api_wrapped_filters(filters.delete(f), f, key_path, validator))
       end
 
-      if key_path.exclude?(:union) && filters[:union].present?
-        filters.delete(:union).each.with_index do |filter, index|
-          validation_errors.concat(validate_api_filters(filter, key_path + [:union, index], validator))
-        end
-      end
+      validation_errors.concat(validate_api_union_filters(filters.delete(:union), key_path, validator)) if key_path.exclude?(:union) && filters[:union].present?
 
       validation = validator.call(filters)
       validation_errors.concat(api_errors(validation.errors, key_path)) if validation.errors.to_h.present?
       validation_errors
+    end
+
+    # +graph+/+linked+/+attribute+ wrap a hash of nested filters keyed by relation or attribute name.
+    # No filter contract declares these wrappers, so this recursion is the only validation they get.
+    def validate_api_wrapped_filters(filters, wrapper_key, key_path, validator)
+      return invalid_parameter_errors(parameter_path(key_path + [wrapper_key]), 'must be a hash') unless filters.is_a?(Hash)
+
+      filters.flat_map do |key, filter|
+        new_filter = API_VALIDATE_ATTRIBUTES.include?(key) ? { key => filter } : filter
+        new_key_path = API_VALIDATE_ATTRIBUTES.include?(key) ? key_path : key_path + [wrapper_key, key]
+
+        validate_api_filters(new_filter, new_key_path, validator)
+      end
+    end
+
+    # A hash under +union+ would recurse over its [key, value] pairs and report the shape error at
+    # filter[union][0], naming an index the request never sent - so it is rejected as a whole.
+    def validate_api_union_filters(filters, key_path, validator)
+      return invalid_parameter_errors(parameter_path(key_path + [:union]), 'must be an array') unless filters.is_a?(::Array)
+
+      filters.flat_map.with_index do |filter, index|
+        validate_api_filters(filter, key_path + [:union, index], validator)
+      end
     end
 
     def validate_api_params(unpermitted_params, exceptions = [], validate_params_contract = nil)
@@ -612,10 +629,14 @@ module DataCycleCore
         filter = filter[key]
       end
 
+      invalid_parameter_errors(param_path, 'is not allowed')
+    end
+
+    def invalid_parameter_errors(path, detail)
       [{
-        parameter_path: param_path,
+        parameter_path: path,
         type: 'invalid_parameter',
-        detail: 'is not allowed'
+        detail: detail
       }]
     end
 

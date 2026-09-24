@@ -73,38 +73,38 @@ module DataCycleCore
     # mapping of a tree flagged with hidden_mappings, as :hidden_mapped_value. Only the caller of the
     # collapsed area passes it (and only for roles allowed to see them) — they never belong in the
     # visible part of the detail view.
-    def content_header_classification_aliases(content:, scope: :show, context: :show, include_hidden: false)
-      classification_aliases = {}
+    def content_header_concepts(content:, scope: :show, context: :show, include_hidden: false)
+      concepts = {}
       parameters = {
         allowed_properties: ordered_header_classification_properties(content:, scope:),
-        classification_aliases:,
+        concepts:,
         options: { ui_scope: :show },
         scope:,
         context:,
         content:
       }
 
-      ccc_scope = content.collected_classification_contents
+      ccc_scope = content.collected_concept_contents
       ccc_scope = ccc_scope.without_hidden unless include_hidden # #47172: hidden mappings never appear in the visible detail view
 
       rows = ccc_scope
-        .includes(classification_alias: [:classification_tree_label, :classification_alias_path])
+        .includes(concept: [:concept_scheme, :concept_path])
         .reject { |ccc| ccc.link_type == 'broader' }
 
       # a concept the content carries visibly (in any relation) is shown as that, not additionally as
       # a hidden mapping — the collapsed area reveals what would otherwise not be displayed at all
-      visible_ids = rows.reject(&:hidden).to_set(&:classification_alias_id)
+      visible_ids = rows.reject(&:hidden).to_set(&:concept_id)
 
       rows.group_by(&:relation).each do |key, ccs|
         ccs.each do |ccc|
-          next if ccc.hidden && visible_ids.include?(ccc.classification_alias_id)
+          next if ccc.hidden && visible_ids.include?(ccc.concept_id)
 
           direct = ccc.link_type == 'direct'
 
-          add_content_header_classification_alias(
+          add_content_header_concept(
             **parameters,
             key: direct ? key : '',
-            classification_alias: ccc.classification_alias,
+            concept: ccc.concept,
             type: if ccc.hidden then :hidden_mapped_value
                   elsif direct then :value
                   else :mapped_value
@@ -113,7 +113,7 @@ module DataCycleCore
         end
       end
 
-      classification_aliases.each_value do |v|
+      concepts.each_value do |v|
         v[:value].uniq!(&:id)
         v[:mapped_value].uniq!(&:id)
         v[:hidden_mapped_value].uniq!(&:id)
@@ -131,11 +131,11 @@ module DataCycleCore
         v[:definition]['content_score'] = prop['content_score'].merge({ 'key' => k })
       end
 
-      classification_aliases.sort_by { |_, v| v.dig(:definition, 'sorting') || 999 }.to_h
+      concepts.sort_by { |_, v| v.dig(:definition, 'sorting') || 999 }.to_h
     end
 
-    def add_content_header_classification_alias(allowed_properties:, classification_aliases:, key:, classification_alias:, scope:, context:, content:, options: {}, type: :value)
-      return if classification_alias.nil?
+    def add_content_header_concept(allowed_properties:, concepts:, key:, concept:, scope:, context:, content:, options: {}, type: :value)
+      return if concept.nil?
       return if DataCycleCore::Feature::LifeCycle.enabled? && can?(:show, content.try(:life_cycle_data_attribute)) && type == :value && key == DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first
 
       ui_config = content&.properties_for(key)&.[]('ui').to_h
@@ -146,19 +146,19 @@ module DataCycleCore
         # visibility must not decide it — being displayable in the detail view at all is enough. The
         # ui_config branch below cannot apply to them either way: like every non-direct value they
         # carry a blank key, so there is no property whose `ui` could disable them.
-        return unless classification_alias.classification_tree_label.visibility&.intersect?(['show', 'show_more'])
+        return unless concept.concept_scheme.visibility&.intersect?(['show', 'show_more'])
       elsif context == :show && ui_config.key?('disabled')
         return if ui_config['disabled'].to_s == 'true'
       else
-        return unless classification_alias.classification_tree_label.visibility&.include?(context.to_s)
+        return unless concept.concept_scheme.visibility&.include?(context.to_s)
       end
 
       definition = allowed_properties[key]&.deep_dup || {}
-      definition['tree_label'] ||= classification_alias.classification_tree_label.name
+      definition['tree_label'] ||= concept.concept_scheme.name
       definition['type'] ||= 'classification'
       label = translated_attribute_label(key, definition, content, options)
-      classification_aliases[label] ||= { key:, definition:, options:, value: [], mapped_value: [], hidden_mapped_value: [] }
-      classification_aliases[label][type] << classification_alias
+      concepts[label] ||= { key:, definition:, options:, value: [], mapped_value: [], hidden_mapped_value: [] }
+      concepts[label][type] << concept
     end
 
     def ordered_header_classification_properties(content:, scope: :show)

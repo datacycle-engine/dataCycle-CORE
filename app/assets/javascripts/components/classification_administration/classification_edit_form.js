@@ -36,9 +36,6 @@ class ClassificationEditForm {
 	resetForm(_event) {
 		this.liElement.classList.remove("active");
 	}
-	isParentClassificationAlias(elem) {
-		return elem.nodeName === "LI" && elem.hasAttribute("data-id");
-	}
 	reloadOnNextOpen(elem) {
 		if (elem.nodeName !== "LI") return;
 

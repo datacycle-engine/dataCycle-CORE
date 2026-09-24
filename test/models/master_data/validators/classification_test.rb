@@ -60,16 +60,16 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'properly validates a DateObject' do
-      classification = DataCycleCore::Classification.find_by(name: 'Bild')
+      classification = DataCycleCore::Concept.find_by(name: 'Bild')
 
       assert_equal(no_error_hash, subject.new([classification.id], template_hash).error)
     end
 
     it 'successfully validates in these cases' do
       data_cases = [
-        DataCycleCore::Classification.find_by(name: 'Bild').id,
-        [DataCycleCore::Classification.find_by(name: 'Bild').id],
-        [DataCycleCore::Classification.find_by(name: 'Bild').id, DataCycleCore::Classification.find_by(name: 'Video').id]
+        DataCycleCore::Concept.find_by(name: 'Bild').id,
+        [DataCycleCore::Concept.find_by(name: 'Bild').id],
+        [DataCycleCore::Concept.find_by(name: 'Bild').id, DataCycleCore::Concept.find_by(name: 'Video').id]
       ]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
@@ -79,7 +79,7 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'successfully validates with required given' do
-      uuids = [DataCycleCore::Classification.find_by(name: 'Bild').id]
+      uuids = [DataCycleCore::Concept.find_by(name: 'Bild').id]
       validator = subject.new(uuids, template_hash_required)
 
       assert_equal(no_error_hash, validator.error)
@@ -87,10 +87,10 @@ describe DataCycleCore::MasterData::Validators::Classification do
 
     it 'successfully validates a universal classification' do
       uuids = [
-        DataCycleCore::Classification.find_by(name: 'Bild').id,
-        DataCycleCore::Classification.find_by(name: 'Video').id,
-        DataCycleCore::Classification.find_by(name: 'Audio').id,
-        DataCycleCore::Classification.find_by(name: 'Angebot').id
+        DataCycleCore::Concept.find_by(name: 'Bild').id,
+        DataCycleCore::Concept.find_by(name: 'Video').id,
+        DataCycleCore::Concept.find_by(name: 'Audio').id,
+        DataCycleCore::Concept.find_by(name: 'Angebot').id
       ]
       validator = subject.new(uuids, template_hash_universal_classification)
 
@@ -104,7 +104,7 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'successfully validates with min, max given' do
-      uuids = [DataCycleCore::Classification.find_by(name: 'Bild').id, DataCycleCore::Classification.find_by(name: 'Video').id]
+      uuids = [DataCycleCore::Concept.find_by(name: 'Bild').id, DataCycleCore::Concept.find_by(name: 'Video').id]
       validator = subject.new(uuids, template_hash_length)
 
       assert_equal(no_error_hash, validator.error)
@@ -112,12 +112,12 @@ describe DataCycleCore::MasterData::Validators::Classification do
 
     it 'properly errors out when length restrictions are not met' do
       data_cases = [
-        [DataCycleCore::Classification.find_by(name: 'Bild').id],
+        [DataCycleCore::Concept.find_by(name: 'Bild').id],
         [
-          DataCycleCore::Classification.find_by(name: 'Bild').id,
-          DataCycleCore::Classification.find_by(name: 'Video').id,
-          DataCycleCore::Classification.find_by(name: 'Audio').id,
-          DataCycleCore::Classification.find_by(name: 'Angebot').id
+          DataCycleCore::Concept.find_by(name: 'Bild').id,
+          DataCycleCore::Concept.find_by(name: 'Video').id,
+          DataCycleCore::Concept.find_by(name: 'Audio').id,
+          DataCycleCore::Concept.find_by(name: 'Angebot').id
         ]
       ]
       data_cases.each do |case_item|
@@ -129,9 +129,9 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'errors out for invalid uuids given in an array' do
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
-      uuid2 = DataCycleCore::Classification.find_by(name: 'Video').id
-      uuid3 = DataCycleCore::Classification.find_by(name: 'Audio').id
+      uuid = DataCycleCore::Concept.find_by(name: 'Bild').id
+      uuid2 = DataCycleCore::Concept.find_by(name: 'Video').id
+      uuid3 = DataCycleCore::Concept.find_by(name: 'Audio').id
       validator = subject.new([uuid, uuid2, 3, uuid3], template_hash)
 
       assert_equal(1, validator.error[:error].size)
@@ -141,7 +141,7 @@ describe DataCycleCore::MasterData::Validators::Classification do
     it 'errors out if wrong tree_label is given for valid uuid' do
       new_template = template_hash.deep_dup
       new_template['tree_label'] = 'foo'
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid = DataCycleCore::Concept.find_by(name: 'Bild').id
       validator = subject.new(uuid, new_template)
 
       assert_equal(1, validator.error[:error].size)
@@ -157,7 +157,7 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'errors out if wrong uuid-format is given' do
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid = DataCycleCore::Concept.find_by(name: 'Bild').id
       data_cases = [
         'abcde',
         ['abcde'],
@@ -173,8 +173,8 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'aggregates errors for several wrong uuids given' do
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
-      uuid2 = DataCycleCore::Classification.find_by(name: 'Video').id
+      uuid = DataCycleCore::Concept.find_by(name: 'Bild').id
+      uuid2 = DataCycleCore::Concept.find_by(name: 'Video').id
       validator = subject.new([uuid, 'abcde', 'asödflkjasdfölkj', uuid2, 'aöslkfjasdöflj', 3, 'asödlkfasödkfj'], template_hash)
 
       assert_equal(5, validator.error[:error].values[0].size)
@@ -182,7 +182,7 @@ describe DataCycleCore::MasterData::Validators::Classification do
     end
 
     it 'produces no warning when an unsupported keyword is used' do
-      uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
+      uuid = DataCycleCore::Concept.find_by(name: 'Bild').id
       new_template = template_hash_length.deep_dup.merge({ 'validations' => { 'maxi' => 3 } })
       validator = subject.new(uuid, new_template)
 

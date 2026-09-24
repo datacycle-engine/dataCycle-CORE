@@ -9,6 +9,10 @@ DataCycleCore::Role.where(rank: 100).first_or_create({ name: 'system_admin' })
 
 DataCycleCore::Feature::TransitiveClassificationPath.update_triggers(false)
 
+# Migrations and the committed structure.sql both create all_text_idx and index_searches_on_words
+# unconditionally, so a fresh setup carries them whichever fulltext implementation it runs.
+DataCycleCore::Feature::TsQueryFulltextSearch.reconcile_legacy_indexes!
+
 return unless ['test', 'review'].include?(Rails.env)
 
 DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({

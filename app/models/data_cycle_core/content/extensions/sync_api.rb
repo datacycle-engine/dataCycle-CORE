@@ -80,7 +80,7 @@ module DataCycleCore
 
         def to_sync_h(**kwargs)
           keys = property_names -
-                 timeseries_property_names -
+                 non_payload_property_names -
                  unserializable_sync_property_names -
                  overlay_for_property_names - # exclude all overlay_for properties,
                  Array.wrap(overlay_name)     # as they are included in their original property
@@ -88,7 +88,10 @@ module DataCycleCore
             .index_with { |key| attribute_to_sync_h(key, **kwargs) }
             .merge(sync_metadata)
             .tap { |sync_data|
-              sync_data['universal_classifications'] += attribute_to_sync_h('mapped_classifications', **kwargs)
+              # sorted for the reason ContentLoader#load_classifications gives - each operand carries
+              # Concept.default_scope's order, but appending one ordered list to another leaves no
+              # order at all, and this is the value the consuming instance diffs
+              sync_data['universal_classifications'] = (sync_data['universal_classifications'] + attribute_to_sync_h('mapped_concepts', **kwargs)).sort
             }
             .deep_stringify_keys
         end
@@ -117,11 +120,11 @@ module DataCycleCore
             end || []
           elsif schedule_property?(property_name, prop)
             send(property_name_with_overlay)&.filter_map { |s| s.to_h.except(:thing_id, :relation) } || []
-          elsif property_name == 'mapped_classifications'
-            mapped_ids = related_classification_contents.map(&:classification_alias_id)
+          elsif property_name == 'mapped_concepts'
+            mapped_ids = related_concept_contents.map(&:concept_id)
 
             preloaded['classifications']
-              &.filter { |_k, v| v[:classification_alias_id].in?(mapped_ids) }
+              &.filter { |_k, v| v[:concept_id].in?(mapped_ids) }
               &.keys
           else
             raise StandardError, "Can not determine how to serialize #{property_name} for sync_api."
@@ -177,13 +180,13 @@ module DataCycleCore
                   )
                 end
 
-                mapped_ids = c_data[:classification].additional_classification_aliases.map(&:id)
+                mapped_ids = c_data[:classification].mapped_inverse_concepts.map(&:id)
 
                 next if mapped_ids.blank?
 
                 preloaded['classifications']
                   .each_value do |v|
-                    next unless mapped_ids.include?(v[:classification_alias_id])
+                    next unless mapped_ids.include?(v[:concept_id])
 
                     existing = classifications.detect { |c| c['id'] == v.dig(:classification_hash, 'id') }
 
@@ -269,58 +272,55 @@ module DataCycleCore
                 :external_source,
                 :schedules,
                 :geometries,
-                :related_classification_contents,
+                :related_concept_contents,
                 external_system_syncs: [:external_system],
                 asset_contents: [:asset],
-                classification_contents: [:classification],
-                full_classification_contents: [{ classification_alias: [:external_source, :classification_alias_path, { classification_tree_label: [:external_source], primary_classification: [:external_source, :additional_classification_aliases] }] }]
+                concept_contents: [:concept],
+                full_concept_contents: [{ concept: [:external_system, :concept_path, :mapped_inverse_concepts, { concept_scheme: [:external_system] }] }]
               )
               .index_by(&:id)
 
             preloaded['content_contents'] = preloaded_content_contents.group_by(&:content_a_id).transform_values! { |v| v.group_by(&:relation_a).transform_values! { |cc| cc.map(&:content_b_id) } }
             overlay_templates = DataCycleCore::ThingTemplate.where(template_name: preloaded['contents'].values.map(&:overlay_template_name).uniq).index_by(&:template_name)
-            collected_classification_contents = preloaded['contents'].values.map!(&:full_classification_contents).flatten!
-            classification_aliases = collected_classification_contents&.map(&:classification_alias)&.index_by(&:id) || {}
-            full_classification_aliases = classification_aliases.merge(
-              DataCycleCore::ClassificationAlias
-                .where(id: classification_aliases.values.filter_map(&:classification_alias_path).map!(&:ancestor_ids).flatten!)
-                .where.not(id: classification_aliases.keys)
+            collected_concept_contents = preloaded['contents'].values.map!(&:full_concept_contents).flatten!
+            concepts = collected_concept_contents&.map(&:concept)&.index_by(&:id) || {}
+            full_concepts = concepts.merge(
+              DataCycleCore::Concept
+                .where(id: concepts.values.filter_map(&:concept_path).map!(&:ancestor_ids).flatten!)
+                .where.not(id: concepts.keys)
                 .index_by(&:id)
             )
-            preloaded['classifications'] = collected_classification_contents&.filter_map { |ccc|
-              next if ccc.classification_alias.primary_classification.nil?
-
+            # Sorted by concept id: index_by keeps the row order of full_concept_contents, which
+            # carries no ORDER BY, and both readers turn this hash's order into payload order -
+            # attribute_to_sync_h('mapped_concepts') returns its #keys, add_sync_included_data
+            # unshifts one entry per #each_value into data['classifications'].
+            preloaded['classifications'] = collected_concept_contents&.map { |ccc|
               {
-                classification: ccc.classification_alias.primary_classification,
-                classification_alias_id: ccc.classification_alias.id,
-                classification_hash: ccc.classification_alias.primary_classification.as_json(
-                  only: [:id, :name, :external_source_id, :external_key, :description, :uri]
-                )
-                  .merge({
-                    'class_type' => 'DataCycleCore::Classification',
-                    'external_system' => ccc.classification_alias.primary_classification.external_source&.identifier
-                  }),
-                ancestors: full_classification_aliases
-                  .values_at(*ccc.classification_alias.classification_alias_path.full_path_ids)
+                classification: ccc.concept,
+                concept_id: ccc.concept.id,
+                classification_hash: concept_sync_hash(ccc.concept),
+                ancestors: full_concepts
+                  .values_at(*ccc.concept.concept_path.full_path_ids)
                   .map { |ca|
-                    ca.as_json(only: [:id, :internal_name, :external_source_id, :external_key, :name_i18n, :description_i18n, :uri], include: { primary_classification: { only: [:id, :name, :external_source_id, :external_key, :description, :uri] } })
+                    ca.as_json(only: [:id, :internal_name, :external_system_id, :external_key, :name_i18n, :description_i18n, :uri])
                       .merge({
-                        'class_type' => 'DataCycleCore::ClassificationAlias',
-                        'external_system' => ca.external_source&.identifier
+                        'class_type' => 'DataCycleCore::Concept',
+                        'external_system' => ca.external_system_identifier,
+                        'primary_classification' => concept_sync_hash(ca).except('class_type', 'external_system')
                       })
                   } +
                   [
-                    ccc.classification_alias.classification_tree_label.as_json(only: [:id, :name]).merge({
-                      'class_type' => 'DataCycleCore::ClassificationTreeLabel',
-                      'external_system' => ccc.classification_alias.classification_tree_label&.external_source&.identifier
+                    ccc.concept.concept_scheme.as_json(only: [:id, :name]).merge({
+                      'class_type' => 'DataCycleCore::ConceptScheme',
+                      'external_system' => ccc.concept.concept_scheme&.external_system&.identifier
                     })
                   ]
               }
-            }&.index_by { |v| v[:classification].id } || {}
+            }&.sort_by { |v| v[:classification].id }&.index_by { |v| v[:classification].id } || {}
 
-            preloaded['classification_contents'] = preloaded['contents'].values.map!(&:classification_contents).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
-            preloaded['full_classifications'] = collected_classification_contents.group_by(&:thing_id).transform_values! do |v|
-              v.filter_map { |ccc| ccc.classification_alias.primary_classification&.id }
+            preloaded['concept_contents'] = preloaded['contents'].values.map!(&:concept_contents).flatten!.group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:concept_id) } }
+            preloaded['full_classifications'] = collected_concept_contents.group_by(&:thing_id).transform_values! do |v|
+              v.map { |ccc| ccc.concept.id }
             end
 
             preloaded['contents'].each_value do |content|
@@ -383,6 +383,22 @@ module DataCycleCore
                 linked_stored_filter:
               )
             end
+          end
+
+          # The `classification_hash` and the `primary_classification` inside each ancestor, both of
+          # which used to be built from the Classification hanging off the alias. A concept is that
+          # record now, so the two carry the same fields as before off one row - the keys stay put
+          # because the sync consumer reads them, not the model.
+          #
+          # `name` and `description` go through +methods+: Mobility serves them out of name_i18n and
+          # description_i18n, so they are not attributes and `only:` would drop them silently.
+          def concept_sync_hash(concept)
+            concept
+              .as_json(only: [:id, :external_system_id, :external_key, :uri], methods: [:name, :description])
+              .merge({
+                'class_type' => 'DataCycleCore::Concept',
+                'external_system' => concept.external_system_identifier
+              })
           end
         end
       end

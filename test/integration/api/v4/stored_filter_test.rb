@@ -52,8 +52,8 @@ module DataCycleCore
               'c' => 'd',
               'm' => 'i',
               'n' => 'Inhaltstypen',
-              't' => 'classification_alias_ids',
-              'v' => DataCycleCore::ClassificationAlias.where(name: 'POI').pluck(:id)
+              't' => 'concept_ids',
+              'v' => DataCycleCore::Concept.where(name: 'POI').pluck(:id)
             }, {
               'c' => 'a',
               'm' => 'i',
@@ -119,9 +119,9 @@ module DataCycleCore
           assert_equal(1, poi['dc:classification']&.size)
 
           # add whitelist to stored_filter
-          tree1 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Ländercodes').id)
-          tree2 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id)
-          fulltext_filter.classification_tree_labels = tree2
+          tree1 = Array.wrap(DataCycleCore::ConceptScheme.find_by(name: 'Ländercodes').id)
+          tree2 = Array.wrap(DataCycleCore::ConceptScheme.find_by(name: 'Tags').id)
+          fulltext_filter.concept_scheme_ids = tree2
           fulltext_filter.save
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
@@ -138,7 +138,7 @@ module DataCycleCore
           assert_equal(1, poi['dc:classification']&.size)
 
           # directly whitlist in filter
-          fulltext_filter.classification_tree_labels = tree1
+          fulltext_filter.concept_scheme_ids = tree1
           fulltext_filter.save
 
           get api_v4_stored_filter_path(id: fulltext_filter.id)
@@ -149,8 +149,8 @@ module DataCycleCore
         end
 
         test '/api/v4/endpoints/:uuid with a valid fulltext stored_filter and restrict for classification_trees in linked data' do
-          tree1 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltspools').id)
-          tree2 = Array.wrap(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id)
+          tree1 = Array.wrap(DataCycleCore::ConceptScheme.find_by(name: 'Inhaltspools').id)
+          tree2 = Array.wrap(DataCycleCore::ConceptScheme.find_by(name: 'Tags').id)
           poi_name = 'Test-POI'
           fulltext_filter = add_fulltext_filter(poi_name)
 
@@ -160,7 +160,7 @@ module DataCycleCore
 
           assert_equal(2, poi.dig('image', 0, 'dc:classification')&.size)
 
-          fulltext_filter.classification_tree_labels = tree1
+          fulltext_filter.concept_scheme_ids = tree1
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = response.parsed_body
@@ -168,7 +168,7 @@ module DataCycleCore
 
           assert_equal(1, poi.dig('image', 0, 'dc:classification')&.size)
 
-          fulltext_filter.classification_tree_labels = tree2
+          fulltext_filter.concept_scheme_ids = tree2
           fulltext_filter.save
           get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
           json_data = response.parsed_body

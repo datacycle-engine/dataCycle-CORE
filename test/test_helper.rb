@@ -18,6 +18,10 @@ unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
     # exclude cache folder for gitlab-ci
     skip '/cache/'
     skip 'vendor'
+    # A .rake file is a task registry, not a unit: loading one covers its namespace/desc/task lines
+    # and never a task body. No test loads them on purpose, but a worker that reaches an unstubbed
+    # load_tasks adds all 53, which once took the merged coverage from 95.5% to 87.7%.
+    skip 'lib/tasks'
     # Keep the human-readable HTML report and additionally emit a Cobertura XML report
     # (coverage/coverage.xml) that GitLab reads via artifacts:reports:coverage_report
     # to annotate merge-request diffs with per-line coverage.
@@ -71,6 +75,7 @@ require File.expand_path('../test/dummy/config/environment.rb', __dir__)
   'rake_helpers/content_helper',
   'rake_helpers/cleanup_helper',
   'rake_helpers/import_helper',
+  'rake_helpers/concept_filter_upgrade_helper',
   'data_cycle_core/acknowledgments',
   'data_cycle_core/rufus_yaml_scheduler',
   'generators/rails/data_migration/data_migration_generator'
@@ -84,6 +89,31 @@ ActiveRecord.maintain_test_schema = false
 require 'rails/test_help'
 require 'test_cases/active_support_test_case'
 require 'test_cases/action_dispatch_integration_test'
+
+# Test-only safety net against sparql, which redefines Hash#deep_dup as
+# `inject({}) { |memo, (k, v)| memo.merge(k => v.deep_dup) }` (sparql/algebra/extensions.rb).
+# Starting from a bare `{}` drops the receiver's class, so DataCycleCore.features comes back
+# a plain Hash with String keys, tests read the copy by SYMBOL
+# (`DataCycleCore.features[feature.to_sym]` in Feature.configuration), miss, and get nil for
+# the whole feature config.
+#
+# Only rdf_shacl_conformance_test.rb pulls sparql in, via `require 'shacl'` — but the patch is
+# process-wide and permanent from then on, and the worker that ran it goes on to run unrelated
+# classes. Re-assert the invariant rather than depending on file order.
+module DataCycleCore
+  module IndifferentDeepDup
+    def deep_dup
+      super.with_indifferent_access
+    end
+  end
+end
+ActiveSupport::HashWithIndifferentAccess.prepend(DataCycleCore::IndifferentDeepDup)
+
+# Snapshot the freshly-loaded feature configuration before any test can mutate the
+# shared global DataCycleCore.features. MinitestHookHelper restores this snapshot
+# after every test class, so in-place mutations cannot leak across classes and crash
+# unrelated tests scheduled later in the same parallel_tests worker.
+DataCycleCore::MinitestHookHelper.capture_pristine_features!
 
 # Filter out Minitest backtrace while allowing backtrace from other libraries
 # to be shown.
@@ -99,13 +129,17 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 require 'helpers/test_preparations_helper'
 require 'helpers/dummy_data_helper'
+require 'helpers/pixie_annotation_test_helper'
 require 'helpers/data_helper'
 require 'helpers/mongo_helper'
 require 'helpers/api_v4_helper'
 require 'helpers/active_storage_helper'
 require 'helpers/struct_double_helper'
+require 'helpers/mcp_test_helper'
+require 'helpers/i18n_test_helper'
 require 'helpers/asset_preview_double_helper'
 require 'helpers/oembed_provider_helper'
+require 'helpers/solid_queue_helper'
 
 # The ThingTemplate process-level caches (import performance) hand out shared state for the whole
 # process, and a per-test transaction rollback does not touch it. Tests mutate a template's schema as

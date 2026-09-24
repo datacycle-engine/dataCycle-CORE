@@ -1,0 +1,24 @@
+<%#
+  The wand of one pixie on one attribute (#47879, #47881). Every pixie's button is the same button:
+  the same icon, the same class BusyButtons freezes the form's action buttons by, and the same three
+  ways of naming the image -- a persisted thing, or an asset of the upload mask together with its
+  template. What differs is the class its component is auto-inited on, the tooltip, and whatever
+  else that component reads off the button.
+
+  The context sits on the button rather than on a pixie's own block: the annotationPixie's block is
+  rendered only for a concept scheme without a dedicated attribute, so on a template where every
+  eligible scheme has one there would be nothing in the form to read a thing id off, and the
+  component would never be auto-inited.
+%>
+<%= button_tag(
+  tag.i(class: 'fa fa-magic', aria_hidden: true),
+  type: :button,
+  class: ['pixie-generate-button', local_assigns[:css_class]].compact,
+  data: {
+    pixie: local_assigns[:pixie],
+    thing_id: content.persisted? ? content.id : nil,
+    asset_id: content.try(content.asset_property_names&.first.to_s)&.id,
+    template_name: content.template_name,
+    dc_tooltip: pixie_button_tooltip(local_assigns[:pixie], local_assigns[:tooltip])
+  }.merge(local_assigns[:data] || {})
+) %>

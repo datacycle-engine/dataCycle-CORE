@@ -16,11 +16,11 @@ module DataCycleCore
     test 'all classification trees are displayed' do
       get classifications_path
 
-      assert_select('li.classification_tree_label', count: ClassificationTreeLabel.visible('classification_administration').count)
+      assert_select('li.classification_tree_label', count: ConceptScheme.visible('classification_administration').count)
     end
 
     test 'new classification tree is displayed correctly' do
-      classification_tree = ClassificationTreeLabel.create(name: 'CLASSIFICATION TREE I', visibility: ['classification_administration'])
+      classification_tree = ConceptScheme.create(name: 'CLASSIFICATION TREE I', visibility: ['classification_administration'])
 
       get classifications_path
 
@@ -29,7 +29,7 @@ module DataCycleCore
 
     test 'create new classification tree' do
       post classifications_path, xhr: true, params: {
-        classification_tree_label: {
+        concept_scheme: {
           name: 'CLASSIFICATION TREE II',
           visibility: [
             'show',
@@ -38,7 +38,7 @@ module DataCycleCore
         }
       }
 
-      tree_label = ClassificationTreeLabel.find_by(name: 'CLASSIFICATION TREE II')
+      tree_label = ConceptScheme.find_by(name: 'CLASSIFICATION TREE II')
 
       assert tree_label
       assert_equal ['show', 'edit'], tree_label.visibility

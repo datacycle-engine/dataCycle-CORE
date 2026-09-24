@@ -83,3 +83,7 @@ authenticate_oauth:
   actions: authenticate_with
   segment: SubjectByConditions
   parameters: :oauth
+
+# :api_config_rdf is granted in system_admin.yml, next to the other raw-config subjects.
+# :api_config_openapi is granted nowhere and checked nowhere: the OpenAPI document and its
+# viewer document the API the caller may already use, so authentication is their only gate.

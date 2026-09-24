@@ -5,7 +5,7 @@ module DataCycleCore
     class Base
       attr_reader :content
 
-      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :includes_attribute_key, :memoize_key, :primary_attribute_key, to: :class
+      delegate :configuration, :enabled?, :feature_key, :feature_path, :dependencies, :dependencies_enabled?, :dependencies_allowed?, :attribute_keys, :available?, :allowed?, :allowed_attribute_keys, :allowed_attribute_key?, :attribute_editable?, :includes_attribute_key, :memoize_key, :primary_attribute_key, to: :class
 
       def initialize(content: nil)
         @content = content
@@ -32,9 +32,44 @@ module DataCycleCore
           dependencies(content).all? { |d| DataCycleCore::Feature[d]&.enabled? }
         end
 
+        # One read of #dependencies: it rebuilds #configuration for the content, which walks and
+        # hashes the template schema, and asking it twice per #allowed? -- once here and once
+        # through #dependencies_enabled? -- is one of the walks per form render this branch is
+        # otherwise about removing. #dependency_allowed? holds each dependency to its #enabled?
+        # itself, so nothing is lost by not calling that predicate here.
         def dependencies_allowed?(content = nil)
-          dependencies_enabled?(content) &&
-            dependencies(content).all? { |d| DataCycleCore::Feature[d]&.allowed?(content) }
+          dependencies(content).all? { |key| dependency_allowed?(DataCycleCore::Feature[key], content) }
+        end
+
+        # How a dependent feature may hold this one: :allowed asks #allowed?(content), :enabled
+        # holds it to #enabled? alone.
+        #
+        # :enabled is for a feature whose #allowed? cannot answer "is this available here?" from a
+        # content -- Feature::Translate#allowed?(content, locale, source_locale, user) is the one in
+        # tree, and generated_translation declares it, so asking it with a content alone would raise
+        # ArgumentError rather than answer. #dependency_allowed? has established #enabled? by then,
+        # which is why :enabled needs nothing further asked.
+        #
+        # Declared rather than inferred from the arity of #allowed?: Feature::Download#allowed?
+        # (content, download_scopes = [:content]) has one required parameter today, and making the
+        # second one required would otherwise flip every feature depending on download from
+        # "checked" to "always allowed" with no error and no failing test.
+        #
+        # @return [Symbol] :allowed or :enabled
+        def dependency_check
+          :allowed
+        end
+
+        # Whether one declared dependency is allowed for this content.
+        #
+        # @param feature [Class, nil] the dependency, nil for a key no feature answers to
+        # @param content [DataCycleCore::Thing, nil]
+        # @return [Boolean]
+        def dependency_allowed?(feature, content)
+          return false if feature.nil? || !feature.enabled?
+          return true if feature.try(:dependency_check) == :enabled
+
+          feature.allowed?(content).present?
         end
 
         def attribute_keys(content = nil)
@@ -49,8 +84,66 @@ module DataCycleCore
           attribute_keys(content).present?
         end
 
+        # Folds in #dependencies_allowed? the way #enabled? folds in #dependencies_enabled?, so a
+        # feature composed onto a backend -- auto_geocode onto geocode, generated_translation onto
+        # translate, the pixies onto content_classifier and embedding -- does not restate it. A
+        # feature that declares no :dependencies: is unaffected: #dependencies is then empty and
+        # #all? answers true.
         def allowed?(content = nil)
-          enabled? && configuration(content)['allowed']
+          enabled? && configuration(content)['allowed'] && dependencies_allowed?(content)
+        end
+
+        # Whether the user may write this attribute on this content, asked the way the editor asks
+        # it: DataAttributeOptions#attribute_allowed? -> Ability#can_attribute?.
+        #
+        # Every feature that offers to write an attribute decides this identically, because what it
+        # writes goes through the ordinary form and is governed by the ordinary per-attribute update
+        # right. Asking `can?(:update, DataAttribute.new(key, definition, {}, content, :update))`
+        # instead skips the four checks #can_attribute? layers on top -- an editor context
+        # #can_edit_attribute?, #allowed_feature_attribute?, classification tree visibility, and the
+        # rejection of an inverse `linked` -- and is therefore the more permissive of the two, which
+        # is how a feature's endpoint comes to answer for an attribute whose editor the same user
+        # never sees.
+        #
+        # It is therefore the right question only for a feature that writes through an editor. An
+        # attribute a feature writes through an endpoint of its own has no editor to render, and
+        # answers false here: focus_point_x and gravity are `:visible: api`, so #can_attribute?
+        # rejects them while a bare `can?(:update, DataAttribute.new(...))` accepts them, which is
+        # why Feature::FocusPointEditor and Feature::GravityEditor still ask the bare form. See
+        # test/models/feature/attribute_editable_test.rb.
+        #
+        # @param content [DataCycleCore::Thing, nil]
+        # @param key [String]
+        # @param user [DataCycleCore::User, nil]
+        # @return [Boolean]
+        def attribute_editable?(content, key, user)
+          return false if content.blank? || user.blank?
+
+          definition = content.properties_for(key)
+          return false if definition.blank?
+
+          # edit_scope 'edit' because a feature asks about the detail edit form, which is where its
+          # wand renders and which decides whether that attribute has an editor there at all
+          editor_attribute_allowed?(key:, definition:, content:, user:, options: { edit_scope: 'edit' })
+        end
+
+        # The one construction of DataAttributeOptions behind that question, so the two ways of
+        # asking it cannot drift apart. AttributeEditorHelper#attribute_editable? is the view's way
+        # in and passes the definition and the options it already holds; #attribute_editable? above
+        # looks the definition up and forces the edit scope, which is all that distinguished the
+        # two.
+        #
+        # @return [Boolean]
+        def editor_attribute_allowed?(key:, definition:, content:, user:, options: {}, scope: :update)
+          DataCycleCore::DataAttributeOptions.new(
+            key:,
+            definition:,
+            parameters: { options: },
+            content:,
+            user:,
+            context: :editor,
+            scope:
+          ).attribute_allowed?
         end
 
         def allowed_attribute_keys(content = nil)

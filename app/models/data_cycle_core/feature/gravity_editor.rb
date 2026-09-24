@@ -16,6 +16,9 @@ module DataCycleCore
           super && content.respond_to?(primary_attribute_key)
         end
 
+        # The bare per-attribute right, not Base#attribute_editable?: this feature writes an
+        # `:visible: api` attribute through its own endpoint, so it has no editor for
+        # #can_attribute? to allow -- see test/models/feature/attribute_editable_test.rb.
         def user_can_edit?(content, user)
           allowed?(content) &&
             user.can?(:update, content) &&
@@ -33,7 +36,7 @@ module DataCycleCore
           gravity = params&.dig(primary_attribute_key)
           return if gravity.blank?
 
-          value = DataCycleCore::Concept.find_by(classification_id: gravity)&.uri&.split('#')&.last
+          value = DataCycleCore::Concept.find_by(id: gravity)&.uri&.split('#')&.last
           return if value.blank?
 
           options['gravity'] = value

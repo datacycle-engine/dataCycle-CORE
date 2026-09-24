@@ -1,0 +1,89 @@
+// ---------------------------------------------------------------------------
+// /schema — enterprise SaaS template overview (Header / Search / Filter / Grid)
+// The palette is scoped to `body.schema`, so the app-wide brand colour stays
+// untouched. Component classes mirror the presenter data (name / api_name /
+// icon / thing_count / content_type) — no business logic lives here.
+// ---------------------------------------------------------------------------
+
+
+// Keep /schema from ever scrolling sideways. Two independent causes are handled:
+//
+//  A) The app chrome (#off-canvas-container, .flash-messages) is sized with
+//     `100vw`, which INCLUDES the scrollbar width and, being fixed/absolute,
+//     escapes body's own clip — cap it to the real content width.
+//
+//  B) The default layout yields the page into Foundation's grid wrappers:
+//       .off-canvas-content > .inner-container > .expanded.row > .column
+//     `.expanded.row` carries negative side margins (-0.9375rem) and `.column`
+//     the matching padding; a bare `.column` can also stay shrink-to-content.
+//     Together they push the full-bleed schema content past the RIGHT edge (the
+//     symptom: cards + the DE/EN switch clipped on the right, no right gutter).
+//     Flatten those wrappers to plain full-width blocks so `main.schema-*` alone
+//     owns the side gutter (--sc-gutter) and the grid fits the viewport with an
+//     equal gutter on both sides.
+//
+// The body/html x-clip stays as a final safety net; with the fit fixed it clips
+// nothing real, and vertical scrolling is untouched.
+html:has(body.schema),
+body.schema {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+body.schema {
+  // A) neutralise the 100vw chrome: `width: 100vw` includes the scrollbar width
+  //    and forces a sideways scroll. Replace it with the real content width.
+  #off-canvas-container,
+  .flash-messages {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  // B) THE FIX. The schema pages sit inside the app shell where `body`,
+  //    `.off-canvas-content` and the Foundation wrappers are all FLEX items. As
+  //    flex items their `width: auto` resolves to their CONTENT size (max-content)
+  //    on the cross axis — so the wide card grid stretched the whole chain past
+  //    the viewport (confirmed: every layer was equally too wide). `min-width: 0`
+  //    alone can't fix that — there's no shrink pressure on a cross-axis size.
+  //    Forcing `width: 100%` makes each wrapper exactly its parent's width, which
+  //    cascades from `body` (= viewport) down to the grid container. The grid then
+  //    reflows its columns to fit — content is re-laid-out, never hidden.
+  //    The selectors follow the EXACT layout path (child combinators, confirmed
+  //    against the layout template) rather than a loose descendant match, so only
+  //    the wrappers holding the schema content are flattened — the footer's own
+  //    `.columns`, also inside `.off-canvas-content`, is left untouched.
+  //    `!important` is deliberate: it overrides Foundation's grid regardless of
+  //    stylesheet load order.
+  .off-canvas-content,
+  .off-canvas-content > .inner-container,
+  .off-canvas-content > .inner-container > .expanded.row,
+  .off-canvas-content > .inner-container > .expanded.row > .column {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-basis: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .off-canvas-content > .inner-container > .expanded.row > .column {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  // Final guarantee against any residual sideways scroll: clip the x-axis on the
+  // real in-flow scroll root. With the fit fixed above this clips nothing real.
+  .off-canvas-content {
+    overflow-x: clip;
+  }
+
+  .schema-brand,
+  main.schema-index,
+  main.schema-detail {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+}

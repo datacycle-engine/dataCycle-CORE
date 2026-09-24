@@ -6,30 +6,11 @@ module DataCycleCore
   class ConceptSchemeTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       @es_id = ExternalSystem.first.id
-      @ctl = ClassificationTreeLabel.create(name: SecureRandom.hex(10), external_source_id: @es_id)
+      @ctl = ConceptScheme.create(name: SecureRandom.hex(10), external_system_id: @es_id)
     end
 
-    test 'concept_scheme gets created from classification_tree_label' do
-      assert_equal @ctl.name, @ctl.concept_scheme.name
-      assert_equal @ctl.external_source_id, @ctl.concept_scheme.external_system_id
-    end
-
-    test 'concept_scheme gets updated from classification_tree_label' do
-      @ctl.update(name: SecureRandom.hex(10))
-
-      assert_equal @ctl.name, @ctl.concept_scheme.name
-    end
-
-    test 'concept_scheme gets delete when classification_tree_label is soft deleted' do
+    test 'destroy removes the scheme' do
       @ctl.destroy
-
-      assert_raise(ActiveRecord::RecordNotFound) do
-        ConceptScheme.find(@ctl.id)
-      end
-    end
-
-    test 'concept_scheme gets delete when classification_tree_label is really deleted' do
-      @ctl.destroy_fully!
 
       assert_raise(ActiveRecord::RecordNotFound) do
         ConceptScheme.find(@ctl.id)
@@ -48,7 +29,7 @@ module DataCycleCore
     end
 
     test 'create! new concept_scheme' do
-      concept_scheme1 = ConceptScheme.create(name: 'test', external_system_id: @es_id, internal: true, visibility: ['show'])
+      concept_scheme1 = ConceptScheme.create!(name: 'test', external_system_id: @es_id, internal: true, visibility: ['show'])
 
       assert concept_scheme1.is_a?(ConceptScheme)
       assert_equal 'test', concept_scheme1.name
@@ -58,10 +39,9 @@ module DataCycleCore
       assert_equal ['trigger_webhooks'], concept_scheme1.change_behaviour
     end
 
-    test 'readonly?, visibility and the api / sync / select serializers' do
+    test 'visibility and the api / sync / select serializers' do
       scheme = ConceptScheme.create(name: 'cov', external_system_id: @es_id, internal: true, visibility: ['show'])
 
-      assert_predicate scheme, :readonly?
       assert_equal :de, scheme.first_available_locale
       assert scheme.visible?('show')
       assert_not scheme.visible?('edit')

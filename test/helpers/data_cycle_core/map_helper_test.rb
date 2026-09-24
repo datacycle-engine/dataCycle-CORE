@@ -36,12 +36,6 @@ module DataCycleCore
       assert_equal({ '@id': 'uuid-1', name: 'Hello', clickable: true }, geojson_properties(content, { 'title' => 'title' }))
     end
 
-    test 'classification_polygon_properties maps the polygon and its alias' do
-      polygon = struct_double(id: 'p1', classification_alias: struct_double(id: 'ca1', internal_name: 'Region'))
-
-      assert_equal({ '@id': 'p1', classificationId: 'ca1', name: 'Region' }, classification_polygon_properties(polygon))
-    end
-
     test 'additional_map_values returns the accumulator when paths or contents are blank' do
       assert_equal({}, additional_map_values([], {}))
       assert_equal({}, additional_map_values(nil, { 'geo' => 'location' }))

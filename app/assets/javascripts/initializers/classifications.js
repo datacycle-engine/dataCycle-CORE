@@ -17,7 +17,7 @@ export default function () {
 		new ClassificationUpdateChannel();
 
 		DataCycle.registerAddCallback(
-			'input[name="classification_tree_label[visibility][]"][value^="show"]',
+			'input[name="concept_scheme[visibility][]"][value^="show"]',
 			"classification-visibility-switcher",
 			(e) => new ClassificationVisibilitySwitcher(e),
 		);

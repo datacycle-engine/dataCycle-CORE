@@ -9,15 +9,15 @@ module DataCycleCore
       module String
         class ClassificationValueTest < DataCycleCore::TestCases::ActiveSupportTestCase
           before(:all) do
-            @tree = DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: 'TestHeadlineLevels')
-            @h2 = @tree.create_classification_alias({ name: 'H2', external_key: 'h2' })
+            @tree = DataCycleCore::ConceptScheme.find_or_create_by(name: 'TestHeadlineLevels')
+            @h2 = @tree.create_concept({ name: 'H2', external_key: 'h2' })
 
             # a second tree the test content is NOT classified in, for the nil case
-            @unassigned_tree = DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: 'TestFontColor')
-            @unassigned_tree.create_classification_alias({ name: 'Light', external_key: 'light' })
+            @unassigned_tree = DataCycleCore::ConceptScheme.find_or_create_by(name: 'TestFontColor')
+            @unassigned_tree.create_concept({ name: 'Light', external_key: 'light' })
 
             image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image').deep_dup
-            image_data_hash['universal_classifications'] = [@h2.primary_classification.id]
+            image_data_hash['universal_classifications'] = [@h2.id]
             @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
           end
 

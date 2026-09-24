@@ -1,0 +1,104 @@
+---
+# [#51643] Template for the generic _generated companion mechanism: description_generated is the
+# machine-filled companion of the editorial description, and the transformer derives the per-locale
+# condition plus the contributor_generated marking from the postfix alone. The compute copies the
+# name so the test needs no external service. The compute declares no :async:, because the
+# transformer injects it - the condition could not be evaluated inline.
+#
+# dc_ai_degree_of_involvement mirrors the ai_involvement mixin of the schema gems, including
+# contributor_generated among its parameters - and therefore :async: too, because a compute cannot
+# read a parameter that is computed after it (TemplateValidator#validate_compute_deferral_order!).
+- :data:
+    :name: Generated-Image
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - ImageObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :contributor:
+        :label: Mitwirkende
+        :type: linked
+        :template_name:
+          - ArtificialIntelligenceAgent
+        :api:
+          :name: contributor
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+      :description_generated:
+        :label: Beschreibung (automatisch generiert)
+        :type: string
+        :storage_location: translated_value
+        :local: true
+        :visible:
+          - show
+          - api
+        :position:
+          :before: description
+        :api:
+          :name: description
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :parameters:
+            - name
+      :dc_ai_degree_of_involvement:
+        :label: Grad der KI-Beteiligung
+        :type: classification
+        :tree_label: ODTA - AI-DegreeOfInvolvement
+        :visible:
+          - show
+        :compute:
+          :module: Classification
+          :method: from_linked
+          :async: true
+          :fallback: false
+          :parameters:
+            - contributor
+            - contributor_generated
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+# [#51643] The same companion next to an attribute that carries an overlay: an override an editor
+# writes blocks the generation just as the base attribute does, although it leaves that one empty.
+- :data:
+    :name: Generated-Overlay-Image
+    :extends: Generated-Image
+    :features:
+      :overlay:
+        :allowed: true
+    :properties:
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :overlay: true
+# [#51643] A companion next to a compute.after_save property, so one save carries both deferrals:
+# the async keys DataHash#set_data_hash drains after the transaction, and the after_save keys it
+# consumes inside it through a nested set_data_hash of its own.
+- :data:
+    :name: Generated-AfterSave-Image
+    :extends: Generated-Image
+    :properties:
+      :after_save_note:
+        :label: Notiz (nach dem Speichern berechnet)
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :after_save: true
+          :parameters:
+            - name

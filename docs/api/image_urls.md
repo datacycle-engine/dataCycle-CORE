@@ -105,7 +105,7 @@ Wird das Bild ersetzt oder bearbeitet, ändert sich `dc:touched` und damit sowoh
 
 **Eine über diesen Endpunkt bezogene URL muss daher gemeinsam mit dem `dc:touched` des Bildes gespeichert werden. Ändert sich `dc:touched`, muss die URL neu angefragt werden**, damit sichergestellt ist, dass das korrekte Ausgangsbild verwendet wird. Das gilt für alle abgeleiteten URLs eines Bildes: Sind zu einem Bild mehrere Varianten in Verwendung, müssen alle davon neu angefragt werden.
 
-`dc:touched` ändert sich auch bei Änderungen, die die Bilddatei selbst nicht betreffen (z.B. bei geänderten Metadaten oder Klassifizierungen sowie bei einer serverseitigen Invalidierung des Caches). Eine dann neu angefragte URL ist zwar nicht zwingend notwendig, aber unproblematisch — sie liefert dasselbe Bild aus und wird lediglich neu erzeugt und zwischengespeichert.
+`dc:touched` ändert sich auch bei Änderungen, die die Bilddatei selbst nicht betreffen (welche das sind, ist unter [Unterschied zwischen dct:modified und dc:touched](/docs/api/contents#unterschied-zwischen-dct-modified-und-dc-touched) beschrieben). Eine dann neu angefragte URL ist zwar nicht zwingend notwendig, aber unproblematisch — sie liefert dasselbe Bild aus und wird lediglich neu erzeugt und zwischengespeichert.
 
 ## Fehler
 

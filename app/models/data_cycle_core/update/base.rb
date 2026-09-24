@@ -6,7 +6,7 @@ module DataCycleCore
       def update
         progressbar = ProgressBar.create(total: query.size, format: '%t |%w>%i| %a - %c/%C', title: @template.template_name)
 
-        query.includes(classification_aliases: [:classification_alias_path, :classification_tree_label]).find_each do |content_item|
+        query.includes(concepts: [:concept_path, :concept_scheme]).find_each do |content_item|
           data_hash_all = {}
           content_item.available_locales.each do |locale|
             I18n.with_locale(locale) do

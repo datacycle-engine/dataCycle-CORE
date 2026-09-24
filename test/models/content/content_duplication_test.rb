@@ -11,7 +11,7 @@ module DataCycleCore
         @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
         person_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'api_person')
-        gender_classification = DataCycleCore::Classification.find_by(name: 'Männlich')
+        gender_classification = DataCycleCore::Concept.find_by(name: 'Männlich')
         person_data_hash[:gender] = [gender_classification.id]
         person_data_hash[:image] = [@image.id]
         @person = DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash)
@@ -22,7 +22,7 @@ module DataCycleCore
       # linked objects must be the same
       test 'test duplication with simple attributes and classifications' do
         creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
-        tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
+        tag_classification = DataCycleCore::Concept.find_by(name: 'Tag 1')
         creative_work_data_hash[:tags] = [tag_classification.id]
 
         content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
@@ -115,7 +115,7 @@ module DataCycleCore
       # linked objects must be the same
       test 'test duplication with simple attributes, classifications, included objects and linked objects in mulitple languages' do
         creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
-        tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
+        tag_classification = DataCycleCore::Concept.find_by(name: 'Tag 1')
         creative_work_data_hash[:tags] = [tag_classification.id]
 
         # validity_period

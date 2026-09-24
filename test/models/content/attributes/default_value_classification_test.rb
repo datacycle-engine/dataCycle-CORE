@@ -21,7 +21,7 @@ module DataCycleCore
         end
 
         test 'default classifications get set on new contents' do
-          classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Artikel')
+          classification_id = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'Artikel')
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1' })
 
@@ -29,7 +29,7 @@ module DataCycleCore
         end
 
         test 'default classifications dont override existing values on new contents' do
-          classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
+          classification_id = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'Bild')
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', data_type: [classification_id] })
 
@@ -59,7 +59,7 @@ module DataCycleCore
         end
 
         test 'default classifications dont get updated on existing contents with partial update' do
-          classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
+          classification_id = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'Bild')
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', data_type: [classification_id] })
 
@@ -83,7 +83,7 @@ module DataCycleCore
         end
 
         test 'default classifications dont get used for update on existing contents with normal update' do
-          classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
+          classification_id = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'Bild')
 
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', data_type: [classification_id] })
           content.set_data_hash(data_hash: { name: 'Test Artikel 2' }, update_search_all: false, prevent_history: true)
@@ -94,7 +94,7 @@ module DataCycleCore
 
         test 'default classifications dont get used for new translations, as classifications are not translatable' do
           content = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
-          classification_id = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Bild')
+          classification_id = DataCycleCore::Concept.id_for_tree_with_name('Inhaltstypen', 'Bild')
 
           assert_equal classification_id, content.data_type.pick(:id)
 

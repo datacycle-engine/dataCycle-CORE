@@ -35,6 +35,28 @@ module DataCycleCore
             assert_equal(1, json_data['@graph'].length)
           end
 
+          # Same latent bug as GET /api/v4/endpoints: watch_lists#index passes a plain
+          # ActiveRecord::Relation to ApiBaseController#apply_paging, whose page[limit] branch
+          # used to call the Filter::QueryBuilder-only #query on it.
+          test '/api/v4/collections supports page[limit] and page[offset]' do
+            DataCycleCore::TestPreparations.create_watch_list(name: 'Merkliste 2')
+
+            get api_v4_collections_path(page: { limit: 1 })
+
+            assert_response :success
+            first_page = response.parsed_body['@graph'].pluck('@id')
+
+            assert_equal(1, first_page.size)
+
+            get api_v4_collections_path(page: { limit: 1, offset: 1 })
+
+            assert_response :success
+            second_page = response.parsed_body['@graph'].pluck('@id')
+
+            assert_equal(1, second_page.size)
+            assert_not_equal(first_page, second_page)
+          end
+
           test '/api/v4/collections/:id default results' do
             get api_v4_collection_path(id: @watch_list.id)
             follow_redirect!

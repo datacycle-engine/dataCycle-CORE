@@ -62,12 +62,6 @@ class ClassificationUpdateChannel {
 					.querySelector(".classification-ids-field > label")
 					?.insertAdjacentHTML("beforeend", html);
 		}
-
-		const hiddenFieldSelector =
-			'input[type="hidden"][name="classification_alias[classification_ids][]"]';
-		if (liElement.querySelector(hiddenFieldSelector))
-			for (const field of liElement.querySelectorAll(hiddenFieldSelector))
-				field.remove();
 	}
 	removeWarningAndUnlock(id) {
 		const liElement = this.container.querySelector(

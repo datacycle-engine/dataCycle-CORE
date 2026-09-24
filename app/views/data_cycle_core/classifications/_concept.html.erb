@@ -1,0 +1,176 @@
+<%# The li carries the concept id twice on purpose: `data-id` is what the JS reads for request
+    payloads, and the presence of `id` is what classification_edit_form.js#hideAncestors tests to
+    tell an administered node from a browse-only mapped occurrence of the same concept
+    (_mapped_concept renders `data-id` alone). %>
+<li
+  id="<%= concept.id %>"
+  class="<%= type %>"
+  data-id="<%= concept.id %>"
+>
+  <span class="inner-item">
+    <%= tag.i(class: 'fa fa-bars draggable-handle') if can?(:edit, concept_scheme) %>
+    <%= tag.i(class: 'fa fa-compress merge-dropzone', data: { dc_tooltip: t('classification_administration.merge.zone_tooltip', locale: active_ui_locale) }) if can?(:edit, concept_scheme) && can?(:merge, concept) %>
+
+    <%= tag.i(class: 'primary-color fa fa-paperclip', data: { dc_tooltip: t('classification_administration.mapped_to', locale: active_ui_locale) }) if concept.mapped_inverse_concepts.present? %>
+
+    <%= link_to concept_title(concept),
+                classifications_path(concept_id: concept.id),
+                class: "name",
+                data: {
+                  dc_tooltip: concept.full_path
+                } %>
+
+    <%= button_tag tag.i(class: 'fa fa-pencil'),
+                type: 'button',
+                class: 'edit',
+                data: {
+                  dc_tooltip: t('actions.edit_data', data: concept.internal_name, locale: active_ui_locale)
+                } if can?(:update, concept) || can?(:map_classifications, concept) %>
+
+    <%= link_to tag.i(class: 'fa fa-trash-o'),
+                classifications_path(concept_id: concept.id),
+                class: 'destroy',
+                data: {
+                  confirm: tag.div(class: 'remote-render', data: { remote_path: 'data_cycle_core/classifications/concept_removal_warning', remote_options: CGI::escapeHTML(to_query_params(concept:).to_json) }),
+                  confirmation_text: t('actions.delete', locale: active_ui_locale) + tag.i(class: 'fa fa-trash-o'),
+                  confirmation_header_text: t('actions.delete_with_data', data: tag.b(concept.full_path), locale: active_ui_locale),
+                  disable_with: tag.i(class: 'fa fa-spinner fa-spin'),
+                  dc_tooltip: t('actions.delete_with_data', data: concept.internal_name, locale: active_ui_locale)
+                } if can?(:destroy, concept) %>
+
+    <% if @concept_polygon_counts&.key?(concept.id) %>
+      <% overlay_id = SecureRandom.hex(10) %>
+      <%= button_tag tag.i(class: 'fa fa-map'),
+                    type: 'button',
+                    class: 'polygon-map-link',
+                    data: {
+                      open: overlay_id,
+                      dc_tooltip: t('classification_administration.classification_polygon.link_tooltip', locale: active_ui_locale)
+                    } %>
+      <div
+        class="reveal classification-polygon-reveal"
+        id="<%= overlay_id %>"
+        data-reveal
+        data-delayed-init
+      >
+        <h3><%= concept_title(concept) %></h3>
+
+        <div
+          class="geographic remote-render"
+          data-remote-path="data_cycle_core/classifications/concept_polygon_map"
+          data-remote-options="<%= to_query_params(concept:).to_json %>"
+        ></div>
+
+        <button
+          class="close-button"
+          data-close
+          aria-label="Close modal"
+          type="button"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    <% end %>
+
+    <%= link_to tag.i(class: 'fa fa-list'),
+              root_path(mode: 'tree', ctl_id: concept_scheme.id, reset: true, anchor: (Array.wrap(ancestors) + [concept.id]).join('+')),
+              class: 'contents-list',
+              target: :_blank,
+              data: {
+                dc_tooltip: t('data_cycle_core.show_contents_for_tree_label', data: concept.internal_name, locale: active_ui_locale)
+              } %>
+
+    <% content_for(:overflow_buttons, flush: true) do %>
+      <%= tag.li(
+            button_tag(
+              tag.i(class: 'fa fa-hashtag icon') + tag.span(t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: 'ID'), class: 'text'),
+              type: 'button',
+              class: 'copy-to-clipboard',
+              data: {
+                value: concept.id,
+                dc_tooltip: t('actions.copy_concept_id_to_clipboard', locale: active_ui_locale)
+              }
+            )
+          ) if can?(:copy_to_clipboard, concept) %>
+
+      <%= tag.li(
+            button_tag(
+              tag.i(class: 'fa fa-angle-double-right icon') + tag.span(t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: DataCycleCore::Concept.human_attribute_name(:full_path, locale: active_ui_locale)), class: 'text'),
+              type: 'button',
+              class: 'copy-to-clipboard',
+              data: {
+                value: concept.full_path,
+                dc_tooltip: t('actions.copy_concept_id_to_clipboard', locale: active_ui_locale)
+              }
+            )
+          ) if can?(:copy_to_clipboard, concept) %>
+
+      <%= tag.li(
+            button_tag(
+              tag.i(class: 'fa fa-clipboard icon') + tag.span(t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale)), class: 'text'),
+              type: 'button',
+              class: 'copy-to-clipboard',
+              data: {
+                value: classifications_api_v4_concept_scheme_url(id: concept_scheme.id, classification_id: concept.id),
+                dc_tooltip: t('actions.copy_to_clipboard_data', locale: active_ui_locale, data: t('common.api_url', locale: active_ui_locale))
+              }
+            )
+          ) if can?(:copy_api_link, concept) %>
+
+      <% if can?(:index, DataCycleCore::StoredFilter) %>
+        <li>
+          <button type="button" class="stored-filter-usage-button" data-open="stored-filter-usage-reveal-<%= concept.id %>">
+            <i class="fa fa-search icon"></i>
+            <span class="text"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></span>
+          </button>
+
+          <div id="stored-filter-usage-reveal-<%= concept.id %>" class="reveal stored-filter-usage-reveal" data-reveal>
+            <div class="reveal-header"><%= t('classification_administration.stored_filter_usage.link_title', locale: active_ui_locale) %></div>
+
+            <%= turbo_frame_tag "stored-filter-usage-#{concept.id}", class: 'stored-filter-usage-frame', src: stored_filter_usage_classifications_path(id: concept.id), loading: 'lazy' %>
+
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        </li>
+      <% end %>
+    <% end %>
+
+    <% if content_for?(:overflow_buttons) %>
+      <div class="overflow-button-container">
+        <%= button_tag tag.i(class: 'fa fa-ellipsis-v '),
+                  type: 'button',
+                  class: 'overflow-dropdown-link',
+                  data: {
+                    toggle: "overflow-dropdown-#{concept.id}"
+                  } %>
+
+        <div
+          id="overflow-dropdown-<%= concept.id %>"
+          class="overflow-dropdown-container dropdown-pane"
+          data-dropdown
+        >
+          <ul class="no-bullet list-items">
+            <%= yield_content!(:overflow_buttons) %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+    <%= tag.span(class: 'classification-color-icon copy-to-clipboard', style: concept_color_style(concept), data: { dc_tooltip: DataCycleCore::Concept.human_attribute_name("ui_configs/color", locale: active_ui_locale), value: concept.color }) if concept.color? %>
+
+    <%= tag.span(tag.img(class: 'lazyload', data: { src: concept.icon }), class: 'classification-icon copy-to-clipboard', data: { dc_tooltip: DataCycleCore::Concept.human_attribute_name("ui_configs/icon", locale: active_ui_locale), value: concept.icon }) if concept.icon? %>
+
+    <%= tag.i(
+      class: 'fa fa-exclamation-triangle warning-color classification-mappings-queued',
+      data: {
+        dc_tooltip: I18n.t('controllers.success.classification_mappings_queued', locale: active_ui_locale)
+      }
+    ) if @queued_concept_mappings&.include?(concept.id) %>
+  </span>
+
+  <%= tag.div(class: 'remote-render inverted classification-alias-form-container', data: { remote_path: 'data_cycle_core/classifications/concept_form', remote_options: to_query_params(concept_scheme:, concept:).to_json }) if can?(:update, concept) || can?(:map_classifications, concept) %>
+
+  <ul class="children <%= 'draggable-container' if can?(:edit, concept_scheme) %> <%= 'move-to-tree' if can?(:move_to_tree, concept_scheme) %>"></ul>
+</li>

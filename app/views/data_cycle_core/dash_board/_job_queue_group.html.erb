@@ -2,7 +2,7 @@
 <%# renders one per-queue counter group (queued / running / failed) of the dashboard job panel %>
 <% counts = stat_job_queue[state] || {} %>
 <% sum = counts.values.sum %>
-<% known_queues = DataCycleCore.job_queues.keys.map(&:to_s) %>
+<% known_queues = DataCycleCore.job_queues.map(&:to_s) %>
 
 <div class="<%= css_class %>" data-count="<%= sum %>">
   <h5>

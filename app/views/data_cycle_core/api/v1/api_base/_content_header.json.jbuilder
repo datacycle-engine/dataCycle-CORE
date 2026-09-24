@@ -21,5 +21,5 @@ if options[:header_type] == :full
 
   json.set! 'url', send(:"#{content.model_name.element.tableize.singularize}_url", content)
 
-  json.partial! 'classifications', classification_aliases: content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+  json.partial! 'classifications', concepts: content.concepts.distinct
 end

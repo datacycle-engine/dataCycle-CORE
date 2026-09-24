@@ -22,8 +22,8 @@ module DataCycleCore
             data_hash: {
               'name' => 'Icon Id Test',
               'location' => RGeo::Geographic.spherical_factory(srid: 4326).point(11.4, 47.26),
-              'primary_icon_tags' => [@tag2.classification_id],
-              'primary_icon_maerkte' => [@markt2.classification_id]
+              'primary_icon_tags' => [@tag2.id],
+              'primary_icon_maerkte' => [@markt2.id]
             }
           )
 
@@ -32,7 +32,7 @@ module DataCycleCore
             data_hash: {
               'name' => 'Icon Id Nested Test',
               'location' => RGeo::Geographic.spherical_factory(srid: 4326).point(11.5, 47.3),
-              'primary_icon_tags' => [@nested_tag.classification_id]
+              'primary_icon_tags' => [@nested_tag.id]
             }
           )
 
@@ -52,7 +52,7 @@ module DataCycleCore
       end
 
       test 'filtered on one tree dc:iconId is a single id' do
-        tags_tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+        tags_tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
 
         assert_equal(@tag2.id, geojson_icon_id(@content, classification_trees_parameters: [tags_tree_id]))
       end

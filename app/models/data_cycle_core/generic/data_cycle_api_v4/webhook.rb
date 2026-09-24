@@ -148,17 +148,17 @@ module DataCycleCore
         end
 
         def upsert_content(data, external_system, current_user, path = [])
-          unless data['@type'].is_a?(String)
+          if data['@type'].nil?
+            @errors.push({ message: 'missing @type', path: })
+            return
+          end
+
+          unless data['@type'].is_a?(::String)
             @errors.push({ message: 'template must be a string', path: })
             return
           end
 
-          template_name = data['@type']&.delete_prefix('dcls:')
-
-          if template_name.nil?
-            @errors.push({ message: 'missing @type', path: })
-            return
-          end
+          template_name = template_name_for(data['@type'], external_system)
 
           begin
             template = DataCycleCore::Thing.new(template_name:)
@@ -176,8 +176,6 @@ module DataCycleCore
           content = DataCycleCore::Thing.first_by_external_key_or_id(base_data['external_key'], external_system.id)
 
           return unless allowed_to_create_or_update?(content, data, template, external_system, current_user, path, template_name)
-
-          return { content: } if content.nil? && data.except('@type', '@id').blank?
 
           if path.blank?
             if template.embedded?
@@ -399,25 +397,61 @@ module DataCycleCore
           mapping
         end
 
+        # The template an incoming @type names. The docs tell integrators to take @type from the
+        # APIv4 output, and that output publishes a content under its schema.api.type where it has
+        # one - an AdditionalInformation is rendered as "dcls:Ergänzende Information" - so matching
+        # the template_name alone left every such template unpushable under the name it is
+        # published as.
+        #
+        # Where the alias is also a template's own name - VTG has an empty legacy "POI" next to
+        # TouristAttraction, which publishes as "dcls:POI" - the one this system may write wins:
+        # its allowed lists are the whole vocabulary a push can mean. Where it may write both, the
+        # template the @type names outright wins over the one merely published as it: ProtectedArea
+        # publishes "dcls:Örtlichkeit", but a push of "dcls:Örtlichkeit" means Örtlichkeit.
+        #
+        # @return [String] a template name, or the @type without its dcls: prefix when no template
+        #   publishes it - Thing.new then raises on it and the caller reports 'invalid @type'
+        def template_name_for(api_type, external_system)
+          template_name = api_type.delete_prefix('dcls:')
+          candidates = DataCycleCore::ThingTemplate.template_names_for_api_type(api_type)
+          return template_name if candidates.blank?
+          return candidates.first if candidates.one?
+
+          allowed = allowed_template_names(external_system)
+          candidates.min_by { |name| [allowed.include?(name) ? 0 : 1, name == template_name ? 0 : 1] }
+        end
+
+        # The templates a push may name at all. allowed_templates alone gates creating one; naming a
+        # template only to link or update it needs allowed_linked_templates as well.
+        def allowed_template_names(external_system)
+          Array.wrap(external_system.default_options&.dig('allowed_linked_templates')) +
+            Array.wrap(external_system.default_options&.dig('allowed_templates'))
+        end
+
         def allowed_to_create_or_update?(content, data, template, external_system, current_user, path, template_name)
-          if (Array.wrap(external_system.default_options&.dig('allowed_linked_templates')) + Array.wrap(external_system.default_options&.dig('allowed_templates')))&.exclude?(template_name)
+          # A payload of nothing but @type and @id links an existing thing rather than writing it, so
+          # none of the write gates below apply - the allowed templates least of all, since the thing
+          # being linked was created under whatever template it already has.
+          if data.except('@type', '@id').blank?
+            return true if content.present?
+
+            message = "thing with id #{data['@id']} not found"
+            if path.blank?
+              @status = :not_found
+              @errors.push({ message:, path: })
+            else
+              @warnings.push({ message:, path: })
+            end
+            return false
+          end
+
+          if allowed_template_names(external_system).exclude?(template_name)
             @errors.push({ message: 'forbidden @type', path: })
             @status = :forbidden
             return false
           end
 
           if content.nil?
-            if data.except('@type', '@id').blank?
-              message = "thing with id #{data['@id']} not found"
-              if path.blank?
-                @status = :not_found
-                @errors.push({ message:, path: })
-              else
-                @warnings.push({ message:, path: })
-              end
-              return false
-            end
-
             if Array.wrap(external_system.default_options&.dig('allowed_templates')).exclude?(template_name)
               @errors.push({ message: 'readonly @type: not allowed to create', path: })
               @status = :forbidden
@@ -429,18 +463,12 @@ module DataCycleCore
               @status = :forbidden
               return false
             end
-          else
-            if data.except('@type', '@id').blank?
-              # we are just referencing an existing thing
-              return true
-            end
-
-            unless template.embedded? || current_user.can?(:update, content) || current_user.can?(:update, content, 'push_api')
-              @errors.push({ message: 'not allowed to update content', path: })
-              @status = :forbidden
-              return false
-            end
+          elsif !template.embedded? && !current_user.can?(:update, content) && !current_user.can?(:update, content, 'push_api')
+            @errors.push({ message: 'not allowed to update content', path: })
+            @status = :forbidden
+            return false
           end
+
           true
         end
 

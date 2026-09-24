@@ -489,7 +489,7 @@ module DataCycleCore
           def content_type_list_to_classification_aliases(content_type_names = [])
             content_type_names = [] if content_type_names.nil?
             content_type_names = [content_type_names] unless content_type_names.is_a?(Array)
-            DataCycleCore::ClassificationAlias.where(internal_name: content_type_names).map(&:id)
+            DataCycleCore::Concept.where(internal_name: content_type_names).map(&:id)
           end
 
           def add_fulltext_filter(string)

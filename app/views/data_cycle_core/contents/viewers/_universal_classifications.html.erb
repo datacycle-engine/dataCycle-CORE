@@ -1,15 +1,15 @@
-<% objects = value.presence&.includes(primary_classification_alias: [:classification_alias_path, :classification_tree_label, :primary_classification])&.map(&:primary_classification_alias)&.select { |c| c.classification_tree_label.visible?('show') }&.compact || [] %>
+<% objects = value.presence&.includes(:concept_path, :concept_scheme)&.select { |c| c.concept_scheme.visible?('show') } || [] %>
 
 <% if objects.present? %>
-  <% objects.group_by(&:classification_tree_label).each do |tree_label, classification_aliases| %>
-    <div data-label="<%= tree_label.name %>" class="detail-type classification">
+  <% objects.group_by(&:concept_scheme).each do |concept_scheme, concepts| %>
+    <div data-label="<%= concept_scheme.name %>" class="detail-type classification">
       <span class="detail-label">
         <%= attribute_type_icon(contextual_content(local_assigns), key, definition) %>
-        <%= tree_label.name %>
+        <%= concept_scheme.name %>
       </span>
 
       <span class="detail-content tags">
-        <% classification_aliases.uniq.each do |a| %>
+        <% concepts.uniq.each do |a| %>
           <%= concept_tag(a) %>
         <% end %>
       </span>

@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class SuggestTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      tags = DataCycleCore::Concept.for_tree('Tags').limit(1).pluck(:classification_id)
+      tags = DataCycleCore::Concept.for_tree('Tags').limit(1).pluck(:id)
       create_content('Artikel', { name: 'Anfang 1', internal_name: 'Ende', tags: })
       create_content('Artikel', { name: 'Anfang 2', internal_name: 'Ende', tags: })
       create_content('Artikel', { name: 'Ende', internal_name: 'Anfang', tags: })

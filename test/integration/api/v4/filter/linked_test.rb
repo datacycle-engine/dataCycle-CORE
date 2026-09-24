@@ -25,36 +25,36 @@ module DataCycleCore
           before(:all) do
             DataCycleCore::Thing.delete_all
 
-            @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
-            @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
+            @cc0 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC0').first
+            @cc_by = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY').first
 
-            @event_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Veranstaltung').first
-            @image_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Bild').first
-            @poi_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('POI').first
+            @event_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Veranstaltung').first
+            @image_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Bild').first
+            @poi_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('POI').first
 
             schedule_a = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 5.days.ago, 1.hour).serialize_schedule_object
             lat_long_a = {
               location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 1)
             }
-            @event_a = create_test_event(schedule_a, @cc_by.primary_classification.id, lat_long_a)
+            @event_a = create_test_event(schedule_a, @cc_by.id, lat_long_a)
 
             schedule_b = DataCycleCore::TestPreparations.generate_schedule(5.days.ago.midday, 5.days.from_now, 1.hour).serialize_schedule_object
             lat_long_b = {
               location: RGeo::Geographic.spherical_factory(srid: 4326).point(5, 5)
             }
-            @event_b = create_test_event(schedule_b, @cc0.primary_classification.id, lat_long_b)
+            @event_b = create_test_event(schedule_b, @cc0.id, lat_long_b)
 
             schedule_c = DataCycleCore::TestPreparations.generate_schedule(Time.zone.now.beginning_of_day, 1.day.from_now, 1.hour).serialize_schedule_object
             lat_long_c = {
               location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 10)
             }
-            @event_c = create_test_event(schedule_c, @cc0.primary_classification.id, lat_long_c)
+            @event_c = create_test_event(schedule_c, @cc0.id, lat_long_c)
 
             schedule_d = DataCycleCore::TestPreparations.generate_schedule(5.days.from_now.midday, 10.days.from_now, 1.hour).serialize_schedule_object
             lat_long_d = {
               location: RGeo::Geographic.spherical_factory(srid: 4326).point(1, 1)
             }
-            @event_d = create_test_event(schedule_d, @cc_by.primary_classification.id, lat_long_d)
+            @event_d = create_test_event(schedule_d, @cc_by.id, lat_long_d)
 
             @thing_count = DataCycleCore::Thing.where.not(content_type: 'embedded').count
           end

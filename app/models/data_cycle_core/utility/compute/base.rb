@@ -74,14 +74,60 @@ module DataCycleCore
             send(definition['method'], value, expected_value)
           end
 
-          def load_missing_values(missing_keys, content, datahash, current_user = nil)
+          # @param missing_keys [Array<String>] parameters of a compute that carry no value yet
+          # @param computed_key [String] the compute those parameters belong to
+          def load_missing_values(missing_keys, content, datahash, current_user, computed_key)
             missing_keys.each do |missing_key|
-              if content.computed_property_names.include?(missing_key)
+              if computed_by_this_pass?(content, missing_key, computed_key)
                 compute_values(missing_key, datahash, content, current_user, true)
+                datahash[missing_key] = content.attribute_to_h(missing_key) if !datahash.key?(missing_key) && condition_blocked?(content, missing_key, current_user)
               else
                 datahash[missing_key] = content.attribute_to_h(missing_key)
               end
             end
+          end
+
+          # Which pass is running is read off the compute that is running: a parameter sharing its
+          # ComputeDeferral is computed by the same pass, and nothing else has stored it yet. On a
+          # create nothing is stored at all, so an inline compute reading another inline one has to
+          # run it, and the async job reading a second async property likewise.
+          #
+          # From a later pass it is waste and a second answer. DataHash#set_data_hash has stored
+          # the inline values before the compute.after_save pass runs and before the
+          # UpdateAsyncComputedPropertiesJob is enqueued, so the record already carries what the
+          # parameter is worth; recomputing it asks a producer reached over the network - the
+          # vision service behind a _generated companion - for an answer that is then dropped with
+          # the computed_value_hash dup #compute_values nests it in, and the value the reading
+          # compute stores is derived from an answer no attribute of the record ever holds.
+          #
+          # @return [Boolean] whether missing_key still has to be computed rather than read
+          def computed_by_this_pass?(content, missing_key, computed_key)
+            return false unless content.computed_property_names.include?(missing_key)
+
+            deferral_of(content, missing_key) == deferral_of(content, computed_key)
+          end
+
+          # @return [String, nil] the ComputeDeferral of a property of this content
+          def deferral_of(content, key)
+            DataCycleCore::MasterData::Templates::ComputeDeferral.of(content.properties_for(key))
+          end
+
+          # A nested compute that declined because of its own :condition: still owes the depending
+          # compute a value, and the one it has is what it stored the last time the condition did
+          # hold: that is what lets 'contributor_generated' recompute and drop the AI agent of a
+          # 'description_generated' an editorial description has replaced.
+          #
+          # Only that case. A nested compute #skip_compute_value? itself declined - because its own
+          # parameters could not be resolved - leaves the key missing, so the recursion below
+          # reports it and the depending compute is skipped rather than run against a stale value.
+          #
+          # @return [Boolean] true for a computed key whose :condition: forbids computing it now
+          def condition_blocked?(content, key, current_user = nil)
+            properties = content.properties_for(key)&.with_indifferent_access
+
+            return false unless properties&.key?('compute')
+
+            !conditions_satisfied?(content, properties, current_user)
           end
 
           def skip_compute_value?(key, datahash, content, computed_parameters, checked = false, current_user = nil, force = false)
@@ -93,7 +139,7 @@ module DataCycleCore
             return true if checked && missing_keys.present?
             return true if !force && !datahash.keys.intersect?(content.flat_computed_parameters(key, datahash, true))
 
-            load_missing_values(missing_keys, content, datahash, current_user)
+            load_missing_values(missing_keys, content, datahash, current_user, key)
 
             skip_compute_value?(key, datahash, content, computed_parameters, true, current_user)
           end
@@ -104,6 +150,13 @@ module DataCycleCore
 
           def exists?(value_a, _value_b)
             value_a.present?
+          end
+
+          # Named not_exists? rather than blank?: #condition_satisfied? dispatches the configured
+          # :method: with send on this module, so a two-argument blank? would override
+          # ActiveSupport's Object#blank? for Utility::Compute::Base itself.
+          def not_exists?(value_a, _value_b)
+            value_a.blank?
           end
         end
       end

@@ -10,13 +10,13 @@ module DataCycleCore
           before(:all) do
             DataCycleCore::Thing.delete_all
 
-            @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
-            @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
-            @cc_by_nd = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY-ND').first
+            @cc0 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC0').first
+            @cc_by = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY').first
+            @cc_by_nd = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY-ND').first
 
-            @event_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Veranstaltung').first
-            @image_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Bild').first
-            @poi_data_type = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('POI').first
+            @event_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Veranstaltung').first
+            @image_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Bild').first
+            @poi_data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('POI').first
 
             @image1 = create_test_image(@cc0)
             @image2 = create_test_image(@cc0)
@@ -41,7 +41,7 @@ module DataCycleCore
 
           def create_test_image(license_classification)
             image = DataCycleCore::V4::DummyDataHelper.create_data('image')
-            image.set_data_hash(partial_update: true, prevent_history: true, data_hash: { license_classification: [license_classification&.primary_classification&.id] })
+            image.set_data_hash(partial_update: true, prevent_history: true, data_hash: { license_classification: [license_classification&.id] })
 
             image
           end
@@ -49,7 +49,7 @@ module DataCycleCore
           def create_test_event(license_classification, poi_id, image_ids)
             event = DataCycleCore::V4::DummyDataHelper.create_data('minimal_event')
             event.set_data_hash(partial_update: true, prevent_history: true, data_hash: {
-              license_classification: [license_classification&.primary_classification&.id],
+              license_classification: [license_classification&.id],
               image: Array.wrap(image_ids),
               content_location: Array.wrap(poi_id)
             })
@@ -60,7 +60,7 @@ module DataCycleCore
           def create_test_poi(license_classification, image_ids)
             poi = DataCycleCore::V4::DummyDataHelper.create_data('minimal_poi')
             poi.set_data_hash(partial_update: true, prevent_history: true, data_hash: {
-              license_classification: [license_classification&.primary_classification&.id],
+              license_classification: [license_classification&.id],
               image: Array.wrap(image_ids)
             })
 

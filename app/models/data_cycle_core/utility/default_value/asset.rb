@@ -19,11 +19,11 @@ module DataCycleCore
 
           return [] if color_space.blank?
 
-          classification_alias_candidate = DataCycleCore::ClassificationAlias.classification_for_tree_with_name(property_definition&.dig('tree_label'), color_space)
-          return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
+          concept_candidate = DataCycleCore::Concept.id_for_tree_with_name(property_definition&.dig('tree_label'), color_space)
+          return Array.wrap(concept_candidate) if concept_candidate.present?
 
-          tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
-          Array.wrap(tree_label&.create_classification_alias(color_space)&.primary_classification&.id)
+          tree_label = DataCycleCore::ConceptScheme.find_by(name: property_definition&.dig('tree_label'))
+          Array.wrap(tree_label&.create_concept(color_space)&.id)
         end
 
         def self.exif_to_classification(property_parameters:, property_definition:, content:, **_args)
@@ -41,15 +41,15 @@ module DataCycleCore
           return if search_values.blank? && default_value.blank?
 
           if create_or_map
-            tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: property_definition&.dig('tree_label'))
+            tree_label = DataCycleCore::ConceptScheme.find_by(name: property_definition&.dig('tree_label'))
             search_values.map do |val|
-              tree_label&.create_classification_alias(val)&.primary_classification&.id
+              tree_label&.create_concept(val)&.id
             end
           else
-            classification_ids = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
+            classification_ids = DataCycleCore::Concept.ids_for_tree_with_name(property_definition&.dig('tree_label'), search_values)
             return classification_ids if classification_ids.present?
 
-            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
+            DataCycleCore::Concept.ids_for_tree_with_name(property_definition&.dig('tree_label'), default_value) if default_value.present?
           end
         end
 

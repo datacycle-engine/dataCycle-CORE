@@ -41,8 +41,8 @@ DATABASE_DUMP_EXCLUDES = {
 
 namespace :data_cycle_core do
   namespace :db do
-    desc 'Dumps the database to backups (mode = review|activities|full)'
-    task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
+    desc 'Dumps the database to backups (mode = review|activities|full, max_age_hours = skip if a dump is younger)'
+    task :dump, [:backup_name, :format, :mode, :max_age_hours] => [:environment] do |_, args|
       Rake::Task['db:dump'].invoke(*args)
       Rake::Task['db:dump'].reenable
     end
@@ -85,15 +85,19 @@ namespace :data_cycle_core do
     task clean_up_dumps: :environment do
       max_files = 5
       backup_dir = DbHelper.backup_directory(Rails.env)
-      files = Dir.glob("#{backup_dir}/[0-9]*.*").sort_by { |f| File.mtime(f) }.reverse
+      files = DbHelper.dump_files(backup_dir)
       puts "checking directory: #{backup_dir}"
 
       if files.size > max_files
         puts 'deleting files'
-        files.drop(5).each { |file| FileUtils.rm_rf(file) }
+        files.drop(max_files).each { |file| FileUtils.rm_rf(file) }
       else
         puts "nothing to delete - file count: #{files.size}"
       end
+
+      # a dump killed mid-run (a cancelled deploy job) keeps its full size under the hidden
+      # name it never got renamed out of, and no later run reuses that timestamp
+      Dir.glob("#{backup_dir}/.in_progress_*").each { |file| FileUtils.rm_rf(file) }
 
       puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
     end

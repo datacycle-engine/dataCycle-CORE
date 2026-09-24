@@ -8,7 +8,7 @@
 
     <ul class="list-items">
       <% content.try(:output_channel).to_a.each do |channel| %>
-        <% uri = channel.uri.presence || channel.primary_classification_alias&.uri %>
+        <% uri = channel.uri %>
         <% if uri.present? %>
           <% preview_url = format(uri, locale: active_ui_locale, id: content&.id) %>
           <li class="active content-preview-link">

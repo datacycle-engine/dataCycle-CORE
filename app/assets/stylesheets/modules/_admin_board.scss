@@ -249,7 +249,10 @@
     display: grid;
     grid-auto-flow: column;
     color: var(--white);
-    grid-template-columns: 1fr 2fr 2fr 2fr;
+    // five columns: the icon plus the four modes of the download & import row. The two shorter rows
+    // stretch one button to fill the same five, so all three rows end flush and Delta keeps column
+    // two; a new mode needs a column here and a wider span in both of those rows.
+    grid-template-columns: 1fr 2fr 2fr 2fr 2fr;
     overflow: hidden;
 
     &.disabled {
@@ -294,9 +297,14 @@
     }
   }
 
+  // download row: icon + Delta + Full (1 + 1 + 3); import row: icon + Delta + Full + Rebuild (1 + 1 + 2 + 1)
   .button,
   .button_to {
     &.download-full {
+      grid-column: span 3;
+    }
+
+    &.import-full {
       grid-column: span 2;
     }
   }
@@ -667,6 +675,31 @@ table.import-steps {
           font-size: 0.9rem;
         }
       }
+    }
+  }
+}
+
+// The rewrite form puts the export it takes and the result it hands back on one row, the download
+// right aligned. Foundation is included as `foundation-everything($flex: false)` in
+// modules/_foundation.scss, which compiles the float grid and no xy-grid, so .grid-x and .cell
+// are not classes in this build and the row has to be a flex container of its own.
+.flatten-grafana-dashboard-form {
+  .file-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+
+    // A form control carries $form-spacing (16px here) below it, and align-items centres the box
+    // including that margin, which leaves the visible input 8px above the download button's middle.
+    input[type='file'] {
+      margin-bottom: 0;
+    }
+
+    // "Umgeschriebenes Dashboard herunterladen" wraps to two lines in the reveal, which makes the
+    // button twice as tall as the input it sits beside.
+    .button {
+      white-space: nowrap;
     }
   }
 }

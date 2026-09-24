@@ -1,4 +1,5 @@
 import cloneDeep from "lodash/cloneDeep";
+import escapeHtml from "lodash/escape";
 import unionBy from "lodash/unionBy";
 import MimeTypes from "mime";
 import DomElementHelpers from "../../helpers/dom_element_helpers";
@@ -9,6 +10,9 @@ import ConfirmationModal from "../confirmation_modal";
 import AssetDetailLoader from "./asset_detail_loader";
 
 class AssetFile {
+	// how many per-file pixie lookups may be in flight at once, see #_applyPixieToAllFiles
+	static PIXIE_LOOKUP_CONCURRENCY = 4;
+
 	constructor(uploader, config = {}) {
 		this.id = DomElementHelpers.randomId();
 		this.uploaded = config.uploaded;
@@ -55,6 +59,16 @@ class AssetFile {
 			this.fileField.on(
 				"dc:upload:syncWithForm",
 				this._syncWithForm.bind(this),
+			);
+			this.fileField.on(
+				"dc:upload:applyPixieToAllFiles",
+				this._applyPixieToAllFiles.bind(this),
+			);
+			// asked by this file's form once it has one, because a pixie applied from another file's
+			// form is remembered before this one is rendered
+			this.fileField.on(
+				"dc:form:requestPixieMessages",
+				this._renderPixieMessages.bind(this),
 			);
 		}
 	}
@@ -108,6 +122,131 @@ class AssetFile {
 			this.updateFileField(fields);
 		}
 	}
+	/**
+	 * Applies a pixie to the other uploaded files. A suggestion is made for one image, so unlike an
+	 * edited attribute it cannot be copied from this form -- +fieldsForFile+ asks the pixie for the
+	 * fields of one file, by its asset, and answers null for a file it has nothing for. The file
+	 * this form belongs to is left out: the pixie fills its editors directly, the way its generate
+	 * button does, so what the user is looking at is not reset while they work in it.
+	 *
+	 * Every other file's form is stored first. A file's fields are written when its form is left, so
+	 * a form that has been opened and edited without leaving it -- the first image, filled by hand,
+	 * while the pixie is applied from the third -- holds values its file does not know about yet.
+	 * Without this they would be missing from the merge below and then wiped from the form, which
+	 * +_updateNeighborForms+ re-renders from exactly those fields.
+	 */
+	async _applyPixieToAllFiles(event, data = undefined) {
+		event.preventDefault();
+
+		if (typeof data?.fieldsForFile !== "function") return;
+
+		const neighbors = this.uploader.files.filter(
+			(file) => file.id !== this.id && file.assetId(),
+		);
+
+		// A file whose form was never rendered has no handler for this, and needs none. Storing is
+		// per file and independent, and every store resolves each of its uuid valued fields against
+		// /api/v4/universal to label it -- so one wave for all files rather than one wave each.
+		await Promise.all(
+			neighbors.map((file) =>
+				file.fileField.triggerHandler("dc:upload:storeFormValues"),
+			),
+		);
+
+		// where the pixie's service takes a list of images, this asks it once for all of them and
+		// the per-file lookups below read from that answer
+		await data.prepare?.(neighbors.map((file) => file.assetId()));
+
+		// A pixie without a batch endpoint asks per file, and one annotation is seconds of vision
+		// work -- 20 files in sequence is a minute of spinner. They are independent, so they run in
+		// bounded parallel: enough to hide the latency, few enough not to open 20 sockets at the
+		// annotation service at once.
+		const fieldsPerFile = await this._mapWithConcurrency(
+			neighbors,
+			AssetFile.PIXIE_LOOKUP_CONCURRENCY,
+			(file) => data.fieldsForFile(file),
+		);
+
+		for (const [index, fields] of fieldsPerFile.entries())
+			if (fields?.length) await neighbors[index].updateFileField(fields);
+
+		this._updateNeighborForms();
+	}
+
+	/**
+	 * Runs +task+ over +items+ with at most +limit+ in flight, answering the results in the order of
+	 * +items+ however they resolved. A plain Promise.all would start every request at once.
+	 */
+	async _mapWithConcurrency(items, limit, task) {
+		const results = new Array(items.length);
+		let next = 0;
+
+		const worker = async () => {
+			while (next < items.length) {
+				const index = next++;
+				results[index] = await task(items[index]);
+			}
+		};
+
+		await Promise.all(
+			Array.from({ length: Math.min(limit, items.length) }, worker),
+		);
+
+		return results;
+	}
+
+	/**
+	 * Records what a pixie had to say about this file's attribute, and says it now if this file's
+	 * form is already rendered.
+	 *
+	 * A pixie is applied from the form of one file, and what it found for the others belongs in
+	 * their own forms -- next to the attribute, the way the wand reports for the file it filled.
+	 * Those forms are remote rendered when the file is first opened, so a file the user has not
+	 * looked at yet has no form to render into and would lose the message; it is kept here and
+	 * asked for by +NewContentDialog+ when that form initialises.
+	 *
+	 * Keyed by the attribute, so applying the same pixie twice replaces its message rather than
+	 * stacking a second one, and two pixies on one file each keep their own.
+	 *
+	 * @param target [Object] which editor the message belongs to -- {key, conceptSchemeId}
+	 * @param message [String] the text to show
+	 * @param type [String] callout type: "info" for an answer with nothing in it, "alert" for a
+	 *   request that failed
+	 */
+	rememberPixieMessage(target, message, type = "info") {
+		this.pixieMessages ||= new Map();
+		this.pixieMessages.set(JSON.stringify(target), { target, message, type });
+
+		this.fileField.triggerHandler("dc:form:renderPixieMessage", {
+			target,
+			message,
+			type,
+		});
+	}
+
+	/**
+	 * Drops what a pixie said about this file's attribute, because it no longer holds -- a later
+	 * run answered for it. Both the memory and the callout already in the form go, so nothing
+	 * replays it the next time this form is opened.
+	 *
+	 * @param target [Object] the editor the message belonged to
+	 */
+	forgetPixieMessage(target) {
+		if (!this.pixieMessages?.delete(JSON.stringify(target))) return;
+
+		this.fileField.triggerHandler("dc:form:clearPixieMessage", { target });
+	}
+
+	/**
+	 * Hands every remembered message to this file's form, which has just been rendered.
+	 */
+	_renderPixieMessages(event) {
+		event.preventDefault();
+
+		for (const entry of this.pixieMessages?.values() || [])
+			this.fileField.triggerHandler("dc:form:renderPixieMessage", entry);
+	}
+
 	_updateNeighborForms() {
 		const neighbors = this.uploader.files.filter((file) => file.id !== this.id);
 
@@ -216,17 +355,23 @@ class AssetFile {
 			}
 		}
 	}
+	/**
+	 * The only place an attribute value becomes markup: +_attributeValueHtml+ and
+	 * +_renderSpecificField+ pass the result straight to `.html()`. Both interpolated values come
+	 * from outside this form -- the label from the template, the value from a file's form and, since
+	 * the pixies, from a suggestion the annotation service wrote -- and each lands in element content
+	 * and in a `title=` attribute, so both are escaped here rather than at the three call sites.
+	 */
 	renderAttributeHtml(attribute, value = "") {
 		let v = value;
 		if (attribute.type === "datetime" && v && v.length) {
 			v = new Date(v).toLocaleDateString();
 		}
 
-		const label = attribute.label;
+		const label = escapeHtml(attribute.label);
+		const text = escapeHtml(v);
 
-		return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${$(
-			`<span>${v}</span>`,
-		).text()}">${v}</span>`;
+		return `<span class="file-label" title="${label}">${label}</span><span class="file-attribute-value" title="${text}">${text}</span>`;
 	}
 	async validateAttributes() {
 		if (this.uploader.showNewForm && !this.attributeFieldValues?.length) {

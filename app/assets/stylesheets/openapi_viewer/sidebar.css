@@ -1,0 +1,444 @@
+
+/* ============================ sidebar ============================ */
+.ov-sidebar {
+  position: sticky;
+  top: 0;
+  flex: 0 0 var(--ov-sidebar-w);
+  width: var(--ov-sidebar-w);
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ov-4);
+  padding: var(--ov-4) var(--ov-4);
+  background: var(--ov-surface);
+  border-right: 1px solid var(--ov-border);
+}
+
+.ov-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ov-2);
+  padding: var(--ov-2) var(--ov-2) 0;
+}
+.ov-brand > a, .ov-brand > span { display: inline-flex; min-width: 0; max-width: 100%; }
+/* render the instance logo exactly as the main navigation does (same partial,
+   inverted variant, unmodified); only constrain it to the sidebar's dimensions */
+.ov-brand .logo img {
+  display: block;
+  /* definite height: the logo SVG has only a viewBox (no intrinsic width/height),
+     so height:auto in a shrink-to-fit inline-flex link collapses it to 0. Fixing
+     the height lets width derive from the aspect ratio; max-width stays a cap. */
+  height: 1.85rem;
+  width: auto;
+  max-width: min(100%, 11rem);
+  filter: brightness(0);
+}
+
+/* application/_logo emits a screen variant and a print variant and leaves Foundation's
+   .show-for-print / .hide-for-print to show one at a time. This page carries no
+   Foundation, so without these the print logo (DataCycleCore.logo['print']) renders on
+   screen next to the instance one. Scoped rather than redefining the global classes. */
+.ov-brand .logo .show-for-print { display: none; }
+@media print {
+  .ov-brand .logo .hide-for-print { display: none; }
+  .ov-brand .logo .show-for-print { display: block; }
+}
+
+/* ---- light/dark toggle (behaviour: openapi_viewer/theme_toggle.js) ---- */
+.ov-theme-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--ov-muted);
+  background: transparent;
+  border: 1px solid var(--ov-border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.ov-theme-toggle:hover { background: var(--ov-accent-soft); color: var(--ov-accent); border-color: var(--ov-accent); }
+.ov-theme-toggle:focus-visible { outline: 2px solid var(--ov-accent); outline-offset: 2px; }
+.ov-theme-toggle .fa { font-size: 0.95rem; }
+
+/* nav + search */
+.ov-nav-wrap { display: flex; flex-direction: column; gap: var(--ov-4); min-width: 0; }
+
+/* ---- search field (command-palette trigger) ---- */
+.ov-search-wrap { position: relative; min-width: 0; }
+
+/* The container IS the field: icon, input and badge are flex siblings sharing
+   one horizontal axis — so the icon lands optically on the placeholder line. */
+.ov-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.5rem; /* ~40px */
+  padding: 0 0.5rem 0 0.8rem;
+  background: var(--ov-surface);
+  border: 1px solid var(--ov-border);
+  border-radius: 0.7rem;
+  box-shadow: 0 2px 10px rgba(var(--ov-shadow-rgb), 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+/* Focus ring only on keyboard focus, not on mouse click: the accent ring shows
+   when the input is :focus-visible (keyboard), while a plain mouse :focus-within
+   keeps the neutral resting style. */
+.ov-search:focus-within { border-color: var(--ov-border); box-shadow: 0 2px 10px rgba(var(--ov-shadow-rgb), 0.04); }
+.ov-search:has(.ov-search-input:focus-visible) {
+  border-color: var(--ov-accent);
+  box-shadow: 0 0 0 4px rgba(229, 5, 78, 0.12);
+}
+.ov-search:has(.ov-search-input:focus-visible) .ov-search-icon { color: var(--ov-accent); }
+
+.ov-search-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--ov-muted);
+  pointer-events: none;
+  transition: color 0.18s ease;
+}
+
+.ov-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--ov-text);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ov-search-input::placeholder { color: var(--ov-muted); }
+/* suppress the native search affordances — we render our own */
+.ov-search-input::-webkit-search-cancel-button,
+.ov-search-input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+/* the app's global (Foundation) input focus style re-adds border/shadow/background —
+   neutralize it like the schema page does, the ring lives on .ov-search instead */
+.ov-search-input:focus {
+  outline: none;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Ctrl / ⌘ K keyboard-shortcut badge — hidden once the field has a value */
+.ov-search-kbd {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  pointer-events: none;
+  /* neutralize the framework's default <kbd> chrome — we style the caps
+     ourselves, the wrapper stays invisible */
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  font-size: inherit;
+}
+.ov-search-kbd span {
+  display: grid;
+  place-items: center;
+  min-width: 1.2rem;
+  height: 1.3rem;
+  padding: 0 0.35rem;
+  font-family: var(--ov-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ov-kbd-fg);
+  background: var(--ov-kbd-bg);
+  border: 1px solid var(--ov-kbd-border);
+  border-radius: 0.4rem;
+  box-shadow: 0 1px 0 rgba(var(--ov-shadow-rgb), 0.04);
+}
+.ov-search.has-value .ov-search-kbd { display: none; }
+
+/* clear button — replaces the badge once the field has a value */
+.ov-search-clear {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  color: var(--ov-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.ov-search-clear:hover { background: var(--ov-accent-soft); color: var(--ov-accent); }
+.ov-search-clear:focus-visible { outline: 2px solid var(--ov-accent); outline-offset: 2px; }
+.ov-search-clear i { font-size: 0.8rem; }
+.ov-search-clear[hidden] { display: none; }
+
+/* ---- command palette (floating results dropdown) ---- */
+.ov-palette {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: min(60vh, 28rem);
+  overflow-y: auto;
+  padding: 0.4rem;
+  background: var(--ov-surface);
+  border: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius);
+  box-shadow: 0 16px 40px rgba(var(--ov-shadow-rgb), 0.14), 0 3px 10px rgba(var(--ov-shadow-rgb), 0.06);
+  animation: ov-palette-in 0.15s ease;
+}
+.ov-palette[hidden] { display: none; }
+@keyframes ov-palette-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ov-palette-group {
+  padding: 0.65rem 0.6rem 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ov-muted);
+}
+.ov-palette-group:first-child { padding-top: 0.35rem; }
+
+.ov-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.55rem;
+  border: 0;
+  border-radius: var(--ov-radius-sm);
+  background: transparent;
+  color: var(--ov-text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+.ov-palette-item.is-active { background: var(--ov-accent-soft); }
+
+.ov-palette-method {
+  flex: 0 0 auto;
+  min-width: 3rem;
+  text-align: center;
+  padding: 0.18rem 0.4rem;
+  font-family: var(--ov-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  border-radius: 0.35rem;
+}
+.ov-palette-method.is-get { background: var(--ov-get); }
+.ov-palette-method.is-post { background: var(--ov-post); }
+
+.ov-palette-schema-icon {
+  flex: 0 0 auto;
+  width: 3rem;
+  text-align: center;
+  color: var(--ov-muted);
+  font-size: 0.85rem;
+}
+
+.ov-palette-path {
+  font-family: var(--ov-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ov-palette-summary {
+  margin-left: auto;
+  padding-left: 0.6rem;
+  max-width: 42%;
+  font-size: 0.78rem;
+  color: var(--ov-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ov-palette-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--ov-2);
+  padding: 0.9rem 0.7rem;
+  font-size: 0.9rem;
+  color: var(--ov-muted);
+}
+.ov-palette-empty::before {
+  content: "\f002"; /* fa-search */
+  font-family: FontAwesome;
+  opacity: 0.5;
+}
+.ov-palette-empty[hidden] { display: none; }
+
+/* red highlight border on the endpoint/schema the palette just navigated to.
+   outline (not box-shadow) so Swagger's overflow:hidden can't clip it. */
+#swagger-ui .ov-flash {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+  animation: ov-flash 3s ease forwards;
+}
+@keyframes ov-flash {
+  0%, 80% { outline-color: var(--ov-accent); }
+  100% { outline-color: transparent; }
+}
+
+.ov-nav { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+
+.ov-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ov-3);
+  padding: 0.52rem 0.95rem;
+  border-radius: var(--ov-radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ov-muted);
+  text-decoration: none;
+  position: relative;
+  min-width: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ov-nav-item i { width: 1.1rem; text-align: center; font-size: 0.95rem; opacity: 0.85; }
+.ov-nav-item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+.ov-nav-item:hover { background: var(--ov-bg); color: var(--ov-text); }
+
+/* sub-items (tags with x-parent, e.g. the delivery groups): clearly indented
+   behind a strong guide line, smaller and lighter than top-level items */
+.ov-nav-item--child {
+  margin-left: 1.75rem;
+  padding: 0.34rem 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border-left: 2px solid var(--ov-border);
+  border-radius: 0 var(--ov-radius-sm) var(--ov-radius-sm) 0;
+}
+.ov-nav-item--child i { width: 0.95rem; font-size: 0.78rem; opacity: 0.65; }
+.ov-nav-item--child:hover { border-left-color: var(--ov-muted); }
+.ov-nav-item--child.is-active { font-weight: 600; border-left-color: var(--ov-accent); }
+.ov-nav-item--child .ov-nav-count { font-size: 0.68rem; padding: 0.1rem 0.42rem; }
+
+/* while a sub-item is active, keep its parent visibly related (accent text,
+   no background) so the group context never gets lost */
+.ov-nav-item.is-child-active { color: var(--ov-accent); }
+.ov-nav-item.is-child-active i { opacity: 1; }
+
+.ov-nav-item.is-active {
+  background: var(--ov-accent-soft);
+  color: var(--ov-accent);
+}
+
+.ov-nav-item.is-active i { opacity: 1; }
+
+/* operation/schema count badge on the right edge of a nav item */
+.ov-nav-count {
+  flex: 0 0 auto;
+  margin-left: auto;
+  min-width: 1.6rem;
+  padding: 0.14rem 0.5rem;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ov-muted);
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border-soft);
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.ov-nav-item:hover .ov-nav-count { background: var(--ov-surface); }
+.ov-nav-item.is-active .ov-nav-count {
+  color: #fff;
+  background: var(--ov-accent);
+  border-color: var(--ov-accent);
+  box-shadow: 0 2px 6px var(--ov-accent-glow);
+}
+
+/* subtle separator between the endpoint groups and the schemas entry */
+.ov-nav-divider {
+  height: 1px;
+  margin: 0.45rem 0.65rem;
+  background: var(--ov-border);
+}
+
+.ov-nav-skeleton {
+  height: 1.1rem;
+  margin: 0.55rem 0.85rem;
+  border-radius: 0.4rem;
+  background: linear-gradient(90deg, var(--ov-border-soft) 25%, var(--ov-border) 37%, var(--ov-border-soft) 63%);
+  background-size: 400% 100%;
+  animation: ov-shimmer 1.4s ease infinite;
+}
+.ov-nav-skeleton:nth-child(2) { width: 70%; }
+.ov-nav-skeleton:nth-child(3) { width: 55%; }
+
+@keyframes ov-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+/* documentation card */
+.ov-doc-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ov-2);
+  padding: var(--ov-4);
+  border: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius);
+  box-shadow: 0 1px 2px rgba(var(--ov-shadow-rgb), 0.04);
+  min-width: 0;
+}
+
+.ov-doc-card-title { font-weight: 700; font-size: 1.05rem; overflow-wrap: anywhere; }
+
+.ov-doc-card-sub { font-size: 0.86rem; line-height: 1.45; color: var(--ov-muted); }
+
+/* language segmented control */
+.ov-locales {
+  display: inline-flex;
+  margin-top: var(--ov-1);
+  padding: 0.2rem;
+  gap: 0.15rem;
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border);
+  border-radius: 0.6rem;
+  width: fit-content;
+}
+
+.ov-locale {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.76rem; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--ov-muted);
+  border-radius: 0.4rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.ov-locale:hover { color: var(--ov-text); }
+.ov-locale.is-active { background: var(--ov-accent); color: #fff; box-shadow: 0 2px 6px var(--ov-accent-glow); }
+.ov-locale:focus-visible { outline: 2px solid var(--ov-accent); outline-offset: 2px; }

@@ -26,27 +26,27 @@ module DataCycleCore
 
     def create_event_with_classifications
       item = create_event
-      update_event(item, { event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id] })
+      update_event(item, { event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung geplant').id] })
     end
 
     def create_event_with_mapped_classification
       item = create_event
-      update_event(item, { event_status: [DataCycleCore::Classification.find_by(name: 'Test Veranstaltung geplant').id] })
+      update_event(item, { event_status: [DataCycleCore::Concept.find_by(name: 'Test Veranstaltung geplant').id] })
     end
 
     def create_event_with_overlay_mapped_classifications
       item = create_event
       update_event(item, {
-        event_status: [DataCycleCore::Classification.find_by(name: 'Test Veranstaltung geplant').id],
-        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Classification.find_by(name: 'Test Veranstaltung abgesagt').id] }]
+        event_status: [DataCycleCore::Concept.find_by(name: 'Test Veranstaltung geplant').id],
+        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Concept.find_by(name: 'Test Veranstaltung abgesagt').id] }]
       })
     end
 
     def create_event_with_overlay_classifications
       item = create_event
       update_event(item, {
-        event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id],
-        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung abgesagt').id] }]
+        event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung geplant').id],
+        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung abgesagt').id] }]
       })
     end
 
@@ -233,14 +233,14 @@ module DataCycleCore
       assert_equal('Veranstaltung', event.data_type.first.name)
 
       # original Event
-      assert_equal(3, event.classifications.size)
+      assert_equal(3, event.concepts.size)
       assert_equal(1, event.data_type.size)
       assert_equal(1, event.event_status.size)
       assert_equal(['Test Veranstaltung geplant'], event.event_status.pluck(:name).sort)
 
       # serialized_event
       assert_equal(1, serialized_event.dig('de', 'universal_classifications').size)
-      assert_equal(['Test1'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
+      assert_equal(['Test1'], DataCycleCore::Concept.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
       # serialized_event classifications
       assert_equal(4, serialized_event['classifications'].size)
@@ -248,6 +248,51 @@ module DataCycleCore
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('universal_classifications') })
       assert_equal(['Test Veranstaltung geplant'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('event_status') }.pluck('name').sort)
       assert_equal(['Test1'], serialized_event['classifications'].select { |i| i['attribute_name'].include?('universal_classifications') }.pluck('name').sort)
+    end
+
+    # The three tests below pin the order of every concept list that reaches a sync payload, for the
+    # reason Content::ContentLoader#load_classifications gives: a reordered list is a changed value to
+    # the consuming instance, which then re-imports a content that did not change.
+    test 'universal_classifications is serialized in id order, mapped ids included' do
+      # Concept ids are random UUIDs, so the concepts are picked by their order and the mapping is made
+      # here: the mapped id the tap appends always sorts into the middle rather than onto the end, and
+      # no concept the fixtures map onto (Test Veranstaltung abgesagt, from Test2) adds one of its own.
+      status = DataCycleCore::Concept.find_by(name: 'Veranstaltung geplant')
+      first, mapped, *rest = DataCycleCore::Concept
+        .where.not(id: DataCycleCore::ConceptLink.related.select(:child_id))
+        .where.not(id: status.id)
+        .reorder(:id)
+        .first(4)
+      DataCycleCore::ConceptLink.create!(parent: mapped, child: status, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
+
+      event = update_event(create_event, { event_status: [status.id], universal_classifications: [first, *rest].pluck(:id).reverse })
+      serialized = event.to_sync_data.dig('de', 'universal_classifications')
+
+      assert_equal([first, mapped, *rest].pluck(:id), serialized)
+    end
+
+    test 'a preloaded concept list reads back in the order a queried one does' do
+      ids = DataCycleCore::Concept.reorder(:id).limit(3).pluck(:id)
+      event = update_event(create_event, { universal_classifications: ids.reverse })
+      queried = DataCycleCore::Thing.find(event.id).universal_classifications.pluck(:id)
+
+      preloaded_event = DataCycleCore::Thing.where(id: event.id).preload(concept_contents: :concept).first
+      # Concept.default_scope's ORDER BY never runs on the preloaded branch, so hand the loaded rows
+      # over in the reverse order to stand in for the order Postgres is free to return once anything
+      # writes to concept_contents
+      reversed = queried.reverse
+      preloaded_event.association(:concept_contents).target.sort_by! { |cc| reversed.index(cc.concept_id) || -1 }
+
+      assert_equal(queried, preloaded_event.universal_classifications.pluck(:id))
+    end
+
+    test 'the sync preload hands its concepts back in id order' do
+      ids = DataCycleCore::Concept.reorder(:id).limit(3).pluck(:id)
+      event = update_event(create_event, { universal_classifications: ids.reverse })
+
+      _things, preloaded = DataCycleCore::Thing.where(id: event.id).preload_sync_data
+
+      assert_equal(preloaded['classifications'].keys.sort, preloaded['classifications'].keys)
     end
 
     def create_event_new_overlay
@@ -322,7 +367,7 @@ module DataCycleCore
       assert_equal('Veranstaltung', event.data_type.first.name)
 
       assert_equal(1, serialized_event.dig('de', 'universal_classifications').size)
-      assert_equal(['Test1'], DataCycleCore::Classification.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
+      assert_equal(['Test1'], DataCycleCore::Concept.where(id: serialized_event.dig('de', 'universal_classifications')).pluck(:name))
 
       assert_equal(5, serialized_event['classifications'].size)
       assert_equal(1, serialized_event['classifications'].count { |i| i['attribute_name'].include?('event_status') })
@@ -349,6 +394,21 @@ module DataCycleCore
 
       assert_not(main_data.key?('asset'))
       assert_predicate(main_data['content_url'], :present?)
+    end
+
+    # Each of these names a value of the sending instance's own bookkeeping that the receiving one
+    # cannot use - see `Content::Content#non_payload_property_names`.
+    test 'sync payload omits the non-payload properties' do
+      article = DataCycleCore::TestPreparations.create_content(
+        template_name: 'Artikel',
+        data_hash: { name: 'Sync Mongo Artikel', dc_mongo_key: 'doc-1', dc_mongo_collection: 'things', dc_ext_key_priority: 3, dummy: 'do_not_show' }
+      )
+
+      assert_equal('doc-1', article.dc_mongo_key)
+      assert_equal(3, article.dc_ext_key_priority)
+      # named rather than read off #non_payload_property_names, which would make the assertion
+      # follow whatever that list happens to hold
+      assert_empty(article.to_sync_data['de'].keys & ['dc_mongo_key', 'dc_mongo_collection', 'dc_ext_key_priority', 'dummy'])
     end
 
     test 'importing a sync payload keeps the local asset of an image' do

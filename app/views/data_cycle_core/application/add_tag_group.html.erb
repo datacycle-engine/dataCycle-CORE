@@ -9,4 +9,4 @@
       filter_method: filter_params['m'] || 'i',
       container_classes: additional_params[:container_classes],
       buttons: additional_params[:buttons]
-    }) if filter_params['v'].present? %>
+    }) unless DataCycleCore::StoredFilter.narrows_nothing?(filter_params) %>

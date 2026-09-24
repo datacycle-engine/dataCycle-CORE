@@ -43,7 +43,7 @@ module DataCycleCore
             part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
 
             definition.dig('content_score', 'score_matrix').each do |k, v|
-              type_of_information = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', k)
+              type_of_information = DataCycleCore::Concept.id_for_tree_with_name('Informationstypen', k)
 
               score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information']&.include?(type_of_information) || e['universal_classifications']&.include?(type_of_information) }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
             end
@@ -56,7 +56,7 @@ module DataCycleCore
             part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
 
             definition.dig('content_score', 'score_matrix').each_value do |v|
-              type_of_information = DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('Informationstypen', v['types'])
+              type_of_information = DataCycleCore::Concept.ids_for_tree_with_name('Informationstypen', v['types'])
 
               score += (DataCycleCore::DataHashService.present?(parameters&.[](key)&.find { |e| e['type_of_information'].intersect?(type_of_information) || e['universal_classifications'].intersect?(type_of_information) }) ? 1 : 0) * (part || (v['weight'].is_a?(::Float) ? v['weight'] : v['weight'].to_r))
             end
@@ -69,7 +69,7 @@ module DataCycleCore
             part = Rational(1, definition.dig('content_score', 'score_matrix').size) unless definition.dig('content_score', 'score_matrix').values.all? { |v| v&.key?('weight') }
 
             definition.dig('content_score', 'score_matrix').each do |k, v|
-              type_of_information = DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Informationstypen', k)
+              type_of_information = DataCycleCore::Concept.id_for_tree_with_name('Informationstypen', k)
 
               score += Base.score_by_quantity(
                 ActionView::Base.full_sanitizer.sanitize(parameters&.[](key)&.find { |e| e['type_of_information']&.include?(type_of_information) || e['universal_classifications']&.include?(type_of_information) }&.[]('description').to_s).presence&.length.to_i,

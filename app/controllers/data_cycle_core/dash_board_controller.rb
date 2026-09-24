@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'data_cycle_core/grafana_dashboard_flattener'
+
 module DataCycleCore
   class DashBoardController < ApplicationController
     authorize_resource class: false # from cancancan (authorize)
@@ -99,6 +101,35 @@ module DataCycleCore
       end
     end
 
+    # Rewrites an exported Grafana dashboard into the variable free clone an external link needs.
+    # This is step 2 of the procedure on DataCycleCore::GrafanaDashboardFlattener: the operator
+    # exports the source dashboard from the internal org by hand and imports the download into the
+    # customer org, so nothing here talks to Grafana and neither side holds a credential.
+    #
+    # The response has to carry the summary (a dq_* constant nobody filled in resolves to an empty
+    # string, which is a valid value that leaves its panel on "Endpunkt nicht gesetzt" for good), so
+    # the file rides along as a data: URI on the download link rather than being fetched in a second
+    # request. Keeping it server side for that request would mean depending on Rails.cache, which is
+    # the NullStore in development - every download would report itself as expired - and a per
+    # process store would miss whenever the two requests hit different puma workers.
+    def flatten_grafana_dashboard
+      upload = params[:dashboard]
+      # A file field posted empty arrives as "", and a hand-made request can put any scalar here,
+      # so the guard is "can this be read" rather than "is it present".
+      return render_flatten_grafana_dashboard_form(error: t('dash_board.maintenance.grafana_dashboard.missing_file', locale: helpers.active_ui_locale)) unless upload.respond_to?(:read)
+
+      flattener = DataCycleCore::GrafanaDashboardFlattener.new(JSON.parse(upload.read))
+      @flattened = flattener.call
+      @empty_variables = flattener.empty_variables
+      @untouched_references = flattener.untouched_references
+      @download_filename = "#{@flattened.dig('spec', 'title').to_s.parameterize.presence || 'dashboard'}-extern.json"
+      @download_href = "data:application/json;charset=utf-8;base64,#{Base64.strict_encode64("#{JSON.pretty_generate(@flattened)}\n")}"
+
+      render :flatten_grafana_dashboard_form
+    rescue JSON::ParserError, DataCycleCore::GrafanaDashboardFlattener::Error => e
+      render_flatten_grafana_dashboard_form(error: e.message)
+    end
+
     def import_module
       @external_source_id = import_module_partial_params[:id]
       @data = DataCycleCore::StatsDatabase.new.load_mongo_stats(@external_source_id)
@@ -126,6 +157,12 @@ module DataCycleCore
 
     def update_computed_attributes_params
       @update_computed_attributes_params ||= params.permit(:templates_or_collection_id, :webhooks, computed_name: [])
+    end
+
+    def render_flatten_grafana_dashboard_form(error:)
+      @error = error
+
+      render :flatten_grafana_dashboard_form
     end
 
     # queues +job_class+ for the requested external system, unless an identical job is already pending

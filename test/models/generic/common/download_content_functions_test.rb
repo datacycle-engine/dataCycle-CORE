@@ -37,10 +37,11 @@ module DataCycleCore
       DataCycleCore::MongoHelper.drop_mongo_db('download-content-functions-test-system')
     end
 
-    def download_object(source_type, locales: [:de])
+    def download_object(source_type, locales: [:de], mode: nil)
       DataCycleCore::Generic::DownloadObject.new(
         external_source: @external_source,
         locales:,
+        mode:,
         download: {
           source_type:,
           name: 'content test',
@@ -463,6 +464,31 @@ module DataCycleCore
       end
 
       assert_predicate captured[:updated_at], :present?
+    end
+
+    # [#51777] The counterpart of the test above: full_delta downloads the whole stock and leaves the
+    # narrowing to the import, so no download step may carry the last successful try into its filter.
+    # The object carries the mode as well, the way utility_object_for_step builds it from one options
+    # hash, although only options[:mode] reaches source_filter.
+    test 'full_delta download_content ignores the last successful try' do
+      object = download_object('dcf_full_delta', mode: :full_delta)
+      captured = nil
+      iterator = lambda { |source_filter:, **_kwargs|
+        captured = source_filter
+        []
+      }
+
+      object.stub(:last_successful_try, Time.zone.local(2020, 1, 1)) do
+        SUBJECT.download_content(
+          download_object: object,
+          iterator:,
+          data_id: ->(data) { data['id'] },
+          options: { locales: [:de], download: {}, mode: 'full_delta' }
+        )
+      end
+
+      assert_not_nil captured, 'the iterator was never called, so the filter was not observed'
+      assert_not captured.key?(:updated_at)
     end
 
     test 'download_content iterates each locale separately' do

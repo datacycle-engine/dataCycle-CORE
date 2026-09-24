@@ -5,6 +5,7 @@ module DataCycleCore
     # Property-type helpers for template schema inspection.
     module PropertyTypes
       GEO_PROPERTY_TYPES = ['geographic'].freeze
+      CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
 
       # Returns the property definition for a nested property path.
       #
@@ -34,6 +35,22 @@ module DataCycleCore
       # @return [Array<String>] Geographic property names.
       def geo_property_names(_include_overlay = false) # rubocop:disable Style/OptionalBooleanParameter
         name_property_selector { |definition| GEO_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      # Selects all classification property definitions from the template.
+      #
+      # @param _include_overlay [Boolean] Reserved parameter for interface compatibility.
+      # @return [Hash{String => Hash}] Classification property definitions keyed by property name.
+      def classification_properties(_include_overlay = false) # rubocop:disable Style/OptionalBooleanParameter
+        property_selector { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      # Returns all classification property names from the template.
+      #
+      # @param _include_overlay [Boolean] Reserved parameter for interface compatibility.
+      # @return [Array<String>] Classification property names.
+      def classification_property_names(_include_overlay = false) # rubocop:disable Style/OptionalBooleanParameter
+        name_property_selector { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       private

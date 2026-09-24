@@ -21,7 +21,7 @@ module DataCycleCore
         assert_equal '09:30', data[0][:opens]
         assert_equal '12:45', data[0][:closes]
         assert_equal 1, data[0][:day_of_week].count
-        assert_equal 'Montag', Classification.find(data[0][:day_of_week].first).name
+        assert_equal 'Montag', Concept.find(data[0][:day_of_week].first).name
       end
     end
 
@@ -47,7 +47,7 @@ module DataCycleCore
         assert_equal '09:30', data[0][:opens]
         assert_equal '12:45', data[0][:closes]
         assert_equal 2, data[0][:day_of_week].count
-        assert_equal ['Montag', 'Dienstag'].sort, Classification.where(id: data[0][:day_of_week]).map(&:name).sort
+        assert_equal ['Montag', 'Dienstag'].sort, Concept.where(id: data[0][:day_of_week]).map(&:name).sort
       end
     end
   end

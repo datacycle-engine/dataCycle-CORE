@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 def external_identifier(content)
-  return {} if content.external_source.blank?
+  return {} if content.external_system.blank?
 
   {
     'identifier' => [
       {
         '@type' => 'PropertyValue',
-        'propertyID' => content.external_source&.identifier,
-        'value' => content.primary_classification&.external_key
+        'propertyID' => content.external_system.identifier,
+        'value' => content.external_key
       }
     ]
   }
@@ -71,11 +71,10 @@ def render_description(content, languages)
   return_data.presence
 end
 
-uri = classifications_api_v4_concept_scheme_url(content.classification_tree_label.id, classification_id: content.id, api_subversion: @subversion, language: serialize_language(options[:languages]))
+uri = classifications_api_v4_concept_scheme_url(content.concept_scheme_id, classification_id: content.id, api_subversion: @subversion, language: serialize_language(options[:languages]))
 
-ancestors = content.ancestors.to_a
-scheme = ancestors.last
-concept_ancestors = ancestors[0..-2]
+scheme = content.concept_scheme
+concept_ancestors = content.ancestors.to_a
 
 json = {
   '@id' => content.id,
@@ -89,13 +88,14 @@ attributes = {
   'skos:prefLabel' => -> { render_pref_label(content, options[:languages]) },
   'dct:description' => -> { render_description(content, options[:languages]) },
   'url' => -> { content.uri },
-  'skos:inScheme' => -> { render_classification('skos:inScheme', 'classification_tree', scheme, build_new_options_object('skos:inScheme', options)) },
-  'skos:topConceptOf' => -> { concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, build_new_options_object('skos:topConceptOf', options)) },
-  'skos:broader' => -> { concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, build_new_options_object('skos:broader', options)) : nil },
-  'skos:ancestors' => -> { concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, build_new_options_object('skos:ancestors', options)) }.presence },
+  'skos:inScheme' => -> { scheme && render_classification('skos:inScheme', 'classification_tree', scheme, build_new_options_object('skos:inScheme', options)) },
+  'skos:topConceptOf' => -> { scheme && concept_ancestors.empty? ? render_classification('skos:topConceptOf', 'classification_tree', scheme, build_new_options_object('skos:topConceptOf', options)) : nil },
+  'skos:broader' => -> { concept_ancestors.first&.then { |broader| render_classification('skos:broader', 'classification', broader, build_new_options_object('skos:broader', options)) } },
+  'skos:ancestors' => -> { concept_ancestors.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, build_new_options_object('skos:ancestors', options)) }.presence },
   'dct:created' => -> { content.created_at },
   'dct:modified' => -> { content.updated_at },
-  'dct:deleted' => -> { content.deleted_at }
+  # only a Concept::History carries one - see DataCycleCore::Concept::History
+  'dct:deleted' => -> { content.try(:deleted_at) }
 }
 
 attributes.each do |attribute, operation|
@@ -109,7 +109,7 @@ json['dc:icon'] = content.icon if attribute_visible?('dc:icon', options, false) 
 json['dc:slugifiedName'] = render_slugified_name(content, options[:languages]) if attribute_visible?('dc:slugifiedName', options, false)
 
 if attribute_visible?('geo', options, false) &&
-   (geom = geoshape_as_json(content.classification_polygons&.first&.geom)).present?
+   (geom = geoshape_as_json(content.concept_polygons&.first&.geom)).present?
   json['geo'] = {
     '@id' => generate_uuid(content.id, 'geo'),
     '@type' => 'GeoShape',

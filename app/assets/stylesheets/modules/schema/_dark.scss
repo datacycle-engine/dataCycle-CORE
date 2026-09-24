@@ -1,0 +1,209 @@
+// ---------------------------------------------------------------------------
+// /schema — dark mode. Follows the OS/browser colour-scheme preference by
+// default; the on-page toggle (.schema-theme-toggle, see
+// auto_init_components/schema_theme_toggle.js) can force either theme by
+// setting `data-schema-theme="dark"|"light"` on <body>, which then wins over
+// the OS preference.
+//
+// Every /schema colour already flows through the --sc-* custom properties
+// defined on `body.schema` (see _index.scss), so dark mode is almost entirely
+// a redefinition of those tokens — nothing below duplicates layout, only colour.
+// The handful of rules that still use hardcoded hex (detail-page SCSS $variables,
+// the dependency graph's node fills / canvas grid / edges, the instance logo)
+// can't react to a custom-property override and are patched individually below.
+// ---------------------------------------------------------------------------
+
+// All colour tokens redefined for dark mode.
+@mixin schema-dark-tokens {
+  color-scheme: dark;
+
+  // --sc-primary is unchanged in dark mode (#e5054e in both themes); only its
+  // hover/glow/muted derivatives need a dark-aware value.
+  --sc-primary-hover: #ff3f7e; // hover lightens on a dark surface (light mode darkens)
+  --sc-primary-glow: rgba(229, 5, 78, 0.18);
+  --sc-primary-muted: rgba(229, 5, 78, 0.55);
+
+  --sc-embedded: #a78bfa;
+  --sc-embedded-hover: #bda4fb;
+  --sc-embedded-glow: rgba(167, 139, 250, 0.18);
+  --sc-embedded-border: rgba(167, 139, 250, 0.35);
+  --sc-embedded-shadow: rgba(167, 139, 250, 0.6);
+
+  --sc-bg: #111827;
+  --sc-card: #1a2332;
+  --sc-border: #2a3448;
+  --sc-border-strong: #3a4660;
+  --sc-text: #e5e7eb;
+  --sc-heading: #f9fafb;
+  --sc-secondary: #9aa4b7;
+  --sc-path: #8b96ab;
+  --sc-badge: rgba(229, 5, 78, 0.16);
+  --sc-icon-bg: rgba(229, 5, 78, 0.18);
+
+  --sc-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --sc-card-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.5);
+
+  --sc-tag-fg: #a7afc0;
+  --sc-tag-bg: rgba(255, 255, 255, 0.06);
+  --sc-tag-border: rgba(255, 255, 255, 0.12);
+  --sc-primary-border: rgba(229, 5, 78, 0.4);
+
+  --sc-internal: #eab308;
+  --sc-internal-bg: rgba(234, 179, 8, 0.18);
+  --sc-internal-border: rgba(234, 179, 8, 0.4);
+
+  // neutral "ink" fill used by the deps toggle & the "nur mit Inhalten" filter
+  // (kept apart from --sc-text, which is body copy and must stay light here —
+  // reusing --sc-text for these fills would put light-grey-on-white on a dark
+  // page and lose all contrast)
+  --sc-ink: #e5e7eb;
+  --sc-ink-contrast: #111827;
+  --sc-ink-hover: #ffffff;
+}
+
+// Everything that can't react to the custom properties above.
+@mixin schema-dark-fixups {
+  // recolour the (black) instance logo to white so it stays visible
+  .schema-brand .logo img {
+    filter: brightness(0) invert(1);
+  }
+
+  // embedded cards (index) AND the embedded object icon on the detail head tint
+  // their icon circle from --sc-icon-bg; give the dark theme a matching violet
+  // wash instead of the light-mode lilac. The detail icon's --embedded modifier
+  // hardcodes a light #f0eafc (see _detail.scss), which can't react to the token
+  // overrides above, so it must be reset here too — otherwise a light lilac badge
+  // would sit on the dark detail head, inconsistent with the index cards.
+  .schema-card[data-part="embedded"],
+  .schema-detail__icon--embedded {
+    --sc-icon-bg: rgba(167, 139, 250, 0.18);
+  }
+
+  // schema.org definition pill (_shared.scss) hardcodes a light-mode pink tint;
+  // nesting the override under body.schema leaves it untouched on non-schema pages
+  .schema-org-link {
+    background: rgba(229, 5, 78, 0.16);
+    border-color: rgba(229, 5, 78, 0.4);
+
+    &:hover,
+    &:focus {
+      background: rgba(229, 5, 78, 0.24);
+      border-color: rgba(229, 5, 78, 0.55);
+    }
+  }
+
+  // detail page (_detail.scss) styles a few elements via compile-time SCSS
+  // $variables ($schema-ink / $schema-muted / $schema-line) rather than the
+  // --sc-* custom properties, so they can't pick up the token overrides above —
+  // point them at the equivalent dark-aware tokens instead.
+  // The base idle colours below tie on specificity with the shared
+  // `.schema-chip:hover` rule in _detail.scss (both (0,3,1)); since this file
+  // is imported after _detail.scss it would win on source order and swallow the
+  // hover state, leaving dark-mode chips inert on hover. Re-assert the hover
+  // rules here (they read the dark-aware --sc-* tokens) so they match light mode.
+  .schema-chip {
+    color: var(--sc-text);
+    background: var(--sc-card);
+    border-color: var(--sc-border);
+
+    &:hover {
+      color: var(--sc-primary);
+      border-color: var(--sc-primary-border);
+    }
+
+    &[data-schema-filter="embedded"]:hover {
+      color: var(--sc-embedded);
+      border-color: var(--sc-embedded);
+      background: var(--sc-embedded-glow);
+    }
+  }
+
+  .schema-lists .schema-card {
+    border-bottom-color: var(--sc-border);
+
+    &__key { color: var(--sc-heading); }
+    // …but embedded-attribute titles keep the violet accent (matching light mode),
+    // so the --sc-heading fixup above must not swallow the --embedded key here.
+    &__key--embedded { color: var(--sc-embedded); }
+    &__head::before { color: var(--sc-secondary); }
+    &__label { color: var(--sc-secondary); }
+    &::marker { color: var(--sc-secondary); }
+  }
+
+  .schema-detail .schema-filter__count,
+  .schema-detail .schema-filter__empty {
+    color: var(--sc-secondary);
+  }
+
+  // ---- dependency graph: dot-grid canvas, edges and node fills are literal
+  //      colours tuned for a white canvas — give them dark equivalents ----
+  main.schema-index .schema-graph__canvas {
+    background:
+      radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 22px 22px,
+      var(--sc-bg);
+  }
+
+  main.schema-index .schema-graph__edge {
+    stroke: #4b5871;
+  }
+
+  main.schema-index .schema-graph__node {
+    &:hover rect { filter: brightness(1.12); }
+
+    &.is-main rect { fill: #241722; }
+    &.is-embedded rect { fill: #201a30; }
+  }
+
+  main.schema-index .schema-graph__side-group.is-embedded {
+    background: rgba(167, 139, 250, 0.18);
+  }
+
+  // the "deps" schema-part toggle and the "nur mit Inhalten" filter fill
+  // themselves with --sc-text as a neutral dark accent in light mode — swap
+  // to the dedicated --sc-ink tokens above so dark mode keeps contrast
+  main.schema-index .schema-part[data-schema-part="deps"],
+  main.schema-index .schema-filter__toggle {
+    &:hover,
+    &:focus-visible {
+      border-color: var(--sc-ink);
+      color: var(--sc-ink);
+    }
+
+    &.is-active {
+      background: var(--sc-ink);
+      border-color: var(--sc-ink);
+      color: var(--sc-ink-contrast);
+
+      &:hover { background: var(--sc-ink-hover); border-color: var(--sc-ink-hover); }
+    }
+  }
+}
+
+// 1) Follow the OS/browser preference, unless the on-page toggle forced light mode
+@media (prefers-color-scheme: dark) {
+  body.schema:not([data-schema-theme="light"]) {
+    @include schema-dark-tokens;
+    @include schema-dark-fixups;
+  }
+}
+
+// 2) The on-page toggle forced dark mode — applies regardless of OS preference
+body.schema[data-schema-theme="dark"] {
+  @include schema-dark-tokens;
+  @include schema-dark-fixups;
+}
+
+// Document-level color-scheme (native UA chrome: viewport scrollbar, default
+// form-control theming) mirrors the same two cases above, but must land on
+// <html> itself — unlike the OpenAPI viewer (whose toggle stores its override
+// on <html> directly, see ../../openapi_viewer/dark.scss), the /schema toggle's
+// override attribute lives on <body>, so :has() is needed to reach up from it.
+@media (prefers-color-scheme: dark) {
+  html:has(body.schema:not([data-schema-theme="light"])) {
+    color-scheme: dark;
+  }
+}
+
+html:has(body.schema[data-schema-theme="dark"]) {
+  color-scheme: dark;
+}

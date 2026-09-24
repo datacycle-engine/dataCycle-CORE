@@ -1,0 +1,21 @@
+// A pixie's generate button is the last element of the label of the attribute it fills, so it only
+// has to be pushed to the far end of that flex row -- the imageDescriptionPixie's wand sits in the
+// toolbar of its text editor the same way, and neither needs an offset of its own.
+.attribute-edit-label > .pixie-generate-button {
+  margin-left: auto;
+
+  // the buttons of one label stay together at that end
+  ~ .pixie-generate-button {
+    margin-left: 0;
+  }
+}
+
+// The upload mask's labels are in the normal flow and fill their row, so that push lands the button
+// at the right edge. In the detail edit form .detail-header positions every label absolutely
+// (top: 0.2rem, left: 1rem), which shrinks it to the width of its own text -- margin-left: auto then
+// has nothing to push against and the wand ends up beside the label. Naming the far edge as well
+// gives the label the width its max-width already allows, and keeps the 2.3rem left offset a
+// translatable attribute's label gets from the language icon.
+.detail-header label.attribute-edit-label:has(> .pixie-generate-button) {
+  right: 1rem;
+}

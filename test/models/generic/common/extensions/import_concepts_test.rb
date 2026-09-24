@@ -29,7 +29,7 @@ module DataCycleCore
             external_system_processor = ->(data_array:, **) { data_array }
             captured = nil
 
-            DataCycleCore::ClassificationTreeLabel.stub(:upsert_all, lambda { |data, **_opts|
+            DataCycleCore::ConceptScheme.stub(:upsert_all, lambda { |data, **_opts|
               captured = data
               [{ 'id' => 'csl-1' }]
             }) do
@@ -55,14 +55,14 @@ module DataCycleCore
             data_processor = ->(**) { { external_key: 'c1', name: 'C One' } }
             data_transformer = ->(**) { { scheme => [{ external_key: 'c1', name: 'C One' }] } }
             data_mapping_processor = ->(**) { [{ parent_id: 'p', child_id: 'c', link_type: 'related' }] }
-            data_geom_processor = ->(**) { [{ classification_alias_id: 'a', geom: 'POINT (1 2)' }] }
+            data_geom_processor = ->(**) { [{ concept_id: 'a', geom: 'POINT (1 2)' }] }
             captured_mappings = nil
 
             DataCycleCore::ConceptLink.stub(:insert_all, lambda { |mappings, **_opts|
               captured_mappings = mappings
               [{ 'id' => 'link-1' }]
             }) do
-              DataCycleCore::ClassificationPolygon.stub(:upsert_all_geoms, 1) do
+              DataCycleCore::ConceptPolygon.stub(:upsert_all_geoms, 1) do
                 @subject.import_concepts(utility_object: import_object('ic_step'), iterator: concept_iterator, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options: { import: {} })
               end
             end
@@ -78,7 +78,7 @@ module DataCycleCore
 
             stub_instrument do
               DataCycleCore::ConceptLink.stub(:insert_all, []) do
-                DataCycleCore::ClassificationPolygon.stub(:upsert_all_geoms, 0) do
+                DataCycleCore::ConceptPolygon.stub(:upsert_all_geoms, 0) do
                   assert_nothing_raised do
                     @subject.import_concepts(utility_object: import_object('icn_step'), iterator: concept_iterator, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options: { import: {} })
                   end
@@ -111,7 +111,7 @@ module DataCycleCore
             stub_instrument do
               Rails.env.stub(:local?, false) do
                 DataCycleCore::ConceptLink.stub(:insert_all, []) do
-                  DataCycleCore::ClassificationPolygon.stub(:upsert_all_geoms, 0) do
+                  DataCycleCore::ConceptPolygon.stub(:upsert_all_geoms, 0) do
                     assert_nothing_raised do
                       @subject.import_concepts(utility_object: import_object('icx_step'), iterator: concept_iterator, data_processor:, data_transformer:, data_mapping_processor:, data_geom_processor:, options: { import: {} })
                     end
@@ -142,7 +142,7 @@ module DataCycleCore
             Class.new {
               def name = 'Scheme One'
               def external_key = 'scheme-1'
-              def upsert_all_external_classifications(_concepts) = [{ 'id' => 'cls-1' }]
+              def upsert_all_external_concepts(_concepts) = [{ 'id' => 'cls-1' }]
             }.new
           end
 
@@ -150,7 +150,7 @@ module DataCycleCore
             Class.new {
               def name = 'Boom Scheme'
               def external_key = 'boom'
-              def upsert_all_external_classifications(_concepts) = raise('boom')
+              def upsert_all_external_concepts(_concepts) = raise('boom')
             }.new
           end
 

@@ -99,7 +99,7 @@ module DataCycleCore
 
     test 'a non-relation parameter (e.g. a classification) whose value coincidentally equals the id is not flagged (and not treated as a self-reference)' do
       stored_filter = DataCycleCore::StoredFilter.create!(name: 'coincidence', user_id: @user.id, language: ['de'])
-      stored_filter.parameters = [{ 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'classification_alias_ids', 'v' => [stored_filter.id] }]
+      stored_filter.parameters = [{ 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'concept_ids', 'v' => [stored_filter.id] }]
 
       assert_not(stored_filter.self_referential?)
       assert_predicate(stored_filter, :valid?)
@@ -111,7 +111,7 @@ module DataCycleCore
 
     test 'the self-reference validation does not run when only non-parameter attributes change (AK4/AK5)' do
       stored_filter = DataCycleCore::StoredFilter.create!(name: 'valid', user_id: @user.id, language: ['de'], parameters: [
-                                                            { 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'classification_alias_ids', 'v' => get_concept_ids('Inhaltstypen', 'Organisation') }
+                                                            { 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'concept_ids', 'v' => get_concept_ids('Inhaltstypen', 'Organisation') }
                                                           ])
 
       # Count actual invocations of the (potentially expensive) check: a name-only save must skip it

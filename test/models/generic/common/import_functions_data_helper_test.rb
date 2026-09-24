@@ -72,7 +72,7 @@ module DataCycleCore
       ids = SUBJECT.send(:default_classification, value: 'Tag 3', tree_label: 'Tags')
 
       assert_equal 1, ids.size
-      assert_includes get_classification_ids('Tags', 'Tag 3'), ids.first
+      assert_includes get_concept_ids('Tags', 'Tag 3'), ids.first
     end
 
     test 'load_default_values maps configured default values to classification ids' do
@@ -81,7 +81,7 @@ module DataCycleCore
 
       result = SUBJECT.load_default_values({ 'my_tags' => { value: 'Tag 3', tree_label: 'Tags' } })
 
-      assert_equal get_classification_ids('Tags', 'Tag 3').first, result['my_tags'].first
+      assert_equal get_concept_ids('Tags', 'Tag 3').first, result['my_tags'].first
     end
 
     test 'transform_external_system_data! applies identifier mapping and transformation' do
@@ -307,6 +307,28 @@ module DataCycleCore
       )
 
       assert_equal 'doc-1', content.dc_mongo_key
+    end
+
+    # The publisher Organization a whole data hub shares reaches process_step once per parent
+    # document, each handing its own key down - ImportFunctionsDataHelper#process_step says what
+    # hashing that key cost.
+    test 'process_step skips a re-import differing only in the mongo key handed down' do
+      object = utility_object('ifdh_shared_nested')
+      args = lambda { |document_key|
+        {
+          utility_object: object,
+          raw_data: { 'dc_external_id' => document_key, 'external_key' => 'sn-1', 'name' => 'SN Artikel' },
+          transformation: ->(data) { data },
+          default: { template: 'Artikel' },
+          config: {}
+        }
+      }
+
+      content = SUBJECT.process_step(**args.call('doc-1'))
+      again = SUBJECT.process_step(**args.call('doc-2'))
+
+      assert_equal content.id, again.id
+      assert_equal 'doc-1', again.dc_mongo_key
     end
 
     test 'create_or_update_content reloads existing content on a template mismatch' do

@@ -47,18 +47,16 @@ Performance/CollectionLiteralInLoop:
 # Offense count: 23
 Rails/HasManyOrHasOneDependent:
   Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
     - 'app/models/data_cycle_core/content/content_relations.rb'
     - 'app/models/data_cycle_core/feature/content/content_lock.rb'
     - 'app/models/data_cycle_core/user.rb'
+    - 'app/models/data_cycle_core/concept.rb'
+    - 'app/models/data_cycle_core/concept_extensions/pathable.rb'
 
 # Offense count: 46
 # Configuration parameters: IgnoreScopes.
 Rails/InverseOf:
   Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
     - 'app/models/data_cycle_core/content/content_relations.rb'
     - 'app/models/data_cycle_core/data_link.rb'
     - 'app/models/data_cycle_core/user.rb'
@@ -425,16 +423,6 @@ Style/Documentation:
     - 'app/models/data_cycle_core/audio.rb'
     - 'app/models/data_cycle_core/base_schema.rb'
     - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_alias_paths_transitive.rb'
-    - 'app/models/data_cycle_core/classification_content.rb'
-    - 'app/models/data_cycle_core/classification_group.rb'
-    - 'app/models/data_cycle_core/classification_polygon.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/classification_user_group.rb'
-    - 'app/models/data_cycle_core/collected_classification_content.rb'
     - 'app/models/data_cycle_core/collection.rb'
     - 'app/models/data_cycle_core/collection_concept_scheme_link.rb'
     - 'app/models/data_cycle_core/collection_configuration.rb'
@@ -893,6 +881,12 @@ Style/Documentation:
     - 'lib/rake_helpers/parallel_helper.rb'
     - 'lib/rake_helpers/shell_helper.rb'
     - 'lib/rake_helpers/time_helper.rb'
+    - 'app/models/data_cycle_core/collected_concept_content.rb'
+    - 'app/models/data_cycle_core/concept_content.rb'
+    - 'app/models/data_cycle_core/concept_path.rb'
+    - 'app/models/data_cycle_core/concept_paths_transitive.rb'
+    - 'app/models/data_cycle_core/concept_polygon.rb'
+    - 'app/models/data_cycle_core/concept_user_group.rb'
 
 # Offense count: 3487
 # Configuration parameters: AllowedMethods, RequireForNonPublicMethods.
@@ -1148,15 +1142,6 @@ Style/DocumentationMethod:
     - 'app/models/data_cycle_core/audio.rb'
     - 'app/models/data_cycle_core/base_schema.rb'
     - 'app/models/data_cycle_core/callbacks.rb'
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_alias_paths_transitive.rb'
-    - 'app/models/data_cycle_core/classification_content.rb'
-    - 'app/models/data_cycle_core/classification_group.rb'
-    - 'app/models/data_cycle_core/classification_polygon.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/classification_tree_label.rb'
-    - 'app/models/data_cycle_core/collected_classification_content.rb'
     - 'app/models/data_cycle_core/collection.rb'
     - 'app/models/data_cycle_core/common/arel_builder.rb'
     - 'app/models/data_cycle_core/common/relation_class_methods.rb'
@@ -1165,6 +1150,7 @@ Style/DocumentationMethod:
     - 'app/models/data_cycle_core/common/ts_query_helpers.rb'
     - 'app/models/data_cycle_core/common/ui_extensions.rb'
     - 'app/models/data_cycle_core/concept.rb'
+    - 'app/models/data_cycle_core/concept_extensions/presentable.rb'
     - 'app/models/data_cycle_core/concept_link.rb'
     - 'app/models/data_cycle_core/concept_scheme.rb'
     - 'app/models/data_cycle_core/content/content.rb'
@@ -1316,6 +1302,7 @@ Style/DocumentationMethod:
     - 'app/models/data_cycle_core/filter/search.rb'
     - 'app/models/data_cycle_core/filter/select_option.rb'
     - 'app/models/data_cycle_core/filter/sortable.rb'
+    - 'app/models/data_cycle_core/filter/sortable/proximity.rb'
     - 'app/models/data_cycle_core/generic/collection.rb'
     - 'app/models/data_cycle_core/generic/collection2.rb'
     - 'app/models/data_cycle_core/generic/common/cleanup.rb'
@@ -1594,6 +1581,15 @@ Style/DocumentationMethod:
     - 'lib/rake_helpers/parallel_helper.rb'
     - 'lib/rake_helpers/shell_helper.rb'
     - 'lib/rake_helpers/time_helper.rb'
+    - 'app/models/data_cycle_core/collected_concept_content.rb'
+    - 'app/models/data_cycle_core/concept_content.rb'
+    - 'app/models/data_cycle_core/concept_extensions/mergeable.rb'
+    - 'app/models/data_cycle_core/concept_extensions/pathable.rb'
+    - 'app/models/data_cycle_core/concept_path.rb'
+    - 'app/models/data_cycle_core/concept_paths_transitive.rb'
+    - 'app/models/data_cycle_core/concept_polygon.rb'
+    - 'app/models/data_cycle_core/concept_scheme_extensions/bulk_import.rb'
+    - 'app/models/data_cycle_core/concept_scheme_extensions/csv_export.rb'
 
 # Offense count: 2
 Style/MissingRespondToMissing:
@@ -1625,7 +1621,6 @@ Style/OptionalBooleanParameter:
     - 'app/helpers/data_cycle_core/history_helper.rb'
     - 'app/helpers/data_cycle_core/thing_helper.rb'
     - 'app/models/data_cycle_core/api_renderer/thing_renderer_v4.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
     - 'app/models/data_cycle_core/content/content.rb'
     - 'app/models/data_cycle_core/content/content_history_loader.rb'
     - 'app/models/data_cycle_core/content/content_loader.rb'
@@ -1644,6 +1639,7 @@ Style/OptionalBooleanParameter:
     - 'app/models/data_cycle_core/filter/common/id.rb'
     - 'app/models/data_cycle_core/filter/search.rb'
     - 'app/models/data_cycle_core/filter/sortable.rb'
+    - 'app/models/data_cycle_core/filter/sortable/proximity.rb'
     - 'app/models/data_cycle_core/generic/common/functions.rb'
     - 'app/models/data_cycle_core/generic/common/opening_hours.rb'
     - 'app/models/data_cycle_core/master_data/differs/basic.rb'

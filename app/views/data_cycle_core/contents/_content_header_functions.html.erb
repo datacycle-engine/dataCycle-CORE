@@ -4,7 +4,7 @@
 
     <%= render 'data_cycle_core/contents/locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
-    <%= render 'content_header_preview_links', content: content if content.try(:output_channel)&.includes(:primary_classification_alias)&.any? { |c| c.uri.present? || c.primary_classification_alias&.uri.present? } %>
+    <%= render 'content_header_preview_links', content: content if content.try(:output_channel)&.any? { |c| c.uri.present? } %>
 
     <% if can? :create, :auto_translate %>
       <%= render 'auto_translation', local_assigns if DataCycleCore::Feature::AutoTranslation.allowed?(content) %>

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Feature
     class AdvancedFilter < Base
-      FILTERS_WITH_VALUE_IN_N = ['classification_alias_ids', 'date_range', 'advanced_attributes', 'boolean'].freeze
+      FILTERS_WITH_VALUE_IN_N = ['concept_ids', 'date_range', 'advanced_attributes', 'boolean'].freeze
 
       def all_filters_by_locale(locale, filter = nil)
         return [] if !enabled? || locale.blank?
@@ -70,7 +70,7 @@ module DataCycleCore
         allowed_filters(filters, user, view_type).reverse
       end
 
-      def self.advanced_attribute_classification_tree_label(specific_type)
+      def self.advanced_attribute_tree_label(specific_type)
         configuration.dig('advanced_attributes', specific_type, 'tree_label')
       end
 
@@ -80,15 +80,15 @@ module DataCycleCore
         configuration['advanced_attributes'] || {}
       end
 
-      def classification_alias_ids(locale, value)
+      def concept_ids(locale, value)
         return [] unless value
 
-        query = DataCycleCore::ClassificationTreeLabel.all
+        query = DataCycleCore::ConceptScheme.all
         query = query.where(name: value) if value.is_a?(Array)
         query.map do |c|
           [
-            I18n.t("filter.classification_alias_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale:), locale:),
-            'classification_alias_ids',
+            I18n.t("filter.concept_ids.#{c.name.underscore_blanks}", default: I18n.t("filter.#{c.name.underscore_blanks}", default: c.name, locale:), locale:),
+            'concept_ids',
             { data: { name: c.name, visible: c.visible?('filter') } }
           ]
         end
@@ -395,7 +395,7 @@ module DataCycleCore
 
       def cache_key_base
         cache_key = "#{feature_path}_#{Digest::SHA2.hexdigest(configuration.to_json)}"
-        cache_key += "_#{DataCycleCore::ClassificationTreeLabel.maximum(:updated_at)&.iso8601}" if configuration['classification_alias_ids']
+        cache_key += "_#{DataCycleCore::ConceptScheme.maximum(:updated_at)&.iso8601}" if configuration['concept_ids']
         cache_key += "_#{DataCycleCore::ContentContent::Link.any?}" if configuration['graph_filter']
         cache_key
       end

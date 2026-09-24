@@ -5,7 +5,7 @@
       data: {
         additional_form_parameters: to_query_params({
               content_class: local_assigns[:content_class] || 'things',
-              count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label'
+              count_mode: @concept_scheme.nil? ? nil : 'concept_scheme'
             }).to_json
       }
     ) %>

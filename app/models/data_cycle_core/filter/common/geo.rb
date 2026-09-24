@@ -98,13 +98,13 @@ module DataCycleCore
           # The approach of chaining ORs is still the most efficient though not the prettiest
           # Following variants where considered:
           # * ST_Union of all classification-geometries -> does not use an index on the resulting multi-geometry
-          # * ST_Intersect on all classification-geometries whith pre-filter on classification_alias_id and a BBOX-filter on geometries (&&) -> inides not optimally used
+          # * ST_Intersect on all classification-geometries whith pre-filter on concept_id and a BBOX-filter on geometries (&&) -> inides not optimally used
           contains_queries = []
           ids.each do |id|
-            sub_query = DataCycleCore::ClassificationPolygon
+            sub_query = DataCycleCore::ConceptPolygon
               .select(:geom)
               .limit(1)
-              .where(classification_alias_id: id)
+              .where(concept_id: id)
               .arel
 
             contains_queries << st_intersects(sub_query, geometries_table[:geom_simple])
@@ -128,10 +128,10 @@ module DataCycleCore
 
           contains_queries = []
           ids.each do |id|
-            sub_query = DataCycleCore::ClassificationPolygon
+            sub_query = DataCycleCore::ConceptPolygon
               .select(:geom)
               .limit(1)
-              .where(classification_alias_id: id)
+              .where(concept_id: id)
               .arel
 
             contains_queries << st_intersects(sub_query, geometries_table[:geom_simple]).not

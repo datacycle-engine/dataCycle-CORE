@@ -230,7 +230,7 @@ module DataCycleCore
         end
 
         test 'GET/POST /api/v4/concept_schemes/id' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
+          tree_id = DataCycleCore::ConceptScheme.where(name: 'Geschlecht').visible('api').first.id
           params = { id: tree_id }
 
           get api_v4_concept_scheme_path(params)
@@ -247,7 +247,7 @@ module DataCycleCore
         end
 
         test 'GET/POST /api/v4/concept_schemes/id/concepts' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
+          tree_id = DataCycleCore::ConceptScheme.where(name: 'Geschlecht').visible('api').first.id
           params = { id: tree_id }
 
           get classifications_api_v4_concept_scheme_path(params)
@@ -266,8 +266,8 @@ module DataCycleCore
         end
 
         test 'GET/POST /api/v4/concept_schemes/id/concepts/classification_id' do
-          tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).any? }
-          classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
+          tree = DataCycleCore::ConceptScheme.all.detect { |item| DataCycleCore::Concept.for_tree(item.name).any? }
+          classification = DataCycleCore::Concept.for_tree(tree.name).first
           params = {
             id: tree.id,
             classification_id: classification.id

@@ -30,7 +30,7 @@ module DataCycleCore
         icon = renderer.include_config('things').find { |c| c[:identifier] == '"dc:iconId"' }
 
         assert(icon)
-        assert_includes(icon[:joins], "classification_contents.relation = 'primary_icon_classifications'")
+        assert_includes(icon[:joins], "concept_contents.relation = 'primary_icon_classifications'")
         assert_includes(icon[:joins], "'api' = ANY(concept_schemes.visibility)")
       end
 

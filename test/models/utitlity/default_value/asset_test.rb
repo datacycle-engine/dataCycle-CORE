@@ -38,7 +38,7 @@ module DataCycleCore
 
         test 'color_space_classification wraps an existing classification candidate' do
           DataCycleCore::Asset.stub(:find_by, struct_double(metadata: { 'ImColorSpace' => 'sRGB' })) do
-            DataCycleCore::ClassificationAlias.stub(:classification_for_tree_with_name, 'cs-existing') do
+            DataCycleCore::Concept.stub(:id_for_tree_with_name, 'cs-existing') do
               value = subject.color_space_classification(property_parameters: { 'a' => 'asset-1' }, property_definition: { 'tree_label' => 'Color Spaces' })
 
               assert_equal(['cs-existing'], value)
@@ -47,11 +47,11 @@ module DataCycleCore
         end
 
         test 'color_space_classification creates a classification when no candidate exists' do
-          tree_label = classification_tree_label_double('cs-new')
+          concept_scheme = concept_scheme_double('cs-new')
 
           DataCycleCore::Asset.stub(:find_by, struct_double(metadata: { 'ImColorSpace' => 'sRGB' })) do
-            DataCycleCore::ClassificationAlias.stub(:classification_for_tree_with_name, nil) do
-              DataCycleCore::ClassificationTreeLabel.stub(:find_by, tree_label) do
+            DataCycleCore::Concept.stub(:id_for_tree_with_name, nil) do
+              DataCycleCore::ConceptScheme.stub(:find_by, concept_scheme) do
                 value = subject.color_space_classification(property_parameters: { 'a' => 'asset-1' }, property_definition: { 'tree_label' => 'Color Spaces' })
 
                 assert_equal(['cs-new'], value)
@@ -64,7 +64,7 @@ module DataCycleCore
 
         test 'exif_to_classification maps exif metadata to existing classification ids' do
           DataCycleCore::Asset.stub(:find_by, struct_double(metadata: { 'Keywords' => ['Alpha', 'Beta'] })) do
-            DataCycleCore::ClassificationAlias.stub(:classifications_for_tree_with_name, ['kw-1', 'kw-2']) do
+            DataCycleCore::Concept.stub(:ids_for_tree_with_name, ['kw-1', 'kw-2']) do
               value = subject.exif_to_classification(
                 property_parameters: { 'a' => 'asset-1' },
                 property_definition: { 'tree_label' => 'Keywords', 'default_value' => { 'options' => { 'metadata' => ['Keywords'] } } },
@@ -80,7 +80,7 @@ module DataCycleCore
           mapping = ->(_tree, value) { value == 'Fallback' ? ['kw-default'] : [] }
 
           DataCycleCore::Asset.stub(:find_by, struct_double(metadata: { 'Keywords' => ['Alpha'] })) do
-            DataCycleCore::ClassificationAlias.stub(:classifications_for_tree_with_name, mapping) do
+            DataCycleCore::Concept.stub(:ids_for_tree_with_name, mapping) do
               value = subject.exif_to_classification(
                 property_parameters: { 'a' => 'asset-1' },
                 property_definition: { 'tree_label' => 'Keywords', 'default_value' => { 'options' => { 'metadata' => ['Keywords'], 'default' => 'Fallback' } } },
@@ -93,10 +93,10 @@ module DataCycleCore
         end
 
         test 'exif_to_classification creates classifications and prefers the import default when locally imported' do
-          tree_label = classification_tree_label_double('kw-created')
+          concept_scheme = concept_scheme_double('kw-created')
 
           DataCycleCore::Asset.stub(:find_by, struct_double(metadata: { 'Keywords' => ['Alpha'] })) do
-            DataCycleCore::ClassificationTreeLabel.stub(:find_by, tree_label) do
+            DataCycleCore::ConceptScheme.stub(:find_by, concept_scheme) do
               value = subject.exif_to_classification(
                 property_parameters: { 'a' => 'asset-1' },
                 property_definition: { 'tree_label' => 'Keywords', 'default_value' => { 'options' => { 'metadata' => ['Keywords'], 'create' => true, 'default_import' => 'ImportDefault' } } },
@@ -194,12 +194,11 @@ module DataCycleCore
 
         private
 
-        # tree_label whose #create_classification_alias(value).primary_classification.id == id
-        def classification_tree_label_double(id)
-          created = Struct.new(:primary_classification).new(Struct.new(:id).new(id))
-          Struct.new(:alias_double) {
-            def create_classification_alias(_value) = alias_double
-          }.new(created)
+        # concept scheme whose #create_concept(value).id == id
+        def concept_scheme_double(id)
+          Struct.new(:concept) {
+            def create_concept(_value) = concept
+          }.new(Struct.new(:id).new(id))
         end
 
         # stored filter whose chained query returns the given record from #first

@@ -1,0 +1,87 @@
+/* dataCycle OpenAPI viewer — branded sidebar reference around Swagger UI (#50192) */
+
+.openapi-viewer-page {
+  margin: 0;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.openapi-viewer-page *,
+.openapi-viewer-page *::before,
+.openapi-viewer-page *::after { box-sizing: border-box; }
+
+/* Neither Swagger UI nor this theme resets <button>; the application bundle did, and
+   this page no longer loads it. Without a reset the controls Swagger leaves unstyled --
+   the json-schema accordion and its "expand all" button in the Schemas section -- render
+   as native OS buttons, complete with the browser's own grey hover shading. Same reset
+   Foundation applied, kept to one class so Swagger's and this theme's own button rules
+   (.btn.execute, .models-control, ...) still out-specify it. */
+.openapi-viewer-page button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  line-height: 1;
+}
+
+.ov-shell {
+  /* brand */
+  --ov-accent: #e5054e;
+  --ov-accent-dark: #b80440;
+  --ov-accent-soft: rgba(229, 5, 78, 0.09);
+  --ov-accent-glow: rgba(229, 5, 78, 0.28);
+
+  /* neutrals (warm, tuned to the pink) */
+  --ov-border: #ece7eb;
+  --ov-border-soft: #f3eff2;
+  --ov-bg: #faf8fa;
+  --ov-surface: #ffffff;
+  --ov-text: #241a20;
+  --ov-muted: #8a7f86;
+
+  /* ⌘/Ctrl K keycaps (see sidebar.css .ov-search-kbd) — light: dark ink on a
+     white cap; overridden for dark mode in dark.scss (inverse: light on dark) */
+  --ov-kbd-fg: #555;
+  --ov-kbd-bg: #fff;
+  --ov-kbd-border: #555;
+
+  /* card behind response/parameter schemas — faint grey here; dark mode
+     (dark.scss) swaps in the recessed page-blue so the whole field reads as a
+     solid card instead of a near-invisible overlay */
+  --ov-schema-bg: rgba(0, 0, 0, 0.05);
+
+  /* method colors: get/post match Swagger defaults; put/patch/delete override
+     Swagger's orange/teal/red. patch is a light cyan-blue kept clearly distinct
+     from the royal-blue get; delete leans pink-red. */
+  --ov-get: #4a90e2;
+  --ov-post: #49cc90;
+  --ov-put: #8b5fab;
+  --ov-patch: #8ad6f0;
+  --ov-delete: #ec4c7a;
+
+  /* response status colors */
+  --ov-ok: #2fa76a;
+  --ov-info: #4a90e2;
+  --ov-err: #d64562;
+
+  /* spacing scale (roomier — bumped ~20% for airier layout) */
+  --ov-1: 0.3rem; --ov-2: 0.6rem; --ov-3: 0.9rem; --ov-4: 1.2rem;
+  --ov-5: 1.8rem; --ov-6: 2.5rem; --ov-7: 3.75rem;
+
+  --ov-sidebar-w: 324px;
+  --ov-radius: 0.95rem;
+  --ov-radius-sm: 0.6rem;
+  --ov-shadow-rgb: 36, 26, 32;
+  --ov-shadow: 0 1px 2px rgba(var(--ov-shadow-rgb), 0.04), 0 10px 30px rgba(var(--ov-shadow-rgb), 0.07);
+  --ov-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --ov-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+
+  font-family: var(--ov-font);
+  color: var(--ov-text);
+  background: var(--ov-bg);
+}
+
+.ov-shell {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+}

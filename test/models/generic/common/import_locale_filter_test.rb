@@ -36,28 +36,28 @@ module DataCycleCore
     # the source knows the classification in de but not in en, so the transformation emits an
     # empty list for en - which used to clear what the de pass had just set
     test 'a secondary locale does not delete a classification the primary locale imported' do
-      category_ids = get_classification_ids('POI - Kategorien', ['Restaurant'])
+      category_ids = get_concept_ids('POI - Kategorien', ['Restaurant'])
 
       content = import(:de, { 'external_key' => 'lf-keep', 'name' => 'Restaurant DE', 'poi_category' => category_ids })
 
-      assert_equal category_ids, classification_ids(content, 'poi_category'), 'guard: the primary locale sets the classification'
+      assert_equal category_ids, concept_ids(content, 'poi_category'), 'guard: the primary locale sets the classification'
 
       import(:en, { 'external_key' => 'lf-keep', 'name' => 'Restaurant EN', 'poi_category' => [] })
 
-      assert_equal category_ids, classification_ids(content, 'poi_category')
+      assert_equal category_ids, concept_ids(content, 'poi_category')
     end
 
     test 'a secondary locale does not overwrite a classification with its own value' do
-      de_ids = get_classification_ids('Tags', ['Tag 1'])
-      en_ids = get_classification_ids('Tags', ['Tag 2'])
+      de_ids = get_concept_ids('Tags', ['Tag 1'])
+      en_ids = get_concept_ids('Tags', ['Tag 2'])
 
       content = import(:de, { 'external_key' => 'lf-overwrite', 'name' => 'Tagged DE', 'tags' => de_ids })
 
-      assert_equal de_ids, classification_ids(content, 'tags')
+      assert_equal de_ids, concept_ids(content, 'tags')
 
       import(:en, { 'external_key' => 'lf-overwrite', 'name' => 'Tagged EN', 'tags' => en_ids })
 
-      assert_equal de_ids, classification_ids(content, 'tags')
+      assert_equal de_ids, concept_ids(content, 'tags')
     end
 
     # the same shape as the two classification cases above, for the other relation type: a link
@@ -128,33 +128,33 @@ module DataCycleCore
     end
 
     test 'the primary locale still writes untranslatable properties' do
-      first_ids = get_classification_ids('Tags', ['Tag 1'])
-      second_ids = get_classification_ids('Tags', ['Tag 2'])
+      first_ids = get_concept_ids('Tags', ['Tag 1'])
+      second_ids = get_concept_ids('Tags', ['Tag 2'])
 
       content = import(:de, { 'external_key' => 'lf-primary-writes', 'name' => 'Primary', 'tags' => first_ids })
 
-      assert_equal first_ids, classification_ids(content, 'tags')
+      assert_equal first_ids, concept_ids(content, 'tags')
 
       import(:de, { 'external_key' => 'lf-primary-writes', 'name' => 'Primary', 'tags' => second_ids })
 
-      assert_equal second_ids, classification_ids(content, 'tags')
+      assert_equal second_ids, concept_ids(content, 'tags')
 
       import(:de, { 'external_key' => 'lf-primary-writes', 'name' => 'Primary', 'tags' => [] })
 
-      assert_empty classification_ids(content, 'tags'), 'the primary locale must still be able to clear them'
+      assert_empty concept_ids(content, 'tags'), 'the primary locale must still be able to clear them'
     end
 
     test 'content created in a secondary locale gets its untranslatable properties' do
-      category_ids = get_classification_ids('POI - Kategorien', ['Restaurant'])
+      category_ids = get_concept_ids('POI - Kategorien', ['Restaurant'])
 
       content = import(:en, { 'external_key' => 'lf-new-in-en', 'name' => 'Only EN', 'poi_category' => category_ids })
 
-      assert_equal category_ids, classification_ids(content, 'poi_category')
+      assert_equal category_ids, concept_ids(content, 'poi_category')
     end
 
     test 'content without a primary locale translation keeps taking untranslatable properties from the secondary locale' do
-      first_ids = get_classification_ids('Tags', ['Tag 1'])
-      second_ids = get_classification_ids('Tags', ['Tag 2'])
+      first_ids = get_concept_ids('Tags', ['Tag 1'])
+      second_ids = get_concept_ids('Tags', ['Tag 2'])
 
       content = import(:en, { 'external_key' => 'lf-en-only', 'name' => 'EN only', 'tags' => first_ids })
 
@@ -162,7 +162,7 @@ module DataCycleCore
 
       import(:en, { 'external_key' => 'lf-en-only', 'name' => 'EN only', 'tags' => second_ids })
 
-      assert_equal second_ids, classification_ids(content, 'tags')
+      assert_equal second_ids, concept_ids(content, 'tags')
     end
 
     # potential_action is 'translated: true', so the relation is untranslatable while the embedded
@@ -247,13 +247,13 @@ module DataCycleCore
     # process_step slices to the template's importable properties and short-circuits per locale
     # on the stored transformation hash
     test 'an end to end ImportContents run over de and en keeps the classification only de delivers' do
-      category_ids = get_classification_ids('POI - Kategorien', ['Restaurant'])
+      category_ids = get_concept_ids('POI - Kategorien', ['Restaurant'])
       de_data = { 'external_key' => 'lf-e2e', 'name' => 'Restaurant DE', 'poi_category' => category_ids }
 
       import_contents(:de, de_data)
       content = import_contents(:en, { 'external_key' => 'lf-e2e', 'name' => 'Restaurant EN', 'poi_category' => [] })
 
-      assert_equal category_ids, classification_ids(content, 'poi_category')
+      assert_equal category_ids, concept_ids(content, 'poi_category')
 
       # the next run of the same source: the de payload has not changed, so that pass is skipped on
       # its stored hash and the changed en pass is the only one that writes
@@ -262,7 +262,7 @@ module DataCycleCore
       content = import_contents(:en, { 'external_key' => 'lf-e2e', 'name' => 'Restaurant EN 2', 'poi_category' => [] })
 
       assert_equal 'Restaurant EN 2', translated(content, :en, :name), 'guard: the en pass did run'
-      assert_equal category_ids, classification_ids(content, 'poi_category')
+      assert_equal category_ids, concept_ids(content, 'poi_category')
     end
 
     private
@@ -298,8 +298,8 @@ module DataCycleCore
       calls
     end
 
-    def classification_ids(content, relation)
-      content.reload.classification_contents.where(relation:).pluck(:classification_id)
+    def concept_ids(content, relation)
+      content.reload.concept_contents.where(relation:).pluck(:concept_id)
     end
 
     def linked_ids(content, relation)

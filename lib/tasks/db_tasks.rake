@@ -25,57 +25,21 @@ namespace :db do
       # missing_pg_dict_mappings = DataCycleCore::PgDictMapping.check_missing
       # abort("missing pg_dict_mappings (#{missing_pg_dict_mappings.join(', ')})!") if missing_pg_dict_mappings.present?
 
-      result = ActiveRecord::Base.connection.execute <<~SQL.squish
-        WITH duplicate_external_classification AS (
-          SELECT classifications.external_source_id,
-            classifications.external_key,
-            COUNT(*)
-          FROM classifications
-          WHERE classifications.external_source_id IS NOT NULL
-            AND classifications.external_key IS NOT NULL
-            AND classifications.deleted_at IS NULL
-          GROUP BY classifications.external_source_id,
-            classifications.external_key
-          HAVING COUNT(*) > 1
-        )
-        SELECT classifications.id,
-          classification_alias_paths.full_path_names,
-          classification_contents.content_data_id
-        FROM duplicate_external_classification
-          JOIN classifications ON duplicate_external_classification.external_source_id = classifications.external_source_id
-          AND duplicate_external_classification.external_key = classifications.external_key
-          JOIN classification_groups ON classifications.id = classification_groups.classification_id
-          JOIN classification_alias_paths ON classification_groups.classification_alias_id = classification_alias_paths.id
-          LEFT OUTER JOIN classification_contents ON classification_contents.classification_id = classifications.id
-        ORDER BY CHAR_LENGTH(classifications.external_key),
-          classifications.external_key;
-      SQL
-
-      abort('duplicate external_classifications found!') if result.any?
-
-      duplicate_classifications = ActiveRecord::Base.connection.execute <<~SQL.squish
+      # index_concepts_on_external_system_id_and_external_key covers this pair since Redmine #41458:
+      # it is unique over the two with NULLS NOT DISTINCT, so a system-less key conflicts like any
+      # other. This runs before db:migrate, which is what lets it name the offending keys - the
+      # CREATE UNIQUE INDEX in 20260907120000 would otherwise abort with Postgres' own message on a
+      # database that accumulated such duplicates while the index still ignored them.
+      duplicate_concepts = ActiveRecord::Base.connection.execute <<~SQL.squish
         SELECT c.external_key
-        FROM classifications c
-        WHERE c.external_source_id IS NULL
+        FROM concepts c
+        WHERE c.external_system_id IS NULL
           AND c.external_key IS NOT NULL
-          AND c.deleted_at IS NULL
         GROUP BY c.external_key
         HAVING COUNT(c.id) > 1;
       SQL
 
-      abort("duplicate internal classifications found! (#{duplicate_classifications.pluck('external_key').join(', ')})") if duplicate_classifications.any?
-
-      duplicate_aliases = ActiveRecord::Base.connection.execute <<~SQL.squish
-        SELECT c.external_key
-        FROM classification_aliases c
-        WHERE c.external_source_id IS NULL
-          AND c.external_key IS NOT NULL
-          AND c.deleted_at IS NULL
-        GROUP BY c.external_key
-        HAVING COUNT(c.id) > 1;
-      SQL
-
-      abort("duplicate internal classification_aliases found! (#{duplicate_aliases.pluck('external_key').join(', ')})") if duplicate_aliases.any?
+      abort("duplicate internal concepts found! (#{duplicate_concepts.pluck('external_key').join(', ')})") if duplicate_concepts.any?
 
       ess_wo_not_null_fields = ActiveRecord::Base.connection.execute <<~SQL.squish
         SELECT id
@@ -115,10 +79,10 @@ namespace :db do
       sql = "#{"VACUUM (#{options.join(', ')}) #{table_names}".squish};"
       visibility_sql = "#{"VACUUM (ANALYZE) #{table_names}".squish};"
 
-      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
-      ActiveRecord::Base.connection.exec_query(sql)
-      ActiveRecord::Base.connection.exec_query(visibility_sql) if full # fix visibility tables
-      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 60000;')
+      DbHelper.without_statement_timeout do |connection|
+        connection.exec_query(sql)
+        connection.exec_query(visibility_sql) if full # fix visibility tables
+      end
     end
 
     desc 'Remove activities except type donwload older than 3 monts [include_downloads=false, max_age=today-3months]'
@@ -130,18 +94,19 @@ namespace :db do
     desc 'reindex database and refresh collation version'
     task refresh_collation_version: :environment do
       db_name = ActiveRecord::Base.connection.current_database
-      puts "Reindexing database '#{db_name}' and refreshing collation version..."
-      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 0;')
-      ActiveRecord::Base.connection.exec_query("REINDEX DATABASE CONCURRENTLY \"#{db_name}\";")
-      ActiveRecord::Base.connection.exec_query("ALTER DATABASE \"#{db_name}\" REFRESH COLLATION VERSION;")
-      ActiveRecord::Base.connection.exec_query('SET statement_timeout = 60000;')
-    ensure
-      puts 'Cleanup invalid indexes...'
-      ActiveRecord::Base.connection
-        .select_all('SELECT pg_class.relname FROM pg_class, pg_index WHERE pg_index.indisvalid = false AND pg_index.indexrelid = pg_class.oid;')
-        .first&.each_value do |index_name|
-        puts "Dropping invalid index '#{index_name}'..."
-        ActiveRecord::Base.connection.exec_query("DROP INDEX IF EXISTS \"#{index_name}\";")
+
+      DbHelper.without_statement_timeout do |connection|
+        puts "Reindexing database '#{db_name}' and refreshing collation version..."
+        connection.exec_query("REINDEX DATABASE CONCURRENTLY \"#{db_name}\";")
+        connection.exec_query("ALTER DATABASE \"#{db_name}\" REFRESH COLLATION VERSION;")
+      ensure
+        puts 'Cleanup invalid indexes...'
+        connection
+          .select_all('SELECT pg_class.relname FROM pg_class, pg_index WHERE pg_index.indisvalid = false AND pg_index.indexrelid = pg_class.oid;')
+          .first&.each_value do |index_name|
+          puts "Dropping invalid index '#{index_name}'..."
+          connection.exec_query("DROP INDEX IF EXISTS \"#{index_name}\";")
+        end
       end
     end
   end
@@ -152,7 +117,7 @@ namespace :db do
       DataCycleCore::Feature::TransitiveClassificationPath.rebuild_transitive_tables!
     end
 
-    desc 'rebuild collected_classification_contents'
+    desc 'rebuild collected_concept_contents'
     task rebuild_ccc: :environment do
       DataCycleCore::Feature::TransitiveClassificationPath.rebuild_ccc!
     end
@@ -169,12 +134,16 @@ namespace :db do
       Rake::Task['db:maintenance:vacuum'].reenable
     end
 
-    desc 'rebuild schedule occurrences'
-    task rebuild_schedule_occurrences: :environment do
+    desc 'rebuild schedule occurrences, optionally without the trailing VACUUM FULL'
+    task :rebuild_schedule_occurrences, [:vacuum] => :environment do |_task, args|
       puts 'Rebuilding schedule occurrences...'
       tmp = Time.zone.now
       DataCycleCore::Schedule.rebuild_occurrences
       puts "Rebuilding schedule occurrences...done (#{(Time.zone.now - tmp).round}s)"
+
+      # VACUUM FULL holds ACCESS EXCLUSIVE on schedules for the whole rebuild, so a caller that
+      # cannot pick the moment - a deploy's data migration - passes false and schedules its own.
+      next if args[:vacuum].to_s == 'false'
 
       tmp = Time.zone.now
       puts 'VACUUM FULL schedules...'
@@ -192,14 +161,24 @@ namespace :db do
     puts 'backup dir does not exists' unless system "cd #{backup_dir} && du -hs --time *"
   end
 
-  desc 'Dumps the database to backups (mode = review|activities|full)'
-  task :dump, [:backup_name, :format, :mode] => [:environment] do |_, args|
+  desc 'Dumps the database to backups (mode = review|activities|full, max_age_hours = skip if a dump is younger)'
+  task :dump, [:backup_name, :format, :mode, :max_age_hours] => [:environment] do |_, args|
     temp = Time.zone.now
     dump_fmt = DbHelper.ensure_format(args.format)
     dump_sfx = DbHelper.suffix_for_format(dump_fmt)
     backup_dir = DbHelper.backup_directory(Rails.env, create: true)
     full_path  = nil
+    tmp_path   = nil
     cmd        = nil
+
+    if args[:max_age_hours].present?
+      recent = DbHelper.recent_dump(backup_dir, args[:max_age_hours].to_f.hours)
+
+      if recent.present?
+        puts "Skipping dump: #{recent} is younger than #{args[:max_age_hours]}h"
+        next
+      end
+    end
 
     DbHelper.with_config do |host, port, db, user, password|
       full_path = if args[:backup_name].nil?
@@ -207,14 +186,16 @@ namespace :db do
                   else
                     "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
                   end
+      tmp_path = DbHelper.in_progress_path(full_path)
 
-      sh "rm -rf #{full_path}" if full_path.present?
+      sh "rm -rf #{full_path} #{tmp_path}" if full_path.present?
 
       excludes = DATABASE_DUMP_EXCLUDES[args.mode].map { |e| "--exclude-table-data='#{e}'" }.join(' ') if args.mode.present?
-      cmd = "pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --compress=zstd --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' #{excludes}".squish
+      cmd = "pg_dump -F #{dump_fmt}#{" -j #{ENV.fetch('POSTGRES_WORKER_COUNT', '8')}" if dump_fmt == 'd'} -v -O --compress=zstd --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{tmp_path}' #{excludes}".squish
     end
 
     sh cmd
+    File.rename(tmp_path, full_path)
     puts ''
     puts "Dumped to file: #{full_path}"
     puts "Duration: #{TimeHelper.format_time(Time.zone.now - temp, 0, 6, 's')}"

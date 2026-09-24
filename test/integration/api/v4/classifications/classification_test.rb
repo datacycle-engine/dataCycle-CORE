@@ -9,7 +9,7 @@ module DataCycleCore
         class ClassificationTest < DataCycleCore::V4::Base
           before(:all) do
             DataCycleCore::Thing.delete_all
-            @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
+            @trees = DataCycleCore::ConceptScheme.where(internal: false).visible('api').count
           end
 
           # TODO: add context test
@@ -56,7 +56,7 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             params = {
               id: tree.id,
               page: {
@@ -76,7 +76,7 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id) with fields=dc:entityUrl,dc:hasConcept' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             post_params = {
               id: tree.id,
               fields: 'dc:entityUrl,dc:hasConcept',
@@ -99,8 +99,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               page: {
@@ -119,8 +119,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:prefLabel,dct:description,dct:modified' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               fields: 'skos:prefLabel,dct:description,dct:modified',
@@ -151,13 +151,12 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) fields identifier for external concepts' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
 
-            update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 3').first
+            update_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Tag 3').first
             external_source_id = DataCycleCore::ExternalSystem.first.id
-            update_tag.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
+            update_tag.update_column(:external_system_id, external_source_id)
+            update_tag.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -184,14 +183,13 @@ module DataCycleCore
             assert_empty(validator.call(json_data['@graph'].first).errors.to_h)
             assert_equal('test-identifier', json_data['@graph'].first['identifier'].first['value'])
 
-            update_tag.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_key, nil)
+            update_tag.update_column(:external_system_id, nil)
+            update_tag.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               fields: 'skos:inScheme',
@@ -215,8 +213,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme,skos:inScheme.skos:prefLabel' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               fields: 'skos:inScheme,skos:inScheme.skos:prefLabel',
@@ -246,8 +244,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme.skos:prefLabel' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               fields: 'skos:inScheme.skos:prefLabel',
@@ -277,8 +275,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:broader.skos:inScheme.skos:prefLabel' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               fields: 'skos:broader.skos:inScheme.skos:prefLabel',
@@ -319,8 +317,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               include: 'skos:inScheme',
@@ -348,8 +346,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:broader.skos:inScheme' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               include: 'skos:broader.skos:inScheme'
@@ -387,8 +385,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               include: 'skos:ancestors',
@@ -422,8 +420,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors fields skos:prefLabel' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               include: 'skos:ancestors',
@@ -459,8 +457,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme fields skos:inScheme.skos:prefLabel' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags').count
             params = {
               id: tree_id,
               include: 'skos:inScheme',

@@ -20,7 +20,6 @@ module DataCycleCore
       def apply_single_filter!(filter)
         t = filter['t'].dup
         t.prepend(DataCycleCore::Type::StoredFilter::Parameters::FILTER_PREFIX[filter['m']].to_s)
-        t.concat('_with_subtree') if filter['t'].in?(['classification_alias_ids', 'not_classification_alias_ids'])
 
         return apply_union_filter!(filter['v']) if t == 'union'
 

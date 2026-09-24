@@ -24,7 +24,11 @@ namespace :dc do
       task js_audit: :environment do
         # pnpm exits non-zero only for advisories at/above --audit-level that are not
         # listed in auditConfig.ignoreGhsas, so this fails on high/critical only.
-        sh 'pnpm audit --audit-level high'
+        #
+        # --ignore-registry-errors keeps an unreachable audit endpoint from failing the run:
+        # npm's POST /-/npm/v1/security/audits/quick answered 500 and then timed out for
+        # hours on 2026-09-04, aborting dc:validate before brakeman and rubocop ran.
+        sh 'pnpm audit --audit-level high --ignore-registry-errors'
       end
     end
   end

@@ -4,7 +4,16 @@ module DataCycleCore
   class WebhookJob < UniqueApplicationJob
     queue_as :webhooks
     queue_with_priority 5
-    limits_concurrency key: ->(*args) { "#{args.dig(0, :data_object, :id)}/#{args.dig(0, :external_system_id)}/#{args.dig(0, :action)}" }
+    # Two enqueues are duplicates only when they would send the same content to the same place, so
+    # every argument that steers the request joins the key. :type and :path are what
+    # DataCycleCore::Export::PushObject#transformed_path builds the URL from, and :endpoint_method
+    # names the method called on the endpoint - a status poll and the push it follows up on share
+    # content, system and action, and differ in nothing else. A media archive update likewise enqueues
+    # /api/v1/photographers and /api/v1/licenses for one content, system and :update action: on a
+    # content/system/action key those two deliveries are indistinguishable.
+    CONCURRENCY_KEY_ARGUMENTS = [[:data_object, :id], [:external_system_id], [:action], [:endpoint_method], [:type], [:path]].freeze
+
+    limits_concurrency key: ->(*args) { CONCURRENCY_KEY_ARGUMENTS.filter_map { |keys| args.dig(0, *keys) }.join('/') }
 
     ABORT_ON_NIL_ACTIONS = [:create, :update].freeze
 
@@ -70,7 +79,10 @@ module DataCycleCore
       throw :abort
     end
 
-    # check filters for the webhook
+    # #initialize_context re-read the content, so the filter runs again on what it has become since the
+    # save - a content that left the export's scope in between is dropped here rather than pushed.
+    # filter_checked? is a verdict this job may not retake;
+    # DataCycleCore::Export::PushObject::FINAL_VERDICT_ACTIONS says which those are.
     def check_filter
       throw :abort unless utility_object.filter_checked? || utility_object.allowed?(data)
     end

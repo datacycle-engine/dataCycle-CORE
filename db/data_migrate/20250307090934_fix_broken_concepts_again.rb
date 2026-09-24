@@ -5,6 +5,8 @@ class FixBrokenConceptsAgain < ActiveRecord::Migration[7.1]
   # disable_ddl_transaction!
 
   def up
+    return say('the pre-concept classification tables are gone (see #41458); nothing to migrate') unless table_exists?(:classification_aliases)
+
     execute <<~SQL.squish
       UPDATE concepts
       SET concept_scheme_id = to_update.classification_tree_label_id

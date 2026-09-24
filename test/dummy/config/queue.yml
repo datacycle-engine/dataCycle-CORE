@@ -1,3 +1,29 @@
+# In every deployed section, importers, importers_short and default run one job per process: a
+# worker of theirs has `threads: 1`, and `processes` is what gives them concurrency. They are the
+# queues that fork -- per page in generic/common/import_functions, per run in
+# ClassificationMappingJob, and per batch of things in feature/custom_asset_previewer -- and the
+# ones whose jobs grow large, RunTaskJob included, since it runs whichever rake task it was handed.
+# One job per process leaves each fork without a sibling job thread whose held mutexes the child
+# would inherit, and puts each peak in an RSS of its own that DataCycleCore::WorkerMemoryGuard can
+# recycle. The remaining queues stay threaded, where sharing one booted Rails is the cheaper trade.
+#
+# `threads: 1` also hands the job the whole connection pool: DataCycleCore::WorkerPool divides the
+# pool by the worker's thread count, so one job opens 7 threads of its own here, where a 3-thread
+# worker gave each of its three jobs 2 (pool 15). That is about the same work in flight per process;
+# what moves is that a single job's peak now carries all of it, and that peak is what
+# JOBS_MAX_MEMORY is set against.
+#
+# The development and test block below keeps default on the shared 3-thread worker, so a fork there
+# does run beside sibling job threads -- the price of one booted Rails on a developer machine rather
+# than four. The importers, which fork per page and so hit it hardest, stay single-threaded in every
+# environment.
+#
+# content_maintenance shares that worker too, where every deployed section below gives it one of its
+# own. ReadyExecution.claim walks a worker's queues in the order they are listed and subtracts each
+# claim from the limit, so the tier does sit behind cache_invalidation here, the way it sat there on
+# production before it moved -- at a developer's volume it drains regardless, and the alternative is
+# a fourth booted Rails.
+#
 # webhooks are deliberately left without a worker here: exports must not fire at a developer's
 # whim, and `rails dc:sync:trigger_webhooks` runs them synchronously when they are actually wanted
 default: &default
@@ -5,7 +31,7 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
-    - queues: [default, mailers, cache_invalidation, search_update]
+    - queues: [default, mailers, cache_invalidation, content_maintenance, search_update]
       threads: 3
       processes: 1
       polling_interval: 1
@@ -14,7 +40,7 @@ default: &default
       processes: 1
       polling_interval: 1
     - queues: [importers_short]
-      threads: 3
+      threads: 1
       processes: 1
       polling_interval: 1
 
@@ -27,19 +53,27 @@ test:
 staging: &production
   <<: *default
   workers:
-    - queues: [mailers, default]
+    - queues: [mailers]
       threads: 3
       processes: 1
+      polling_interval: 1
+    - queues: [default]
+      threads: 1
+      processes: 2
       polling_interval: 1
     - queues: [importers]
       threads: 1
       processes: 1
       polling_interval: 1
     - queues: [importers_short]
+      threads: 1
+      processes: 2
+      polling_interval: 1
+    - queues: [cache_invalidation]
       threads: 3
       processes: 1
       polling_interval: 1
-    - queues: [cache_invalidation]
+    - queues: [content_maintenance]
       threads: 3
       processes: 1
       polling_interval: 1

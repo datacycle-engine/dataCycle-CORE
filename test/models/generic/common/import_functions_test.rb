@@ -51,10 +51,11 @@ module DataCycleCore
       DataCycleCore::MongoHelper.drop_mongo_db('import-functions-test-system')
     end
 
-    def utility_object(source_type, locales: [:de])
+    def utility_object(source_type, locales: [:de], mode: nil)
       DataCycleCore::Generic::ImportObject.new(
         external_source: @external_source,
         locales:,
+        mode:,
         import: {
           source_type:,
           name: 'functions test',
@@ -69,6 +70,16 @@ module DataCycleCore
           item = mongo_item.find_or_initialize_by(external_id:)
           item.dump = dump
           item.save!
+        end
+      end
+    end
+
+    # Mongoid maintains updated_at through its own callbacks, so a seeded item cannot be saved with a
+    # past one -- update_all is a driver statement and writes the timestamp the delta filter reads.
+    def age_item(object, external_id, timestamp)
+      object.with_mongodb do
+        object.source_object.with(object.source_type) do |mongo_item|
+          mongo_item.where(external_id:).update_all(updated_at: timestamp)
         end
       end
     end
@@ -91,6 +102,13 @@ module DataCycleCore
 
     def legacy_iterator
       ->(mongo_item, _locale, source_filter) { mongo_item.where(source_filter) }
+    end
+
+    # The shape both delete strategies use. It matters for the delta bound: legacy_iterator is handed
+    # `legacy_source_filter`, whose reverse_merge keeps only the first `$or` and so drops
+    # with_deleted_since next to with_deleted -- FilterObject#query chains a `where` per filter instead.
+    def filter_object_iterator
+      ->(filter_object:) { filter_object.query }
     end
 
     test 'import_contents dispatches to import_sequential without iteration_strategy' do
@@ -150,6 +168,67 @@ module DataCycleCore
 
       assert_equal 1, processed.size
       assert_not_equal 'zwei', processed.first[:raw_data]['name']
+    end
+
+    # Seeds one item the last download left untouched (fd-old) and one it rewrote (fd-new), imports
+    # both in +mode+ and returns the names the processor was handed.
+    def import_names_by_mode(mode, source_type)
+      object = utility_object(source_type, mode:)
+      seed_item(object, 'fd-old', { 'de' => { 'id' => 'fd-old', 'name' => 'unveraendert' } })
+      seed_item(object, 'fd-new', { 'de' => { 'id' => 'fd-new', 'name' => 'neu' } })
+      age_item(object, 'fd-old', 10.days.ago)
+      processed = []
+
+      object.stub(:last_successful_try, 5.days.ago) do
+        SUBJECT.import_sequential(
+          utility_object: object,
+          iterator: legacy_iterator,
+          data_processor: collecting_processor(processed),
+          options: { import: { name: source_type } }
+        )
+      end
+
+      processed.map { |p| p[:raw_data]['name'] }.sort
+    end
+
+    # [#51777] full_delta is why ImportObject resolves the mode against its own list: the download
+    # runs like full, while the import stays as narrow as an incremental one.
+    test 'import_sequential in full_delta mode processes only items updated since the last successful try' do
+      assert_equal ['neu'], import_names_by_mode(:full_delta, 'ift_full_delta')
+    end
+
+    test 'import_sequential in full mode processes items the download left untouched' do
+      assert_equal ['neu', 'unveraendert'], import_names_by_mode(:full, 'ift_full_mode')
+    end
+
+    # Seeds one item flagged deleted before the last successful try (fd-del-old) and one flagged since
+    # (fd-del-new), runs the delete step in +mode+ and returns the external ids it was handed.
+    def deleted_ids_by_mode(mode, source_type)
+      object = utility_object(source_type, mode:)
+      seed_item(object, 'fd-del-old', { 'de' => { 'id' => 'fd-del-old', 'deleted_at' => 10.days.ago } })
+      seed_item(object, 'fd-del-new', { 'de' => { 'id' => 'fd-del-new', 'deleted_at' => Time.zone.now } })
+      processed = []
+
+      object.stub(:last_successful_try, 5.days.ago) do
+        SUBJECT.delete_data(
+          utility_object: object,
+          iterator: filter_object_iterator,
+          data_processor: collecting_processor(processed),
+          options: { import: { name: source_type } }
+        )
+      end
+
+      processed.flat_map { |p| p[:raw_data].map(&:external_id) }.sort
+    end
+
+    # [#51777] full_delta narrows the delete step the same way it narrows the import: bulk_mark_deleted
+    # writes deleted_at once, so a marker older than the last successful try is never re-processed.
+    test 'delete_data in full_delta mode processes only items flagged deleted since the last successful try' do
+      assert_equal ['fd-del-new'], deleted_ids_by_mode(:full_delta, 'ift_full_delta_delete')
+    end
+
+    test 'delete_data in full mode processes items flagged deleted before the last successful try' do
+      assert_equal ['fd-del-new', 'fd-del-old'], deleted_ids_by_mode(:full, 'ift_full_mode_delete')
     end
 
     test 'import_all processes the whole dump without locale' do

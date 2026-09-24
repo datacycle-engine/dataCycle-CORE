@@ -12,7 +12,7 @@ module DataCycleCore
         end
 
         def include?(_view, _name = nil, type = nil, *args)
-          return false if type.to_s == 'classification_alias_ids' && !args.first&.dig(:data, :visible)
+          return false if type.to_s == 'concept_ids' && !args.first&.dig(:data, :visible)
 
           except_types.exclude?(type.to_s)
         end

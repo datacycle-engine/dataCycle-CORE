@@ -41,14 +41,14 @@ module DataCycleCore
         test 'license_uri reads the uri from cached collected classification contents' do
           license_alias = Class.new {
             def association_cached?(_key) = true
-            def classification_alias_path = Struct.new(:full_path_ids).new([1, 2, 3])
-            def classification_tree_label = Struct.new(:name).new('Lizenzen')
+            def concept_path = Struct.new(:full_path_ids).new([1, 2, 3])
+            def concept_scheme = Struct.new(:name).new('Lizenzen')
             def uri = 'https://cc.test/by/4.0'
           }.new
-          ccc = Struct.new(:classification_alias, :hidden) {
+          ccc = Struct.new(:concept, :hidden) {
             def association_cached?(_key) = true
           }.new(license_alias, false)
-          content = Struct.new(:collected_classification_contents) {
+          content = Struct.new(:collected_concept_contents) {
             def association_cached?(_key) = true
           }.new([ccc])
 
@@ -66,10 +66,9 @@ module DataCycleCore
             def set_memoized_attribute(_key, _value)
             end
           }.new
-          ca_relation = Class.new {
+          concept_relation = Class.new {
             def for_tree(_tree) = self
             def with_internal_name(_name) = self
-            def primary_classifications = ['info-type-1']
           }.new
           content = Class.new {
             def id = 'content-1'
@@ -78,7 +77,7 @@ module DataCycleCore
           }.new
 
           DataCycleCore::Thing.stub(:new, template) do
-            DataCycleCore::ClassificationAlias.stub(:for_tree, ca_relation) do
+            DataCycleCore::Concept.stub(:for_tree, concept_relation) do
               value = subject.to_additional_information(content:, virtual_parameters: ['description_field'], virtual_definition: { 'template_name' => 'Zusatzinformation' })
 
               assert_equal([template], value)
@@ -99,7 +98,7 @@ module DataCycleCore
             def for_tree(_tree) = self
             def first = Struct.new(:external_key).new('tour_closed')
           }.new
-          content = struct_double(classification_aliases: relation)
+          content = struct_double(concepts: relation)
 
           assert(subject.odta_tourenstatus_as_trail_closed(content:))
         end

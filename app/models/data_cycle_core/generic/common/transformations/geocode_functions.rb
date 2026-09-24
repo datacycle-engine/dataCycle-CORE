@@ -18,12 +18,12 @@ module DataCycleCore
               data['universal_classifications'] = (data['universal_classifications'] || []) +
                                                   DataCycleCore::Concept.for_tree('Geocoding')
                                                     .with_internal_name('geocoded')
-                                                    .pluck(:classification_id)
+                                                    .pluck(:id)
             else
               data['universal_classifications'] = (data['universal_classifications'] || []) -
                                                   DataCycleCore::Concept.for_tree('Geocoding')
                                                     .with_internal_name('geocoded')
-                                                    .pluck(:classification_id)
+                                                    .pluck(:id)
             end
 
             data
@@ -40,12 +40,12 @@ module DataCycleCore
               data['universal_classifications'] = (data['universal_classifications'] || []) +
                                                   DataCycleCore::Concept.for_tree('Geocoding')
                                                     .with_internal_name('reverse_geocoded')
-                                                    .pluck(:classification_id)
+                                                    .pluck(:id)
             else
               data['universal_classifications'] = (data['universal_classifications'] || []) -
                                                   DataCycleCore::Concept.for_tree('Geocoding')
                                                     .with_internal_name('reverse_geocoded')
-                                                    .pluck(:classification_id)
+                                                    .pluck(:id)
             end
 
             data

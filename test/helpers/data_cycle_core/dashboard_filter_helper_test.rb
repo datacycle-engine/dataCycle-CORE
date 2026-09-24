@@ -9,7 +9,7 @@ module DataCycleCore
 
     test 'advanced_attribute_filter_options returns the operators for each advanced type' do
       assert_equal 6, advanced_attribute_filter_options('string').size
-      assert_equal 4, advanced_attribute_filter_options('classification_alias_ids').size
+      assert_equal 4, advanced_attribute_filter_options('concept_ids').size
       assert_nil advanced_attribute_filter_options('boolean')
       assert_equal 2, advanced_attribute_filter_options('something_else').size
     end

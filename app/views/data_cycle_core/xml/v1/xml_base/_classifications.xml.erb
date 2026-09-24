@@ -1,18 +1,18 @@
 
 <<%=key%>>
-<% classification_aliases&.each do |classification_alias| %>
+<% concepts&.each do |concept| %>
   <classification>
-    <id><%=classification_alias.id%></id>
-    <name><%=classification_alias.name(locale: @language) || classification_alias.try(:internal_name)%></name>
-    <% if classification_alias.description(locale: @language).present? %>
-      <description><%=classification_alias.description(locale: @language)%></description>
+    <id><%=concept.id%></id>
+    <name><%=concept.name(locale: @language) || concept.try(:internal_name)%></name>
+    <% if concept.description(locale: @language).present? %>
+      <description><%=concept.description(locale: @language)%></description>
     <% end %>
     <% unless @mode_parameters.include?('minimal') %>
       <anchestor>
-        <% classification_alias&.ancestors&.each do |ancestor| %>
+        <% concept.ancestors_with_concept_scheme.each do |ancestor| %>
           <classification>
             <id><%=ancestor.id%></id>
-            <name><%=ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%></name>
+            <name><%=ancestor.is_a?(DataCycleCore::ConceptScheme) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%></name>
           </classification>
         <% end %>
       </anchestor>

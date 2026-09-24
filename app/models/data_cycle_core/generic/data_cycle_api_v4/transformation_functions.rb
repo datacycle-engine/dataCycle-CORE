@@ -100,17 +100,17 @@ module DataCycleCore
         #   end
         # end
 
+        # A pushed value is a concept id and stays one, so all this still has to do is drop what
+        # cannot be assigned - it used to translate the id into the classification the data hash
+        # carried, and a concept is now both.
         def self.map_classification_values(data, template)
-          classification_alias_ids = data.values_at(*template.classification_property_names).compact.flatten.uniq
-          mapping = DataCycleCore::Concept.where(id: classification_alias_ids)
-            .assignable
-            .pluck(:id, :classification_id)
-            .to_h
+          concept_ids = data.values_at(*template.classification_property_names).compact.flatten.uniq
+          assignable_ids = DataCycleCore::Concept.where(id: concept_ids).assignable.pluck(:id).to_set
 
           template.classification_property_names.each do |key|
             next if data&.dig(key).blank?
 
-            data[key] = Array.wrap(data[key]).map { |v| mapping[v] }.compact_blank
+            data[key] = Array.wrap(data[key]).select { |v| assignable_ids.include?(v) }
           end
 
           data

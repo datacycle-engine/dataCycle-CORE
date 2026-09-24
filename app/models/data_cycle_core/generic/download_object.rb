@@ -4,7 +4,11 @@ module DataCycleCore
   module Generic
     class DownloadObject < GenericObject
       TYPE = :download
-      FULL_MODES = ['full', 'reset'].freeze
+      # Modes that ask the source for its whole stock instead of only its changes. +full_delta+ is in
+      # here and in ImportObject::DELTA_MODES at once: it downloads like +full+ and imports like
+      # +incremental+, so a mode name alone does not say how much is processed - each stage resolves
+      # it against its own list.
+      FULL_MODES = ['full', 'reset', 'full_delta'].freeze
 
       attr_accessor :item_cache
 

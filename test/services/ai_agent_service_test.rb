@@ -39,18 +39,15 @@ module DataCycleCore
       DataCycleCore::ThingTemplate.reset_template_caches!
     end
 
-    # what a concept scheme re-import that drops and re-creates the degree leaves behind: the same
-    # concept, a new classification, and the old id valid nowhere
-    def replace_classification_of!(degree)
+    # what a concept scheme re-import that drops and re-creates the degree leaves behind: a concept
+    # of the same name under the same key, and the old id valid nowhere
+    def replace_concept_of!(degree)
       concept = concept_for(degree)
-      # no external_key: the one of the degree is still taken by the classification replaced below,
-      # and the service resolves the concept, never the classification
-      replacement = DataCycleCore::Classification.create!(name: concept.internal_name)
+      scheme = concept.concept_scheme
+      name = concept.internal_name
+      concept.destroy
 
-      DataCycleCore::Concept.where(id: concept.id).update_all(classification_id: replacement.id)
-      DataCycleCore::Classification.find(concept.classification_id).destroy
-
-      replacement.id
+      scheme.concepts.create!(name:, external_key: degree).id
     end
 
     def count_webhooks(action, &)
@@ -65,7 +62,7 @@ module DataCycleCore
       assert_equal("#{KEY_NAME}-#{GENERATED}", agent.external_key)
       assert_nil(agent.external_source_id)
       assert_equal(DEFAULT_NAME_DE, agent.name)
-      assert_equal([concept_for(GENERATED).classification_id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
+      assert_equal([concept_for(GENERATED).id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
     end
 
     test 'the template does not compute the external_key' do
@@ -78,7 +75,7 @@ module DataCycleCore
       agent = Subject.find_or_create(Reference.new(GENERATED, nil))
 
       agent.set_data_hash(
-        data_hash: { Subject::DEGREE_PROPERTY => [concept_for(GENERATED).classification_id] },
+        data_hash: { Subject::DEGREE_PROPERTY => [concept_for(GENERATED).id] },
         force_update: true,
         prevent_history: true
       )
@@ -125,7 +122,7 @@ module DataCycleCore
       agent = Subject.find_or_create(Reference.new(concept_for(INVOLVED).uri, nil))
 
       assert_equal("#{KEY_NAME}-#{INVOLVED}", agent.external_key)
-      assert_equal([concept_for(INVOLVED).classification_id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
+      assert_equal([concept_for(INVOLVED).id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
     end
 
     # a concept scheme can identify its concepts by uri alone - the key falls back to it instead
@@ -246,18 +243,16 @@ module DataCycleCore
       end
     end
 
-    # a classification_id held from an earlier call writes a classification_content nothing resolves,
-    # and there is no foreign key on it - the degree would just be gone
-    test 'stores the current classification when the degree of involvement was re-created' do
+    # a concept id held from an earlier call writes a concept_content nothing resolves, and the
+    # degree would just be gone
+    test 'stores the current concept when the degree of involvement was re-created' do
       Subject.find_or_create(Reference.new(GENERATED, nil))
-      classification_id = replace_classification_of!(GENERATED)
+      concept_id = replace_concept_of!(GENERATED)
 
       agent = Subject.find_or_create(Reference.new(GENERATED, 'Opus 5'))
 
-      # a stale id is rejected while its classification is soft-deleted, stored silently once it is
-      # really gone - so pin both shapes of the failure
       assert_not_nil(agent)
-      assert_equal([classification_id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
+      assert_equal([concept_id], agent.get_data_hash[Subject::DEGREE_PROPERTY])
     end
 
     test 'creates the agent of a degree of involvement that is only translated into one locale' do

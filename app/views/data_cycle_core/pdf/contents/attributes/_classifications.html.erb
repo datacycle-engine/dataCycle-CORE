@@ -1,4 +1,4 @@
-<% content_header_classification_aliases(content: content, context: :show)&.each do |tree_name, tree_value| %>
+<% content_header_concepts(content: content, context: :show)&.each do |tree_name, tree_value| %>
   <%= render 'data_cycle_core/pdf/contents/attributes/attribute', local_assigns.merge(type: 'classification').merge(tree_value.slice(:key, :definition, :value)) do %>
     <% tree_value[:value].each do |a| %>
       <%= tag.span(a.internal_name, class: 'tag') %>

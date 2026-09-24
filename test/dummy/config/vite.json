@@ -14,7 +14,8 @@
   "development": {
     "host": "127.0.0.1",
     "publicOutputDir": "assets/dev-build",
-    "port": 3036
+    "port": 3036,
+    "devServerConnectionCheck": true
   },
   "test": {
     "autoBuild": true,

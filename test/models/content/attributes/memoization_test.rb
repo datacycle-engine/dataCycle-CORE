@@ -51,7 +51,7 @@ module DataCycleCore
         end
 
         test 'set memoized classification_property_names' do
-          value = DataCycleCore::Classification.limit(1).offset(0)
+          value = DataCycleCore::Concept.limit(1).offset(0)
           @content.set_memoized_attribute('tags', value)
 
           assert_equal(value, @content.send(:tags))

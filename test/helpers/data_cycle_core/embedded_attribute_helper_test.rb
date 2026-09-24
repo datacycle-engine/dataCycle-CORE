@@ -52,10 +52,11 @@ module DataCycleCore
     test 'embedded_templates_for_select orders the options by their translated name' do
       labels = { 'Quote' => 'Zitate', 'Enumeration' => 'Aufzählung', 'OpeningHours' => 'Öffnungszeiten', 'Accordion' => 'Accordion' }
       templates = labels.transform_values do |label|
-        Object.new.tap { |t| t.define_singleton_method(:translated_template_name) { |_locale| label } }
+        thing = Object.new.tap { |t| t.define_singleton_method(:translated_template_name) { |_locale| label } }
+        struct_double(template_thing: thing)
       end
 
-      DataCycleCore::DataHashService.stub(:get_internal_template, ->(name) { templates[name] }) do
+      DataCycleCore::ThingTemplate.stub(:cached_by_template_name, ->(name) { templates[name] }) do
         result = embedded_templates_for_select(labels.keys).map { |t| t.translated_template_name(:de) }
 
         # Öffnungszeiten before Zitate only holds because the sort transliterates

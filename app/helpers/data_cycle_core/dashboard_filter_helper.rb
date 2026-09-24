@@ -71,7 +71,7 @@ module DataCycleCore
           [t('common.blank', locale: active_ui_locale), 'b'],
           [t('common.present', locale: active_ui_locale), 'p']
         ]
-      when 'classification_alias_ids'
+      when 'concept_ids'
         [
           [t('common.has', locale: active_ui_locale), 'i'],
           [t('common.has_not', locale: active_ui_locale), 'e'],
@@ -219,6 +219,32 @@ module DataCycleCore
     def graph_filter_icon(key, type)
       icon_type = type == 'linked_items_in' ? 'type-linked' : 'type-linked-inverse'
       tag.i(class: "dc-type-icon property-icon #{icon_type} key-#{key}", data: { dc_tooltip: key })
+    end
+
+    # Options for the status selector of the export_status filter, shared by the filter partial and
+    # its tag group so the two cannot label the same value differently. 'nil' is the sentinel for a
+    # sync that never reported a result (see Filter::Common::External#export_status_subquery). The
+    # labels are short on purpose: external_connection_states holds full sentences for tooltips
+    # ("Es ist ein schwerer Fehler aufgetreten. ..."), which no select option can carry.
+    # @return [Array<Array(String, String)>] label/value pairs for options_for_select
+    def export_status_filter_options
+      (DataCycleCore::ExternalSystemSync::STATUSES + ['nil']).map do |status|
+        [t("filter.export_status_options.#{status}", locale: active_ui_locale), status]
+      end
+    end
+
+    # Options for the system selector of the export_status filter: the systems that can export, plus
+    # whichever ids the value already carries. The query filters by the stored id without asking for an
+    # export_config (see Filter::Common::External#export_status_subquery), so a system that has since
+    # lost its export_config still narrows the result and still gets a chip - dropping its option would
+    # let the next submit silently widen the query the operator is looking at.
+    # @return [Array<Array(String, String)>] label/value pairs for options_for_select
+    def export_status_system_options(selected_ids = nil)
+      selected_ids = Array.wrap(selected_ids).compact_blank
+      systems = DataCycleCore::ExternalSystem.with_export_config
+      systems = systems.or(DataCycleCore::ExternalSystem.where(id: selected_ids)) if selected_ids.present?
+
+      systems.order(:name).map { |e| [e.name_with_types, e.id] }
     end
 
     def selected_filter_params(filter, config)

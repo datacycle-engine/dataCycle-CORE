@@ -4,7 +4,7 @@
   xmlns:rdf="https://schema.org/"
   xmlns:schema="https://schema.org/Thing/">
 
-<% @classification_tree_labels.each do |tree_label|%>
+<% @concept_schemes.each do |tree_label|%>
   <classificationTree
     about="<%= root_url(mode: 'tree', ctl_id: tree_label.id, reset: true) %>">
     <id><%=tree_label.id%></id>

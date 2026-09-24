@@ -98,6 +98,66 @@ module DataCycleCore
       assert_select('.detail-content .type.properties .has-changes', count: 1) # title & slug
     end
 
+    # Redmine #41458: the diff viewer resolves added concepts through HistoryHelper#new_relations,
+    # which builds the model from a plain table string - a stale 'classifications' there
+    # constantizes to the deleted DataCycleCore::Classification, and #history turns the NameError
+    # into a redirect. Only a classification attribute gaining a value walks that branch.
+    test 'show content history with an added concept' do
+      concept = DataCycleCore::Concept.for_tree('Tags').with_internal_name('Tag 1').first
+
+      assert_not_nil concept
+
+      history_ids = @content.histories.pluck(:id)
+      @content.set_data_hash(data_hash: { 'tags' => [concept.id] }, partial_update: true)
+      new_history_ids = @content.histories.reload.pluck(:id) - history_ids
+
+      assert_equal 1, new_history_ids.size
+
+      get history_thing_path(@content, history_id: new_history_ids.first)
+
+      assert_response :success
+      assert_select('.detail-content.tags .tag.has-changes.new', text: /Tag 1/)
+    end
+
+    # Redmine #41458: a publication's concept changes are navigated out of the publication-level
+    # diff computed above the loop, the way date_changes reads it for publish_at. Resetting that
+    # diff per attribute left attribute_changes nothing to navigate, so an added channel never
+    # reached the row.
+    test 'show content history with a changed concept on an embedded publication schedule' do
+      initial_channel, added_channel = DataCycleCore::Concept.for_tree('Ausgabekanäle').first(2)
+
+      assert_not_nil added_channel
+
+      @content.set_data_hash(data_hash: {
+        'publication_schedule' => [{
+          'template_name' => 'Publikations-Plan',
+          'publish_at' => Time.zone.today.to_s,
+          'output_channel' => [initial_channel.id]
+        }]
+      }, partial_update: true)
+
+      publication = @content.reload.publication_schedule.first
+      history_ids = @content.histories.pluck(:id)
+
+      @content.set_data_hash(data_hash: {
+        'publication_schedule' => [{
+          'id' => publication.id,
+          'template_name' => 'Publikations-Plan',
+          'publish_at' => Time.zone.today.to_s,
+          'output_channel' => [initial_channel.id, added_channel.id]
+        }]
+      }, partial_update: true)
+      new_history_ids = @content.histories.reload.pluck(:id) - history_ids
+
+      assert_equal 1, new_history_ids.size
+
+      get history_thing_path(@content, history_id: new_history_ids.first)
+
+      assert_response :success
+      assert_select('.publication-row .tag.has-changes.new', count: 1, text: added_channel.internal_name)
+      assert_select('.publication-row .tag', text: initial_channel.internal_name)
+    end
+
     test 'delete content' do
       delete thing_path(@content), params: {}, headers: {
         referer: thing_path(@content)

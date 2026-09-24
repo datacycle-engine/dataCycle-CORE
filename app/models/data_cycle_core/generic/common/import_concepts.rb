@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module ImportConcepts
         module ClassMethods
-          ALLOWED_CONCEPT_KEYS = [:external_key, :external_source_id, :name, :description, :uri, :order_a, :parent_external_key].freeze
+          ALLOWED_CONCEPT_KEYS = [:external_key, :external_system_id, :name, :description, :uri, :order_a, :parent_external_key].freeze
 
           def import_data(utility_object:, options:)
             DataCycleCore::Generic::Common::ImportFunctions.import_concepts(
@@ -68,7 +68,7 @@ module DataCycleCore
 
               {
                 external_key: [external_id_prefix, external_id].compact_blank.join,
-                external_source_id: utility_object.external_source.id,
+                external_system_id: utility_object.external_source.id,
                 name:,
                 parent_external_key: parent_id.presence&.then { |pid| [external_id_prefix, pid].compact_blank.join },
                 external_system_identifier:,
@@ -107,7 +107,7 @@ module DataCycleCore
               .filter { |da| da[:concept_scheme_external_key].present? }
               .map { |da|
                 {
-                  external_system_id: da[:external_source_id],
+                  external_system_id: da[:external_system_id],
                   external_key: da[:concept_scheme_external_key]
                 }
               }
@@ -139,7 +139,7 @@ module DataCycleCore
               [
                 new_k,
                 v.filter_map { |da|
-                  next if new_k.external_system_id != da[:external_source_id]
+                  next if new_k.external_system_id != da[:external_system_id]
 
                   da.slice(*ALLOWED_CONCEPT_KEYS)
                 }.presence
@@ -170,7 +170,7 @@ module DataCycleCore
                   es['identifier'] == es_identifier ||
                     es['name'] == es_identifier
                 }&.dig('id')
-                da[:external_source_id] = es_id if es_id.present?
+                da[:external_system_id] = es_id if es_id.present?
                 da.delete(:external_system_identifier)
               end
             end
@@ -199,12 +199,12 @@ module DataCycleCore
               .flatten
 
             existing_concepts = DataCycleCore::Concept
-              .by_external_sources_and_keys(filtered_mappings)
+              .by_external_systems_and_keys(filtered_mappings)
               .index_by { |co| [co.external_system_id, co.external_key] }
 
             concept_mappings.filter_map do |cm|
-              parent = existing_concepts[[cm[:parent][:external_source_id], cm[:parent][:external_key]]]
-              child = concepts_by_path[cm[:child][:full_path]] || existing_concepts[[cm[:child][:external_source_id], cm[:child][:external_key]]]
+              parent = existing_concepts[[cm[:parent][:external_system_id], cm[:parent][:external_key]]]
+              child = concepts_by_path[cm[:child][:full_path]] || existing_concepts[[cm[:child][:external_system_id], cm[:child][:external_key]]]
 
               next if parent.blank? || child.blank?
 
@@ -226,11 +226,11 @@ module DataCycleCore
                   concept_mappings << {
                     parent: {
                       external_key: da[:external_key],
-                      external_source_id: da[:external_source_id]
+                      external_system_id: da[:external_system_id]
                     },
                     child: {
                       external_key: mc[:external_key],
-                      external_source_id: utility_object.external_source.id,
+                      external_system_id: utility_object.external_source.id,
                       external_system_identifier: mc[:external_system_identifier],
                       full_path: mc[:full_path]
                     }
@@ -240,11 +240,11 @@ module DataCycleCore
                 concept_mappings << {
                   parent: {
                     external_key: da[:external_key],
-                    external_source_id: da[:external_source_id]
+                    external_system_id: da[:external_system_id]
                   },
                   child: {
                     external_key: mc[:id],
-                    external_source_id: utility_object.external_source.id,
+                    external_system_id: utility_object.external_source.id,
                     full_path: mc[:full_path]
                   }
                 }
@@ -259,19 +259,19 @@ module DataCycleCore
             geom_values = []
             return geom_values if with_geometries.blank?
 
-            with_geometries.group_by { |v| v[:external_source_id] }.each do |es_id, values|
+            with_geometries.group_by { |v| v[:external_system_id] }.each do |es_id, values|
               concepts = DataCycleCore::Concept
                 .where(external_system_id: es_id, external_key: values.pluck(:external_key))
                 .to_h { |co| [co.external_key, co.id] }
 
               values.each do |da|
-                classification_alias_id = concepts[da[:external_key]]
-                next if classification_alias_id.nil?
+                concept_id = concepts[da[:external_key]]
+                next if concept_id.nil?
 
                 geom = da[:geom]
                 geom = geom.data if geom.is_a?(BSON::Binary)
 
-                geom_values << { classification_alias_id:, geom: }
+                geom_values << { concept_id:, geom: }
               end
             end
 

@@ -17,11 +17,11 @@ module DataCycleCore
         assert_kind_of(Array, DataCycleCore::Thing.data_links.to_a)
         assert_empty(DataCycleCore::Thing::History.data_links)
 
-        assert_kind_of(Array, DataCycleCore::Thing.classification_contents.to_a)
-        assert_empty(DataCycleCore::Thing::History.classification_contents)
+        assert_kind_of(Array, DataCycleCore::Thing.concept_contents.to_a)
+        assert_empty(DataCycleCore::Thing::History.concept_contents)
 
-        assert_kind_of(Array, DataCycleCore::Thing.collected_classification_contents.to_a)
-        assert_empty(DataCycleCore::Thing::History.collected_classification_contents)
+        assert_kind_of(Array, DataCycleCore::Thing.collected_concept_contents.to_a)
+        assert_empty(DataCycleCore::Thing::History.collected_concept_contents)
 
         assert_kind_of(Array, DataCycleCore::Thing.asset_contents.to_a)
         assert_empty(DataCycleCore::Thing::History.asset_contents)
@@ -43,9 +43,9 @@ module DataCycleCore
         assert_equal('content_contents.relation_b', thing.send(:relation_b_column))
       end
 
-      test 'mapped_classification_aliases uses transitive paths when the feature is enabled' do
+      test 'mapped_concepts uses transitive paths when the feature is enabled' do
         result = DataCycleCore::Feature::TransitiveClassificationPath.stub(:enabled?, true) do
-          thing.mapped_classification_aliases.to_a
+          thing.mapped_concepts.to_a
         end
 
         assert_kind_of(Array, result)

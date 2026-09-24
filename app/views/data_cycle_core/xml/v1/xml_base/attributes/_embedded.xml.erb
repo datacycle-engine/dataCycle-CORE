@@ -6,7 +6,7 @@
       <% I18n.with_locale(translation.locale) do %>
         < <%=translation.locale%> >
     <% translated_objects = content.send(key) %>
-    <% translated_object = translated_objects.presence&.includes(:translations, :classifications)%>
+    <% translated_object = translated_objects.presence&.includes(:translations, :concepts)%>
     <% if translated_object.schema.present? %>
       <<%=key_new%>>
           <%= render *content_partial('context', { content: translated_object }) %>
@@ -21,7 +21,7 @@
       <% end %>
     <% end %>
   <% else %>
-    <% object_relation = value.presence&.includes(:translations, :classifications)%>
+    <% object_relation = value.presence&.includes(:translations, :concepts)%>
     <% object_relation.each do |object| %>
       <% I18n.with_locale(object.first_available_locale) do %>
         <% if object.schema.present? %>

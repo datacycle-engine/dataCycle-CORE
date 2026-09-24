@@ -15,7 +15,7 @@ module DataCycleCore
     test 'import base classifications and mappings' do
       importer = @importer.new(paths: [@base_path])
       importer.import
-      concepts = DataCycleCore::ClassificationAlias.includes(:classification_alias_path, :primary_classification).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.primary_classification.id, additional_ids: ca.additional_classifications.pluck(:id) }] }
+      concepts = DataCycleCore::Concept.includes(:concept_path).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.id, additional_ids: ca.mapped_concepts.pluck(:id) }] }
 
       assert_equal concepts.values_at('SecondTree > Tag 1').pluck(:primary_id).to_set, concepts.dig('FirstTree > Tag 1', :additional_ids).to_set
       assert_equal concepts.values_at('SecondTree > Tag 2', 'SecondTree > Tag 3').pluck(:primary_id).to_set, concepts.dig('FirstTree > Tag 2', :additional_ids).to_set
@@ -24,7 +24,7 @@ module DataCycleCore
     test 'import append classifications and mappings' do
       importer = @importer.new(paths: [@base_path, @append_path])
       importer.import
-      concepts = DataCycleCore::ClassificationAlias.includes(:classification_alias_path, :primary_classification).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.primary_classification.id, additional_ids: ca.additional_classifications.pluck(:id) }] }
+      concepts = DataCycleCore::Concept.includes(:concept_path).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.id, additional_ids: ca.mapped_concepts.pluck(:id) }] }
 
       assert_equal concepts.values_at('SecondTree > Tag 1').pluck(:primary_id).to_set, concepts.dig('FirstTree > Tag 1', :additional_ids).to_set
       assert_equal concepts.values_at('SecondTree > Tag 2', 'SecondTree > Tag 3').pluck(:primary_id).to_set, concepts.dig('FirstTree > Tag 2', :additional_ids).to_set
@@ -34,7 +34,7 @@ module DataCycleCore
     test 'import clear classifications and mappings' do
       importer = @importer.new(paths: [@base_path, @clear_path])
       importer.import
-      concepts = DataCycleCore::ClassificationAlias.includes(:classification_alias_path, :primary_classification).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.primary_classification.id, additional_ids: ca.additional_classifications.pluck(:id) }] }
+      concepts = DataCycleCore::Concept.includes(:concept_path).for_tree(['FirstTree', 'SecondTree']).to_h { |ca| [ca.full_path, { primary_id: ca.id, additional_ids: ca.mapped_concepts.pluck(:id) }] }
 
       assert_equal [].to_set, concepts.dig('FirstTree > Tag 1', :additional_ids).to_set
       assert_equal [].to_set, concepts.dig('FirstTree > Tag 2', :additional_ids).to_set

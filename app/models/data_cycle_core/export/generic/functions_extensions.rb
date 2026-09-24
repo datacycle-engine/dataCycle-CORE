@@ -9,10 +9,8 @@ module DataCycleCore
           data_object = { id: data.id, klass: data.class.name }
           append_thing_data!(data_object, data, external_system)
 
-          webhook = utility_object.webhook_job_class
           queue_method = synchronous_webhooks?(data, utility_object) ? :perform_now : :perform_later
-          apply_webhook_params!(webhook, data)
-          webhook = webhook.set(wait: utility_object.wait_time) if utility_object.wait_time.present?
+          webhook = utility_object.webhook_job_class.set(**enqueue_options(data, utility_object))
 
           webhook.send(
             queue_method,
@@ -36,13 +34,19 @@ module DataCycleCore
             ) == 'inline' # legacy config support
         end
 
-        def apply_webhook_params!(webhook, data)
-          webhook_params = {
-            wait_until: data.try(:webhook_run_at) || Time.zone.now,
+        # Every option the enqueue steers has to reach the one .set call above: ActiveJob::ConfiguredJob,
+        # which .set returns, carries no #set of its own, so a second one chained onto it would raise
+        # NoMethodError. A blank option is dropped rather than passed as nil - given a wait_until of
+        # Time.zone.now, ActiveJob stamps scheduled_at and SolidQueue files the delivery under
+        # solid_queue_scheduled_executions for its scheduler to promote, where one with no scheduled_at
+        # is claimed ready.
+        # @return [Hash] the ActiveJob options, empty when nothing steers this enqueue
+        def enqueue_options(data, utility_object)
+          {
+            wait_until: data.try(:webhook_run_at),
+            wait: utility_object.wait_time,
             priority: data.try(:webhook_priority)
           }.compact_blank
-
-          webhook.set(**webhook_params) if webhook_params.present?
         end
 
         def append_thing_data!(data_object, data, external_system)

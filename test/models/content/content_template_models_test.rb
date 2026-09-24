@@ -15,8 +15,8 @@ module DataCycleCore
     # obsolete cleanup, in Content::Extensions::TemplateConversion) is covered by content_template_conversion_test.rb.
     class ContentTemplateModelsTest < DataCycleCore::TestCases::ActiveSupportTestCase
       before(:all) do
-        @organization_dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Organisation').pluck(:classification_id)
-        @organization_st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('Organization').pluck(:classification_id)
+        @organization_dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Organisation').pluck(:id)
+        @organization_st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Organization').pluck(:id)
 
         @content = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: { name: 'test name de' })
 
@@ -29,8 +29,8 @@ module DataCycleCore
       # re-fetch via Thing.find (not reload): the original reference is still the old STI subclass after the change
       test 'update(template_name:) converts the Thing in place; re-fetched it loads as the new STI subclass with boost, content_type, property names, data_type and schema_types refreshed to the target template (Artikel)' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
-        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
-        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:id)
 
         perform_enqueued_jobs { @content.update(template_name: 'Artikel') }
         new_content = DataCycleCore::Thing.find(@content.id)
@@ -56,8 +56,8 @@ module DataCycleCore
       test 'assigning thing_template= (a ThingTemplate) refreshes boost, content_type and property names in memory; save! then persists the new data_type and schema_types (Artikel)' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel')
         @content.thing_template = tt
-        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
-        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:id)
 
         assert_in_delta(100.0, @content.boost)
         assert_equal 'entity', @content.content_type
@@ -73,8 +73,8 @@ module DataCycleCore
       # re-fetch via Thing.find to load the new STI class
       test 'update(thing_template:) with a ThingTemplate object converts and persists; re-fetched it carries the new boost, content_type, property names, data_type and schema_types (Artikel)' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel')
-        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
-        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:id)
 
         perform_enqueued_jobs { @content.update(thing_template: tt) }
         new_content = DataCycleCore::Thing.find(@content.id) # reload with new STI class
@@ -90,8 +90,8 @@ module DataCycleCore
       test 'becomes!(name) returns an unsaved in-memory cast (boost, content_type and property names already refreshed); a subsequent save! by the caller persists the new data_type and schema_types (Artikel)' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
         new_content = @content.becomes!('Artikel')
-        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
-        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:id)
 
         assert_in_delta(100.0, new_content.boost)
         assert_equal 'entity', new_content.content_type
@@ -107,8 +107,8 @@ module DataCycleCore
       # reload (not re-fetch) works here because becomes! already set the new STI class on this very object
       test 'a becomes!-cast object can be saved and then reloaded in place without ActiveRecord::SubclassNotFound, with all template attributes refreshed (Artikel)' do
         tt = DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel').template_thing
-        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:classification_id)
-        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:classification_id)
+        dt = DataCycleCore::Concept.for_tree('Inhaltstypen').with_internal_name('Artikel').pluck(:id)
+        st = DataCycleCore::Concept.for_tree('SchemaTypes').with_internal_name('dcls:Artikel').pluck(:id)
 
         new_content = @content.becomes!('Artikel')
         perform_enqueued_jobs { new_content.save! }
@@ -143,6 +143,15 @@ module DataCycleCore
 
         assert_instance_of DataCycleCore::Thing, generic
         assert_predicate generic, :generic_template?
+      end
+
+      # AR picks the subclass from the attributes handed to new, before Content#initialize derives
+      # template_name from thing_template; without the normalization in StiSubclasses.new this is a base Thing
+      test 'Thing.new(thing_template:) without template_name instantiates as the generated STI subclass' do
+        thing = DataCycleCore::Thing.new(thing_template: DataCycleCore::ThingTemplate.find_by(template_name: 'Artikel'))
+
+        assert_instance_of DataCycleCore::Thing::Artikel, thing
+        assert_includes thing.class.instance_methods(false), :tags=
       end
 
       # counterpart to the synthetic "Generic" case: real templates must still resolve to their generated subclass
@@ -194,6 +203,10 @@ module DataCycleCore
       # production process can need: it imports them before it restarts.
       test 'a template constant this process has not generated yet is created from the names the init recorded' do
         DataCycleCore::Thing.ensure_sti_subclasses_initialized_once!
+        # the init runs once per process, inside whichever test first needs a subclass, so this test
+        # records the name it relies on itself, the way the test below removes it
+        recorded = DataCycleCore::Thing.instance_variable_get(:@sti_template_names)
+        DataCycleCore::Thing.instance_variable_set(:@sti_template_names, recorded | ['Artikel'])
         DataCycleCore::Thing.send(:remove_const, :Artikel)
 
         artikel_class = DataCycleCore::ThingTemplate.stub(:pluck, ->(*) { raise 'templates re-read' }) do
@@ -202,6 +215,8 @@ module DataCycleCore
 
         assert_equal 'DataCycleCore::Thing::Artikel', artikel_class&.name
         assert_equal artikel_class, DataCycleCore::Thing.sti_class_for('Artikel')
+      ensure
+        DataCycleCore::Thing.instance_variable_set(:@sti_template_names, recorded)
       end
 
       # development and test only: rails dc:update and the test setup import templates into a process

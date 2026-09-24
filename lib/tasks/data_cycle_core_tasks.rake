@@ -90,7 +90,7 @@ namespace :data_cycle_core do
       logger.info('Started Archiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
-      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
+      archive_release_id = DataCycleCore::Feature::Releasable.stage_concept_id('archive')
 
       expired_contents = DataCycleCore::Thing.where('upper(validity_range) < ?', Date.current)
 
@@ -153,14 +153,14 @@ namespace :data_cycle_core do
       logger.info('Started Unarchiving...')
       temp = Time.zone.now
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
-      valid_life_cycle_id = DataCycleCore::Classification.find_by(name: 'Aktuelle Inhalte')&.id
+      valid_life_cycle_id = DataCycleCore::Concept.find_by(name: 'Aktuelle Inhalte')&.id
 
-      archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
-      valid_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('valid'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
+      archive_release_id = DataCycleCore::Feature::Releasable.stage_concept_id('archive')
+      valid_release_id = DataCycleCore::Feature::Releasable.stage_concept_id('valid')
 
       if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
-        contents = DataCycleCore::Thing.joins(:classifications)
-          .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
+        contents = DataCycleCore::Thing.joins(:concepts)
+          .where(template_name: ['Bild', 'Video'], concepts: { id: archive_release_id })
           .where('things.validity_range @> now()')
           .with_content_type('entity').distinct
 
@@ -189,8 +189,8 @@ namespace :data_cycle_core do
       end
 
       if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
-        contents = DataCycleCore::Thing.joins(:classifications)
-          .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
+        contents = DataCycleCore::Thing.joins(:concepts)
+          .where(template_name: ['Bild', 'Video'], concepts: { id: archive_life_cycle_id })
           .where('things.validity_range @> now()')
           .with_content_type('entity').distinct
 

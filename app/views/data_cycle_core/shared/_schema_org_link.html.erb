@@ -1,0 +1,17 @@
+<%# Button linking to the schema.org definition of a content/template type (#50201 %>
+<%# follow-up). Rendered only "where possible" — i.e. when a real schema.org type %>
+<%# exists among the given @type values. Locals: schema_types (Array/String), %>
+<%# show_icon (Boolean, default true — the /schema detail view passes false). %>
+<% schema_org_link_type = schema_org_type(local_assigns[:schema_types]) %>
+<% if schema_org_link_type.present? %>
+  <%= link_to schema_org_url_for_type(schema_org_link_type),
+              target: :_blank,
+              rel: 'noopener noreferrer',
+              class: 'schema-org-link',
+              title: t('data_cycle_core.schema.schema_org_link.title', type: schema_org_link_type) do %>
+    <% if local_assigns.fetch(:show_icon, true) %>
+      <i class="fa fa-external-link" aria-hidden="true"></i>
+    <% end %>
+    <span><%= t('data_cycle_core.schema.schema_org_link.label') %></span>
+  <% end %>
+<% end %>

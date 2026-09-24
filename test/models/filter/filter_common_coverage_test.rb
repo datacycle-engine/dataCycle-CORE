@@ -24,10 +24,10 @@ module DataCycleCore
 
     test 'classification alias-id filter variants build executable queries' do
       [
-        :classification_alias_ids_without_subtree_with_related,
-        :not_classification_alias_ids_without_subtree_with_related,
-        :classification_alias_ids_related,
-        :not_classification_alias_ids_related
+        :concept_ids_without_subtree_with_related,
+        :not_concept_ids_without_subtree_with_related,
+        :concept_ids_related,
+        :not_concept_ids_related
       ].each do |method|
         assert_equal(0, search.public_send(method, [UUID]).count)
         assert_respond_to(search.public_send(method, nil), :count) # blank guard returns self
@@ -45,12 +45,6 @@ module DataCycleCore
       assert_respond_to(search.not_with_classification_aliases_and_treename(nil), :count) # blank guard
       assert_raises(StandardError) { search.not_with_classification_aliases_and_treename({ 'aliases' => ['x'] }) }
       assert_raises(StandardError) { search.not_with_classification_aliases_and_treename({ 'treeLabel' => 'Tags' }) }
-    end
-
-    test 'deprecated classification filter methods raise' do
-      [:classification_alias_ids, :not_classification_alias_ids, :with_classification_alias_ids_without_recursion].each do |method|
-        assert_raises(DataCycleCore::Error::DeprecatedMethodError) { search.public_send(method, [UUID]) }
-      end
     end
 
     test 'user_group_classifications filters by user group membership' do

@@ -137,6 +137,14 @@
   # # stage a content is moved (back) to when it becomes active again, defaults to "Aktuell"
   # :active_name: Aktuelle Inhalte
 
+:reusable_embedded:
+  :enabled: false
+  :attribute_keys:
+    - reusable
+
+:duplicate_embedded:
+  :enabled: false
+
 :idea_collection:
   :enabled: false
 
@@ -216,18 +224,19 @@
     :visible: false
     :schedule_exceptions:
       - validity_schedule
-  :classification_alias_ids: all
+  :concept_ids: all
   #  :related_to: true
   :duplicate_candidate_filter:
     :depends_on: DataCycleCore::Feature::DuplicateCandidate
   :external_source: false
   :external_system: true
+  :export_status: true
   :id: true
   :user:
     :creator: true
     :editor: false
     :last_editor: false
-  :classification_tree_ids: true
+  :concept_scheme_ids: true
   :date_range: all
   :validity_period:
     :absolute: true
@@ -666,18 +675,65 @@
     - focus_point_x
     - focus_point_y
 
+# dataPixie frontend features. They own the UI only and compose backend features (plugin gems)
+# through :dependencies:, so enabling one without its backends leaves it unavailable rather than
+# broken.
+:classification_pixie:
+  :enabled: false
+  :allowed: false
+  :dependencies:
+    - content_classifier
+
+:annotation_pixie:
+  :enabled: false
+  :allowed: false
+  :dependencies:
+    - content_classifier
+    - embedding
+
+# Which attribute is filled from which annotation field is declared per attribute in the template
+# (:features: :image_description_pixie: :source:), so only the backend dependency is global here.
+#
+# The generate buttons are available wherever the feature is, and each asks for the one locale its
+# editor edits. The computed ALT label (:description_generated:) runs on every save instead, and
+# :generate_for: is where it is configured -- everything under that key describes the label, not the
+# buttons.
+#
+# :dependencies: names the backend feature, but the computed label itself is not in core: the
+# attribute :description_generated: and its compute module
+# Datacycle::Feature::Embedding::Utility::Compute ship with the gem datacycle-feature-embedding,
+# whose templates a project has to add to DataCycleCore.default_template_paths. Without that gem the
+# buttons work and no computed ALT label exists. What the postfix _generated then derives -- the
+# "only while the editorial field is empty" condition and the KI-Agent marking -- is documented in
+# docs/generated_attributes.md.
+:image_description_pixie:
+  :enabled: false
+  :allowed: false
+  :dependencies:
+    - embedding
+  # :generate_for:
+  #   # naming external systems restricts the label to the images of those imports and leaves
+  #   # editorial uploads to the buttons. Without the key every image the attribute is on gets one.
+  #   :external_sources:
+  #     - canto_dam
+  #   # the annotation service generates a caption, an ALT text and a title per language, each its
+  #   # own vision call, so this is what one image costs. Defaults to I18n.default_locale.
+  #   :languages:
+  #     - de
+  #     - en
+
 :ts_query_fulltext_search:
   :enabled: false
   :sorting:
     - :weights:
         - 0.0 # D: searches.full_text
-        - 0.2 # C: searches.classification_string
+        - 0.2 # C: searches.concept_string
         - 0.4 # B: searches.slug
         - 1.0 # A: searches.headline
       :normalization: 0
     - :weights:
         - 0.1 # D: searches.full_text
-        - 0.0 # C: searches.classification_string
+        - 0.0 # C: searches.concept_string
         - 0.0 # B: searches.slug
         - 0.0 # A: searches.headline
       :normalization: 5
@@ -714,3 +770,77 @@
     # :grist:
     #   :url: https://grist.example.com/
     #   :icon: table
+
+# The whole MCP layer (Mcp::*): both mounts, their release, and the geo cascade. One feature rather
+# than a main_config block per mount plus a separate mcp_geo_scope feature -- they are one subsystem,
+# and "what does this instance need for MCP" could not be answered from a single file before.
+:mcp:
+  # Off means neither mount gets a route at all, so a client sees 404 rather than a server that
+  # answers and then cannot work. Read while the routes are drawn: a change needs a restart.
+  :enabled: false
+  :mounts:
+    # POST /api/mcp -- instance-wide, scoped by the calling user's api visibility (Mcp::ApiScope).
+    :global:
+      :enabled: false
+      # Releases create_content/update_content. A second switch on purpose, so an upgrade cannot
+      # slip write tools into an installation that only reads.
+      :write_enabled: false
+      # Browser origins allowed to call the mount. Empty means same-origin; a client that sends no
+      # Origin header (every non-browser client) is unaffected by it. The allowed HOSTNAMES are NOT
+      # configured here -- the transport is handed config.hosts, which ActionDispatch::HostAuthorization
+      # checks before any controller runs.
+      :allowed_origins: []
+    # POST /api/v4/endpoints/:id/mcp -- scoped to one published StoredFilter and its facets.
+    :endpoint:
+      :enabled: false
+      :write_enabled: false
+      :allowed_origins: []
+  # Instance-specific notes that BOTH mounts append to their server instructions
+  # (Mcp::ServerInstructions). What belongs here is what holds for THIS installation and therefore
+  # must not sit in the gem -- how a fact is modelled, say ("gastronomy exists as TouristAttraction
+  # plus a category, not as FoodEstablishment"), or which classification tree carries a dimension
+  # its name does not reveal.
+  #
+  # Maintained as a language-keyed hash; a single string applies to every language. Without an
+  # entry the instructions text stays unchanged. Empty by default: after an upgrade an installation
+  # must not ship someone else's statements about its data.
+  :instance_notes: {}
+  # Geo cascade of the MCP tools (Mcp::GeoScope). The ORDER of the stages is NOT configurable here --
+  # it is fixed in Mcp::GeoScope::STAGES (classification tree, then geo_regions, then address) so an
+  # LLM cannot choose it. What is configurable is only WHERE resolution happens.
+  :geo:
+    # On, so the standard case needs no entry here at all. An instance that does NOT seed the tree
+    # named below costs nothing by it: no label is found, Mcp::GeoScope.resolve returns nil and every
+    # place name answers resolved: false -- indistinguishable from this switch being off.
+    #
+    # Not gated like :write_enabled:, which releases side effects an upgrade must not slip in. This
+    # one only decides how well a read-only place name resolves, and it is reached at all only on an
+    # installation that has already switched on :enabled: and a mount.
+    :enabled: true
+    # Trees in which a place name is resolved to a concept. Order = priority for ambiguous names (the
+    # same place name often exists in several trees). Without an entry the cascade has no effect.
+    #
+    # "Administrative Einheiten" is the one tree dataCycle computes itself -- data_cycle_basic's
+    # administrative_unit_classifications derives it from the content's geometry. Every further tree
+    # (tourism regions, marketing groups) exists under a name only the project knows.
+    :resolution_trees:
+      - Administrative Einheiten
+    # Administrative prefixes stripped from the concept name before it is compared with
+    # address.address_locality ("Gemeinde Egg" -> "Egg"), because address_locality carries the bare
+    # place name. The German prefixes of the tree above; an instance whose concepts are named
+    # differently replaces the list instead of extending it.
+    :locality_prefixes:
+      - Gemeinde
+      - Marktgemeinde
+      - Stadt
+      - Bezirk
+    # Trees whose concepts carry polygons and are matched by CONTAINMENT instead of by name -- stage
+    # 2, for the region names that do not exist in the resolution trees at all (measured in
+    # vcloud-dev: no geo_regions concept is named "Vorarlberg", yet 20 of 22 lie inside its polygon).
+    # Empty because such a tree is instance-specific, and a resolution tree named here again would
+    # only repeat stage 1.
+    :geo_region_trees: []
+    # Complements the place-name comparison against address.address_locality, because localities and
+    # name variants sit there that do not exist as a concept in the administrative tree.
+    # Format: "<concept name>": "<POSIX regex against address.postal_code>"
+    :postal_code_patterns: {}

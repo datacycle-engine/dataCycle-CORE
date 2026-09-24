@@ -29,10 +29,7 @@ module DataCycleCore
           )
           DataCycleCore::ThingTemplate.upsert_all([{ template_name: TEMPLATE, schema: }], unique_by: :template_name)
 
-          @tag_a, @tag_b = DataCycleCore::ClassificationAlias.for_tree('Tags')
-            .includes(:primary_classification)
-            .first(2)
-            .map { |a| a.primary_classification.id }
+          @tag_a, @tag_b = DataCycleCore::Concept.for_tree('Tags').first(2).map(&:id)
         end
 
         after(:all) do
@@ -43,10 +40,12 @@ module DataCycleCore
         # same template and name, which is exactly the case under test here. Candidates are
         # recomputed inline (CheckForDuplicatesJob does it in production) so the assertions do not
         # depend on the queue adapter.
-        def article(name:, tags: [])
+        def article(name:, tags: [], en: nil)
           content = DataCycleCore::Thing.new(template_name: TEMPLATE)
           content.save!(touch: false)
           content.set_data_hash(data_hash: { 'name' => name, 'tags' => tags }, prevent_history: true)
+          I18n.with_locale(:en) { content.set_data_hash(data_hash: { 'name' => en }, partial_update: true, prevent_history: true) } if en
+          content.reload
           content.create_duplicate_candidates
 
           content
@@ -85,6 +84,67 @@ module DataCycleCore
           first.create_duplicate_candidates
 
           assert_empty first.duplicate_candidates.reload
+        end
+
+        # The name half of the rule is locale bound - see OnlyTitleTest for the reasoning. This is
+        # the module `dc:duplicates:merge_duplicates[100,cleanup-feratel-event-locations,...]`
+        # consumes, so the pair below is the score-100 candidate production offered it: two
+        # different rooms sharing only the English name Feratel delivers. No merge ever consumed
+        # the row, because the same nightly run recomputed the "Proberaum" end afterwards and
+        # deleted it again.
+        test 'names differing in the current locale are not a candidate although English agrees' do
+          first = article(name: 'Walserhaus Hirschegg', tags: [@tag_a], en: 'Walserhaus Hirschegg')
+          second = article(name: 'Proberaum Walserhaus Hirschegg', tags: [@tag_a], en: 'Walserhaus Hirschegg')
+          first.create_duplicate_candidates
+
+          assert_empty first.duplicate_candidates.reload
+          assert_empty second.duplicate_candidates.reload
+        end
+
+        test 'names agreeing in the current locale stay a candidate although English differs' do
+          first = article(name: 'Parkplatz Adolari', tags: [@tag_a], en: 'Parkplatz Adolari')
+          second = article(name: 'Parkplatz Adolari', tags: [@tag_a], en: 'parking space Adolari')
+          first.create_duplicate_candidates
+
+          assert_equal [second.id], first.duplicate_candidates.reload.pluck(:duplicate_id)
+        end
+
+        # Feature::DuplicateCandidate.find_duplicates pins the recomputation, so the row set no longer
+        # depends on the language its writer happened to be in. Without the pin the English Feratel
+        # import pass would store exactly the pair the change removes.
+        test 'recomputation is pinned to the default locale whatever locale the writer is in' do
+          first = article(name: 'Walserhaus Hirschegg', tags: [@tag_a], en: 'Walserhaus Hirschegg')
+          second = article(name: 'Proberaum Walserhaus Hirschegg', tags: [@tag_a], en: 'Walserhaus Hirschegg')
+
+          I18n.with_locale(:en) do
+            first.create_duplicate_candidates
+            second.create_duplicate_candidates
+          end
+
+          assert_empty first.duplicate_candidates.reload
+          assert_empty second.duplicate_candidates.reload
+        end
+
+        # every other locale case in this file runs through create_duplicate_candidates, which pins
+        # the locale and would therefore hide a module scope that still crossed the two
+        test 'the module compares the name in the current locale' do
+          first = article(name: 'Alpha Haus', tags: [@tag_a], en: 'Beta Haus')
+          crossing = article(name: 'Beta Haus', tags: [@tag_a], en: 'Gamma Haus')
+          agreeing = article(name: 'Delta Haus', tags: [@tag_a], en: 'Beta Haus')
+
+          I18n.with_locale(:en) do
+            ids = Array.wrap(SUBJECT.duplicates(content: first.reload)).pluck(:thing_duplicate_id)
+
+            assert_not_includes ids, crossing.id
+            assert_includes ids, agreeing.id
+          end
+        end
+
+        test 'a content without a name in the current locale yields no candidates' do
+          first = article(name: 'Ohne Englische Uebersetzung', tags: [@tag_a])
+          article(name: 'Ohne Englische Uebersetzung', tags: [@tag_a])
+
+          I18n.with_locale(:en) { assert_nil SUBJECT.duplicates(content: first.reload) }
         end
 
         test 'duplicates returns nil for a content without a name' do

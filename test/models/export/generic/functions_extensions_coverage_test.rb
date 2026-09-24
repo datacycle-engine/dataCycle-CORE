@@ -19,7 +19,8 @@ module DataCycleCore
       obj
     end
 
-    # records every set/perform_now/perform_later call; #set returns self (chainable)
+    # records every set/perform_now/perform_later call; #set returns self, standing in for the
+    # ActiveJob::ConfiguredJob a job class returns
     def webhook_double
       calls = []
       webhook = Object.new
@@ -65,17 +66,19 @@ module DataCycleCore
       assert_not host.synchronous_webhooks?(Object.new, neither)
     end
 
-    # --- apply_webhook_params! --------------------------------------------------------
+    # --- enqueue_options --------------------------------------------------------------
 
-    test 'apply_webhook_params! sets wait_until and priority on the webhook' do
-      webhook = webhook_double
-      host.apply_webhook_params!(webhook, dbl(webhook_run_at: nil, webhook_priority: 3))
+    test 'enqueue_options collects what steers the enqueue' do
+      run_at = 2.hours.from_now
+      options = host.enqueue_options(dbl(webhook_run_at: run_at, webhook_priority: 3), dbl(wait_time: 5))
 
-      assert_equal [:set], webhook.calls.map(&:first)
-      params = webhook.calls.first.last
+      assert_equal({ wait_until: run_at, wait: 5, priority: 3 }, options)
+    end
 
-      assert params.key?(:wait_until)
-      assert_equal 3, params[:priority]
+    # An unscheduled delivery is claimed ready; one carrying wait_until: Time.zone.now goes to
+    # solid_queue_scheduled_executions for the scheduler to promote first.
+    test 'enqueue_options is empty when nothing steers the enqueue' do
+      assert_empty host.enqueue_options(dbl(webhook_run_at: nil, webhook_priority: nil), dbl(wait_time: nil))
     end
 
     # --- append_thing_data! -----------------------------------------------------------
@@ -120,6 +123,8 @@ module DataCycleCore
       uo = utility_object_double(webhook:, external_system:, wait_time: 5)
 
       host.enqueue(utility_object: uo, data:)
+
+      assert_equal([[:set, { wait: 5 }]], webhook.calls.select { |c| c.first == :set })
 
       dispatched = webhook.calls.find { |c| c.first == :perform_now }
 

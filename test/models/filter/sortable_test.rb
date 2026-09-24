@@ -56,16 +56,38 @@ module DataCycleCore
       assert_includes(sql, "geometries.geom_simple::geography <-> 'SRID=4326;POINT (10.0 47.0)'::geography asc NULLS LAST")
     end
 
+    # sort: proximity.geographic_with(...) supplies its own coordinates, so an argument that yields
+    # no pair is a client error - unlike sort_proximity_geographic, which reads filter[geo][in][perimeter]
+    # and legitimately sorts nothing when that filter is absent.
+    test 'sort_proximity_geographic_with raises for an argument that is not a coordinate pair' do
+      [nil, [], ['14'], [nil, '47'], '14', 'lon:14'].each do |value|
+        assert_raises(DataCycleCore::Error::Api::BadRequestError, "expected a raise for #{value.inspect}") do
+          search.sort_proximity_geographic_with('ASC', value)
+        end
+      end
+    end
+
+    # String#[] indexes characters, so an unparsed argument used to pass valid_geographic_coordinates?:
+    # sort: proximity.geographic(14,46) sorted by POINT (1.0 4.0) instead of leaving the query unsorted.
+    test 'sort_proximity_geographic returns self for a raw string argument' do
+      base = search
+
+      assert_same(base, base.sort_proximity_geographic('ASC', '14'))
+      assert_same(base, base.sort_proximity_geographic('ASC', '14,46'))
+    end
+
     # DC-19: the ORDER BY geom literal interpolates the coordinates; non-numeric input must be
-    # rejected (return self / unsorted) so it can never break out of the WKT literal.
+    # rejected so it can never break out of the WKT literal - unsorted for the variants that read
+    # filter[geo][in][perimeter], BadRequestError for proximity.geographic_with, which carries
+    # its own pair.
     SQLI_COORD_PAYLOAD = "0 0)'::geography ASC, (SELECT 1 FROM pg_sleep(3)) ASC, 'SRID=4326;POINT (0"
 
-    test 'sort_proximity_geographic returns self for non-numeric (SQL injection) coordinates' do
+    test 'sort_proximity_geographic rejects non-numeric (SQL injection) coordinates' do
       base = search
 
       assert_same(base, base.sort_proximity_geographic('ASC', [SQLI_COORD_PAYLOAD, '0']))
       assert_same(base, base.sort_proximity_geographic('ASC', ['0', SQLI_COORD_PAYLOAD]))
-      assert_same(base, base.sort_proximity_geographic_with('ASC', [SQLI_COORD_PAYLOAD, '0']))
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { base.sort_proximity_geographic_with('ASC', [SQLI_COORD_PAYLOAD, '0']) }
       assert_same(base, base.sort_proximity_occurrence_with_distance('ASC', [[SQLI_COORD_PAYLOAD, '0']]))
     end
 
@@ -118,6 +140,15 @@ module DataCycleCore
 
       assert_includes(sql, "'start_date'")
       assert_includes(search.sort_proximity_in_time.to_sql, "'end_date'")
+    end
+
+    # merge_api_schedule_params resolves the relative bounds of a stored in_schedule filter against the
+    # request's filter[schedule][in], so 'v' => 'from' can hold a Time while 'q' still reads 'relative'.
+    test 'sort_proximity_in_time accepts absolute dates below the relative keys' do
+      date = Time.zone.parse('2026-09-03T12:29:10.494+02:00')
+      sql = search.sort_proximity_in_time('ASC', { 'q' => 'relative', 'v' => { 'from' => date } }).to_sql
+
+      assert_includes(sql, "'#{date.iso8601}'")
     end
 
     test 'sort_proximity_occurrence_with_distance returns self for invalid values' do
@@ -214,7 +245,7 @@ module DataCycleCore
       sql = search.sort_legacy_fulltext_search('DESC', 'Wolfgangsee Ruderboot').to_sql
 
       assert_includes(sql, "LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = 'de'")
-      assert_includes(sql, '8 * similarity(searches.classification_string')
+      assert_includes(sql, '8 * similarity(searches.concept_string')
       assert_includes(sql, '4 * similarity(searches.headline')
       assert_includes(sql, 'plainto_tsquery(pg_dict_mappings.dict')
       assert_includes(sql, 'desc NULLS LAST')
@@ -241,11 +272,11 @@ module DataCycleCore
     CLASSIFICATION_UUID = 'a1b2c3d4-1234-1234-1234-123456789abc'
     CLASSIFICATION_UUID_2 = 'b2c3d4e5-2345-2345-2345-23456789abcd'
 
-    test 'sort_dc_classification orders by array_position over collected_classification_contents' do
+    test 'sort_dc_classification orders by array_position over collected_concept_contents' do
       sql = search.sort_dc_classification('ASC', [CLASSIFICATION_UUID]).to_sql
 
       assert_includes(sql, 'LEFT OUTER JOIN')
-      assert_includes(sql, 'collected_classification_contents')
+      assert_includes(sql, 'collected_concept_contents')
       assert_includes(sql, 'array_position(ARRAY[')
       assert_includes(sql, "'#{CLASSIFICATION_UUID}'")
       assert_includes(sql, '::uuid[]')
@@ -262,11 +293,11 @@ module DataCycleCore
     end
 
     test 'sort_dc_classification raises for blank or invalid uuids' do
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', nil) }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', '') }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', []) }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', ['not-a-uuid']) }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', "#{CLASSIFICATION_UUID},not-a-uuid") }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', nil) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', '') }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', []) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', ['not-a-uuid']) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', "#{CLASSIFICATION_UUID},not-a-uuid") }
     end
 
     # #50091 security: the uuid? format check is the injection boundary for the value; every
@@ -278,10 +309,10 @@ module DataCycleCore
         "#{CLASSIFICATION_UUID}'); DROP TABLE things; --",
         "#{CLASSIFICATION_UUID}') UNION SELECT id FROM active_storage_blobs --",
         "' OR '1'='1",
-        '1); DELETE FROM collected_classification_contents; --',
+        '1); DELETE FROM collected_concept_contents; --',
         "#{CLASSIFICATION_UUID}]::text[]) --"
       ].each do |payload|
-        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError, "expected #{payload.inspect} to be rejected") do
+        assert_raises(DataCycleCore::Error::Api::BadRequestError, "expected #{payload.inspect} to be rejected") do
           search.sort_dc_classification('ASC', payload)
         end
       end
@@ -292,13 +323,13 @@ module DataCycleCore
     test 'sort_dc_classification rejects a multiline value that hides a payload after a valid uuid' do
       payload = "#{CLASSIFICATION_UUID}\n'); DROP TABLE things; --"
 
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', payload) }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_dc_classification('ASC', [payload]) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', payload) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_dc_classification('ASC', [payload]) }
     end
 
     # #50091 security: a single poisoned element in an otherwise valid array must fail the whole sort.
     test 'sort_dc_classification rejects injection via a poisoned element in the uuid array' do
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) do
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) do
         search.sort_dc_classification('ASC', [CLASSIFICATION_UUID, "'; DROP TABLE things; --"])
       end
     end
@@ -347,8 +378,8 @@ module DataCycleCore
     end
 
     test 'sort_id raises for invalid uuids' do
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', ['not-a-uuid']) }
-      assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', "#{THING_UUID},not-a-uuid") }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_id('ASC', ['not-a-uuid']) }
+      assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_id('ASC', "#{THING_UUID},not-a-uuid") }
     end
 
     # #50554 security: same injection boundary as #50091 — every non-UUID token is rejected before it
@@ -363,11 +394,11 @@ module DataCycleCore
         "#{THING_UUID}]::text[]) --",
         "#{THING_UUID}\n'); DROP TABLE things; --"
       ].each do |payload|
-        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError, "expected #{payload.inspect} to be rejected") do
+        assert_raises(DataCycleCore::Error::Api::BadRequestError, "expected #{payload.inspect} to be rejected") do
           search.sort_id('ASC', payload)
         end
 
-        assert_raises(DataCycleCore::Error::Api::InvalidArgumentError) { search.sort_id('ASC', [THING_UUID, payload]) }
+        assert_raises(DataCycleCore::Error::Api::BadRequestError) { search.sort_id('ASC', [THING_UUID, payload]) }
       end
     end
 

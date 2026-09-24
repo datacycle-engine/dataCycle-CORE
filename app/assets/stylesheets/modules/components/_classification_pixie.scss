@@ -1,0 +1,187 @@
+.classification-pixie-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  --classification-pixie-primary-bg: rgba(0, 140, 186, 0.12);
+  --classification-pixie-primary-border: rgba(0, 140, 186, 0.4);
+  --classification-pixie-confidence-high: #1e6fb9;
+  --classification-pixie-confidence-low: #8a5a2d;
+}
+
+.classification-pixie-tree-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 14rem;
+  max-width: 18rem;
+}
+
+.classification-pixie-tree-search {
+  width: 100%;
+}
+
+.classification-pixie-tree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.classification-pixie-tree-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--medium-radius);
+  border: 1px solid transparent;
+  background-color: transparent;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.classification-pixie-tree-item:hover,
+.classification-pixie-tree-item:focus-visible {
+  background-color: var(--very-light-gray);
+  border-color: var(--light-gray);
+}
+
+.classification-pixie-tree-item.is-active {
+  background-color: var(--classification-pixie-primary-bg);
+  border-color: var(--classification-pixie-primary-border);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.classification-pixie-results-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.classification-pixie-results {
+  border-radius: var(--medium-radius);
+  padding: 1.25rem;
+  max-height: min(25rem, 80vh);
+  max-width: min(25rem, 80vw);
+  overflow-y: auto;
+}
+
+.classification-pixie-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--dark-gray);
+  font-size: 0.95rem;
+  min-height: 6rem;
+}
+
+.classification-pixie-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.classification-pixie-suggestion {
+  background: #fff;
+  border: 1px solid var(--light-gray);
+  border-radius: var(--medium-radius);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.classification-pixie-suggestion.empty {
+  background: transparent;
+  border: 1px dashed var(--light-gray);
+  color: var(--dark-gray);
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.classification-pixie-suggestion-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.classification-pixie-suggestion-label input {
+  margin: 0;
+}
+
+.classification-pixie-suggestion-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.classification-pixie-suggestion-title {
+  font-weight: 600;
+}
+
+.classification-pixie-suggestion-confidence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background-color: var(--success-color);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.classification-pixie-suggestion-confidence.is-unknown {
+  background-color: var(--light-gray);
+}
+
+.classification-pixie-suggestion-confidence.is-max {
+  background-color: var(--success-color);
+}
+
+.classification-pixie-suggestion-confidence.is-high {
+  background-color: var(--classification-pixie-confidence-high);
+}
+
+.classification-pixie-suggestion-confidence.is-low {
+  background-color: var(--classification-pixie-confidence-low);
+}
+
+.classification-pixie-suggestion-bar {
+  background-color: var(--light-gray);
+  border-radius: 999px;
+  height: 0.35rem;
+  overflow: hidden;
+  margin-left: 2rem;
+}
+
+.classification-pixie-suggestion-bar-fill {
+  display: block;
+  height: 100%;
+  background-color: var(--success-color);
+  border-radius: inherit;
+}
+
+.classification-pixie-suggestion-bar-fill.is-max {
+  background-color: var(--success-color);
+}
+
+.classification-pixie-suggestion-bar-fill.is-high {
+  background-color: var(--classification-pixie-confidence-high);
+}
+
+.classification-pixie-suggestion-bar-fill.is-low {
+  background-color: var(--classification-pixie-confidence-low);
+}
+
+.classification-pixie-suggestion-reasoning {
+  margin: 0.5rem 0 0 2rem;
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}

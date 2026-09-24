@@ -22,9 +22,9 @@ module DataCycleCore
           }&.keys&.first
         end
 
-        def classification_tree_labels(content)
+        def concept_schemes(content)
           publication_template(content)&.property_definitions&.select { |_k, v|
-            v['type'] == 'classification' && Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility).intersect?(['show', 'show_more'])
+            v['type'] == 'classification' && Array(DataCycleCore::ConceptScheme.find_by(name: v['tree_label'])&.visibility).intersect?(['show', 'show_more'])
           }&.transform_values do |v|
             v['tree_label']
           end

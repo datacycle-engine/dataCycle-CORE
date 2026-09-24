@@ -636,5 +636,172 @@ module DataCycleCore
         assert_equal exp, pipelines
       end
     end
+
+    # Redmine #50469: without data_sorting the $group keeps whichever item reached it first, which is storage
+    # order. Feratel repeats one event address on every event with diverging payloads, so the survivor was arbitrary.
+    test 'data_sorting adds a $sort before the $group and carries the value through the unwind' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath[]',
+          data_sorting: { 'updated_at' => 'desc' }
+        }
+      }
+
+      pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+
+      assert_equal({ 'sort_values' => { 'k0' => '$updated_at' } }, pipelines[1]['$project'].slice('sort_values'))
+
+      sort_index = pipelines.index { |s| s.key?('$sort') }
+      group_index = pipelines.index { |s| s.key?('$group') }
+
+      assert_equal({ 'sort_values.k0' => -1, '_id' => 1 }, pipelines[sort_index]['$sort'])
+      assert_operator sort_index, :<, group_index
+      # $replaceRoot promotes $data, so the carried value never reaches the target collection
+      assert_equal({ 'newRoot' => '$data' }, pipelines.find { |s| s.key?('$replaceRoot') }['$replaceRoot'])
+    end
+
+    test 'data_sorting accepts every direction spelling and rejects anything else' do
+      base = { data_id_path: 'id', data_name_path: 'name', data_path: 'dataPath[]' }
+
+      { 'desc' => -1, 'descending' => -1, -1 => -1, 'asc' => 1, 'ascending' => 1, 1 => 1 }.each do |given, expected|
+        options = { download: base.merge(data_sorting: { 'updated_at' => given }) }
+        pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+
+        assert_equal({ 'sort_values.k0' => expected, '_id' => 1 }, pipelines.find { |s| s.key?('$sort') }['$sort'], "direction #{given.inspect}")
+      end
+
+      options = { download: base.merge(data_sorting: { 'updated_at' => 'newest' }) }
+
+      assert_raises ArgumentError do
+        DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+      end
+    end
+
+    # A second $sort would undo the first, so both jobs share one stage. data_sorting leads, or adding
+    # group_to_array_paths would change what a step keeps; _id trails, or it takes over the $push order.
+    test 'data_sorting and group_to_array_paths share one $sort, data_sorting first and _id last' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath[]',
+          data_sorting: { 'updated_at' => 'desc' },
+          group_to_array_paths: ['attr1']
+        }
+      }
+
+      pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+      sorts = pipelines.select { |s| s.key?('$sort') }
+
+      assert_equal 1, sorts.size
+      assert_equal [['sort_values.k0', -1], ['data.attr1', 1], ['_id', 1]], sorts.first['$sort'].to_a
+    end
+
+    # the tiebreaker rides on data_sorting, so a step without it keeps its pipeline - including the
+    # group_to_array_paths ones, whose $sort would otherwise gain a key
+    test 'group_to_array_paths without data_sorting sorts as before, without _id' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath[]',
+          group_to_array_paths: ['attr1']
+        }
+      }
+
+      pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+
+      assert_equal({ 'data.attr1' => 1 }, pipelines.find { |s| s.key?('$sort') }['$sort'])
+    end
+
+    # neither `locale` nor the imported locale exists in the binding with_evaluated_values defaults to,
+    # so prepare_data_sorting passes its own and pushes I18n.locale around it - both spellings resolve
+    test 'data_sorting resolves a templated key against the imported locale' do
+      base = { data_id_path: 'id', data_name_path: 'name', data_path: 'dataPath[]' }
+
+      # single quoted on purpose: the '#{locale}' belongs to the config template, not to ruby
+      ['{{ "dump.#{locale}.ChangeDate" }}', "{{ ['dump', I18n.locale, 'ChangeDate'].join('.') }}"].each do |key| # rubocop:disable Lint/InterpolationCheck
+        options = { download: base.merge(data_sorting: { key => 'desc' }) }
+
+        I18n.with_locale(:en) do
+          pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+
+          assert_equal({ 'sort_values' => { 'k0' => '$dump.de.ChangeDate' } }, pipelines[1]['$project'].slice('sort_values'), "key #{key}")
+        end
+      end
+    end
+
+    # '- updated_at: desc' is what a config author writes when key order matters, and it used to fail
+    # on the direction (nil) rather than on the shape
+    test 'data_sorting reads the ordered list the same way as the mapping' do
+      base = { data_id_path: 'id', data_name_path: 'name', data_path: 'dataPath[]' }
+
+      as_list = { download: base.merge(data_sorting: [{ 'updated_at' => 'desc' }, { 'id' => 'asc' }]) }
+      as_mapping = { download: base.merge(data_sorting: { 'updated_at' => 'desc', 'id' => 'asc' }) }
+
+      list_pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options: as_list, locale: 'de', source_filter: nil)
+      mapping_pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options: as_mapping, locale: 'de', source_filter: nil)
+
+      assert_equal mapping_pipelines, list_pipelines
+      assert_equal({ 'sort_values.k0' => -1, 'sort_values.k1' => 1, '_id' => 1 }, list_pipelines.find { |s| s.key?('$sort') }['$sort'])
+
+      # the scalar has to be caught before with_evaluated_values, which reports a missing method on String
+      [['updated_at'], 'updated_at'].each do |given|
+        options = { download: base.merge(data_sorting: given) }
+
+        error = assert_raises(ArgumentError, "data_sorting #{given.inspect}") do
+          DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+        end
+
+        assert_includes error.message, 'expected a path => direction mapping'
+      end
+    end
+
+    # the id set does not depend on which duplicate the $group keeps, so the bulk passes must not pay for the
+    # sort - bulk_mark_deleted also reads the target collection, where a source path need not resolve at all
+    test 'data_sorting is dropped for the id-only and bulk_mark_deleted passes' do
+      options = {
+        download: {
+          name: 'collect_things',
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath[]',
+          data_sorting: { 'updated_at' => 'desc' }
+        }
+      }
+
+      reset = DataCycleCore::Generic::Common::DownloadDataFromData.bulk_mark_deleted_options(options:, last_download: Time.zone.now)
+
+      assert_nil reset.dig(:download, :data_sorting)
+
+      captured = nil
+      record = lambda do |**kwargs|
+        captured = kwargs[:options]
+        []
+      end
+
+      DataCycleCore::Generic::Common::DownloadDataFromData.stub(:load_data_from_mongo, record) do
+        DataCycleCore::Generic::Common::DownloadDataFromData.load_ids_from_mongo(options:, locale: 'de', source_filter: nil)
+      end
+
+      assert_nil captured.dig(:download, :data_sorting)
+    end
+
+    test 'no data_sorting leaves the pipeline exactly as it was' do
+      options = {
+        download: {
+          data_id_path: 'id',
+          data_name_path: 'name',
+          data_path: 'dataPath[]'
+        }
+      }
+
+      pipelines = DataCycleCore::Generic::Common::DownloadDataFromData.create_aggregate_pipeline(options:, locale: 'de', source_filter: nil)
+
+      assert_empty(pipelines.select { |s| s.key?('$sort') })
+      assert_not_includes pipelines.to_json, 'sort_values'
+    end
   end
 end

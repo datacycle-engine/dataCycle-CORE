@@ -2190,6 +2190,13 @@ body .v-select {
         margin-right: 4rem;
       }
 
+      // A field that opted out of the copy button (see NewContentDialog#addCopyAttributeButtons)
+      // would otherwise be the only one reaching into the gutter the copy buttons occupy -
+      // Zielgruppen would sit 4rem wider than Tags right above it.
+      .form-element[data-no-copy-to-all] {
+        margin-right: 4rem;
+      }
+
       fieldset.active:last-of-type~.buttons .submit.set-all-attributes {
         display: inline-block;
       }

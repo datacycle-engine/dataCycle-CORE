@@ -21,9 +21,9 @@ module DataCycleCore
       end
 
       test 'download full classification tree without content' do
-        tree_label = ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+        tree_label = ConceptScheme.find_by(name: 'Inhaltstypen')
 
-        get download_classifications_path, params: { classification_tree_label_id: tree_label.id, format: 'csv' }
+        get download_classifications_path, params: { concept_scheme_id: tree_label.id, format: 'csv' }
 
         assert_response :success
 
@@ -34,21 +34,21 @@ module DataCycleCore
         # testing on sub tree only
         sub_csv = extract_sub_tree(csv, [nil, 'Asset'])
 
-        classification_alias = ClassificationAlias.for_tree(tree_label.name).with_name('Asset').first
+        concept = Concept.for_tree(tree_label.name).with_name('Asset').first
 
-        assert_equal classification_alias.sub_classification_alias.count, sub_csv.count - 1
+        assert_equal concept.children.count, sub_csv.count - 1
 
         assert_includes sub_csv, [nil, 'Asset']
-        classification_alias.sub_classification_alias.each do |sub_classification_alias|
-          assert_includes sub_csv, [nil, nil, sub_classification_alias.name]
+        concept.children.each do |children|
+          assert_includes sub_csv, [nil, nil, children.name]
         end
       end
 
       test 'download full classification tree with contents' do
-        tree_label = ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+        tree_label = ConceptScheme.find_by(name: 'Inhaltstypen')
 
         get download_classifications_path,
-            params: { classification_tree_label_id: tree_label.id, include_contents: true, format: 'csv' }
+            params: { concept_scheme_id: tree_label.id, include_contents: true, format: 'csv' }
 
         assert_response :success
 

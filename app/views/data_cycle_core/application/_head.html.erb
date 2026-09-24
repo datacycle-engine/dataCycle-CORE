@@ -1,13 +1,5 @@
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%= render 'data_cycle_core/application/head_base' %>
 
-<title><%= full_title %></title>
-
-<%= csrf_meta_tags %>
-<%= csp_meta_tag %>
-<%= vite_client_tag %>
 <%= action_cable_meta_tag %>
 <%= vite_javascript_tag 'application', defer: true, nonce: true %>
 <%= vite_stylesheet_tag 'application.scss', media:'all', nonce: true %>
-
-<%= dc_favicon_link_tags %>

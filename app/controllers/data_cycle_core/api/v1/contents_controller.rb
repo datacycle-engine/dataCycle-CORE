@@ -14,13 +14,13 @@ module DataCycleCore
           return if permitted_params[:type].nil? || permitted_params[:type] != 'things'
 
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes({ concepts: [], translations: [] })
             .find(permitted_params[:id])
         end
 
         def update
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes({ concepts: [], translations: [] })
             .find(permitted_params[:id])
 
           render json: @content.get_data_hash
@@ -28,7 +28,7 @@ module DataCycleCore
 
         def destroy
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes({ concepts: [], translations: [] })
             .find(permitted_params[:id])
         end
 

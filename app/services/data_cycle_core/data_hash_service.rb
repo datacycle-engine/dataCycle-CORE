@@ -148,7 +148,9 @@ module DataCycleCore
       self.class.get_internal_template(name, template_cache)
     end
 
-    def self.create_internal_object(template, object_params, current_user, is_part_of = nil, source = nil)
+    # @param new_content [Boolean] false renders a copy that is never persisted (EmbeddedObjectRenderer):
+    #   an unsaved embedded may still lack what strict validation requires of new content
+    def self.create_internal_object(template, object_params, current_user, is_part_of = nil, source = nil, new_content: true)
       new_params = object_params.except(:translations, :datahash)
       if template.is_a?(DataCycleCore::ThingTemplate)
         new_params[:thing_template] = template
@@ -161,7 +163,8 @@ module DataCycleCore
       locale = object_hash[:translations]&.keys&.first || I18n.locale
       save_time = Time.zone.now
 
-      DataCycleCore::Thing.transaction do
+      # a savepoint, so the rollback on a rejected write also holds inside a caller's transaction
+      DataCycleCore::Thing.transaction(requires_new: true) do
         I18n.with_locale(locale) do
           object.is_part_of = is_part_of if is_part_of.present?
           object.created_at = save_time
@@ -178,7 +181,7 @@ module DataCycleCore
           data_hash: object_hash,
           current_user:,
           source:,
-          new_content: true,
+          new_content:,
           save_time:
         )
       end
@@ -218,7 +221,7 @@ module DataCycleCore
       when *Content::Content::EMBEDDED_PROPERTY_TYPES, *Content::Content::LINKED_PROPERTY_TYPES
         DataCycleCore::Thing.none
       when *Content::Content::CLASSIFICATION_PROPERTY_TYPES
-        DataCycleCore::Classification.none
+        DataCycleCore::Concept.none
       when *Content::Content::SCHEDULE_PROPERTY_TYPES
         DataCycleCore::Schedule.none
       when *Content::Content::TIMESERIES_PROPERTY_TYPES
@@ -285,12 +288,20 @@ module DataCycleCore
     class << self
       private
 
+      def form_embedded_items?(value)
+        value.is_a?(::Array) && value.all? { |item| item.is_a?(::Hash) && (item.key?('datahash') || item.key?('translations')) }
+      end
+
       def flatten_recursive(datahash, template_hash, template_cache = {})
         temp_datahash = {}
 
         datahash&.each do |key, value|
           properties = template_hash['properties'][key]
           type = properties&.dig('type')
+
+          # a form submit indexes an embedded's items ({ '0' => item }), a JSON body (the copy of an
+          # embedded) sends them as an array; the items are flattened either way
+          value = value.each_with_index.to_h { |item, index| [index.to_s, item] } if type == 'embedded' && form_embedded_items?(value)
 
           if value.is_a?(::Hash)
             if type == 'embedded'

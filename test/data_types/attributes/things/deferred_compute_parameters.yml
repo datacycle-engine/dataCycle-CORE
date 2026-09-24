@@ -1,0 +1,119 @@
+---
+# [#51643] Computes across the three deferrals, so what a later pass does with a parameter an
+# earlier one already stored can be watched: the inline pass writes inline_copy, then
+# after_save_copy and async_copy read it, each from its own pass.
+- :data:
+    :name: Deferred-Compute-Article
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+      :inline_copy:
+        :label: Inline, aus name
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :parameters:
+            - name
+      :after_save_copy:
+        :label: Nach dem Speichern, aus inline_copy
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :after_save: true
+          :fallback: false
+          :parameters:
+            - inline_copy
+      :async_copy:
+        :label: Im Job, aus inline_copy
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :async: true
+          :fallback: false
+          :parameters:
+            - inline_copy
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+# [#51643] Two chains whose links share one deferral, each reading link declared before the one it
+# reads, so the pass reaches it first. Nothing is stored for either link on a create, so a pass has
+# to compute the parameters of its own deferral itself.
+- :data:
+    :name: Same-Pass-Chain-Article
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: translated_value
+      :inline_second:
+        :label: Inline, aus inline_first
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :parameters:
+            - inline_first
+      :inline_first:
+        :label: Inline, aus name
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :parameters:
+            - name
+      :async_second:
+        :label: Im Job, aus async_first
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :async: true
+          :fallback: false
+          :parameters:
+            - async_first
+      :async_first:
+        :label: Im Job, aus name
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: copy
+          :async: true
+          :fallback: false
+          :parameters:
+            - name
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false

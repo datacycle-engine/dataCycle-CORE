@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+json = {}
+json.merge! render 'context', languages: @language
+
+@stored_filters.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
+
+unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
+  json['@graph'] = @stored_filters.map do |item|
+    {
+      '@id' => item.id,
+      '@type' => 'Thing',
+      'name' => item.name,
+      'dc:slug' => item.slug,
+      'dc:entityUrl' => api_v4_stored_filter_url(@api_subversion, id: item.id)
+    }
+  end
+end
+
+json.merge! render 'pagination_links',
+                   objects: @stored_filters,
+                   object_url: ->(params) { "#{File.join("#{request.protocol}#{request.host}:#{request.port}", request.path)}?#{params.to_query}" }
+
+json

@@ -20,7 +20,7 @@ module DataCycleCore
           template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
 
-          data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          data_type = Concept.id_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           translations_created = {}
@@ -36,10 +36,10 @@ module DataCycleCore
               new_content.thing_template = template
               new_content.external_source_id = external_source_id
             end
-            translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
+            translated_classification = content.translated_classification.presence&.pluck(:id) || Concept.ids_for_tree_with_name('Übersetzungstyp', 'Automatisch')
 
             translations_created[classification] = []
-            description_type = ClassificationAlias.classification_for_tree_with_name('Externe Informationstypen', classification)
+            description_type = Concept.id_for_tree_with_name('Externe Informationstypen', classification)
 
             locale_data_hash.each do |locale, data_hash|
               I18n.with_locale(locale) do
@@ -75,7 +75,7 @@ module DataCycleCore
           template = ThingTemplate.find_by(template_name: 'Übersetzung')
           return { 'error' => 'Data Type not found!' } if template.blank?
 
-          data_type = ClassificationAlias.classification_for_tree_with_name('Inhaltstypen', 'Übersetzung')
+          data_type = Concept.id_for_tree_with_name('Inhaltstypen', 'Übersetzung')
           return { 'error' => 'Data Type not found (Classification)!' } if data_type.blank?
 
           tlocales = DataCycleCore::Feature['Translate'].allowed_target_languages
@@ -90,7 +90,7 @@ module DataCycleCore
 
             source_data = {}
             classification = nil
-            translated_classification = content.translated_classification.presence&.pluck(:id) || ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch')
+            translated_classification = content.translated_classification.presence&.pluck(:id) || Concept.ids_for_tree_with_name('Übersetzungstyp', 'Automatisch')
             I18n.with_locale(source_locale) do
               source_data = { 'name' => content.name, 'description' => content.description, 'modified' => content.modified }
               classification = content.description_type.first.name
@@ -135,7 +135,7 @@ module DataCycleCore
 
         def load_translated_content
           content_b.where("content_contents.relation_a = 'additional_information'").map { |info|
-            classification = info.classifications&.detect { |i| i.primary_classification_alias.classification_tree_label.name == 'Externe Informationstypen' }
+            classification = info.concepts&.detect { |i| i.concept_scheme.name == 'Externe Informationstypen' }
             locale = info.available_locales.first # additional_informations are not translatable!!
             I18n.with_locale(locale) do
               {
@@ -160,7 +160,7 @@ module DataCycleCore
             I18n.with_locale((available_locales.map(&:to_s) - destroy_locales).first) do
               set_data_hash(
                 data_hash: {
-                  translated_classification: ClassificationAlias.classifications_for_tree_with_name('Übersetzungstyp', 'Automatisch'),
+                  translated_classification: Concept.ids_for_tree_with_name('Übersetzungstyp', 'Automatisch'),
                   translation_type:
                 }
               )

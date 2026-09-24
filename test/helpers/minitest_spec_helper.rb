@@ -9,6 +9,12 @@ module DataCycleCore
 
     included do
       around(:all) do |&block|
+        # Spec-style tests live in a separate hierarchy that does NOT include
+        # MinitestHookHelper, so they need the same start-of-class feature reset here to
+        # stay protected when a polluting class runs before them in the same
+        # parallel_tests worker (see MinitestHookHelper for the full rationale).
+        DataCycleCore::MinitestHookHelper.reset_features!
+
         ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
           super(&block)
         ensure

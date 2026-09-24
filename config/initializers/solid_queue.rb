@@ -4,13 +4,17 @@
 # one connection pool that process has. Publish that number so anything sizing a thread pool per job
 # can divide by it; the supervisor forks a process per worker, so each one records its own count.
 #
-# Nothing else needs the hook: the web process, rake tasks, the scheduler and the dispatcher all run
-# one job (or none) at a time, which is the default set in +DataCycleCore.concurrent_job_threads+.
+# The hook is also where +DataCycleCore::WorkerMemoryGuard+ starts watching, because a forked worker
+# is the one process here that something replaces when it exits. Nothing else needs either: the web
+# process, rake tasks, the scheduler and the dispatcher all run one job (or none) at a time, the
+# default set in +DataCycleCore.concurrent_job_threads+, and none of them comes back if it ends.
 #
-# The value is a process-global, which is correct only because the supervisor forks — the mode
-# bin/jobs runs in. Under SolidQueue's AsyncSupervisor (the Puma plugin) the workers are threads of
-# the web process, and this would overwrite that process's own count. Do not enable that mode
-# without giving the counter a narrower scope first.
+# Both are process-globals, which is correct only because bin/jobs runs the supervisor in fork mode.
+# Under SolidQueue's AsyncSupervisor (SOLID_QUEUE_SUPERVISOR_MODE=async, or the Puma plugin's
+# `solid_queue_mode :async`) the workers are threads of the web process: +WorkerMemoryGuard.forked?+
+# declines such a worker itself, but the count would overwrite that process' own, so do not enable
+# that mode without giving the count a scope of its own.
 SolidQueue.on_worker_start do |worker|
   DataCycleCore.concurrent_job_threads = worker.pool.size
+  DataCycleCore::WorkerMemoryGuard.supervise(worker)
 end

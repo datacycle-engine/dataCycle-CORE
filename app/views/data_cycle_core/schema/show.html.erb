@@ -1,56 +1,119 @@
 <% breadcrumb :schema, autoroot: false %>
 
-<main role="schema">
-  <h1 typeof="rdfs:Class" resource="<%= schema_url(@template_schema.schema_name) %>">
-    <%= Array.wrap(@template_schema.schema_name).join(' / ') %> (<em><%= @template_schema.template_name %></em>)
-  </h1>
+<%# Detail view of one template, rendered from the generated OpenAPI document (#50201). %>
+<%# @template is a DataCycleCore::Schema::TemplatePresenter. %>
+<%# Card-raster layout (#50201, §8.1). Chip colours live in _schema.scss (.schema-tag--*), %>
+<%# labels/tooltips in the data_cycle_core.schema.* locale — nothing is styled or worded inline. %>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Property</th>
-        <th>Expected Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
+<%# ---- Brand strip (replaces the hidden app nav; instance logo in black,
+       rendered like the /api/config/openapi viewer) ---- %>
+<div class="schema-brand">
+  <%= link_to root_path, class: 'schema-brand-link', title: 'dataCycle' do %>
+    <%= render 'data_cycle_core/application/logo', inverted: true %>
+  <% end %>
+</div>
 
-    <thead>
-      <th colspan="4">
-        Properties from
-        <% Array.wrap(@template_schema.schema_name).each do |schema_name| %>
-          <a href="//schema.org/<%= schema_name %>"><%= schema_name %></a>
+<main role="schema" class="schema-detail">
+  <div class="schema-detail__panel">
+    <header class="schema-detail__head">
+      <div class="schema-detail__title-row">
+        <%= link_to schema_path(language: @schema_language), class: 'schema-detail__back',
+                    aria: { label: t('data_cycle_core.schema.back', locale: @schema_language) },
+                    data: { dc_tooltip: t('data_cycle_core.schema.back', locale: @schema_language) } do %>
+          <i class="fa fa-arrow-left" aria-hidden="true"></i>
         <% end %>
-      </th>
-    </thead>
+        <%# Object icon beside the title — the exact same icon the /schema index card %>
+        <%# assigns to this template (schema_template_icon). It lives inside the h1, so it %>
+        <%# inherits the responsive title font-size (32→48px) and centers via the h1's %>
+        <%# inline-flex — scaling with and matching the title text. Embedded templates %>
+        <%# carry the --embedded modifier so the badge adopts the violet accent, exactly %>
+        <%# like the embedded cards on the index (see _detail.scss / _index.scss). %>
+        <h1 typeof="rdfs:Class">
+          <%= @template.template_name %>
+          <i class="fa fa-<%= schema_template_icon(@template) %> schema-detail__icon<%= ' schema-detail__icon--embedded' if @template.content_type == 'embedded' %>" aria-hidden="true"></i>
+        </h1>
 
-    <tbody>
-      <% @template_schema.property_definitions.each do |definition| %>
-        <tr>
-          <th>
-            <%= definition[:label] %>
-            <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %>
-            <%= tag.i(class: 'fa fa-tag has-tip', aria_hidden: true, title: 'Classification') if definition[:data_type] == 'classification' %>
-            <%= tag.i(class: 'fa fa-share-alt has-tip', aria_hidden: true, title: 'embedded') if definition[:embedded] %>
-            <%= tag.i(class: 'fa fa-search has-tip', aria_hidden: true, title: 'fulltext search') if definition[:fulltext_search] %>
-          </th>
-          <td>
-            <% Array.wrap(definition[:data_type]).each do |data_type| %>
-              <% if data_type == 'classification' %>
-                <a href="https://www.w3.org/2009/08/skos-reference/skos.html#"><%= 'skos' %></a><br/>
-              <% else %>
-                <a href="<%= data_type %>"><%= data_type.split('/').last %></a><br/>
+        <%# schema.org type path(s), placed after the title. One .schema-detail__path %>
+        <%# per PATH (not per segment): each path is rendered as its hierarchy breadcrumb %>
+        <%# (Thing > Place > Accommodation), the way schema.org shows it. Each has %>
+        <%# flex-basis:100% (see _schema.scss), so multiple paths stack underneath each %>
+        <%# other (untereinander). Paths that would just repeat the template name are skipped. %>
+        <% @template.schema_type_paths.reject { |type_path| type_path == [@template.template_name] }.each do |type_path| %>
+          <span class="schema-detail__path"><%= type_path.join(' > ') %></span>
+        <% end %>
+      </div>
+
+      <%# Right-hand tools: search next to the DE/EN switcher, property count below. %>
+      <%# The search input / count stay inside main.schema-detail so schema_filter.js finds them. %>
+      <div class="schema-detail__tools">
+        <div class="schema-detail__tools-row">
+          <label class="schema-filter__search">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <input type="search" class="schema-filter__input" autocomplete="off"
+                   placeholder="<%= t('data_cycle_core.schema.filter.search_placeholder', locale: @schema_language) %>"
+                   aria-label="<%= t('data_cycle_core.schema.filter.search_placeholder', locale: @schema_language) %>">
+          </label>
+
+          <%= render 'data_cycle_core/schema/theme_toggle' %>
+
+          <%# ---- LanguageSwitcher (mirrors /api/config/openapi) ---- %>
+          <% if @available_locales.many? %>
+            <nav class="schema-locales" aria-label="<%= t('data_cycle_core.schema.language', locale: @schema_language) %>">
+              <% @available_locales.each do |locale| %>
+                <%= link_to locale.to_s.upcase,
+                            schema_details_path(@template.template_name, language: locale),
+                            class: "schema-locale#{' is-active' if locale == @schema_language}",
+                            aria: { current: ('page' if locale == @schema_language) } %>
               <% end %>
-            <% end %>
-          </td>
-          <td>
-            <% if definition[:data_type] == 'classification' && definition.dig(:comment_link).present? %>
-              <a href="<%= root_path(mode: 'tree', ctl_id: definition.dig(:comment_link), reset: true) %>"><%= definition.dig(:comment).presence %></a>
-            <% else %>
-              <%= definition.dig(:comment).presence %>
-            <% end %>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+            </nav>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Bottom meta row (under the title): the schema.org link and the content-instance %>
+      <%# count (thing_count) sit side by side. The count is the same figure the index card %>
+      <%# shows; a zero count dials the hue back via .is-zero like the index. Distinct from %>
+      <%# the property count on the filter row below, which counts attributes. %>
+      <div class="schema-detail__meta">
+        <%= render 'data_cycle_core/shared/schema_org_link', schema_types: @template.api_schema_types, show_icon: false %>
+        <span class="schema-detail__count<%= ' is-zero' if @template.thing_count.zero? %>"><%= t('data_cycle_core.schema.index.content_count', count: @template.thing_count, locale: @schema_language) %></span>
+      </div>
+    </header>
+
+    <%# Filter chips (#50201): data-driven facets. Behaviour lives in %>
+    <%# schema/filter.js; the facet list comes from the presenter %>
+    <%# (present facets only), the labels from the data_cycle_core.schema.filter.* locale. %>
+    <div class="schema-filter">
+      <div class="schema-filter__chips" role="group" aria-label="<%= t('data_cycle_core.schema.filter.aria_group', locale: @schema_language) %>">
+        <button type="button" class="schema-chip is-active" data-schema-filter="all"><%= t('data_cycle_core.schema.filter.categories.all', locale: @schema_language) %></button>
+        <% @template.filter_categories.each do |category| %>
+          <button type="button" class="schema-chip" data-schema-filter="<%= category %>"><%= t("data_cycle_core.schema.filter.categories.#{category}", locale: @schema_language) %></button>
+        <% end %>
+      </div>
+
+      <%# Property count sits on the chips row, right-aligned to the same height. %>
+      <p class="schema-filter__count" role="status" aria-live="polite">
+        <span class="schema-filter__count-visible"><%= @template.properties.size %></span>
+        <%= t('data_cycle_core.schema.filter.count_rest', total: @template.properties.size, locale: @schema_language) %>
+      </p>
+    </div>
+
+    <div class="schema-lists">
+      <ol class="schema-list">
+        <%# One row per top-level property (#50201). Properties whose value is an %>
+        <%# embedded content are marked by a violet key (see _property); their embedded %>
+        <%# content's own attributes are NOT expanded here. %>
+        <% @template.properties.each do |property| %>
+          <li class="schema-card" data-schema-categories="<%= property.categories.join(' ') %>" data-schema-search="<%= [property.api_name, property.label].join(' ').downcase %>">
+            <%= render 'data_cycle_core/schema/property', property: %>
+          </li>
+        <% end %>
+      </ol>
+      <p class="schema-filter__empty" hidden><%= t('data_cycle_core.schema.filter.empty', locale: @schema_language) %></p>
+    </div>
+  </div>
 </main>
+
+<% content_for :body_scripts do %>
+  <%= dc_javascript_tag 'entrypoints/schema.js' %>
+<% end %>

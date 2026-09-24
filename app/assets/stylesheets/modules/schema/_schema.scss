@@ -1,0 +1,8 @@
+// /schema — split into partials for readability (order matters for the
+// cascade: keep it identical to the previous single-file layout).
+@import 'layout';
+@import 'index';
+@import 'shared';
+@import 'detail';
+@import 'tooltip';
+@import 'dark';

@@ -1,0 +1,157 @@
+<%= form_with(model: concept, url: classifications_path, namespace: concept&.id, local: true, class: 'classification-alias-form') do |f| %>
+  <%= hidden_field(nil, :concept_scheme_id, value: concept_scheme.id) %>
+  <%= hidden_field(nil, :parent_concept_id, value: local_assigns[:parent_concept]&.id) if concept.new_record? %>
+  <%= f.hidden_field :id %>
+
+  <% active_locale = I18n.locale %>
+
+  <div class="ca-buttons">
+    <div class="has-dropdown">
+      <a
+        class="button-prime small"
+        data-toggle="locales-menu-<%= concept&.id %>-<%= concept_scheme&.id %>"
+      >
+        <i class="fa fa-language" aria-hidden="true"></i>
+      </a>
+
+      <div
+        class="dropdown-pane no-bullet bottom"
+        id="locales-menu-<%= concept&.id %>-<%= concept_scheme&.id %>"
+        data-dropdown
+      >
+        <h5><%= t('common.choose_language', locale: active_ui_locale) %></h5>
+
+        <ul class="list-items">
+          <% available_locales_with_names.each do |locale| %>
+            <li>
+              <%= link_to locale.last, nil, data: { locale: locale.first }, class: "ca-translation-link #{'active' if locale.first == active_locale}" %>
+              <%= tag.span(tag.i(class: 'fa fa-language ca-language-icon', aria_hidden: true), class: 'buttons') if concept&.translated_locales&.include?(locale.first) %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <%= tag.button(tag.i(class: 'fa fa-check'), class: 'button-prime small success update submit-button', data: { disable_with: tag.i(class: 'fa fa-spinner fa-spin fa-fw', data: { dc_tooltip: t('data_cycle_core.classifications_adminitration.classification.submit_loading_message', locale: active_ui_locale) }) }) %>
+
+    <button class="button-prime small discard secondary" type="reset">
+      <i aria-hidden="true" class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <% if concept.persisted? %>
+    <div class="ca-input">
+      <%= f.label :internal_name, concept.class.human_attribute_name(:internal_name, locale: active_ui_locale), class: 'ca-label' %>
+      <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: active_ui_locale), data: { dc_tooltip: concept.full_path } %>
+    </div>
+  <% end %>
+
+  <div class="ca-input translated">
+    <% I18n.available_locales.each do |locale| %>
+      <% if locale == active_locale %>
+        <div
+          class="translated-fields <%= locale %> <%= 'active' if locale == active_locale %>"
+          id="translated-field-<%= locale %>-<%= concept&.id %>-<%= concept_scheme&.id %>"
+        >
+          <%= render 'data_cycle_core/classifications/translated_form_fields', locale: locale, concept: concept %>
+        </div>
+      <% else %>
+        <div
+          class="translated-fields remote-render <%= locale %> <%= 'active' if locale == active_locale %>"
+          id="translated-field-<%= locale %>-<%= concept&.id %>-<%= concept_scheme&.id %>"
+          data-remote-path="data_cycle_core/classifications/translated_form_fields"
+          data-remote-options="<%= to_query_params(concept:, locale:).to_json %>"
+        ></div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="ca-input">
+    <%= f.label :uri, safe_join([concept.class.human_attribute_name(:uri, locale: active_ui_locale), tag.i(class: 'fa fa-info-circle', data: { dc_tooltip: t('common.uri_placeholder', locale: active_ui_locale) })], ' '), class: 'ca-label' %>
+    <%= f.text_field :uri, class: 'ca-input-field', readonly: concept&.persisted? ? !can?(:update, concept) : !can?(:create, DataCycleCore::Concept) %>
+  </div>
+
+  <div class="ca-input color-picker-container <%= 'no-color' unless concept&.color? %>">
+    <%= label_tag "concept[ui_configs][color]", concept.class.human_attribute_name("ui_configs/color", locale: active_ui_locale), class: 'ca-label' %>
+    <%= text_field_tag "concept[ui_configs][color]", concept&.color, class: 'ca-input-field dc-color-picker', disabled: !can?(:set_color, concept) %>
+  </div>
+
+  <% if can?(:update_internal, concept) %>
+    <div class="ca-input checkbox">
+      <span class="dc-checkbox"><%= f.check_box :internal %><%= f.label :internal %></span>
+    </div>
+  <% end %>
+
+  <div class="ca-input checkbox">
+    <span class="dc-checkbox">
+      <%= f.check_box :assignable, disabled: concept&.persisted? ? !can?(:update, concept) : !can?(:create, DataCycleCore::Concept) %>
+      <%= f.label :assignable, concept.class.human_attribute_name(:assignable, locale: active_ui_locale) %>
+    </span>
+  </div>
+
+  <% if concept.persisted? && can?(:map_classifications, concept) %>
+    <%# any outstanding mapping job locks the field, not just a second one queued behind it — this has
+        to agree with the "queued" badge the index shows via ClassificationsController %>
+    <% locked = DataCycleCore::ClassificationMappingJob.new(concept.id).duplicate_pending? %>
+    <div class="v-select classification-ids-field">
+      <%= f.label :mapped_concept_ids do |l| %>
+        <%= I18n.with_locale(active_ui_locale){ l.translation } %>
+
+        <%= tag.i(
+          class: 'fa fa-exclamation-triangle warning-color classification-mappings-queued',
+          data: {
+            dc_tooltip: I18n.t('controllers.success.classification_mappings_queued', locale: active_ui_locale)
+          }
+        ) if locked %>
+      <% end %>
+
+      <%= f.select(:mapped_concept_ids,
+        async_concept_select_options(concept.mapped_concepts.includes(:concept_path)),
+        {},
+        {
+          class: 'async-select',
+          multiple: true,
+          disabled: locked || !concept_scheme.mappable,
+          data: {
+            placeholder: '',
+            search_path: search_classifications_path,
+            show_tree_label: true,
+            query_params: {
+              exclude: concept.id,
+              exclude_tree_label: concept.concept_scheme_id
+            }
+          }
+        }) %>
+    </div>
+  <% end %>
+
+  <% if concept.persisted? && can?(:view_all, concept) %>
+    <div class="ca-input">
+      <%= f.label :external_keys, concept.class.human_attribute_name(:external_keys, locale: active_ui_locale), class: 'ca-label' %>
+      <%= f.text_field :external_keys, class: 'ca-input-field', readonly: true %>
+    </div>
+    <%# the concepts that map to this one - the inverse of the editable mapped_concept_ids above %>
+    <div class="v-select">
+      <%= f.label :mapped_inverse_concepts, concept.class.human_attribute_name(:mapped_inverse_concepts, locale: active_ui_locale) %>
+
+      <%= f.select(:mapped_inverse_concepts,
+        async_concept_select_options(concept.mapped_inverse_concepts),
+        {},
+        {
+          class: 'async-select',
+          multiple: true,
+          disabled: true,
+          data: {
+            placeholder: '',
+            search_path: search_classifications_path,
+            show_tree_label: true,
+            query_params: {
+              exclude: concept.id,
+            }
+          }
+        }) %>
+    </div>
+  <% end %>
+
+  <%= f.submit class: 'success button' %>
+<% end %>

@@ -12,12 +12,9 @@ module DataCycleCore
 
     def subscribed
       concept_scheme = DataCycleCore::ConceptScheme.find_by(id: params[:concept_scheme_id])
-      # the ability is declared on ClassificationTreeLabel — which is also what the button's can? checks
-      # — so authorizing the ConceptScheme matched no rule and rejected every role without a blanket one
-      tree_label = concept_scheme&.classification_tree_label
-      reject && return unless tree_label
-      reject && return unless current_user&.can?(:link_contents, tree_label) ||
-                              current_user&.can?(:unlink_contents, tree_label)
+      reject && return unless concept_scheme
+      reject && return unless current_user&.can?(:link_contents, concept_scheme) ||
+                              current_user&.can?(:unlink_contents, concept_scheme)
 
       @stream_name = self.class.stream_name(
         key: params[:key],

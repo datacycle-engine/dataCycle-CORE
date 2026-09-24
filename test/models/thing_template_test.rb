@@ -86,6 +86,12 @@ module DataCycleCore
       assert_kind_of(Array, @template.schema_ancestors)
     end
 
+    test 'schema_types appends the dcls: leaf even when the template is named like its last schema.org ancestor' do
+      template = DataCycleCore::ThingTemplate.find_by(template_name: 'Organization')
+
+      assert_equal([['Organization', 'dcls:Organization']], template.schema_types)
+    end
+
     test 'class-level things returns the things of the scoped templates' do
       assert_kind_of(Integer, DataCycleCore::ThingTemplate.where(template_name: @template.template_name).things.count)
     end

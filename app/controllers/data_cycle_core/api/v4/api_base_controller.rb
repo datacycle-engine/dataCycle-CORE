@@ -41,8 +41,14 @@ module DataCycleCore
           return @permitted_params if defined? @permitted_params
 
           permitted = params.permit(*permitted_parameter_keys)
-          validate_api_params(permitted.to_h, validate_params_exceptions, self.class::VALIDATE_PARAMS_CONTRACT)
+          validate_api_params(permitted.to_h, validate_params_exceptions, validate_params_contract)
           @permitted_params = permitted
+        end
+
+        # Hook so a subclass can vary the contract per action (e.g. an action-specific
+        # required param that doesn't apply to every action sharing the same controller).
+        def validate_params_contract
+          self.class::VALIDATE_PARAMS_CONTRACT
         end
 
         def permitted_parameter_keys
@@ -61,13 +67,24 @@ module DataCycleCore
           permitted_params&.dig(:section)&.to_h&.deep_symbolize_keys || {}
         end
 
+        # Applies page[limit]/page[offset], or kaminari's page[size]/page[number], to +query+.
+        #
+        # Only the limit branch unwraps: Filter::QueryBuilder#limit and #offset return a new
+        # QueryBuilder (see #reflect), so the relation has to be read back off it, while #page
+        # is delegated straight through. Most actions pass a plain ActiveRecord::Relation, which
+        # has no #query at all, so calling it unconditionally answered
+        # `GET /api/v4/endpoints?page[limit]=1` with NoMethodError.
+        #
+        # @param query [Filter::QueryBuilder, ActiveRecord::Relation] the unpaged result set
+        # @return [ActiveRecord::Relation] the paged relation
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(page_parameters)
           section_params = DEFAULT_SECTION_SETTINGS.merge(section_parameters)
           raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid value for param page[size]: #{page_params[:size]}" unless page_params[:size].to_i.positive?
 
           if page_params[:limit].to_i.positive?
-            query = query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i).query
+            query = query.offset(page_params[:offset].to_i).limit(page_params[:limit].to_i)
+            query = query.query if query.respond_to?(:query)
           else
             query = if section_params[:meta].to_i.zero?
                       query.page(page_params[:number].to_i).per(page_params[:size].to_i).without_count

@@ -190,16 +190,16 @@ module DataCycleCore
         # end
 
         # def preload_classification_properties
-        #   classifications = @_current_recursive_collection.collected_classification_contents(preload: [classification_alias: [:primary_classification, :classification_alias_path, :classification_tree_label]]).flat_map(&:classification_alias).flat_map(&:primary_classification).uniq.index_by(&:id)
-        #   classification_contents = @_current_recursive_collection.classification_contents(preload: true).group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:classification_id) } }
+        #   classifications = @_current_recursive_collection.collected_concept_contents(preload: [concept: [:concept_path, :concept_scheme]]).flat_map(&:concept).uniq.index_by(&:id)
+        #   concept_contents = @_current_recursive_collection.concept_contents(preload: true).group_by(&:content_data_id).transform_values! { |v| v.group_by(&:relation).transform_values! { |cc| cc.map(&:concept_id) } }
 
         #   @_current_recursive_collection.each do |content|
         #     content.classification_property_names.each do |k|
         #       next if content.virtual_property_names.include?(k)
-        #       classification_values = classifications.values_at(*classification_contents.dig(content.id, k))
+        #       classification_values = classifications.values_at(*concept_contents.dig(content.id, k))
 
         #       if content.overlay_property_names.include?(k)
-        #         overlay_classification_values = classifications.values_at(*classification_contents.dig(content.overlay_content&.id, k))
+        #         overlay_classification_values = classifications.values_at(*concept_contents.dig(content.overlay_content&.id, k))
         #         content.set_memoized_attribute(k, overlay_classification_values.presence || classification_values, nil, true)
         #       end
 

@@ -1,0 +1,48 @@
+<%#
+  annotationPixie block for an image (#47879), rendered in the detail edit form and in the upload
+  mask. It adds an editor per eligible concept scheme that has no attribute of its own on this
+  template -- nothing else: the editors are the ordinary classification editors, rendered as
+  siblings of the form's own attributes so that everything the form does with an attribute (the
+  uploader's "copy to all images" button among it) reaches them unchanged.
+
+  What the block does own is the classifications of the trees it renders no editor for. They live in
+  the surrounding form, so the ordinary save (PATCH /things/:id or POST /things/bulk_create)
+  persists what the pixie suggests; the pixie has no write path of its own. The request context sits
+  on each generate button, because a button is also rendered where this block is not.
+%>
+<%
+  pixie = DataCycleCore::Feature::AnnotationPixie
+  key_prefix = local_assigns[:key_prefix] || DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX
+  # the upload mask keeps several edit overlays in the dom at once and prefixes their dom ids per
+  # file; the pixie's editors have to carry that prefix too or they collide across overlays
+  dom_prefix = local_assigns[:prefix]
+  # the detail edit form renders the block from the shared attribute the editors belong to, so it
+  # asks for that attribute's schemes only; the upload mask renders the block once, for all of them
+  configuration = pixie.editor_configuration(content, current_user, property_key: local_assigns[:property_key])
+%>
+
+<%# The element carries no layout of its own -- it would otherwise sit between the form's
+    attributes as one more block %>
+<div class="annotation-pixie" hidden>
+  <% configuration[:retained].each do |property_key, classification_ids| %>
+    <%# classifications from trees without an editor here: resubmitted unchanged so the save does
+        not delete them along with the ones the user actually edited %>
+    <% classification_ids.each do |classification_id| %>
+      <%= hidden_field_tag "#{key_prefix}[#{property_key}][]", classification_id, id: nil %>
+    <% end %>
+  <% end %>
+</div>
+
+<% configuration[:editors].each_with_index do |property, index| %>
+  <%= render 'data_cycle_core/contents/editors/classification',
+        key: "#{key_prefix}[#{property['property_key']}]",
+        definition: property['definition'],
+        value: property['classifications'],
+        content: content,
+        options: {
+          # several editors share one attribute name -- a per-scheme prefix keeps their dom ids
+          # (and the labels pointing at them) unique
+          prefix: "#{dom_prefix}annotation_pixie_#{property['property_key']}_#{index}_",
+          annotation_pixie_property: property
+        } %>
+<% end %>

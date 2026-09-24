@@ -16,12 +16,11 @@ module DataCycleCore
               case content&.properties_for(computed_key)&.dig('type')
               when 'classification'
                 if computed_key == 'universal_classifications' && classification_copyright_notice.blank?
-                  # license_classifications = DataCycleCore::Classification.where(id: value).classification_aliases.includes(:classification_tree_label).where(classification_tree_labels: { name: content&.properties_for('license_classification')&.dig('tree_label') }).primary_classifications
-                  license_classifications = DataCycleCore::Concept.where(classification_id: value).preload(:concept_scheme, mapped_inverse_concepts: :concept_scheme).to_a
+                  license_classifications = DataCycleCore::Concept.where(id: value).preload(:concept_scheme, mapped_inverse_concepts: :concept_scheme).to_a
                   license_classifications += license_classifications.flat_map(&:mapped_inverse_concepts)
                   license_classifications.select! { |c| c.concept_scheme.name == content&.properties_for('license_classification')&.dig('tree_label') }
                 elsif computed_key != 'universal_classifications'
-                  license_classifications = DataCycleCore::Concept.where(classification_id: value)
+                  license_classifications = DataCycleCore::Concept.where(id: value)
                 end
 
                 next if license_classifications.blank?

@@ -1,5 +1,5 @@
 <ul class="no-bullet accordion additional-map-values-filter-items" data-accordion data-allow-all-closed="true" data-multi-expand="true">
-  <%= collection_check_boxes(nil, "additional_values_filter[classification_tree]", value[local_assigns[:parent_classification_alias_id]], :id, :internal_name, {}, {}) do |cb| %>
+  <%= collection_check_boxes(nil, "additional_values_filter[classification_tree]", value[local_assigns[:parent_concept_id]], :id, :internal_name, {}, {}) do |cb| %>
     <%= tag.li(class: "additional-map-values-filter-item #{'accordion-item' if value.key?(cb.value)}", data: { accordion_item: value.key?(cb.value) ? true : nil }) do %>
       <%= tag.div(class: 'overlay-filter-label', data: { dc_tooltip: cb.object.try(:description) }) do %>
         <%= cb.check_box value: cb.value,
@@ -24,7 +24,7 @@
                     value: value,
                     random_id: random_id,
                     key: key,
-                    parent_classification_alias_id: cb.value %>
+                    parent_concept_id: cb.value %>
         </div>
       <% end %>
     <% end %>

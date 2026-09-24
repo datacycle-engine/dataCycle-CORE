@@ -2,10 +2,10 @@
 
 json ||= {}
 
-json.merge! render 'classifications', classification_aliases: @classification_aliases, key: 'data'
+json.merge! render 'classifications', concepts: @concepts, key: 'data'
 
 json.merge! render 'pagination_links',
-                   objects: @classification_aliases,
-                   object_url: ->(params) { classifications_api_v3_classification_tree_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+                   objects: @concepts,
+                   object_url: ->(params) { classifications_api_v3_classification_tree_url(@api_subversion, @concept_scheme, params.merge(classification_id: @classification_id)) }
 
 json

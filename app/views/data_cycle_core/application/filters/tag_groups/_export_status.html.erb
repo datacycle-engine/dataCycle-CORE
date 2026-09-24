@@ -1,0 +1,30 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <span class="tag-group-label">
+    <i class="fa fa-external-link" aria-hidden="true"></i>
+    <span><%= t("filter.#{key}", default: title, locale: active_ui_locale) %></span>
+  </span>
+
+  <%# jsonb of any shape reaches here from a stored filter's parameters, not only what the form built %>
+  <% value = value.is_a?(::Hash) ? value : {} %>
+
+  <span class="tags-container">
+    <% external_system_ids = Array.wrap(value.dig('external_system_ids')) %>
+    <% if external_system_ids.present? %>
+      <% external_systems = DataCycleCore::ExternalSystem.where(id: external_system_ids).map { |c| [c.id, c.name_with_types] }.to_h %>
+      <% external_system_ids.each do |external_system_id| %>
+        <span class="tag"><%= external_systems[external_system_id] %></span>
+      <% end %>
+    <% end %>
+
+    <% statuses = Array.wrap(value.dig('status')) %>
+    <% if statuses.present? %>
+      <% status_labels = export_status_filter_options.to_h { |label, status| [status, label] } %>
+      <%= t("common.status", locale: active_ui_locale) %>
+      <% statuses.each do |status| %>
+        <span class="tag"><%= status_labels[status] || status %></span>
+      <% end %>
+    <% end %>
+  </span>
+
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', local_assigns if buttons %>
+</span>

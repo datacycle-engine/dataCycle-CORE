@@ -223,7 +223,49 @@ module DataCycleCore
       assert_equal shared, keys[1] & keys[0]
     end
 
-    test 'a pair reported once per matching translation becomes a single candidate row per method' do
+    # A one-sided crossing: place1's German name equals place2's English name, so recomputing
+    # place1 finds place2 while recomputing place2 finds nothing and deletes the row again.
+    # dc:duplicates:create_duplicates dispatches both ends into a Concurrent::FixedThreadPool
+    # (WorkerPool) and dc:duplicates:merge_duplicates reads what is left in the same 04:00 block, so
+    # before the locale rule which thread committed last decided whether a merge saw the pair. The
+    # rule has to leave nothing behind from either end, in either order.
+    def create_cross_locale_pair
+      german_name = "Walserhaus #{SecureRandom.hex(4)}"
+      place1 = DataCycleCore::TestPreparations.create_content(template_name: 'Örtlichkeit', data_hash: { name: german_name })
+      place2 = DataCycleCore::TestPreparations.create_content(template_name: 'Örtlichkeit', data_hash: { name: "Proberaum #{german_name}" })
+      I18n.with_locale(:en) { place1.set_data_hash(data_hash: { 'name' => german_name }, partial_update: true) }
+      I18n.with_locale(:en) { place2.set_data_hash(data_hash: { 'name' => german_name }, partial_update: true) }
+
+      [place1.reload, place2.reload]
+    end
+
+    test 'a one-sided cross-locale match leaves no candidate row from either end, in either order' do
+      place1, place2 = create_cross_locale_pair
+
+      [[place1, place2], [place2, place1]].each do |first, second|
+        first.create_duplicate_candidates
+        second.create_duplicate_candidates
+
+        assert_empty(place1.duplicate_candidates.reload.select { |c| c.duplicate_id == place2.id })
+        assert_empty(place2.duplicate_candidates.reload.select { |c| c.duplicate_id == place1.id })
+      end
+    end
+
+    # thing_duplicates has no locale column, so the stored rows may not depend on the language the
+    # writer happened to be in - an import pass and a backend editor both recompute under their own
+    # locale. See Feature::DuplicateCandidate.find_duplicates.
+    test 'find_duplicates computes in the default locale whatever locale the caller is in' do
+      place1, place2 = create_cross_locale_pair
+
+      I18n.with_locale(:en) do
+        assert_empty Array.wrap(DataCycleCore::Feature::DuplicateCandidate.find_duplicates(place1))
+        place1.create_duplicate_candidates
+      end
+
+      assert_empty(place1.duplicate_candidates.reload.select { |c| c.duplicate_id == place2.id })
+    end
+
+    test 'a pair matching in two locales still becomes a single candidate row per method' do
       place1, place2 = create_place_pair_with_equal_titles
       shared_title = place1.name
 
@@ -233,8 +275,9 @@ module DataCycleCore
 
       duplicates = place1.reload.find_duplicates
 
-      # the modules match per translation, so both report the pair once per shared locale - four
-      # reports that have to collapse to one row per method
+      # Utility::DuplicateCandidate::Base.same_locale_scope pins each module to one translation, so
+      # the second shared locale adds no second report. Before it, both modules reported the pair
+      # once per shared locale and the uniq in collect_duplicates had to collapse four rows into two
       assert_equal 2, duplicates.size
       assert_equal duplicates.size, duplicates.uniq { |t| [t[:thing_duplicate_id], t[:method]] }.size
 

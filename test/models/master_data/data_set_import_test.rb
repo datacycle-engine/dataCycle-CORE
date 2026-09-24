@@ -342,6 +342,91 @@ module DataCycleCore
       end
     end
 
+    test 'generated companion is marked and gets the base attribute condition injected' do
+      template_importer = subject.new(template_paths: [import_path_generated])
+      template = template_importer.templates.find { |t| t[:name] == 'TestGenerated' }
+
+      assert_empty(template_importer.errors)
+      assert_not(template.nil?)
+
+      assert_equal('description', template.dig(:data, :properties, :description_generated, :features, :generated, :generated_for))
+
+      condition = template.dig(:data, :properties, :description_generated, :compute, :condition)
+
+      assert_equal(1, condition.size)
+      assert_equal('content', condition.first[:type])
+      assert_equal('description', condition.first[:name])
+      assert_equal('not_exists?', condition.first[:method])
+
+      # the producer's declared parameters stay untouched - the condition itself is what
+      # Content#compute_dependency_names turns into the dependency on the base attribute
+      assert_equal(['name'], template.dig(:data, :properties, :description_generated, :compute, :parameters))
+    end
+
+    test 'generated companion keeps a declared compute condition and adds the injected one' do
+      template_importer = subject.new(template_paths: [import_path_generated])
+      template = template_importer.templates.find { |t| t[:name] == 'TestGenerated' }
+      condition = template.dig(:data, :properties, :name_generated, :compute, :condition)
+
+      assert_empty(template_importer.errors)
+      assert_equal(2, condition.size)
+      assert_equal(['equals?', 'not_exists?'], condition.pluck(:method))
+      assert_equal('name', condition.last[:name])
+    end
+
+    # the injected condition is resolved against the record, so an inline compute would see the
+    # value from before the running save
+    test 'generated companion is computed asynchronously even when it does not declare it' do
+      template_importer = subject.new(template_paths: [import_path_generated])
+      template = template_importer.templates.find { |t| t[:name] == 'TestGenerated' }
+
+      assert_empty(template_importer.errors)
+      assert(template.dig(:data, :properties, :name_generated, :compute, :async))
+      assert(template.dig(:data, :properties, :description_generated, :compute, :async))
+    end
+
+    test 'contributor_generated is injected once for a template with generated companions' do
+      template_importer = subject.new(template_paths: [import_path_generated])
+      template = template_importer.templates.find { |t| t[:name] == 'TestGenerated' }
+      prop = template.dig(:data, :properties, :contributor_generated)
+
+      assert_empty(template_importer.errors)
+      assert_not(prop.nil?)
+      assert_equal('linked', prop[:type])
+      assert_equal(['ArtificialIntelligenceAgent'], prop[:template_name])
+      assert(prop[:local])
+      assert_equal('Generated', prop.dig(:compute, :module))
+      assert_equal('ai_agents', prop.dig(:compute, :method))
+      assert(prop.dig(:compute, :async))
+      assert_equal('false', prop.dig(:compute, :fallback).to_s)
+      assert_equal(['name', 'name_generated', 'description', 'description_generated'].sort, prop.dig(:compute, :parameters).sort)
+
+      assert(prop.dig(:api, :disabled))
+      assert_not(prop.dig(:api, :v4, :disabled))
+      assert_equal('append', prop.dig(:api, :v4, :transformation, :method))
+      assert_equal('contributor', prop.dig(:api, :v4, :transformation, :name))
+
+      assert_equal(template.dig(:data, :properties, :contributor, :sorting) + 1, prop[:sorting])
+    end
+
+    test 'no contributor_generated for a template without generated companions' do
+      template_importer = subject.new(template_paths: [import_path_generated])
+      template = template_importer.templates.find { |t| t[:name] == 'TestGeneratedPlain' }
+
+      assert_empty(template_importer.errors)
+      assert_not(template.dig(:data, :properties).key?(:contributor_generated))
+    end
+
+    test 'gives error for a generated attribute without its base attribute' do
+      template_importer = subject.new(template_paths: [import_path_generated_missing_base])
+
+      assert_equal(
+        ['creative_works.TestGeneratedMissingBase.properties.subtitle_generated => base attribute \'subtitle\' missing for the _generated convention'],
+        template_importer.errors
+      )
+      assert_nil(template_importer.templates.find { |t| t[:name] == 'TestGeneratedMissingBase' })
+    end
+
     test 'aggregate templates with correct belongs_to_aggregate definitions' do
       template_importer = subject.new(template_paths: [import_path, import_path4, aggregate_path1])
       template_names = ['Entity-With-Aggregate-Creative-Work-1', 'Entity-With-Aggregate-Creative-Work-2']
@@ -974,6 +1059,14 @@ module DataCycleCore
 
     def import_path_overlay3
       Rails.root.join('..', 'data_types', 'master_data', 'overlay_set_3')
+    end
+
+    def import_path_generated
+      Rails.root.join('..', 'data_types', 'master_data', 'generated_set')
+    end
+
+    def import_path_generated_missing_base
+      Rails.root.join('..', 'data_types', 'master_data', 'generated_set_missing_base')
     end
 
     def import_path_missing_template

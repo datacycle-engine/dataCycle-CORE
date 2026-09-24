@@ -241,7 +241,7 @@ module DataCycleCore
         stored_filter = build_poi_filter(name: 'sql_filter_definition_update')
         stored_filter.sync_sql_representation!
         before_def = sql_definition(stored_filter.sql_representation_name)
-        old_alias_id = DataCycleCore::ClassificationAlias.find_by(name: 'POI').id
+        old_alias_id = DataCycleCore::Concept.find_by(name: 'POI').id
 
         assert_predicate(before_def, :present?, 'expected SQL definition to exist before update')
         assert_includes(before_def, old_alias_id, 'expected before definition to include previous classification filter')
@@ -444,8 +444,8 @@ module DataCycleCore
             'c' => 'd',
             'm' => 'i',
             'n' => 'Inhaltstypen',
-            't' => 'classification_alias_ids',
-            'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'POI').id]
+            't' => 'concept_ids',
+            'v' => [DataCycleCore::Concept.find_by(name: 'POI').id]
           }],
           cache_ttl:,
           api: true

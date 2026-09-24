@@ -15,7 +15,7 @@
             key: filter['n'].presence&.underscore_blanks,
             target: filter['identifier'],
             value: filter['v'],
-            classification_aliases: selected_classification_aliases&.slice(*filter['v']),
+            concepts: selected_concepts&.slice(*filter['v']),
             buttons: filter_params[:buttons],
             container_classes: filter_params[:container_classes],
         }) %>

@@ -11,7 +11,7 @@ module DataCycleCore
 
     before(:all) do
       @user = DataCycleCore::User.find_by(email: 'admin@datacycle.at')
-      @tagged = create_content('Artikel', { name: 'tagged article', tags: get_classification_ids('Tags', 'Tag 3') })
+      @tagged = create_content('Artikel', { name: 'tagged article', tags: get_concept_ids('Tags', 'Tag 3') })
       @untagged = create_content('Artikel', { name: 'untagged article' })
     end
 

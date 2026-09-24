@@ -2,6 +2,7 @@ import { Sortable } from "sortablejs";
 import CalloutHelpers from "../../helpers/callout_helpers";
 import ConfirmationModal from "../confirmation_modal";
 import { CancelSortPlugin } from "../sortable/cancel_sort_plugin";
+
 Sortable.mount(CancelSortPlugin());
 
 class ClassificationDragAndDrop {
@@ -129,8 +130,8 @@ class ClassificationDragAndDrop {
 			confirmationCallback: () => {
 				this.sendRequest(
 					{
-						sourceAliasId: source.dataset.id,
-						targetAliasId: target.dataset.id,
+						sourceConceptId: source.dataset.id,
+						targetConceptId: target.dataset.id,
 					},
 					"merge",
 				)
@@ -173,12 +174,10 @@ class ClassificationDragAndDrop {
 	sendMoveRequest(element) {
 		this.sendRequest(
 			{
-				classificationAliasId: element.dataset.id,
-				classificationTreeLabelId: element.closest(
-					"li.classification_tree_label",
-				).id,
-				previousAliasId: element.previousElementSibling?.dataset.id,
-				newParentAliasId:
+				conceptId: element.dataset.id,
+				conceptSchemeId: element.closest("li.classification_tree_label").id,
+				previousConceptId: element.previousElementSibling?.dataset.id,
+				newParentConceptId:
 					element.parentElement.closest("li.direct")?.dataset.id,
 			},
 			"move",

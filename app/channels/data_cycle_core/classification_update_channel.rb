@@ -3,7 +3,7 @@
 module DataCycleCore
   class ClassificationUpdateChannel < ApplicationCable::Channel
     def subscribed
-      reject && return unless current_user&.can?(:index, DataCycleCore::ClassificationTreeLabel)
+      reject && return unless current_user&.can?(:index, DataCycleCore::ConceptScheme)
 
       stream_from 'classification_update'
     end

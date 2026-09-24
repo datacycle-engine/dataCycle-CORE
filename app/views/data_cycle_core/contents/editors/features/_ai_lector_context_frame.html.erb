@@ -13,18 +13,18 @@
     field_help = I18n.exists?("feature.ai_lector.context_help.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_help.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.help', default: nil, locale: active_ui_locale)
     field_placeholder = I18n.exists?("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) ? t("feature.ai_lector.context_placeholders.#{key}", locale: active_ui_locale) : t('feature.ai_lector.context.placeholder', locale: active_ui_locale)
 
-    # Targeting improvements pin a classification_tree_label (e.g. "Zielgruppen",
+    # Targeting improvements pin a concept_scheme (e.g. "Zielgruppen",
     # "Ausgabekanäle"): pick the target from that tree instead of typing it. The
     # option's *value* carries name + description (fed verbatim to the AI as
     # user_context), while its *label* shows just the name. Falls back to the
     # free-text textarea when no tree is configured or the tree is empty/missing.
-    classification_tree_label = local_assigns[:classification_tree_label].presence
+    concept_scheme = local_assigns[:concept_scheme].presence
     frame_locale = local_assigns[:locale].presence || I18n.locale
 
     classification_options =
-      if classification_tree_label.present?
-        DataCycleCore::ClassificationAlias
-          .for_tree(classification_tree_label)
+      if concept_scheme.present?
+        DataCycleCore::Concept
+          .for_tree(concept_scheme)
           .assignable
           .map { |ca|
             name = ca.name(locale: frame_locale).presence || ca.internal_name

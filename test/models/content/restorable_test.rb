@@ -11,7 +11,7 @@ module DataCycleCore
         @image = create_content('Bild', { name: 'Restorable Linked Image' })
         content = create_content('Artikel', {
           name: 'Restorable Article',
-          tags: get_classification_ids('Tags', 'Tag 3'),
+          tags: get_concept_ids('Tags', 'Tag 3'),
           image: [@image.id]
         })
         @thing_id = content.id
@@ -35,15 +35,15 @@ module DataCycleCore
 
         assert_not_nil restored
         assert_equal('Restorable Article', restored.name)
-        assert_predicate restored.classification_contents, :any?
+        assert_predicate restored.concept_contents, :any?
         assert_includes restored.content_content_a.pluck(:content_b_id), @image.id
       end
 
-      test 'restore_classification_contents swallows uniqueness conflicts' do
+      test 'restore_concept_contents swallows uniqueness conflicts' do
         history = deletion_history
 
-        DataCycleCore::ClassificationContent.stub(:create!, ->(*, **) { raise ActiveRecord::RecordNotUnique }) do
-          assert_nothing_raised { history.send(:restore_classification_contents) }
+        DataCycleCore::ConceptContent.stub(:create!, ->(*, **) { raise ActiveRecord::RecordNotUnique }) do
+          assert_nothing_raised { history.send(:restore_concept_contents) }
         end
       end
 

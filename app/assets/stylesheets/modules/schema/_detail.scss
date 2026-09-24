@@ -1,0 +1,705 @@
+
+body.schema {
+  main.schema-detail {
+    // same page framing as main.schema-index: full-bleed with a narrow, shared
+    // side gutter (--sc-gutter) — so both /schema pages line up (#50201).
+    max-width: none;
+    padding: 12px var(--sc-gutter) 56px;
+    box-sizing: border-box;
+    color: var(--sc-text);
+
+    // round back-button diameter — smaller on phones so the title block, and
+    // the content indented under it, hugs the left edge more tightly.
+    --schema-back: 40px;
+
+    // Left offset of the title text past the round back arrow (back-button
+    // diameter + the title-row's column gap). Everything below the arrow — the
+    // schema.org link, filter chips, property count and the card list — is
+    // indented by this so it all lines up under the title, and the back arrow
+    // alone hangs to its left (#50201 follow-up).
+    //
+    // On phones drop the indent to 0 so the content (chips, count, card list)
+    // hugs the left gutter instead of sitting ~52px in under the title —
+    // reclaiming horizontal space on narrow screens. The ≥768px block below
+    // restores the title-aligned indent.
+    --schema-indent: 0;
+
+    @media (min-width: 768px) {
+      padding: 16px var(--sc-gutter) 64px;
+      --schema-back: 48px;
+      --schema-indent: calc(var(--schema-back) + 1rem);
+    }
+
+    @media (min-width: 1200px) {
+      padding: 20px var(--sc-gutter) 80px;
+    }
+    // NOTE: the title is styled by .schema-detail__head h1 (responsive: 32px →
+    // 48px at 1200px, matching .schema-index__title). A former
+    // `main.schema-detail h1 { font: bold 48px }` rule used to live here, but its
+    // higher specificity silently overrode those sizes (forcing 48px on every
+    // breakpoint) — removed so the head governs it.
+  }
+
+  // --- detail (card raster) -------------------------------------------------
+  .schema-detail {
+    &__head {
+      // Mobile-first: title, schema.org link and the tools cluster stack in a
+      // single column — mirroring the index header (.schema-index__header) on
+      // phones. From 768px up it becomes a two-column grid: title top-left, the
+      // search + DE/EN switcher top-right, and the schema.org link on its own row
+      // under the title. Grid areas keep this independent of DOM order.
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      // no padding-bottom: the 24px margin-bottom alone sets the gap to the
+      // filter chips, matching the index header (.schema-index__header).
+      margin-bottom: 1.5rem;
+
+      // back-arrow diameter (--schema-back) is set on main.schema-detail so the
+      // content indent (--schema-indent) can track it; 40px on phones, 48px up.
+
+      // nested <header>: neutralise the global stacking context (see the note
+      // on .schema-index__header) so the app header flyouts stay above it.
+      position: static;
+      z-index: auto;
+
+      // back arrow + title + path on one row (arrow left of the title, the
+      // schema.org path trailing it). Centred vertically so the 48px arrow lines
+      // up with the middle of the (now 32/48px) title instead of dropping below
+      // its baseline. Wraps on narrow screens so the path drops below instead of
+      // squishing the title.
+      .schema-detail__title-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        min-width: 0;
+      }
+
+      h1 {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        color: var(--sc-text);
+        // mobile-first size: 32px, scaling up at the breakpoints below.
+        // line-height 1 so the box hugs the glyphs — the extra leading would
+        // otherwise read as padding and misalign the back arrow.
+        //
+        // font-family/weight deliberately match .schema-index__title: the
+        // inherited app font (Open Sans) at weight 700 — NOT the former
+        // `font: 1000 …/… Helvetica` shorthand, whose heavier Helvetica 1000
+        // crammed the glyphs together and made the two /schema titles read
+        // as though they had different letter-spacing.
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        overflow-wrap: anywhere;
+
+        // object type icon (same one the index card shows), rendered as a round
+        // badge like the index cards' .schema-card__icon. Everything is sized in em
+        // so the badge scales with the responsive title at every breakpoint:
+        // the glyph is a small 0.45em of the title, sitting in a roomier circle of
+        // 2.5em of the glyph (≈1.1em of the title). flex:none keeps it from shrinking
+        // and the h1's align-items:center vertically centers it beside the title.
+        .schema-detail__icon {
+          flex: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.5em;
+          height: 2.5em;
+          font-size: 0.45em;
+          line-height: 1;
+          border-radius: 50%;
+          background: var(--sc-icon-bg);
+          color: var(--sc-primary);
+          text-align: center;
+
+          // FontAwesome draws the glyph in ::before. Flex only centres the glyph's
+          // advance box, so icons with asymmetric side-bearings (ticket, map-marker,
+          // building-o …) look nudged to one side. Making ::before a full-width block
+          // and centring the character inside it neutralises that bearing, so every
+          // glyph reads as optically centred in the circle; the fixed 1em line-height
+          // does the same vertically.
+          &::before {
+            display: block;
+            width: 100%;
+            line-height: 1;
+            text-align: center;
+          }
+
+          // embedded templates read in the violet accent instead of the brand pink:
+          // redefining the accent custom properties cascades to both the glyph
+          // (color: var(--sc-primary)) and the circle (background: var(--sc-icon-bg)),
+          // mirroring .schema-card[data-part="embedded"] on the index. All other
+          // content types keep the default pink accent.
+          &--embedded {
+            --sc-primary: var(--sc-embedded);
+            --sc-icon-bg: #f0eafc;
+          }
+        }
+      }
+
+      // Bottom meta row: schema.org link + content count on one line, under the
+      // title. --schema-indent lines the row up under the title text rather than
+      // the back arrow (like the type path). Wraps on very narrow screens.
+      .schema-detail__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.75rem;
+        margin-left: var(--schema-indent);
+      }
+
+      .schema-org-link {
+        align-self: center;
+      }
+
+      // content count (thing_count, #50201) — a muted pill beside the schema.org
+      // link, mirroring the index cards' count badge.
+      .schema-detail__count {
+        flex: none;
+        padding: 0.2rem 0.6rem;
+        font: 600 13px/1.2 Helvetica, Arial, sans-serif;
+        color: var(--sc-secondary);
+        background: var(--sc-bg);
+        border: 1px solid var(--sc-border);
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+
+      // schema.org type path — small & muted, matching the index card subtitle
+      // (.schema-card__key). Sits on its own line UNDER the title (not beside it):
+      // flex-basis:100% forces a wrap within the title-row, and --schema-indent lines
+      // it up under the title text rather than the back arrow (like .schema-org-link).
+      .schema-detail__path {
+        flex-basis: 100%;
+        margin: 0 0 0 var(--schema-indent);
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.3;
+        color: var(--sc-secondary);
+        overflow-wrap: anywhere;
+      }
+
+      @media (min-width: 768px) {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+          'title tools'
+          'link  tools';
+        align-items: start;
+        gap: 0.6rem 1rem;
+
+        .schema-detail__title-row { grid-area: title; gap: 0.35rem 1rem; }
+        .schema-detail__meta { grid-area: link; justify-self: start; }
+      }
+
+      // match the index title (.schema-index__title): 32px, growing to 48px at
+      // 1200px — no intermediate 768px bump, so both /schema pages read alike.
+      @media (min-width: 1200px) {
+        h1 { font-size: 48px; }
+      }
+    }
+
+    // back button that returns to the schema index (/schema): bare arrow by
+    // default, the circle (background + border) only appears on hover/focus
+    &__back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      align-self: center; // vertically centred on the title (row is center-aligned)
+      width: var(--schema-back);
+      height: var(--schema-back);
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--sc-text); // same colour as the title text
+      font-size: 1.25rem;
+      line-height: 1; // no inherited leading, so the glyph sits dead-centre
+      text-decoration: none;
+      transition: color 160ms ease, transform 160ms ease;
+
+      // The title box has empty descender space at the bottom (words like
+      // "Article" have no descenders), so its letters sit slightly above the box
+      // centre. With the row centre-aligned the arrow is already almost level;
+      // this small lift nudges it onto the letters. Grows a touch with the title
+      // (32px up to 1200px, 48px above).
+      --back-optical-nudge: 0.15rem;
+
+      @media (min-width: 1200px) { --back-optical-nudge: 0.25rem; }
+
+      // kill FontAwesome's own line-height/baseline offset, then apply the nudge
+      .fa,
+      i {
+        display: block;
+        line-height: 1;
+        transform: translateY(calc(-1 * var(--back-optical-nudge)));
+      }
+
+      &:hover,
+      &:focus-visible {
+        color: var(--sc-primary); // just recolour the arrow, no circle
+        outline: none;
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
+    }
+
+    // tools cluster: [search][DE/EN] on one row. Full-width under the title on
+    // mobile (like the index actions), then a right-aligned top-right cluster
+    // from 768px up.
+    &__tools {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; // count sits 8px under the search, like the index stats/title
+
+      @media (min-width: 768px) {
+        grid-area: tools;
+        align-items: flex-end;
+        min-width: 0;
+
+        // The index actions bottom-align to a title block that also carries the
+        // stats subtitle, so they sit ~(title-block − 48px button) below the top.
+        // The detail title has no subtitle, so offset the cluster down by that
+        // same amount to give the search/DE-EN row the same distance to the top.
+        padding-top: 0.75rem;
+      }
+
+      @media (min-width: 1200px) {
+        padding-top: 1.75rem;
+      }
+    }
+
+    &__tools-row {
+      display: flex;
+      align-items: center;
+      gap: 12px; // same gap as the index actions row (.schema-index__actions)
+
+      // mobile: the search fills the row (like the index's full-width search),
+      // with the DE/EN switcher beside it
+      .schema-filter__search {
+        flex: 1 1 auto;
+      }
+
+      @media (min-width: 768px) {
+        // from tablet up the cluster is right-aligned, so cap the search width
+        // and let the 48px pill line up with the 48px DE/EN switcher next to it
+        .schema-filter__search { flex: 0 1 320px; }
+      }
+
+      @media (min-width: 1200px) {
+        .schema-filter__search { flex-basis: 420px; }
+      }
+    }
+
+    &[role='schema'] h1,
+    h1 {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      color: var(--sc-text);
+    }
+  }
+
+  // --- filter header (search + facet chips) ---------------------------------
+  // Scoped to the detail page: the index page has its own .schema-filter
+  // (inside main.schema-index) whose badges must stay left-aligned.
+  .schema-detail .schema-filter {
+    // mobile-first: chips wrap on their own row with the property count beneath
+    // them (like the index filter bar, which is chips-only). From 768px up the
+    // count moves to the right on the same row as the chips.
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem; // 24px, same as the index filter/header rhythm
+    // indent under the title so the chips line up with it, not the back arrow;
+    // the count stays right-aligned to the panel edge (see --schema-indent)
+    padding-left: var(--schema-indent);
+    box-sizing: border-box;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    // search moved into the detail head (.schema-detail__tools); the chips
+    // remain here on their own row. The search field mirrors the index
+    // search pill (.schema-search) so both /schema pages look identical.
+    &__search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 48px;
+      max-width: 100%;
+      margin: 0;
+      padding: 0 16px;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 12px;
+      color: var(--sc-secondary);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+
+      .fa {
+        font-size: 1rem;
+      }
+
+      &:focus-within {
+        border-color: var(--sc-primary);
+        box-shadow: 0 0 0 4px var(--sc-primary-glow);
+      }
+    }
+
+    &__input {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 15px;
+      color: var(--sc-text);
+      box-shadow: none;
+
+      &::placeholder {
+        color: var(--sc-secondary);
+      }
+    }
+
+    &__count {
+      flex: 0 0 auto; // never shrink; keeps the number on one line
+      margin: 0;
+      font: 400 0.85rem/1.3 Helvetica, Arial, sans-serif;
+      color: $schema-muted;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    &__chips {
+      display: flex;
+      flex: 1 1 auto; // take the row, push the count to the far right
+      flex-wrap: wrap;
+      gap: 10px; // same as the index filter badges
+    }
+
+    &__empty {
+      margin: 1.5rem 0 0;
+      font-size: 0.9rem;
+      color: $schema-muted;
+    }
+  }
+
+  .schema-chip {
+    appearance: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0.45rem 1rem;
+    // match the index filter badges' typography (.schema-filter__badge):
+    // inherit the app font family, 13px / weight 600
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: $schema-ink;
+    background: #fff;
+    border: 1px solid $schema-line;
+    border-radius: 999px;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+
+    &:hover {
+      color: var(--sc-primary);
+      border-color: var(--sc-primary-border);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--sc-primary-glow);
+    }
+
+    &.is-active {
+      color: #fff;
+      background: var(--sc-primary);
+      border-color: var(--sc-primary);
+    }
+
+    // The "Embedded" facet reuses the index' violet embedded accent (--sc-embedded)
+    // so filtering by embedded content reads in the same hue on both /schema surfaces
+    // (matches the index' data-schema-part="embedded" toggle and the violet card keys).
+    &[data-schema-filter="embedded"] {
+      &:hover {
+        color: var(--sc-embedded);
+        border-color: var(--sc-embedded);
+        background: var(--sc-embedded-glow);
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px var(--sc-embedded-glow);
+      }
+
+      &.is-active {
+        color: #fff;
+        background: var(--sc-embedded);
+        border-color: var(--sc-embedded);
+      }
+    }
+  }
+
+  // --- sort dropdown --------------------------------------------------------
+  // A muted "Sort by" label followed by a styled native <select>: a soft, rounded
+  // pill with a subtle shadow, a magenta focus ring and a chevron that lights up
+  // on hover/focus. Shared by the index and detail pages; the app-wide Foundation
+  // select styling is neutralised via appearance:none + explicit rules.
+  .schema-sort {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 10px;
+
+    &__label {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sc-secondary);
+      white-space: nowrap;
+    }
+
+    &__control {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        height: 44px;
+        width: auto;
+        min-width: 200px;
+        margin: 0;
+        padding: 0 44px 0 16px; // room for the chevron on the right
+        background: var(--sc-card);
+        border: 1px solid var(--sc-border);
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--sc-text);
+        cursor: pointer;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+
+        &:hover {
+          border-color: var(--sc-primary);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        &:focus,
+        &:focus-visible {
+          outline: none;
+          border-color: var(--sc-primary);
+          box-shadow: 0 0 0 4px var(--sc-primary-glow);
+        }
+      }
+
+      // chevron in a soft magenta-tinted circle, over the select's right padding;
+      // clicks fall through to the select (pointer-events: none)
+      .fa {
+        position: absolute;
+        right: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--sc-badge);
+        font-size: 11px;
+        color: var(--sc-primary);
+        pointer-events: none;
+        transition: transform 150ms ease;
+      }
+
+      select:hover ~ .fa,
+      select:focus ~ .fa {
+        transform: translateY(1px);
+      }
+    }
+  }
+
+  // hidden by the live filter (search term / facet chip)
+  .schema-card[hidden] {
+    display: none;
+  }
+
+  // --- lists ----------------------------------------------------------------
+  .schema-lists {
+    width: 100%;
+    max-width: none;
+    margin: 0 auto 5rem;
+    // indent the card grid under the title, matching the header/filter (see
+    // --schema-indent); box-sizing keeps width:100% inside the panel gutter.
+    padding: 0 0 0 var(--schema-indent);
+    box-sizing: border-box;
+  }
+
+  .schema-list {
+    // Row-major flow: cards read left-to-right, top-to-bottom (1-2-3, next row
+    // 4-5-6). The column COUNT per breakpoint is unchanged (1 / 2 / 3); only the
+    // fill direction differs from the former column-major (newspaper) layout.
+    // list-style/padding reset so the first card lines up with the title's left
+    // edge (the <ol> UA padding-inline-start would otherwise indent it ~40px).
+    // The visible "1. 2. 3." enumeration is rendered via a CSS counter on the
+    // cards below (native markers are unreliable on grid items).
+    list-style: none;
+    counter-reset: schema-card;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: clamp(3rem, 6vw, 8rem);
+    row-gap: 0;
+    margin: 0;
+    padding: 0;
+
+    @include breakpoint(medium) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @include breakpoint(xlarge) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  // Scoped to the detail page's property list: these list-row styles (bottom
+  // divider, counter, flat padding, no card chrome) must not leak onto the index
+  // grid tiles, which reuse the `.schema-card` class for a completely different,
+  // bordered/rounded card (see main.schema-index above).
+  .schema-lists .schema-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    position: relative;
+    counter-increment: schema-card;
+    margin: 0;
+    padding: 0.95rem 0 1rem 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid $schema-line;
+    border-radius: 0;
+    overflow: visible;
+    transition: border-color 150ms ease;
+
+    &:hover {
+      border-color: var(--sc-primary-border);
+    }
+
+    &__head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+
+      // Property enumeration in reading order. As a flex ::before it becomes the
+      // first item in the head row, so a muted "1." precedes each field's key.
+      &::before {
+        content: counter(schema-card) ".";
+        flex: none;
+        color: $schema-muted;
+        font: 600 0.85rem/1.3 Menlo, Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+    }
+
+    &__key {
+      font: 700 0.95rem/1.3 Menlo, Consolas, monospace;
+      color: $schema-ink;
+      word-break: break-word;
+      background: none;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+
+      // Attributes whose value is an embedded content are marked by a violet key,
+      // reusing the index' embedded accent (--sc-embedded) so "embedded" reads in the
+      // same hue across both /schema surfaces (#50201). The embedded content's own
+      // attributes are no longer expanded inline — the violet key is the marker.
+      &--embedded {
+        color: var(--sc-embedded);
+      }
+    }
+
+    &__label {
+      margin: 0.2rem 0 0;
+      font-size: 0.8rem;
+      color: $schema-muted;
+    }
+
+    &::marker {
+      color: $schema-muted;
+      font: 600 0.85rem/1 Menlo, Consolas, monospace;
+    }
+
+    // all chips (expected types, flags, tree link) in one wrapping row, side by
+    // side instead of split across a types row and a flags row.
+    &__tags {
+      margin: 0.55rem 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    // --- tags / badges ------------------------------------------------------
+    // All tags share one neutral grey — the type-kind / flag modifier classes no
+    // longer colour them. Only the interactive chips (rendered as links) carry
+    // colour: external links (new tab) in the brand red (--sc-primary), internal
+    // links (same tab) in a darker shade of it (--sc-primary-hover). Every colour
+    // comes from a variable; none is written literally here.
+    .schema-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.18rem 0.5rem;
+      font: 600 0.72rem/1.2 Helvetica, Arial, sans-serif;
+      border: 1px solid var(--sc-tag-border);
+      border-radius: 999px;
+      white-space: nowrap;
+      color: var(--sc-tag-fg);
+      background: var(--sc-tag-bg);
+
+      // leading type icon: a touch smaller than the label so it reads as a marker,
+      // not a second glyph competing with the type name.
+      .fa {
+        font-size: 0.85em;
+      }
+
+      // external links (target="_blank") — brand red
+      &[target='_blank'] {
+        color: var(--sc-primary);
+        background: var(--sc-primary-glow);
+        border-color: var(--sc-primary-border);
+      }
+
+      // internal links (any other href) — the yellow/amber tag colour. This
+      // includes the links to embedded objects (.schema-tag--embedded[href]):
+      // only the attribute key/title (.schema-card__key--embedded) reads violet,
+      // the embedded link itself stays yellow like every other internal link.
+      &[href]:not([target='_blank']) {
+        color: var(--sc-internal);
+        background: var(--sc-internal-bg);
+        border-color: var(--sc-internal-border);
+      }
+
+      // interactive chips (rendered as links) get a subtle hover
+      &[href]:hover {
+        filter: brightness(1.05);
+      }
+    }
+  }
+}

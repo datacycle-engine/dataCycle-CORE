@@ -11,35 +11,35 @@ options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json ||= {}
 
-if @classification_tree_label.present?
+if @concept_scheme.present?
   json.merge! render 'context', languages: options[:languages]
 
   if @classification_id.present?
     unless @permitted_params.dig(:section, :@graph)&.to_i&.zero?
       json['@graph'] = []
-      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
-        I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
-          render 'classification', content: @classification_aliases.first, options: options.dup
+      json['@graph'] << Rails.cache.fetch(api_v4_cache_key(@concepts.first, options[:languages], options[:include], options[:fields], @api_subversion, nil), expires_in: 1.year + Random.rand(7.days)) do
+        I18n.with_locale(@concepts.first.first_available_locale(options[:languages])) do
+          render 'classification', content: @concepts.first, options: options.dup
         end
       end
     end
   else
-    @classification_aliases.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
+    @concepts.async_total_count unless @permitted_params.dig(:section, :meta)&.to_i&.zero?
 
-    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options:, show_all_concepts: true
+    json.merge! render 'classifications', concepts: @concepts, key: '@graph', options:, show_all_concepts: true
 
-    @classification_aliases.instance_variable_set(:@total_count, @classification_aliases.except(:select, :order, :group, :limit, :offset).count)
+    @concepts.instance_variable_set(:@total_count, @concepts.except(:select, :order, :group, :limit, :offset).count)
 
     json.merge! render 'pagination_links',
-                       objects: @classification_aliases,
+                       objects: @concepts,
                        object_url: ->(params) { api_v4_facets_url(@api_subversion, params.merge(classification_id: @classification_id)) }
 
   end
 
-  aliases = @classification_aliases.index_by(&:id)
+  concepts_by_id = @concepts.index_by(&:id)
   json['@graph'].each do |c|
-    c['dc:thingCountWithSubtree'] = aliases[c['@id']].thing_count_with_subtree
-    c['dc:thingCountWithoutSubtree'] = aliases[c['@id']].thing_count_without_subtree
+    c['dc:thingCountWithSubtree'] = concepts_by_id[c['@id']].thing_count_with_subtree
+    c['dc:thingCountWithoutSubtree'] = concepts_by_id[c['@id']].thing_count_without_subtree
   end
 end
 

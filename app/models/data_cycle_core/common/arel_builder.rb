@@ -24,6 +24,13 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@@', tsvector, tsquery)
       end
 
+      # Resolves a locale to its text search dictionary, e.g. get_dict('de') -> german.
+      # The function is IMMUTABLE, so passing a literal locale keeps the surrounding tsquery
+      # foldable at plan time -- see Filter::Common::Fulltext#per_locale_match.
+      def get_dict(locale)
+        Arel::Nodes::NamedFunction.new('get_dict', [quoted(locale)])
+      end
+
       def tsquery(string, dict = nil)
         Arel::Nodes::NamedFunction.new('plainto_tsquery', [dict || quoted('simple'), string])
       end

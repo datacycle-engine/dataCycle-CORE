@@ -100,6 +100,21 @@
             :options:
               :data-size: basic
         :advanced_search: true
+      # [#47881] mirrors the generated ALT label the imageDescriptionPixie ships (its own compute
+      # lives in the embedding plugin gem, which is not loaded here). It is delivered as
+      # `description` and the editorial description has to win whenever it is filled -- which only
+      # works because of the :position:, so that is what the API test pins.
+      :description_generated:
+        :label: Beschreibung (ALT-Label, automatisch generiert)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :visible: [show, api]
+        :local: true
+        :position:
+          :before: description
+        :api:
+          :name: description
       :content_url:
         :label: Bild URL
         :storage_location: value
@@ -310,6 +325,9 @@
       :gravity:
         :type: mixin
         :name: gravity
+      :focus_point:
+        :type: mixin
+        :name: focus_point
       :image_proxy:
         :type: mixin
         :name: image_proxy

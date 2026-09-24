@@ -6,7 +6,7 @@ module DataCycleCore
   class StatisticsRendererTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       @contents = []
-      @tag = DataCycleCore::ClassificationAlias.for_tree('Tags').first.primary_classification
+      @tag = DataCycleCore::Concept.for_tree('Tags').first
       5.times do |i|
         travel_to i.days.ago do
           @contents << DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: "Test Artikel #{i}", tags: [@tag.id] }, prevent_history: true)

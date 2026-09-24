@@ -164,7 +164,7 @@ module DataCycleCore
             elsif previous.embedded_property_names.include?(name)
               destroy_embedded_children(name)
             elsif previous.classification_property_names.include?(name)
-              classification_contents.where(relation: name).delete_all
+              concept_contents.where(relation: name).delete_all
             elsif previous.asset_property_names.include?(name)
               asset_contents.where(relation: name).destroy_all
             elsif previous.schedule_property_names.include?(name)
@@ -319,7 +319,7 @@ module DataCycleCore
         end
 
         def classification_names_match?(names, constraint)
-          satisfying = DataCycleCore::ClassificationAlias
+          satisfying = DataCycleCore::Concept
             .for_tree(constraint[:tree_label])
             .with_internal_name(constraint[:aliases])
             .with_descendants

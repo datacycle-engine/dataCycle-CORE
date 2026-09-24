@@ -78,18 +78,17 @@ module DataCycleCore
       end
     end
 
-    # Redmine #51232: merging drops the source's external system and key, and the importer's
-    # ON CONFLICT is partial on live rows -- so the next run recreates the merged-away concept
-    # instead of updating the target. The target can only carry one external identity, so a merge
-    # that would have to pick between two is refused rather than resolved silently.
-    class AmbiguousClassificationExternalSystemError < StandardError
+    # Redmine #51232: a classification merge that would have to drop one of two external identities.
+    # ConceptExtensions::Mergeable#ensure_external_system_mergeable! carries the rule and
+    # why it exists.
+    class AmbiguousConceptExternalSystemError < StandardError
       attr_reader :source, :target
 
       def initialize(source, target)
         @source = source
         @target = target
 
-        super("cannot merge #{source.id} into #{target.id}: both carry an external system (#{source.external_source_id}/#{source.external_key} and #{target.external_source_id}/#{target.external_key}) and only one can survive")
+        super("cannot merge #{source.id} into #{target.id}: they carry different external identities (#{source.external_system_id}/#{source.external_key} and #{target.external_system_id}/#{target.external_key}) and only one can survive")
       end
     end
 

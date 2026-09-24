@@ -73,7 +73,7 @@
     </span>
   <% end %>
 
-  <%= render 'content_classify_button', content: content if DataCycleCore::Feature['ContentClassifier']&.allowed?(content) && can?(:update, content) %>
+  <%= render 'classification_pixie_button', content: content if DataCycleCore::Feature['ClassificationPixie']&.allowed?(content) && can?(:update, content) %>
 
   <%= link_to thing_path(content, watch_list_id: @watch_list),
               method: :delete,

@@ -37,7 +37,7 @@
         </div>
       <% end %>
 
-      <%= render 'data_cycle_core/contents/grid/attributes/tags', item: item, classification_tree_visibility: 'list' if item.try(:display_classification_aliases, 'list').present? %>
+      <%= render 'data_cycle_core/contents/grid/attributes/tags', item: item, concept_scheme_visibility: 'list' if item.try(:display_concepts, 'list').present? %>
     </div>
   </div>
 <% end %>

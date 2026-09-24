@@ -7,9 +7,9 @@ module DataCycleCore
     before(:all) do
       @things = DataCycleCore::Thing.count
       create_content('Artikel', { name: 'AAA' })
-      create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids('Tags', ['Tag 3']) })
-      create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
-      create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids('Tags', ['Tag 3', 'Tag 2']) })
+      create_content('Artikel', { name: 'HEADLINE 1', tags: get_concept_ids('Tags', ['Tag 3']) })
+      create_content('Artikel', { name: 'HEADLINE 2', tags: get_concept_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
+      create_content('Artikel', { name: 'HEADLINE 3', tags: get_concept_ids('Tags', ['Tag 3', 'Tag 2']) })
       create_content('Örtlichkeit', { name: 'PLACE 1', location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 10) })
       create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
 
@@ -33,10 +33,10 @@ module DataCycleCore
       @alias_id2 = find_alias_ids('Tags', 'Tag 2')
 
       # SELECT st_Multi(ST_Polygon('LINESTRING(9 9, 25 9, 25 25, 9 25, 9 9)'::geometry, 4326)) as poly;
-      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((9 9, 25 9, 25 25, 9 25, 9 9)))'), classification_alias_id: @alias_id1[0], id: 1)
+      DataCycleCore::ConceptPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((9 9, 25 9, 25 25, 9 25, 9 9)))'), concept_id: @alias_id1[0], id: 1)
 
       # SELECT st_Multi(ST_Polygon('LINESTRING(40 40, 50 40, 50 50, 40 50, 40 40)'::geometry, 4326)) as poly;
-      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((40 40, 50 40, 50 50, 40 50, 40 40)))'), classification_alias_id: @alias_id2[0], id: 2)
+      DataCycleCore::ConceptPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 4326).parse_wkt('MULTIPOLYGON (((40 40, 50 40, 50 50, 40 50, 40 40)))'), concept_id: @alias_id2[0], id: 2)
 
       perform_enqueued_jobs
     end
@@ -101,11 +101,11 @@ module DataCycleCore
     # test 'test method only_frontend_valid (excludes places)' do
     #   articles = @things + 5
     #   items = DataCycleCore::Filter::Search.new(locale: :de)
-    #     .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text']))
+    #     .concept_ids(find_alias_ids('Inhaltstypen', ['Text']))
     #   assert_equal(articles, items.count)
     #   assert_equal(articles, items.only_frontend_valid.count)
     #   items = DataCycleCore::Filter::Search.new(locale: :de)
-    #     .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text', 'Örtlichkeit']))
+    #     .concept_ids(find_alias_ids('Inhaltstypen', ['Text', 'Örtlichkeit']))
     #   assert_equal(articles + 1, items.count)
     #   assert_equal(articles, items.only_frontend_valid.count)
     # end
@@ -279,12 +279,12 @@ module DataCycleCore
     end
 
     test 'test query for classification_tree' do
-      tree_label_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-      items = DataCycleCore::Filter::Search.new(locale: :de).classification_tree_ids(tree_label_id)
+      tree_label_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+      items = DataCycleCore::Filter::Search.new(locale: :de).concept_scheme_ids(tree_label_id)
 
       assert_equal(3, items.count)
 
-      items = DataCycleCore::Filter::Search.new(locale: :de).not_classification_tree_ids(tree_label_id)
+      items = DataCycleCore::Filter::Search.new(locale: :de).not_concept_scheme_ids(tree_label_id)
 
       assert_equal(7, items.count)
     end
@@ -470,10 +470,32 @@ module DataCycleCore
       end
     end
 
+    # Companion to the same assertions on the ts_query path in
+    # test/models/filter/ts_query_fulltext_search_test.rb. Legacy needs the inline dictionary
+    # more than ts_query does: its OR only becomes one BitmapOr over all_text_idx and
+    # index_searches_on_words while every branch is indexable, and joining the dictionary back
+    # in returns identical rows, so only these assertions would notice.
+    test 'legacy fulltext search names the dictionary inline instead of joining pg_dict_mappings' do
+      sql = DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search('HEADLINE').query.to_sql
+
+      assert_includes(sql, "plainto_tsquery(get_dict('de')")
+      assert_not_includes(sql, 'pg_dict_mappings')
+    end
+
+    test 'legacy fulltext search matches each locale against its own dictionary' do
+      sql = DataCycleCore::Filter::Search.new(locale: [:de, :en]).fulltext_search('HEADLINE').query.to_sql
+
+      ['de', 'en'].each do |locale|
+        assert_includes(sql, "plainto_tsquery(get_dict('#{locale}')")
+        assert_includes(sql, %("searches"."locale" = '#{locale}'))
+      end
+      assert_not_includes(sql, 'pg_dict_mappings')
+    end
+
     private
 
     def find_alias_ids(tree_name, *alias_names)
-      DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(alias_names).pluck(:id)
+      DataCycleCore::Concept.for_tree(tree_name).with_name(alias_names).pluck(:id)
     end
   end
 end

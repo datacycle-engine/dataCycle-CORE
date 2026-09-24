@@ -1,0 +1,58 @@
+<li id="<%= concept.id %>" class="tree-link-container">
+  <span class="inner-item">
+    <%= link_to '#',
+                class: 'tree-link',
+                data: {
+                  disable: true,
+                  additional_form_parameters: {
+                    ctl_id: concept_scheme&.id,
+                    ct_id: concept.id
+                  }.compact.to_json
+                } do %>
+      <%= concept.internal_name %>
+      <span class="children-count">
+        (<%= tag.span(
+          class: "child-count-direct result-count loading",
+          id: "tree-direct-child-count-#{concept.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'concept',
+            ctl_id: concept_scheme&.id,
+            ct_id: concept.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct', locale: active_ui_locale)
+          }
+        )%>
+        /
+        <%= tag.span(
+          class: "child-count-direct-and-related result-count loading",
+          id: "tree-direct-and-related-child-count-#{concept.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'concept_related',
+            ctl_id: concept_scheme&.id,
+            ct_id: concept.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct_mapped', locale: active_ui_locale)
+          }
+        )%>
+        /
+        <%= tag.span(
+          class: "child-count-full result-count loading",
+          id: "tree-child-count-#{concept.id}",
+          'data-additional-form-parameters': to_query_params({
+            content_class: local_assigns[:content_class] || 'things',
+            count_mode: 'concept_recursive',
+            ctl_id: concept_scheme&.id,
+            ct_id: concept.id
+          }).to_json,
+          data: {
+            dc_tooltip: I18n.t('classifications.direct_mapped_child', locale: active_ui_locale)
+          }
+        )%>)
+      </span>
+    <% end %>
+  </span>
+</li>

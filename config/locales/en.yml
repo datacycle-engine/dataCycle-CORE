@@ -30,6 +30,7 @@ en:
     skos:Concept: Classification
     Article: Article
     AdditionalDescription: Additional description
+    ArtificialIntelligenceAgent: AI agent
     AudioObject: Audio
     ImageObject: Image
     VideoObject: Video
@@ -146,6 +147,7 @@ en:
     belongs_to_aggregate: belongs to Aggregate
     aggregate_for: Aggregate base
     aggregate_for_override: Aggregate base for
+    contributor_generated: AI contributors
     overlay_overlay: (Overlay)
     overlay_override: (Overlay)
     overlay_add: (Appendix)
@@ -358,11 +360,13 @@ en:
 
   dash_board:
     delta: delta
+    full_delta: full delta
     full: full
     reset: rebuild
     import: Import
     download: Download
     download_import: Download & Import
+    full_delta_hint: downloads everything, imports only the records that actually changed
     delete: delete
     errors_were_encountered: errors were encountered
     schedule: "scheduled Imports:"
@@ -386,6 +390,24 @@ en:
         queued: queued job to update computed attributes
         missing_input: please provide a scope and select at least one computed attribute
         warning: This can take a long time and update many contents.
+      grafana_dashboard:
+        title: rewrite grafana dashboard
+        intro: An externally shared dashboard interpolates no variables. This tool replaces
+          every placeholder in the export with its value.
+        step_export: 'Internal org: open the dashboard, export as JSON - plain, not "for
+          use in another instance", which swaps the datasources and resets the variables.'
+        step_flatten: 'Here: upload that file, download the rewritten one.'
+        step_import: 'Customer org: import via JSON into the "Analytics" folder, then share
+          it externally.'
+        file_label: dashboard export (JSON)
+        button: rewrite
+        button_submitting: rewriting
+        download: download the rewritten dashboard
+        success: 'rewrote "%{title}".'
+        empty_variables: 'these variables are empty and stay empty in the clone, their panels
+          read "not set" for good: %{names}'
+        untouched_references: 'passed through, no such variable: %{names}'
+        missing_file: please select a JSON file holding the dashboard export.
 
   notification:
     frequency:
@@ -463,6 +485,10 @@ en:
       remove_file: Remove file
       file: File
       confirm_single_to_all_html: "really apply %{label} to all %{template}?"
+      apply_pixie_to_all: Apply the pixie to all %{template}
+      pixie_to_all_empty:
+        one: "%{message} Affects %{count} file."
+        other: "%{message} Affects %{count} files."
       confirm_all_to_all_html: "Should <b>%{label}</b> also be applied to all %{template}?"
       confirm_all_to_all_header: Apply all attributes to all %{template}
     cancel: Cancel
@@ -537,7 +563,16 @@ en:
         overlay_text: Copy all available languages?
         confirmation_text: "yes"
         cancel_text: no, only current language
-    content_classifier:
+      copy_linked_error: "attribute could not be copied: "
+    annotation_pixie:
+      no_suggestions: No suggestion above the threshold.
+      classify_failed: Suggestions could not be loaded.
+      no_focus_point: No focus point was found for this image.
+      focus_point_failed: The focus point could not be generated.
+    image_description_pixie:
+      no_suggestion: No text was suggested for this attribute.
+      failed: The text suggestion could not be loaded.
+    classification_pixie:
       classification_error_title: Classification Error
       apply_error_title: Apply Error
       applied_title: Classifications Applied
@@ -555,7 +590,6 @@ en:
       missing_content_id: Missing content id for classification request.
       select_tree: Please select a classification tree.
       classify_failed: Failed to fetch classifications.
-      copy_linked_error: "attribute could not be copied: "
     validate:
       save_and_change_language: Do you want to save and switch to the new language?
       agbs: AGBs must be accepted!
@@ -940,6 +974,12 @@ en:
     open_all: Open all
     close_all: Close all
     button_title: Add %{title}
+    select_existing: Link existing content
+    reusable_usage:
+      one: Used in one content
+      other: Used in %{count} contents
+    unlink_shared: Unlink and keep as a copy
+    duplicate: Create a copy
   upload:
     drag_and_drop_html: "<p><b>Just drop one or more %{type}
       here!</b></p><p>or</p><p><u><b>select via system dialog</b></u></p>"
@@ -1128,14 +1168,24 @@ en:
         belongs_to_aggregate: belongs to aggregate
       check_box_labels:
         aggregate_for_override: override Aggregate base
+    annotation_pixie:
+      title: annotationPixie
+      generate_for: Generate suggestions for %{data}
+      focus_point_button_title: Generate focus point
+      focus_point_hint: The annotationPixie determines the focus point from the image
+        analysis.
+    image_description_pixie:
+      title: imageDescriptionPixie
+      generate_for: Generate text for %{data}
     focus_point_editor:
       button_title: Set focus point
       editing_button_title: End editing
+      hint: Click into the image to set the focus point. The focus point is
+        preferred.
       updated_successfully: the focus point was successfully set
       update_error: the focus point could not be set
       reset_successfully: the focus point was successfully reset
       clear_focus_point: Reset focus point
-      hint: The focus point is preferred.
     gravity_editor:
       button_title: Set gravity
       editing_button_title: End editing
@@ -1252,10 +1302,17 @@ en:
     language: Language
     external_source: External source
     external_system: External systems
+    export_status: Export status
+    export_status_options:
+      pending: Pending
+      success: Successful
+      error: Error
+      failure: Failed permanently
+      nil: no status
     overlay_present: Contents with overlay
     not_overlay_present: Contents without overlay
     creator: Creator
-    classification_tree_ids: Select classification tree
+    concept_scheme_ids: Select classification tree
     created_at: Creation date
     updated_at: Update date
     validity_period: Validity period
@@ -1388,11 +1445,12 @@ en:
     publication_date: Publication date
 
   filter_groups:
-    classification_alias_ids: filter by classifications ...
-    classification_tree_ids: filter by classification tree ...
+    concept_ids: filter by classifications ...
+    concept_scheme_ids: filter by classification tree ...
     creator: filter by person ...
     external_source: filter by external sources ...
     external_system: filter by external systems ...
+    export_status: filter by export status ...
     validity_period: filter by validity period ...
     offer_period: filter by offer period ...
     date_range: filter by date ...
@@ -1496,7 +1554,7 @@ en:
       xml: XML (Legacy)
       classification_overview: Classification overview
       classification_administration: Classification administration
-      content_classifier: Content classifier
+      content_classifier: classificationPixie
     entry_tooltips:
       backend: Classifications are displayed in the dashboard
       show: Classifications are always displayed expanded in the detail view
@@ -1518,7 +1576,7 @@ en:
       classification_administration: Classifications are visible and manageable in the
         classification administration if the user's current role has the
         corresponding permissions
-      content_classifier: Classification tree is available in selection for content classifier
+      content_classifier: Classification tree is available in selection for the classificationPixie
 
   classification_administration:
     move:
@@ -1532,8 +1590,8 @@ en:
       error: The classifications could not be merged
       confirm_html: <b>%{source_path}</b> will be merged with <b>%{target_path}</b>.
       success: The classifications were successfully merged
-      ambiguous_external_system: Both classifications are externally linked. Only one link
-        can be carried over, so merging is not possible
+      ambiguous_external_system: The classifications carry different external links. Only
+        one link can be carried over, so merging is not possible
     stored_filter_usage:
       link_title: Show usage in saved searches
       empty: No saved search uses this classification.
@@ -1810,6 +1868,8 @@ en:
       required: is a mandatory field and must be filled in.
       unknown_activity_type: Unknown type for Activity
       unknown: unknown error
+      embedding_endpoint_error: The image annotation could not be loaded.
+      embedding_forbidden_error: Access to the image annotation was denied.
       geocoding_endpoint_error: "GeoCoding: The endpoint does not deliver any data"
       geocoding_forbidden_error: "GeoCoding: Access to the endpoint is forbidden"
 
@@ -1990,7 +2050,7 @@ en:
           attributes:
             name:
               blank: Name must not be blank.
-        data_cycle_core/classification_alias:
+        data_cycle_core/concept:
           attributes:
             ui_configs:
               color_format: wrong format for color.
@@ -2054,18 +2114,6 @@ en:
       data_cycle_core/role:
         one: User role
         other: User roles
-      data_cycle_core/classification_alias:
-        one: Classification
-        other: Classifications
-      data_cycle_core/classification:
-        one: Classification
-        other: Classifications
-      data_cycle_core/classification_tree:
-        one: Classification tree
-        other: Classification trees
-      data_cycle_core/classification_tree_label:
-        one: Classification tree
-        other: Classification trees
       data_cycle_core/concept_scheme:
         one: Classification scheme
         other: Classification schemes
@@ -2081,22 +2129,22 @@ en:
     attributes:
       data_cycle_core/watch_list:
         manual_order: Use manual order as default order
-      data_cycle_core/classification_tree_label:
+      data_cycle_core/concept_scheme:
         visibility: Visibility
         change_behaviour: Change behavior
         external_key: external ID
         internal: internal (system classification tree)
         mappable: Classifications may be mapped
         hidden_mappings: Hide mapped classifications (excluded from filters, detail view and API)
-      data_cycle_core/classification_alias:
+      data_cycle_core/concept:
         assignable: Assignable
         description: Description text
-        classification_ids: Classification Mapping
+        mapped_concept_ids: Classification Mapping
         internal_name: Language neutral name
         uri: External URI
         external_key: external ID
         external_keys: external IDs (self + mapped)
-        mapped_to_string: Classifications mapped from
+        mapped_inverse_concepts: Classifications mapped from
         ui_configs: UI-Configuration
         ui_configs/color: Color
         ui_configs/icon: Icon
@@ -2107,8 +2155,8 @@ en:
         user_ids: User
         shared_collection_ids: "%{collection} or %{stored_filter}"
         permissions: Permissions
-        classification_ids_markets: Markets
-        classification_ids_output_channels: Output channels
+        concept_ids_markets: Markets
+        concept_ids_output_channels: Output channels
       data_cycle_core/user:
         name: Organization
         given_name: First name
@@ -2373,7 +2421,146 @@ en:
       root: Scheme
       containers: Container
       entities: Contents
-      embeddeds: Embedded content
+      parts:
+        aria_label: Schema view
+        main: Main schema
+        embedded: Embedded schema
+        dependencies: Dependencies
+      dependencies:
+        title: Dependencies
+        description: "How the schemas connect – which fields point to which target types."
+        empty: No dependencies found.
+        element: Schema element
+        target: Target type
+        property_description: Description
+        usages: Usages
+        fields:
+          one: "%{count} field"
+          other: "%{count} fields"
+        overview: Dependency overview
+        root_label: Select schema
+        view_label: Layout
+        views:
+          network: Network
+          tree: Tree
+          radial: Radial
+        zoom_label: Zoom
+        fullscreen: Fullscreen
+        external: External
+        used_by: Used by
+        circular_badge: circular
+        more: More …
+        node_deps:
+          one: "%{count} dependency"
+          other: "%{count} dependencies"
+        edges:
+          one: "%{count} type relation"
+          other: "%{count} type relations"
+        truncation:
+          nodes: "%{shown} of %{total} nodes"
+          levels: "%{depth} of %{max} levels"
+        root_groups:
+          with_deps: With dependencies
+          without_deps: Without own dependencies
+        stats:
+          schemas: Schema dependencies
+          connections: Connections
+          independent: Without dependencies
+          circular: Circular dependencies
+      language: Language
+      theme:
+        toggle_dark: Enable dark mode
+        toggle_light: Enable light mode
+      back: Back to scheme
+      sort:
+        label: "Sort by"
+        aria_label: Sort
+        heading_asc: "Heading (A → Z)"
+        heading_desc: "Heading (Z → A)"
+        type_asc: "Type (A → Z)"
+        type_desc: "Type (Z → A)"
+        count_desc: "Content count (High → Low)"
+        count_asc: "Content count (Low → High)"
+      index:
+        stats: "%{templates} templates · %{contents} contents"
+        search_placeholder: Search schema …
+        search_label: Search schema
+        export: Export as XLSX
+        filter_label: Filter schema
+        all: All
+        with_content: Only with content
+        expand_all: Expand all
+        collapse_all: Collapse all
+        content_count:
+          one: "%{count} content"
+          other: "%{count} contents"
+        empty: No matches.
+      cardinality:
+        array: multiple
+      embedded:
+        title: "Attribute from the embedded content “%{source}” – open its definition"
+      schema_org_link:
+        label: schema.org
+        title: "Open the schema.org definition for %{type}"
+      flags:
+        translated:
+          code: i18n
+          title: Translatable field
+        classification:
+          code: TAGS
+          title: Classification / tags
+        embedded:
+          code: REF
+          title: Embedded
+        linked:
+          code: LINK
+          title: Linked
+        geographic:
+          code: GEO
+          title: Geographic
+        overlay:
+          code: OVL
+          title: Overlay
+        fulltext:
+          code: IDX
+          title: Full-text search
+      filter:
+        search_placeholder: "Search property …"
+        count_rest: "of %{total} Properties"
+        empty: No properties found.
+        aria_group: Filter by category
+        categories:
+          all: All
+          linked: Links
+          embedded: Embedded
+          classification: Classification
+          geo: "Geo & place"
+          translated: Translatable
+          fulltext: Full-text
+      xlsx:
+        no_documented_properties: No documented properties.
+        hint:
+          recursive: recursive (see above)
+          classification: "Classification tree: %{tree}"
+          linked: linked content
+    openapi_viewer:
+      title: API documentation
+      subtitle: Interactive API reference for this instance
+      language: Language
+      loading: Loading API documentation …
+      overview: Overview
+      schemas: Schemas
+      details: Details
+      access_denied: Access denied. Contact your administrator.
+      spec_error: Could not load the API description.
+      toggle_group: Toggle sub-groups
+      expandable_to: "Expandable via include/fields to"
+      search: Search API …
+      clear_search: Clear search
+      no_results: No results
+      theme:
+        toggle_dark: Enable dark mode
+        toggle_light: Enable light mode
     warning:
       common:
         invalid: Validity period exceeded
@@ -2404,13 +2591,12 @@ en:
         skill_rating: Skill
     general_solutions:
       directions: Approach
-      parking: Parking
+      parking: Arrival by car
       hours_available: Opening hours
       text: Description
       price: Price
       description: Brief description
-      directions_public_transport: Public transport
-      instructions: Directions
+      directions_public_transport: Arrival by public transport
       route_start: Start
       route_end: Destination
       importantInformation: Important information
@@ -2921,6 +3107,7 @@ en:
     internal_server_error: An unexpected error has occurred
     unauthorized: You do not have permission to open the desired page
     conflict: The request could not be completed due to a conflict
+    service_unavailable: The application is being updated, please try again in a few minutes
 
   invisible_captcha:
     sentence_for_humans: Please leave this field blank if you are human.

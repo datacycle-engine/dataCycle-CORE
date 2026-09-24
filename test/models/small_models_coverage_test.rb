@@ -6,7 +6,7 @@ module DataCycleCore
   # Coverage for small model/value classes that were left just below 90%:
   # readonly? view models, asset extension_white_lists, the AsJsonExtension mixin,
   # the Warning::Base message helper, Webhook::Refresh, the NamedVersion ability,
-  # ClassificationAliasPathsTransitive query builders and CollectionConfiguration#update_slug.
+  # ConceptPathsTransitive query builders and CollectionConfiguration#update_slug.
   class SmallModelsCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
     # NOTE: ContentMetaItem / ContentProperties / CollectionConfiguration are backed by
     # tables/views that are not present in the core test schema, so they cannot be
@@ -57,9 +57,9 @@ module DataCycleCore
       assert ability.can?(:remove_version_name, DataCycleCore::Thing)
     end
 
-    test 'ClassificationAliasPathsTransitive query builders run over the relation' do
-      assert_equal 0, DataCycleCore::ClassificationAliasPathsTransitive.classification_aliases.count
-      assert_equal 0, DataCycleCore::ClassificationAliasPathsTransitive.mapped_classification_aliases.count
+    test 'ConceptPathsTransitive query builders run over the relation' do
+      assert_equal 0, DataCycleCore::ConceptPathsTransitive.concepts.count
+      assert_equal 0, DataCycleCore::ConceptPathsTransitive.mapped_concepts.count
     end
 
     test 'Download.temp_token writes a cache token and remove_token deletes it' do
@@ -131,18 +131,18 @@ module DataCycleCore
       assert_empty DataCycleCore::ContentContent::Link.id_attribute_hash(SecureRandom.uuid)
     end
 
-    test 'ClassificationContent class scopes build relations' do
+    test 'ConceptContent class scopes build relations' do
       id = SecureRandom.uuid
 
-      assert_kind_of ActiveRecord::Relation, DataCycleCore::ClassificationContent.with_content(id)
-      assert_kind_of ActiveRecord::Relation, DataCycleCore::ClassificationContent.with_relation('x')
-      assert_kind_of ActiveRecord::Relation, DataCycleCore::ClassificationContent.with_classification_ids([id])
-      assert_kind_of ActiveRecord::Relation, DataCycleCore::ClassificationContent.classifications
+      assert_kind_of ActiveRecord::Relation, DataCycleCore::ConceptContent.with_content(id)
+      assert_kind_of ActiveRecord::Relation, DataCycleCore::ConceptContent.with_relation('x')
+      assert_kind_of ActiveRecord::Relation, DataCycleCore::ConceptContent.with_concept_ids([id])
+      assert_kind_of ActiveRecord::Relation, DataCycleCore::ConceptContent.concepts
     end
 
-    test 'CollectedClassificationContent is readonly and exposes concepts' do
-      assert_predicate DataCycleCore::CollectedClassificationContent.new, :readonly?
-      assert_kind_of ActiveRecord::Relation, DataCycleCore::CollectedClassificationContent.concepts
+    test 'CollectedConceptContent is readonly and exposes concepts' do
+      assert_predicate DataCycleCore::CollectedConceptContent.new, :readonly?
+      assert_kind_of ActiveRecord::Relation, DataCycleCore::CollectedConceptContent.concepts
     end
 
     test 'PgDictMapping check_missing and upsert_missing manage locale dictionaries' do

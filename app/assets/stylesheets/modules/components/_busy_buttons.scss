@@ -1,0 +1,8 @@
+// An attribute action button held back while another one works (#47879, #47881). Deliberately not
+// .disabled: the upload mask styles a copy button's .disabled as that button's own busy spinner,
+// so reusing it would set every copy button in the form spinning for work it is not doing.
+.dc-inactive {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}

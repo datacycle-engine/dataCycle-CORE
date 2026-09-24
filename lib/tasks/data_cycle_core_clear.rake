@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-delete_classifications = <<-SQL
-  DELETE FROM classifications;
-  DELETE FROM classification_groups;
-  DELETE FROM classification_aliases;
-  DELETE FROM classification_trees;
-  DELETE FROM classification_tree_labels;
+delete_concepts = <<-SQL
+  DELETE FROM concept_links;
+  DELETE FROM concepts;
+  DELETE FROM concept_schemes;
 SQL
 
 delete_secondary_data = <<-SQL
@@ -21,7 +19,7 @@ delete_contents = <<-SQL
 
   DELETE FROM content_contents;
 
-  DELETE FROM classification_contents;
+  DELETE FROM concept_contents;
   DELETE FROM searches;
 SQL
 
@@ -30,19 +28,19 @@ delete_assets = <<-SQL
   DELETE FROM asset_contents;
 SQL
 
-delete_soft_deleted_classifications = <<-SQL
-  DELETE FROM classifications WHERE deleted_at IS NOT NULL;
-  DELETE FROM classification_groups WHERE deleted_at IS NOT NULL;
-  DELETE FROM classification_aliases WHERE deleted_at IS NOT NULL;
-  DELETE FROM classification_trees WHERE deleted_at IS NOT NULL;
-  DELETE FROM classification_tree_labels WHERE deleted_at IS NOT NULL;
+# Redmine #41458: a deleted concept lives on in the history tables, so that is where the rows a
+# soft delete used to leave behind are now.
+delete_concept_histories = <<-SQL
+  DELETE FROM concept_link_histories;
+  DELETE FROM concept_histories;
+  DELETE FROM concept_scheme_histories;
 SQL
 
 namespace :data_cycle_core do
   namespace :clear do
     desc 'Remove all data except for configuration data like users'
     task all: :environment do
-      ActiveRecord::Base.connection.execute(delete_classifications)
+      ActiveRecord::Base.connection.execute(delete_concepts)
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
@@ -71,7 +69,7 @@ namespace :data_cycle_core do
       histories_to_delete_sql = histories_to_delete.select(:id)
 
       DataCycleCore::ContentContent::History.where(content_a_history_id: histories_to_delete_sql).delete_all
-      DataCycleCore::ClassificationContent::History.where(content_data_history_id: histories_to_delete_sql).delete_all
+      DataCycleCore::ConceptContent::History.where(content_data_history_id: histories_to_delete_sql).delete_all
       DataCycleCore::Schedule::History.where(thing_history_id: histories_to_delete_sql).delete_all
       DataCycleCore::Thing::History::Translation.where(thing_history_id: histories_to_delete_sql).delete_all
 
@@ -80,9 +78,9 @@ namespace :data_cycle_core do
       Rake::Task['db:maintenance:vacuum'].invoke
     end
 
-    desc 'Remove all soft-deleted classification data (paranoid)'
+    desc 'Remove the history of every deleted concept, scheme and link'
     task classifications: :environment do
-      ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
+      ActiveRecord::Base.connection.execute(delete_concept_histories)
     end
 
     desc 'Remove activities except type donwload older than 3 months [include_downloads=false, max_age=90]. Max age is in days.'

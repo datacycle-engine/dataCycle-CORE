@@ -1,9 +1,9 @@
-<% if @object.is_a?(DataCycleCore::ClassificationTreeLabel) %>
-  <%= render 'data_cycle_core/classifications/classification_tree_label', tree_label: @object %>
+<% if @object.is_a?(DataCycleCore::ConceptScheme) %>
+  <%= render 'data_cycle_core/classifications/concept_scheme', concept_scheme: @object %>
 
-  <%= render 'data_cycle_core/classifications/new_classification_tree_label' %>
-<% elsif @object.is_a?(DataCycleCore::ClassificationTree) %>
-  <%= render 'data_cycle_core/classifications/classification_tree', classification_tree_label: @classification_tree_label, classification_tree: @object, ancestors: @object.present? ? @object.ancestors.pluck(:id).reverse : [], type: 'direct' %>
+  <%= render 'data_cycle_core/classifications/new_concept_scheme' %>
+<% else %>
+  <%= render 'data_cycle_core/classifications/concept', concept_scheme: @concept_scheme, concept: @object, ancestors: @object.ancestors.pluck(:id).reverse, type: 'direct' %>
 
-  <%= render('data_cycle_core/classifications/new_classification_alias', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>
+  <%= render 'data_cycle_core/classifications/new_concept', concept_scheme: @concept_scheme, parent_concept: @parent_concept %>
 <% end %>

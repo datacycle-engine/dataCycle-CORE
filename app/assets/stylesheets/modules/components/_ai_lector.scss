@@ -19,28 +19,9 @@
   }
 }
 
+// Everything but the press: _pixie_generate_button.scss carries the look this button shares with
+// every pixie wand, including the transform in its transition.
 .ai-lector-dropdown-button {
-  color: var(--pixie-brand, #663399);
-  background: transparent;
-  border: 0;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  transition: color 0.15s ease-out, transform 0.1s ease-out;
-
-  .fa {
-    font-size: 1.2rem;
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: var(--purple);
-    outline: none;
-  }
-
-  &:focus-visible {
-    filter: drop-shadow(0 0 2px var(--pixie-brand, #663399));
-  }
-
   &:active {
     transform: scale(0.94);
   }

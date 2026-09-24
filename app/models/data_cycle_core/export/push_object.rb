@@ -9,6 +9,17 @@ module DataCycleCore
         delete: :delete
       }.freeze
 
+      # The actions whose verdict travels with the job instead of DataCycleCore::WebhookJob#check_filter
+      # retaking it on the content it re-read. Named positively, so an action nobody weighed here is
+      # re-asked rather than shipped on a verdict taken before the enqueue.
+      #
+      # For a delete the worker cannot ask: #parse_data_item hands it an OpenStruct whose
+      # external_system_syncs is nil rather than the association
+      # DataCycleCore::Export::Generic::Filter.exported? reads, so nil.delivered_to would raise. For a
+      # refresh it need not: the push a refresh polls has already happened, and every configured
+      # refresh strategy gates on the job_id that push stored.
+      FINAL_VERDICT_ACTIONS = [:delete, :refresh].freeze
+
       attr_reader :external_system, :locale, :filter_checked, :action
       attr_accessor :type, :path, :endpoint_method, :external_system_sync, :wait_time
 
@@ -44,7 +55,7 @@ module DataCycleCore
       end
 
       def allowed?(data)
-        @filter_checked = true
+        @filter_checked = true if action.in?(FINAL_VERDICT_ACTIONS)
 
         return false if webhook.nil?
 
@@ -67,10 +78,6 @@ module DataCycleCore
           external_system.export_config[:destroy_failed_jobs] ||
           external_system.export_config[:discard_on_failure] ||
           false
-      end
-
-      def synchronous_filter?(data)
-        delete_action? || data.destroyed? || data.try(:synchronous_filter) == true
       end
 
       def webhook

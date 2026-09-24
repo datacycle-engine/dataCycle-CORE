@@ -47,16 +47,101 @@ module DataCycleCore
         can?(:ai_lector, DataCycleCore::DataAttribute.new(key, definition, options, content, scope))
     end
 
+    # The pixie feature, when it is allowed for this content -- memoized for the render.
+    #
+    # Feature::Base#configuration rebuilds its memoize key from content.schema and
+    # content.collect_properties on every call, so one #allowed? walks and hashes the whole template
+    # schema several times over: five for the annotationPixie, whose two backend dependencies are
+    # each resolved twice. The helpers below ask it once per attribute of the form, and the answer
+    # depends on nothing but the content -- a Bild with 17 editors paid about 120 of those walks per
+    # render, and the upload mask pays the whole form once per uploaded file.
+    #
+    # A helper instance lives for exactly one render, so the memo needs no invalidation.
+    #
+    # @param name [String] the feature's class name, e.g. 'AnnotationPixie'
+    # @param content [DataCycleCore::Thing, nil]
+    # @return [Class, nil]
+    def allowed_pixie(name, content)
+      cache = (@allowed_pixie ||= {})
+      cache_key = [name, content]
+      return cache[cache_key] if cache.key?(cache_key)
+
+      feature = DataCycleCore::Feature[name]
+      cache[cache_key] = feature&.allowed?(content) ? feature : nil
+    end
+
+    # The eligible concept scheme when this classification attribute is the dedicated editor of one
+    # the annotationPixie may suggest for, so the editor can render its generate button. nil
+    # otherwise -- including for the shared universal_classifications, whose editors the pixie
+    # renders (with their buttons) itself.
+    #
+    # @return [Hash, nil] { 'concept_scheme_id', 'concept_scheme_name', 'property_key' }
+    def annotation_pixie_property(key:, definition:, options:, content:, **args)
+      return unless definition&.dig('type') == 'classification'
+
+      pixie = allowed_pixie('AnnotationPixie', contextual_content(key:, definition:, options:, content:, **args))
+      return if pixie.nil?
+      return unless attribute_editable?(key, definition, options, content)
+
+      pixie.dedicated_property_for(content, key, current_user)
+    end
+
+    # Whether the annotationPixie renders its own classification editors into this attribute. A
+    # concept scheme without an attribute of its own resolves to the shared universal_classifications
+    # (see Feature::AnnotationPixie#undedicated_properties), which the classification editor renders
+    # nothing for -- it carries no tree_label -- so the pixie's editors take its place and with it
+    # its position in the form. A scheme that does have an attribute of its own is untouched: it
+    # keeps that attribute's position and only gains the generate button (#annotation_pixie_property).
+    #
+    # @return [Boolean]
+    def annotation_pixie_editors?(key:, definition:, options:, content:, **args)
+      return false unless definition&.dig('type') == 'classification'
+      # the pixie's editors are rendered from this very partial, with the shared attribute's
+      # definition (tree_label merged in) -- without this they would each render the whole set again
+      return false if options.is_a?(Hash) && options[:annotation_pixie_property].present?
+      # the upload mask has its own place for the pixie: the first step of its dialog, next to the
+      # attributes new_dialog.yml lists there
+      return false if options.is_a?(Hash) && options[:edit_scope].to_s == 'new'
+
+      pixie = allowed_pixie('AnnotationPixie', contextual_content(key:, definition:, options:, content:, **args))
+      return false if pixie.nil?
+      return false unless attribute_editable?(key, definition, options, content)
+
+      pixie.undedicated_properties(content, current_user).any? { |property| property['property_key'] == key.to_s.attribute_name_from_key }
+    end
+
+    # Tooltip of a pixie's generate button. Several pixies can offer a button on one form -- the
+    # annotationPixie's trees and focus point next to the imageDescriptionPixie's texts -- and none
+    # of them owns the attribute it fills, so the button names the pixie that is about to write.
+    #
+    # @param feature [String] the feature's configuration key, e.g. 'annotation_pixie'
+    # @param text [String] what this particular button does
+    # @return [String] e.g. "annotationPixie: Vorschläge für Zielgruppen generieren"
+    def pixie_button_tooltip(feature, text)
+      "#{t("feature.#{feature}.title", locale: active_ui_locale)}: #{text}"
+    end
+
+    # Whether this attribute may be filled from the image annotation, i.e. whether the
+    # imageDescriptionPixie renders its generate button on the editor. The attribute opts in through
+    # its own :features: block on the template (see Feature::ImageDescriptionPixie).
+    #
+    # @return [Boolean]
+    def image_description_pixie_allowed?(key:, definition:, options:, content:, **args)
+      contextual = contextual_content(key:, definition:, options:, content:, **args)
+      pixie = allowed_pixie('ImageDescriptionPixie', contextual)
+      return false if pixie.nil?
+      return false if pixie.source_for(contextual, key.to_s.attribute_name_from_key).blank?
+
+      attribute_editable?(key, definition, options, content)
+    end
+
+    # The view's way of asking whether this user may write this attribute through its editor. The
+    # construction lives on Feature::Base, which asks the same question from a feature's endpoint
+    # (Feature::Base#attribute_editable?) and looks the definition up itself.
+    #
+    # @return [Boolean]
     def attribute_editable?(key, definition, options, content, scope = :update)
-      DataCycleCore::DataAttributeOptions.new(
-        key:,
-        definition:,
-        parameters: { options: },
-        content:,
-        user: current_user,
-        context: :editor,
-        scope:
-      ).attribute_allowed?
+      DataCycleCore::Feature::Base.editor_attribute_allowed?(key:, definition:, options:, content:, user: current_user, scope:)
     end
 
     def render_attribute_editor(opts = nil, **)

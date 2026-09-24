@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-classification_aliases = content.send(key)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq
+concepts = content.send(key)
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
-if classification_aliases.present?
+if concepts.present?
   month_numbers = {
     'Januar' => 1,
     'Februar' => 2,
@@ -20,7 +20,7 @@ if classification_aliases.present?
     'Dezember' => 12
   }
 
-  mapped = classification_aliases.map { |classification_alias| month_numbers[classification_alias.internal_name] || classification_alias.name }
+  mapped = concepts.map { |concept| month_numbers[concept.internal_name] || concept.name }
   months, other = mapped.partition { |month| month.is_a?(Integer) }
 
   json.set! key_new, months.sort + other.sort

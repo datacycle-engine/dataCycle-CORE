@@ -1,0 +1,671 @@
+
+/* ==================== Swagger UI theming ==================== */
+#swagger-ui .swagger-ui {
+  max-width: 1440px;
+  font-family: var(--ov-font);
+  color: var(--ov-text);
+  font-size: 16px;
+  min-width: 0;
+  /* Swagger's built-in dark theme paints the whole container a warm grey
+     (`html.dark-mode .swagger-ui { background:#1c2022 }`), which showed through
+     the info/header area and every gap between our themed cards. Keep it
+     transparent so the shell's own --ov-bg (cool blue-grey) shows in both
+     modes; light mode already leaves .swagger-ui transparent, so this is a
+     no-op there. */
+  background: transparent;
+}
+
+#swagger-ui,
+#swagger-ui .swagger-ui .wrapper {
+  max-width: 100%;
+  min-width: 0;
+}
+
+#swagger-ui .swagger-ui .wrapper {
+  padding: 0;
+}
+
+#swagger-ui .swagger-ui code,
+#swagger-ui .swagger-ui .microlight,
+#swagger-ui .swagger-ui textarea,
+#swagger-ui .swagger-ui .prop-type { font-family: var(--ov-mono); }
+
+#swagger-ui .swagger-ui a { color: var(--ov-accent); }
+#swagger-ui .swagger-ui a:hover { color: var(--ov-accent-dark); }
+
+/* hide Swagger's own scheme/servers title clutter, keep it clean */
+#swagger-ui .swagger-ui .info { margin: 0 0 var(--ov-5); }
+#swagger-ui .swagger-ui .information-container { scroll-margin-top: 1.5rem; padding: 0; }
+
+#swagger-ui .swagger-ui .info .title {
+  font-size: 2.8rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ov-accent);
+}
+#swagger-ui .swagger-ui .info .title small { display: none; } /* version pill handled below */
+
+/* hide Swagger's auto-rendered spec-URL link under the title */
+#swagger-ui .swagger-ui .info .main a.link { display: none; }
+
+#swagger-ui .swagger-ui .info .description { color: var(--ov-muted); font-size: 1.08rem; line-height: 1.6; max-width: 72ch; }
+
+/* servers dropdown as a card */
+#swagger-ui .swagger-ui .scheme-container {
+  margin: 0 0 var(--ov-6);
+  padding: var(--ov-4) var(--ov-5);
+  background: var(--ov-surface);
+  border: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius);
+  box-shadow: none;
+  max-width: 100%;
+}
+#swagger-ui .swagger-ui .scheme-container .schemes > label { color: var(--ov-muted); font-weight: 600; }
+/* drop Swagger's "Servers" heading above the single-option server dropdown */
+#swagger-ui .swagger-ui .servers-title { display: none; }
+
+/* Authorize button — floats to the top-right like the mockup */
+#swagger-ui .swagger-ui .scheme-container .auth-wrapper { justify-content: flex-end; }
+#swagger-ui .swagger-ui .btn.authorize {
+  color: #fff; background: var(--ov-accent); border-color: var(--ov-accent);
+  border-radius: var(--ov-radius-sm); box-shadow: 0 4px 12px var(--ov-accent-glow);
+}
+#swagger-ui .swagger-ui .btn.authorize span { color: #fff; }
+#swagger-ui .swagger-ui .btn.authorize svg { fill: #fff; }
+#swagger-ui .swagger-ui .btn.authorize:hover { background: var(--ov-accent-dark); border-color: var(--ov-accent-dark); }
+
+/* ===== Authorize modal — themed to the dataCycle reference look ===== */
+#swagger-ui .swagger-ui .dialog-ux .backdrop-ux { background: rgba(var(--ov-shadow-rgb), 0.45); }
+
+#swagger-ui .swagger-ui .dialog-ux .modal-ux {
+  /* our blue surface token (dark: #1a2332) instead of Swagger's built-in
+     dark-mode grey; resolves to white in light mode, so the light look is kept */
+  background: var(--ov-surface);
+  border: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius);
+  box-shadow: 0 24px 60px rgba(var(--ov-shadow-rgb), 0.22);
+  overflow: hidden;
+}
+
+/* header: shield icon chip + title, framed close button */
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header {
+  align-items: center;
+  padding: var(--ov-5) var(--ov-5) var(--ov-4);
+  border-bottom: 1px solid var(--ov-border-soft);
+}
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header h3 {
+  display: flex; align-items: center; gap: var(--ov-3);
+  font-weight: 800; font-size: 1.4rem; color: var(--ov-text);
+}
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header h3::before {
+  content: "\f132"; /* fa-shield */
+  font-family: FontAwesome;
+  display: grid; place-items: center;
+  width: 2.6rem; height: 2.6rem;
+  font-size: 1.15rem; color: var(--ov-accent);
+  background: var(--ov-accent-soft); border-radius: 0.7rem;
+}
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header .close-modal {
+  display: grid; place-items: center;
+  width: 2.4rem; height: 2.4rem; padding: 0;
+  border: 1px solid var(--ov-border); border-radius: 0.6rem;
+  background: var(--ov-surface);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header .close-modal:hover {
+  background: var(--ov-accent-soft); border-color: var(--ov-accent);
+}
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-header .close-modal svg { width: 16px; height: 16px; fill: var(--ov-muted); }
+
+#swagger-ui .swagger-ui .dialog-ux .modal-ux-content { padding: var(--ov-5); }
+
+/* scheme cards */
+#swagger-ui .swagger-ui .auth-container {
+  margin: 0 0 var(--ov-4);
+  padding: var(--ov-5);
+  /* recessed page blue so the scheme card reads as a card on the modal surface
+     (dark: #111827; light: faint off-white) instead of Swagger's dark grey */
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border);
+  border-left: 3px solid var(--ov-accent);
+  border-radius: var(--ov-radius);
+  box-shadow: 0 1px 2px rgba(var(--ov-shadow-rgb), 0.04);
+}
+#swagger-ui .swagger-ui .auth-container:last-of-type { margin-bottom: 0; }
+
+/* scheme title: name (dark) + type in accent */
+#swagger-ui .swagger-ui .auth-container h4 {
+  display: flex; align-items: center; gap: var(--ov-2);
+  font-weight: 500; font-size: 1.15rem; color: var(--ov-accent);
+}
+#swagger-ui .swagger-ui .auth-container h4 code {
+  padding: 0; background: none; border: 0; color: var(--ov-text);
+  font-weight: 800; font-family: var(--ov-font); font-size: 1.15rem;
+}
+#swagger-ui .swagger-ui .auth-container h4::before {
+  content: "\f084"; /* fa-key */
+  font-family: FontAwesome;
+  display: grid; place-items: center;
+  width: 2.1rem; height: 2.1rem;
+  font-size: 0.85rem; color: var(--ov-accent);
+  background: var(--ov-accent-soft); border-radius: 50%;
+}
+
+/* inline code pills (token, query, …) */
+#swagger-ui .swagger-ui .auth-container p code,
+#swagger-ui .swagger-ui .auth-container .wrapper code,
+#swagger-ui .swagger-ui .auth-container label code {
+  padding: 0.1rem 0.5rem;
+  background: var(--ov-accent-soft);
+  color: var(--ov-accent-dark);
+  border: 0;
+  border-radius: 0.4rem;
+  font-family: var(--ov-mono); font-size: 0.82rem;
+}
+#swagger-ui .swagger-ui .auth-container p { color: var(--ov-muted); }
+#swagger-ui .swagger-ui .auth-container label { font-weight: 700; color: var(--ov-text); }
+#swagger-ui .swagger-ui .auth-container .wrapper input { border-radius: var(--ov-radius-sm); }
+
+/* modal action buttons */
+#swagger-ui .swagger-ui .auth-btn-wrapper { justify-content: center; gap: var(--ov-3); }
+#swagger-ui .swagger-ui .btn.modal-btn.auth.authorize {
+  background: var(--ov-accent); border-color: var(--ov-accent); color: #fff;
+  border-radius: var(--ov-radius-sm); box-shadow: 0 4px 12px var(--ov-accent-glow);
+}
+#swagger-ui .swagger-ui .btn.modal-btn.auth.authorize svg { fill: #fff; }
+#swagger-ui .swagger-ui .btn.modal-btn.auth.authorize:hover { background: var(--ov-accent-dark); border-color: var(--ov-accent-dark); }
+#swagger-ui .swagger-ui .btn.modal-btn.auth.btn-done {
+  border: 1px solid var(--ov-border); border-radius: var(--ov-radius-sm); color: var(--ov-text);
+}
+#swagger-ui .swagger-ui .btn.modal-btn.auth.btn-done:hover { background: var(--ov-bg); }
+/* Swagger gives every .btn a 2px grey border and, in dark mode, paints the
+   modal's buttons and inputs with near-white borders (#e4e6e6 / #b7bcbf). On the
+   blue popup those read as thick white outlines — normalise every button/input
+   inside the modal to a thin, themed border. */
+#swagger-ui .swagger-ui .dialog-ux .modal-ux .btn { border-width: 1px; }
+#swagger-ui .swagger-ui .dialog-ux .modal-ux input,
+#swagger-ui .swagger-ui .dialog-ux .modal-ux select,
+#swagger-ui .swagger-ui .dialog-ux .modal-ux textarea {
+  border: 1px solid var(--ov-border);
+}
+
+/* tag section headers */
+#swagger-ui .swagger-ui .opblock-tag-section { scroll-margin-top: 1.5rem; }
+/* Swagger styles .opblock-tag-section with display:flex, which overrides the
+   [hidden] attribute — force collapsed child groups to actually hide. */
+#swagger-ui .swagger-ui .opblock-tag-section[hidden] { display: none !important; }
+#swagger-ui .swagger-ui .opblock-tag {
+  margin: var(--ov-6) 0 var(--ov-4);
+  padding: 0.4rem 0.7rem var(--ov-3);
+  font-size: 1.55rem; font-weight: 800; color: var(--ov-accent);
+  border-bottom: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius) var(--ov-radius) 0 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+#swagger-ui .swagger-ui .opblock-tag:hover {
+  color: var(--ov-accent-dark);
+  background: var(--ov-accent-soft);
+}
+#swagger-ui .swagger-ui .opblock-tag small { color: var(--ov-muted); font-weight: 400; }
+
+/* --- Grouped tag sections (tags with x-parent, e.g. the Delivery groups) ---
+   Mirrors the sidebar hierarchy in the reference itself: the whole parent header
+   (Delivery) is the group toggle — folding it hides Delivery's own operations
+   AND every child section — and each child section is indented behind a guide
+   line so it reads as belonging to the parent. */
+/* The whole Delivery header is the toggle. The chevron hangs in the gutter just
+   left of the label (negative margin cancels its footprint), so the "Delivery"
+   text lines up at the same left edge as every other heading while the arrow
+   stays tight against it. */
+#swagger-ui .swagger-ui .opblock-tag.ov-tag-has-group { cursor: pointer; }
+
+/* Scoped with an id so these win over Swagger's `.swagger-ui .opblock-tag.no-desc
+   span { flex: 1 }` — otherwise the chevron <span> would stretch and break the
+   layout. The chevron sits directly right of the "Delivery" label with a small
+   gap; the label itself keeps the same left edge as the other headings. */
+#swagger-ui .swagger-ui .opblock-tag .ov-group-toggle {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.2rem; height: 1.2rem;
+  margin: 0 0 0 0.4rem;
+  color: var(--ov-accent);
+}
+#swagger-ui .swagger-ui .opblock-tag .ov-group-toggle i { font-size: 1rem; transition: transform 0.15s ease; }
+#swagger-ui .swagger-ui .opblock-tag-section.ov-group-collapsed .ov-group-toggle i { transform: rotate(-90deg); }
+
+/* Swagger's own right-hand collapse arrow is redundant on the group header
+   (the whole header toggles now) — hide it, but never the group chevron. */
+#swagger-ui .swagger-ui .opblock-tag.ov-tag-has-group button:not(.ov-group-toggle),
+#swagger-ui .swagger-ui .opblock-tag.ov-tag-has-group > svg,
+#swagger-ui .swagger-ui .opblock-tag.ov-tag-has-group svg.arrow { display: none !important; }
+
+/* collapsed group: keep the Delivery header, hide its own operations
+   (child sections are hidden via the [hidden] attribute from JS) */
+#swagger-ui .swagger-ui .opblock-tag-section.ov-group-collapsed > *:not(.opblock-tag) { display: none !important; }
+
+/* child sections: indented behind a guide line, headers a step smaller.
+   Keyed off the data-ov-parent attribute (not a class): Swagger's React rewrites
+   the section's className on expand/collapse and would drop a class, but leaves
+   foreign data-* attributes intact — so the indent survives re-renders. */
+#swagger-ui .swagger-ui .opblock-tag-section[data-ov-parent] {
+  margin-left: 1.25rem;
+  padding-left: 1.15rem;
+  border-left: 2px solid var(--ov-border);
+}
+#swagger-ui .swagger-ui .opblock-tag-section[data-ov-parent] .opblock-tag {
+  font-size: 1.2rem;
+}
+
+/* operation rows — white cards, colored badge only (no method tint) */
+#swagger-ui .swagger-ui .opblock {
+  margin: 0 0 var(--ov-2);
+  background: var(--ov-surface) !important;
+  border: 1px solid var(--ov-border) !important;
+  border-radius: var(--ov-radius-sm);
+  box-shadow: 0 1px 2px rgba(var(--ov-shadow-rgb), 0.05);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+#swagger-ui .swagger-ui .opblock:hover { box-shadow: 0 5px 16px rgba(var(--ov-shadow-rgb), 0.09); }
+#swagger-ui .swagger-ui .opblock .opblock-summary { border: 0; padding: 0.75rem 1.1rem; }
+
+/* keyboard-only focus ring on the endpoint header: Swagger's default is
+   outline:auto on ANY focus (also a mouse click) — restrict it to keyboard
+   focus and use the accent ring like every other control in the viewer. */
+#swagger-ui .swagger-ui .opblock .opblock-summary-control:focus { outline: none; }
+#swagger-ui .swagger-ui .opblock .opblock-summary-control:focus-visible {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+#swagger-ui .swagger-ui .opblock .opblock-summary-method {
+  min-width: 5.35rem;
+  padding: 0.65rem 0;
+  border-radius: 0.45rem;
+  font-weight: 700; font-size: 0.86rem; letter-spacing: 0.04em;
+  box-shadow: none;
+}
+#swagger-ui .swagger-ui .opblock.opblock-get .opblock-summary-method { background: var(--ov-get); }
+#swagger-ui .swagger-ui .opblock.opblock-post .opblock-summary-method { background: var(--ov-post); }
+/* PUT: override Swagger's default orange with a solid, muted purple. */
+#swagger-ui .swagger-ui .opblock.opblock-put .opblock-summary-method { background: var(--ov-put); }
+/* PATCH: light cyan-blue instead of Swagger's teal, kept distinct from GET blue.
+   The badge is light, so the label switches to dark text (white would be unreadable);
+   the fixed color works on this fixed background in both light and dark themes. */
+#swagger-ui .swagger-ui .opblock.opblock-patch .opblock-summary-method { background: var(--ov-patch); color: #0e3a4b; }
+/* DELETE: a pink-leaning red instead of Swagger's plain red. */
+#swagger-ui .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: var(--ov-delete); }
+
+#swagger-ui .swagger-ui .opblock .opblock-summary-path,
+#swagger-ui .swagger-ui .opblock .opblock-summary-path a,
+#swagger-ui .swagger-ui .opblock .opblock-summary-path span,
+#swagger-ui .swagger-ui .opblock .opblock-summary-path__deprecated {
+  font-family: var(--ov-mono); font-weight: 600; font-size: 1rem; color: var(--ov-text);
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+#swagger-ui .swagger-ui .opblock .opblock-summary-description {
+  color: var(--ov-muted); font-family: var(--ov-font); font-size: 0.98rem;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* ===== expanded operation body — airy, minimal, a touch of accent ===== */
+#swagger-ui .swagger-ui .opblock.is-open .opblock-summary { border-bottom: 1px solid var(--ov-border-soft); }
+/* Reveal the operation body on open. Swagger mounts it with NO animation, so
+   after the React render it snaps in abruptly — which reads as a slow, janky
+   open. A short fade + slide gives immediate feedback and feels faster. The body
+   is remounted on every open (Swagger unmounts it on collapse), so this runs
+   each time. `both` keeps the from-state applied during the render frame so
+   there's no flash of the final position first. */
+#swagger-ui .swagger-ui .opblock-body {
+  padding: var(--ov-5);
+  background: var(--ov-surface);
+  animation: ov-op-body-in 0.2s ease both;
+  transform-origin: top;
+}
+@keyframes ov-op-body-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #swagger-ui .swagger-ui .opblock-body { animation: none; }
+}
+
+#swagger-ui .swagger-ui .opblock-description-wrapper,
+#swagger-ui .swagger-ui .opblock-external-docs-wrapper {
+  margin: 0 0 var(--ov-5); padding: 0; font-size: 1.02rem; line-height: 1.6; color: var(--ov-muted);
+}
+
+/* section headers: Parameters / Request body / Responses */
+#swagger-ui .swagger-ui .opblock-section-header {
+  align-items: center;
+  padding: var(--ov-3) var(--ov-4);
+  margin-bottom: var(--ov-5);
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border-soft);
+  border-left: 3px solid var(--ov-accent);
+  border-radius: var(--ov-radius-sm);
+  box-shadow: none;
+}
+#swagger-ui .swagger-ui .opblock-section-header h4 { font-size: 1.05rem; font-weight: 700; color: var(--ov-text); }
+#swagger-ui .swagger-ui .opblock-section-header > label { color: var(--ov-muted); font-weight: 600; }
+/* the horizontal underline bar under the "Parameters" title (Swagger's
+   .tab-item.active h4 span:after) — tint it to match the operation's HTTP method */
+#swagger-ui .swagger-ui .opblock.opblock-get .opblock-section-header .tab-header .tab-item.active h4 span:after { background: var(--ov-get); }
+#swagger-ui .swagger-ui .opblock.opblock-post .opblock-section-header .tab-header .tab-item.active h4 span:after { background: var(--ov-post); }
+#swagger-ui .swagger-ui .opblock.opblock-put .opblock-section-header .tab-header .tab-item.active h4 span:after { background: var(--ov-put); }
+#swagger-ui .swagger-ui .opblock.opblock-patch .opblock-section-header .tab-header .tab-item.active h4 span:after { background: var(--ov-patch); }
+#swagger-ui .swagger-ui .opblock.opblock-delete .opblock-section-header .tab-header .tab-item.active h4 span:after { background: var(--ov-delete); }
+
+/* Try it out toggle */
+#swagger-ui .swagger-ui .try-out__btn {
+  border: 1px solid var(--ov-accent); color: var(--ov-accent); background: transparent;
+  border-radius: var(--ov-radius-sm); font-weight: 600;
+}
+#swagger-ui .swagger-ui .try-out__btn:hover { background: var(--ov-accent-soft); }
+
+/* parameter + response tables — the app's global stylesheet (Foundation)
+   resets `table`, `thead`/`tbody`/`tfoot` (solid background) and even
+   `tr:nth-child(even)` (row striping) to an opaque white, and none of it is
+   scoped away from this page (the openapi_viewer layout still loads it for
+   shared chrome/fonts). Left alone it bleeds a white plate under every
+   Swagger table regardless of --ov-surface; neutralize all of it so the
+   table reads as part of its (themed) container in both light and dark mode. */
+#swagger-ui .swagger-ui table,
+#swagger-ui .swagger-ui thead,
+#swagger-ui .swagger-ui tbody,
+#swagger-ui .swagger-ui tfoot,
+#swagger-ui .swagger-ui tr {
+  background: transparent;
+  /* Foundation also puts a light `$table-border` on the table/thead/tbody/tfoot
+     elements, which stacked up as a thick white frame around the Parameters /
+     Responses tables in dark mode. Recolor it to the themed blue so it recedes. */
+  border-color: var(--ov-border);
+}
+#swagger-ui .swagger-ui .opblock-body table thead tr th {
+  padding: var(--ov-3) var(--ov-3);
+  color: var(--ov-muted); font-weight: 700; font-size: 0.8rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--ov-border);
+}
+#swagger-ui .swagger-ui .opblock-body table tbody tr td {
+  padding: var(--ov-4) var(--ov-3);
+  border-bottom: 1px solid var(--ov-border-soft);
+  vertical-align: top;
+}
+#swagger-ui .swagger-ui .parameter__name { font-weight: 700; color: var(--ov-text); font-family: var(--ov-mono); font-size: 0.95rem; }
+/* required markers in the brand color instead of Swagger's red/orange */
+#swagger-ui .swagger-ui .parameter__name.required span,
+#swagger-ui .swagger-ui .parameter__name.required::after { color: var(--ov-accent); }
+#swagger-ui .swagger-ui .parameter__type { color: var(--ov-muted); font-family: var(--ov-mono); font-size: 0.86rem; }
+#swagger-ui .swagger-ui .parameter__in { color: var(--ov-muted); font-style: normal; font-size: 0.84rem; }
+
+/* responses (heading + status-code styling further down, in the response-area block) */
+#swagger-ui .swagger-ui .responses-inner { padding: 0; }
+#swagger-ui .swagger-ui .response-col_links { color: var(--ov-muted); }
+
+/* example/model tabs */
+#swagger-ui .swagger-ui .tab { gap: var(--ov-4); border-bottom: 1px solid var(--ov-border-soft); }
+#swagger-ui .swagger-ui .tab li { color: var(--ov-muted); font-weight: 600; }
+#swagger-ui .swagger-ui .tab li.active { color: var(--ov-accent); }
+#swagger-ui .swagger-ui .tab li.active::after {
+  content: ""; display: block; height: 2px; margin-top: 0.35rem; border-radius: 2px; background: var(--ov-accent);
+}
+
+/* model + code sample boxes */
+#swagger-ui .swagger-ui .model-box {
+  background: var(--ov-bg); padding: var(--ov-3) var(--ov-4);
+  border: 1px solid var(--ov-border-soft); border-radius: var(--ov-radius-sm);
+}
+/* A schema under a response/parameter is wrapped in a `.model-box`, where Swagger
+   forces the json-schema transparent (`.model-box .json-schema-2020-12`), so it
+   rendered differently from the identical schema in the Schemas list — which
+   keeps Swagger's default grey card. Neutralise our own `.model-box` card and
+   re-apply the Schemas-list card to the outer schema so both look the same
+   (same grey/radius/padding as Swagger's default .json-schema-2020-12) (#50192). */
+#swagger-ui .swagger-ui .responses-inner .model-box,
+#swagger-ui .swagger-ui .parameters-col_description .model-box {
+  background: transparent; border: 0; padding: 0;
+}
+#swagger-ui .swagger-ui .responses-inner .model-box > .json-schema-2020-12,
+#swagger-ui .swagger-ui .parameters-col_description .model-box > .json-schema-2020-12 {
+  background-color: var(--ov-schema-bg); border-radius: 4px; padding: 12px 20px;
+}
+#swagger-ui .swagger-ui .prop-type { color: var(--ov-accent-dark); }
+
+/* ===== response area & code blocks — readable, structured, more color ===== */
+/* section labels: Curl / Request URL / Server response / Responses */
+#swagger-ui .swagger-ui .responses-inner h4,
+#swagger-ui .swagger-ui .responses-inner h5,
+#swagger-ui .swagger-ui .curl-command h4,
+#swagger-ui .swagger-ui .request-url h4 {
+  margin: var(--ov-5) 0 var(--ov-2);
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ov-accent);
+}
+
+/* code blocks (curl, request URL, response body) — bigger, airier, wrap nicely */
+#swagger-ui .swagger-ui pre.microlight,
+#swagger-ui .swagger-ui .highlight-code > .microlight {
+  padding: var(--ov-4);
+  border-radius: var(--ov-radius-sm);
+  background: #1f2430;
+  color: #eef1f6;
+  font-family: var(--ov-mono);
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+#swagger-ui .swagger-ui .highlight-code { position: relative; border-radius: var(--ov-radius-sm); overflow: hidden; }
+
+/* copy + download buttons in the accent */
+#swagger-ui .swagger-ui .copy-to-clipboard {
+  background: var(--ov-accent); border: 0; border-radius: var(--ov-radius-sm);
+  box-shadow: 0 2px 6px var(--ov-accent-glow);
+}
+#swagger-ui .swagger-ui .copy-to-clipboard button { background: none; }
+#swagger-ui .swagger-ui .copy-to-clipboard svg { fill: #fff; }
+#swagger-ui .swagger-ui .download-contents {
+  background: var(--ov-accent); border: 0; border-radius: var(--ov-radius-sm); color: #fff;
+  box-shadow: 0 2px 6px var(--ov-accent-glow);
+}
+
+/* live/server response: clear rows, prominent status code */
+#swagger-ui .swagger-ui .responses-wrapper { margin-top: var(--ov-4); }
+#swagger-ui .swagger-ui .response { border-bottom: 1px solid var(--ov-border-soft); }
+/* Foundation stripes even table rows grey (`tbody tr:nth-child(2n)`), which
+   banded every second response (400/404) and made the response schemas look
+   inconsistent with the uniform Schemas list. Keep response rows uniform. */
+#swagger-ui .swagger-ui .responses-table > tbody > tr.response:nth-child(2n) { background: transparent; }
+#swagger-ui .swagger-ui .response-col_status { font-size: 1.05rem; font-weight: 800; color: var(--ov-text); padding-left: var(--ov-4); }
+/* The generic `.opblock-body table tbody tr td` padding (var(--ov-3) left) out-
+   specifies the rule above, so the status codes (200/404) sit less indented than
+   the "Code" header (which lives in thead, outside that rule). Match them. */
+#swagger-ui .swagger-ui .opblock-body table tbody tr td.response-col_status { padding-left: var(--ov-4); }
+#swagger-ui .swagger-ui .response-col_status .response-undocumented { color: var(--ov-muted); font-weight: 600; }
+#swagger-ui .swagger-ui .response-col_description { color: var(--ov-text); }
+#swagger-ui .swagger-ui .responses-inner .response-controls { margin-top: var(--ov-2); }
+
+/* required markers in models (json-schema 2020-12 renderer + legacy star) */
+#swagger-ui .swagger-ui .json-schema-2020-12-property--required > .json-schema-2020-12:first-of-type > .json-schema-2020-12-head .json-schema-2020-12__title::after,
+#swagger-ui .swagger-ui .model .property-row.required .star,
+#swagger-ui .swagger-ui .model .property.required .star { color: var(--ov-accent); }
+
+/* Composition-keyword nodes (e.g. "One of") carry their own expand/collapse
+   controls as direct children, but Swagger's toggle for them is inert in this
+   app — so hide those dead controls (chevron + "Expand all"/"Collapse all")
+   instead of showing a button that does nothing. Real schema controls live in
+   .json-schema-2020-12-head (not a direct child of a keyword) and stay. (#50192) */
+#swagger-ui .swagger-ui .json-schema-2020-12-keyword > .json-schema-2020-12-accordion,
+#swagger-ui .swagger-ui .json-schema-2020-12-keyword > .json-schema-2020-12-expand-deep-button {
+  display: none;
+}
+
+/* ===== models / schemas — consistent with the operation sections: the header
+   looks like a tag heading, each schema is a white card like an opblock ===== */
+#swagger-ui .swagger-ui section.models {
+  scroll-margin-top: 1.5rem;
+  margin: var(--ov-6) 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+#swagger-ui .swagger-ui section.models.is-open { padding: 0; }
+
+/* header styled like .opblock-tag (accent, bold, underline) */
+#swagger-ui .swagger-ui section.models h4 {
+  margin: 0 0 var(--ov-4);
+  padding: 0 0 var(--ov-3);
+  background: none;
+  border-bottom: 1px solid var(--ov-border);
+}
+#swagger-ui .swagger-ui section.models .models-control {
+  padding: 0;
+  background: none;
+  border: 0;
+  font-family: var(--ov-font);
+  font-size: 1.55rem; font-weight: 800; color: var(--ov-accent);
+  transition: color 0.15s ease;
+}
+#swagger-ui .swagger-ui section.models .models-control:hover { color: var(--ov-accent-dark); }
+/* keyboard-only focus ring (no outline on mouse click) */
+#swagger-ui .swagger-ui section.models .models-control:focus { outline: none; }
+#swagger-ui .swagger-ui section.models .models-control:focus-visible {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+#swagger-ui .swagger-ui section.models .models-control svg { fill: currentColor; }
+
+/* schema entries as white cards (mirrors the .opblock look) */
+#swagger-ui .swagger-ui section.models .model-container,
+#swagger-ui .swagger-ui section.models .model-container:first-of-type,
+#swagger-ui .swagger-ui section.models .model-container:last-of-type {
+  margin: 0 0 var(--ov-2);
+  padding: 0.5rem 0.9rem;
+  background: var(--ov-surface);
+  border: 1px solid var(--ov-border);
+  border-radius: var(--ov-radius-sm);
+  box-shadow: 0 1px 2px rgba(var(--ov-shadow-rgb), 0.05);
+  transition: box-shadow 0.15s ease;
+}
+#swagger-ui .swagger-ui section.models .model-container:hover {
+  background: var(--ov-surface);
+  box-shadow: 0 5px 16px rgba(var(--ov-shadow-rgb), 0.09);
+}
+
+/* title row: mono like the operation paths, muted chevron/jump icons */
+#swagger-ui .swagger-ui section.models .model-box { background: transparent; border: 0; padding: 0.3rem 0.2rem; }
+#swagger-ui .swagger-ui section.models .model-title {
+  font-family: var(--ov-mono); font-size: 0.98rem; font-weight: 600; color: var(--ov-text);
+}
+#swagger-ui .swagger-ui section.models .model-box-control > svg,
+#swagger-ui .swagger-ui section.models .models-jump-to-path svg { fill: var(--ov-muted); }
+#swagger-ui .swagger-ui section.models .model-box-control:focus-visible {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== recolor stray light borders to the themed blue =====
+   Swagger's built-in dark theme (and Foundation's defaults) draw a number of
+   borders in light greys (#b7bcbf / #e4e6e6 / #545d61 / $medium-gray) that show
+   up as white lines on our dark surfaces. Recolor every neutral chrome border to
+   the themed border token (warm grey in light mode, blue in dark) so nothing
+   stands out. Intentional accent borders (.execute/.authorize/.try-out__btn)
+   carry more classes and keep their own colour; our ID selectors here still
+   outrank Swagger's ID-less `html.dark-mode` rules. */
+#swagger-ui .swagger-ui .btn,
+#swagger-ui .swagger-ui input,
+#swagger-ui .swagger-ui select,
+#swagger-ui .swagger-ui textarea,
+#swagger-ui .swagger-ui code,
+#swagger-ui .swagger-ui .json-schema-2020-12-body,
+#swagger-ui .swagger-ui .json-schema-2020-12-keyword--\$vocabulary ul,
+#swagger-ui .swagger-ui section.models .model-container,
+/* the tall dashed guide lines running down the schema tree under
+   Parameters / Responses / Schemas (Swagger draws them light in dark mode) */
+#swagger-ui .swagger-ui .json-schema-2020-12-keyword__children,
+#swagger-ui .swagger-ui .json-schema-2020-12-json-viewer__children,
+#swagger-ui .swagger-ui .model-box,
+#swagger-ui .swagger-ui .model-box-control,
+#swagger-ui .swagger-ui .prop-row,
+#swagger-ui .swagger-ui .property-row {
+  border-color: var(--ov-border);
+}
+
+/* buttons + inputs */
+#swagger-ui .swagger-ui .btn { border-radius: var(--ov-radius-sm); font-weight: 600; box-shadow: none; }
+#swagger-ui .swagger-ui .btn.execute { background: var(--ov-accent); border-color: var(--ov-accent); color: #fff; }
+#swagger-ui .swagger-ui .btn.execute:hover { background: var(--ov-accent-dark); border-color: var(--ov-accent-dark); }
+
+#swagger-ui .swagger-ui input[type=text],
+#swagger-ui .swagger-ui input[type=password],
+#swagger-ui .swagger-ui input[type=search],
+#swagger-ui .swagger-ui textarea,
+#swagger-ui .swagger-ui select {
+  max-width: 100%;
+  border-radius: var(--ov-radius-sm);
+  border-color: var(--ov-border);
+  /* --ov-input-bg is only defined in dark mode (dark.scss): there the fields
+     read as the page blue, a shade darker. In light mode the token is undefined
+     so this declaration is dropped and Swagger's default (white) stays. */
+  background-color: var(--ov-input-bg);
+}
+#swagger-ui .swagger-ui input:focus,
+#swagger-ui .swagger-ui textarea:focus,
+#swagger-ui .swagger-ui select:focus {
+  outline: 0; border-color: var(--ov-accent); box-shadow: 0 0 0 3px var(--ov-accent-soft);
+}
+
+/* ===== compact attribute descriptions (ⓘ inline expand) ===== */
+/* First paragraph stays visible; the ⓘ toggle folds detail/example in and out. */
+
+/* Pre-hide the detail part: Swagger mounts the full description first and the
+   observer folds it ~60ms later, which flashed the detail text on every
+   expand. Everything after the first element is hidden from the start; the JS
+   then moves it into .ov-desc-detail (excluded here), which the ⓘ shows again.
+   Scopes must match enhanceDescriptions() in openapi_viewer.js. */
+#swagger-ui .swagger-ui .parameters-col_description .renderedMarkdown > :not(:first-child):not(.ov-desc-detail),
+#swagger-ui .swagger-ui .json-schema-2020-12 .renderedMarkdown > :not(:first-child):not(.ov-desc-detail) {
+  display: none;
+}
+
+#swagger-ui .swagger-ui .ov-desc-detail { display: none; }
+#swagger-ui .swagger-ui .ov-desc.ov-open .ov-desc-detail {
+  display: block;
+  margin-top: var(--ov-2);
+  padding: var(--ov-2) var(--ov-3);
+  border-left: 2px solid var(--ov-accent);
+  background: var(--ov-bg);
+  border-radius: var(--ov-radius-sm);
+  color: var(--ov-muted);
+}
+#swagger-ui .swagger-ui .ov-desc.ov-open .ov-desc-detail > *:first-child { margin-top: 0; }
+#swagger-ui .swagger-ui .ov-desc.ov-open .ov-desc-detail > *:last-child { margin-bottom: 0; }
+
+#swagger-ui .swagger-ui button.ov-info-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  margin: 0 0 0 0.4rem;
+  vertical-align: -0.15em;
+  border: 0;
+  background: none;
+  color: var(--ov-accent);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+#swagger-ui .swagger-ui button.ov-info-toggle:hover { color: var(--ov-accent-dark); }
+#swagger-ui .swagger-ui .ov-desc.ov-open button.ov-info-toggle { color: var(--ov-accent-dark); transform: scale(1.08); }
+#swagger-ui .swagger-ui button.ov-info-toggle:focus-visible {
+  outline: 2px solid var(--ov-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+#swagger-ui .swagger-ui button.ov-info-toggle svg { width: 1rem; height: 1rem; display: block; }

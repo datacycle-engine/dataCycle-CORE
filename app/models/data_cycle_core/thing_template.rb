@@ -47,13 +47,13 @@ module DataCycleCore
 
     scope :with_template_names, ->(template_names) { where(template_name: template_names) }
     scope :without_template_names, ->(template_names) { where.not(template_name: template_names) }
-    scope :with_default_data_type, lambda { |classification_alias_names|
-      template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
+    scope :with_default_data_type, lambda { |concept_names|
+      template_types = DataCycleCore::Concept.for_tree('Inhaltstypen').where(internal_name: concept_names).with_descendants.pluck(:internal_name)
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
 
-    scope :without_default_data_type, lambda { |classification_alias_names|
-      template_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where(internal_name: classification_alias_names).with_descendants.pluck(:internal_name)
+    scope :without_default_data_type, lambda { |concept_names|
+      template_types = DataCycleCore::Concept.for_tree('Inhaltstypen').where(internal_name: concept_names).with_descendants.pluck(:internal_name)
       where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_types)
     }
 
@@ -66,22 +66,22 @@ module DataCycleCore
     }
 
     scope :with_schema_classification_paths, lambda { |paths|
-      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      schema_classifications = DataCycleCore::Concept.by_full_paths(paths).with_descendants.pluck(:internal_name)
       where('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
     }
 
     scope :without_schema_classification_paths, lambda { |paths|
-      schema_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      schema_classifications = DataCycleCore::Concept.by_full_paths(paths).with_descendants.pluck(:internal_name)
       where.not('thing_templates.api_schema_types && ARRAY[?]::VARCHAR[]', schema_classifications)
     }
 
     scope :with_content_classification_paths, lambda { |paths|
-      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      template_classifications = DataCycleCore::Concept.by_full_paths(paths).with_descendants.pluck(:internal_name)
       where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
     }
 
     scope :without_content_classification_paths, lambda { |paths|
-      template_classifications = DataCycleCore::ClassificationAlias.by_full_paths(paths).with_descendants.pluck(:internal_name)
+      template_classifications = DataCycleCore::Concept.by_full_paths(paths).with_descendants.pluck(:internal_name)
       where.not("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", template_classifications)
     }
 
@@ -157,6 +157,39 @@ module DataCycleCore
       Array.wrap(parameters).map { |parameter| parameter.split('.').first }
     end
     private_class_method :parameter_names
+
+    # {api_type => [template_name, ...]} for every @type APIv4 publishes a content under: the
+    # template's own name, and the schema.api.type alias Content#api_type renders next to it
+    # (AdditionalInformation is published as "dcls:AdditionalInformation" *and*
+    # "dcls:Ergänzende Information"). Keyed without the dcls: prefix, so both spellings look up the
+    # same entry.
+    #
+    # The value is a list because a legacy template can still carry another's alias as its own name:
+    # VTG has an empty "POI" next to TouristAttraction, which publishes as "dcls:POI". Callers that
+    # know which templates they may use pick from the list; the rest take the first.
+    #
+    # schema.api.type is a list wherever a template publishes under more than one name - SkiSlope
+    # carries ["odta:SkiSlope", "dcls:Piste"] - so the value is plucked as jsonb and wrapped rather
+    # than read with ->>, which would serialize that list into one key nothing can look up.
+    #
+    # Scanned once per process like the other schema scans, and dropped on a template import.
+    def self.template_names_by_api_type
+      cached_schema_scan(:template_names_by_api_type) do
+        pluck(:template_name, Arel.sql("schema -> 'api' -> 'type'"))
+          .each_with_object({}) { |(template_name, api_type), index|
+            [template_name, *Array.wrap(api_type)].compact_blank.map { |name| name.delete_prefix('dcls:') }.uniq.each do |key|
+              (index[key] ||= []) << template_name
+            end
+          }
+          .transform_values { |template_names| template_names.uniq.sort }
+      end
+    end
+
+    # @param api_type [String] an @type as APIv4 renders it, with or without the dcls: prefix
+    # @return [Array<String>] the template names published under it, alphabetically; empty when none
+    def self.template_names_for_api_type(api_type)
+      template_names_by_api_type[api_type.to_s.delete_prefix('dcls:')] || []
+    end
 
     # distinct, sorted top-level computed property names across all templates
     # (nested properties are excluded as bulk recompute only operates on top-level keys)
@@ -265,7 +298,7 @@ module DataCycleCore
 
     def schema_types
       schema_ancestors.map do |ancestors|
-        ancestors.push("dcls:#{template_name}") if ancestors.last != template_name
+        ancestors.push("dcls:#{template_name}")
         ancestors
       end
     end

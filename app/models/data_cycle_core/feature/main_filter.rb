@@ -82,11 +82,11 @@ module DataCycleCore
 
         return config[:hidden_filter].concat(selected_filters.select { |f| f['c'] == 'd' }) if classification_filter.blank?
 
-        filterable_classification_aliases(classification_filter[:config], config[:excluded_types]).each do |tree_label, classification_aliases|
+        filterable_concepts(classification_filter[:config], config[:excluded_types]).each do |tree_label, concepts|
           value = selected_filters.find { |f| f['c'] == 'd' && f['n'] == tree_label }
           classification_filter[:filters] ||= {}
           classification_filter[:filters][tree_label] = {
-            classification_aliases:,
+            concepts:,
             value: value&.dig('v'),
             identifier: value&.dig('identifier') || SecureRandom.hex(10)
           }
@@ -157,37 +157,37 @@ module DataCycleCore
 
         tree_label = tree_filter[:config]
         value = selected_filters.find { |f| f['c'] == 's' && f['n'] == tree_label }
-        tree_filter[:classification_aliases] = filterable_classification_aliases(tree_label, config[:excluded_types], false)&.dig(tree_label)
+        tree_filter[:concepts] = filterable_concepts(tree_label, config[:excluded_types], false)&.dig(tree_label)
         tree_filter[:value] = value&.dig('v')
         tree_filter[:identifier] = value&.dig('identifier') || SecureRandom.hex(10)
       end
 
-      def filterable_classification_aliases(allowed_labels, excluded = [], include_tree = true)
-        query = DataCycleCore::ClassificationAlias
-          .preload(:primary_classification, :classification_alias_path, :classification_tree, :sub_classification_trees)
-          .includes(:classification_tree_label, :parent_classification_alias)
-          .where(classification_tree_labels: { name: allowed_labels })
-        query = query.where(classification_trees: { parent_classification_alias: nil }) unless include_tree
-        query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+      def filterable_concepts(allowed_labels, excluded = [], include_tree = true)
+        query = DataCycleCore::Concept
+          .preload(:concept_path, :parent_concept_link, :children_concept_links)
+          .includes(:concept_scheme, :parent)
+          .where(concept_schemes: { name: allowed_labels })
+        query = query.joins(:parent_concept_link).where(concept_links: { parent_id: nil }) unless include_tree
+        query = query.where.not(concept_schemes: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
 
         preloaded = query.index_by(&:id)
 
         query.each do |ca|
-          # set preloaded sub_classification_alias
-          records = preloaded.values_at(*ca.sub_classification_trees.to_a.pluck(:classification_alias_id)).compact.sort_by(&:order_a)
-          association = ca.association(:sub_classification_alias)
+          # set preloaded children
+          records = preloaded.values_at(*ca.children_concept_links.to_a.pluck(:child_id)).compact.sort_by(&:order_a)
+          association = ca.association(:children)
           association.loaded!
           association.target.concat(records)
           records.each { |record| association.set_inverse_instance(record) }
 
-          # set preloaded parent_classification_alias
-          record = preloaded[ca.classification_tree.parent_classification_alias_id]
-          association = ca.association(:parent_classification_alias)
+          # set preloaded parent
+          record = preloaded[ca.parent_concept_link&.parent_id]
+          association = ca.association(:parent)
           association.target = record
           association.set_inverse_instance(record) if record
         end
 
-        query.filter { |ca| ca.parent_classification_alias.nil? }.group_by { |ca| ca.classification_tree_label&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
+        query.filter { |ca| ca.parent.nil? }.group_by { |ca| ca.concept_scheme&.name }.sort_by { |k, _v| allowed_labels.index(k) }.to_h
       end
 
       def available_user_advanced_filters(user, view)

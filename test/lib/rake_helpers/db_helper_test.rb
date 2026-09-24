@@ -54,6 +54,49 @@ module DataCycleCore
       FileUtils.rm_rf(target)
     end
 
+    test 'dump_files lists the timestamped dumps newest first' do
+      with_backup_dir do |dir|
+        older = create_dump(dir, '20260101000000_dc_test.dir', 3.hours.ago)
+        newer = create_dump(dir, '20260907120000_dc_test.dir', 1.minute.ago)
+        create_dump(dir, 'local_dev_db_production.dir', 1.minute.ago)
+        create_dump(dir, '.in_progress_20260907130000_dc_test.dir', 1.minute.ago)
+
+        assert_equal [newer, older], DbHelper.dump_files(dir)
+      end
+    end
+
+    test 'recent_dump returns the newest whole dump inside the window' do
+      with_backup_dir do |dir|
+        create_dump(dir, '20260101000000_dc_test.dir', 10.minutes.ago)
+        newest = create_dump(dir, '20260907120000_dc_test.dump', 1.minute.ago)
+
+        assert_equal newest, DbHelper.recent_dump(dir, 2.hours)
+      end
+    end
+
+    test 'recent_dump ignores a whole dump older than the window' do
+      with_backup_dir do |dir|
+        create_dump(dir, '20260101000000_dc_test.dir', 3.hours.ago)
+
+        assert_nil DbHelper.recent_dump(dir, 2.hours)
+      end
+    end
+
+    test 'recent_dump counts neither a single table, a named nor an in-progress dump' do
+      with_backup_dir do |dir|
+        create_dump(dir, '20260907120000_dc_test.things.dir', 1.minute.ago)
+        create_dump(dir, 'local_dev_db_production.dir', 1.minute.ago)
+        create_dump(dir, '.in_progress_20260907130000_dc_test.dir', 1.minute.ago)
+
+        assert_nil DbHelper.recent_dump(dir, 2.hours)
+      end
+    end
+
+    test 'in_progress_path hides the target next to itself' do
+      assert_equal '/backups/.in_progress_20260907120000_dc_test.dir',
+                   DbHelper.in_progress_path('/backups/20260907120000_dc_test.dir')
+    end
+
     test 'with_config yields the database connection details' do
       values = nil
       DbHelper.with_config { |config| values = config }
@@ -70,6 +113,24 @@ module DataCycleCore
       error, = capture_io { DbHelper.status_relation(3, 'things', 'classifications') }
 
       assert_includes error, '[ERROR]'
+    end
+
+    private
+
+    def with_backup_dir
+      dir = Rails.root.join('db', 'backups', 'db_helper_dump_test').to_s
+      FileUtils.mkdir_p(dir)
+
+      yield dir
+    ensure
+      FileUtils.rm_rf(dir)
+    end
+
+    def create_dump(dir, name, mtime)
+      path = File.join(dir, name)
+      name.end_with?('.dir') ? FileUtils.mkdir_p(path) : FileUtils.touch(path)
+      File.utime(mtime.to_time, mtime.to_time, path)
+      path
     end
   end
 end

@@ -252,7 +252,7 @@ module DataCycleCore
             .where(external_system_id: external_source_id, external_key: external_keys)
             .assignable
             .reorder(nil)
-            .pluck(:external_key, :classification_id).to_h
+            .pluck(:external_key, :id).to_h
         end
 
         def self.load_classifications_by_uri(classification_identifier)
@@ -263,7 +263,7 @@ module DataCycleCore
             .where(uri: classification_identifier.pluck(1).uniq)
             .assignable
             .reorder(nil)
-            .pluck(:uri, :classification_id).to_h
+            .pluck(:uri, :id).to_h
         end
 
         def self.load_classifications_by_path(classification_paths)
@@ -280,11 +280,11 @@ module DataCycleCore
           preloadable_paths = preloadable_classification_trees - @peloaded_mappings.keys.map(&:first)
           if preloadable_paths.any?
             @peloaded_mappings.merge!(
-              DataCycleCore::Concept.includes(:classification_alias_path)
+              DataCycleCore::Concept.includes(:concept_path)
                 .for_tree(preloadable_paths)
                 .assignable
                 .reorder(nil)
-                .to_h { |c| [c.full_path_names.reverse, c.classification_id] }
+                .to_h { |c| [c.full_path_names.reverse, c.id] }
             )
           end
 
@@ -296,7 +296,7 @@ module DataCycleCore
             DataCycleCore::Concept.by_full_path_arrays(paths_to_load)
               .assignable
               .reorder(nil)
-              .to_h { |c| [c.full_path_names.reverse, c.classification_id] }
+              .to_h { |c| [c.full_path_names.reverse, c.id] }
           )
         end
 

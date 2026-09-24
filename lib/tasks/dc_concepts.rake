@@ -53,7 +53,7 @@ namespace :dc do
       SQL
 
       concept_ids = duplicates.cast_values
-      aliases = DataCycleCore::ClassificationAlias.where(id: concept_ids.flatten).index_by(&:id)
+      aliases = DataCycleCore::Concept.where(id: concept_ids.flatten).index_by(&:id)
 
       concept_ids.each do |ids|
         original = aliases[ids.shift]

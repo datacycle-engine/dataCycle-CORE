@@ -4,11 +4,17 @@ module DataCycleCore
   module Abilities
     module Segments
       class SubjectNotExternal < Base
-        attr_reader :subject, :conditions
+        include NotExternalConditions
+
+        attr_reader :subject
 
         def initialize(*subject)
           @subject = Array.wrap(subject).flatten
-          @conditions = { external_source_id: nil }
+        end
+
+        # @return [Hash] see NotExternalConditions for why the shape depends on the subject
+        def conditions
+          @conditions ||= not_external_conditions
         end
       end
     end

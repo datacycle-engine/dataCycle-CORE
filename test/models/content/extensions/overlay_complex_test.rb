@@ -23,14 +23,14 @@ module DataCycleCore
 
     def create_event_with_classifications
       item = create_event
-      update_event(item, { event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id] })
+      update_event(item, { event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung geplant').id] })
     end
 
     def create_event_with_overlay_classifications
       item = create_event
       update_event(item, {
-        event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung geplant').id],
-        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Classification.find_by(name: 'Veranstaltung abgesagt').id] }]
+        event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung geplant').id],
+        overlay: [{ name: 'Test Overlay', event_status: [DataCycleCore::Concept.find_by(name: 'Veranstaltung abgesagt').id] }]
       })
     end
 

@@ -24,6 +24,23 @@ namespace :dc do
       end
     end
 
+    # Which of the two fulltext implementations runs is a feature flag, but the indexes each one
+    # needs are schema. db/seeds.rb reconciles them on setup; nothing does when the flag flips
+    # afterwards, so run this after changing :ts_query_fulltext_search -- in either direction.
+    desc 'drop or restore the searches indexes only legacy_fulltext_search can use, to match ts_query_fulltext_search'
+    task sync_fulltext_indexes: :environment do
+      enabled = DataCycleCore::Feature::TsQueryFulltextSearch.enabled?
+      puts ":ts_query_fulltext_search is #{enabled ? 'enabled' : 'disabled'}, so the legacy indexes should be #{enabled ? 'absent' : 'present'}"
+
+      changed = DataCycleCore::Feature::TsQueryFulltextSearch.reconcile_legacy_indexes!
+
+      if changed.blank?
+        puts(AmazingPrint::Colors.green('[✔] ... nothing to do'))
+      else
+        changed.each { |name, action| puts(AmazingPrint::Colors.green("[✔] ... #{action} #{name}")) }
+      end
+    end
+
     # DataCycleCore::Feature::LocaleInheritance only reacts to saves, so contents that already
     # existed when it was enabled -- or whose reference gained its locales before that -- keep the
     # locales they had. Run this once after enabling it.

@@ -55,17 +55,11 @@ module DataCycleCore
           raise StandardError, 'Missing data definition: treeLabel' if hash.dig('v', 'treeLabel').blank?
           raise StandardError, 'Missing data definition: aliases' if hash.dig('v', 'aliases').blank?
 
-          hash['t'] = 'classification_alias_ids'
+          hash['t'] = 'concept_ids'
           hash['n'] = hash.dig('v', 'treeLabel')
-          hash['v'] = DataCycleCore::ClassificationAlias
+          hash['v'] = DataCycleCore::Concept
             .for_tree(hash.dig('v', 'treeLabel'))
             .with_internal_name(hash.dig('v', 'aliases')).pluck(:id)
-        end
-
-        def self.with_classification_paths(hash, _user)
-          hash['t'] = 'classification_alias_ids'
-          hash['n'] = Array.wrap(hash['v']).map { |v| v&.split(' > ')&.first }.join(', ')
-          hash['v'] = DataCycleCore::ClassificationAlias.by_full_paths(hash['v']).pluck(:id)
         end
 
         def self.filter_method_from_prefix(filter_type)
@@ -102,7 +96,7 @@ module DataCycleCore
           relation = DataCycleCore::Feature::UserGroupClassification.attribute_relations.find { |_k, v| v['tree_label'] == hash['v'] }&.first
           raise StandardError, "relation not found for UserGroup and treelabel (#{hash['v']})" if relation.blank?
 
-          hash['t'] = 'classification_alias_ids'
+          hash['t'] = 'concept_ids'
           hash['n'] = hash['v']
           hash['v'] = user&.user_groups&.send(relation)&.pluck(:id)
         end

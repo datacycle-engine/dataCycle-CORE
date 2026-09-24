@@ -42,14 +42,17 @@ module DataCycleCore
         raw_query_params&.dig(:sort)&.split(/,(?![^(]*\))/)&.reverse_each do |sort|
           key, order, order_value = DataCycleCore::ApiService.order_key_with_value(sort)
 
-          if SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 1
-            value = send(SORT_VALUE_API_MAPPING[key], parameters)&.dig('v')
-          elsif SORT_VALUE_API_MAPPING.key?(key) && method(SORT_VALUE_API_MAPPING[key])&.parameters&.size == 2
-            value = send(SORT_VALUE_API_MAPPING[key], parameters, order_value)&.dig('v')
+          sort_value_method = SORT_VALUE_API_MAPPING[key]
+          sort_value_parameter_count = sort_value_method.nil? ? nil : method(sort_value_method).parameters.size
+
+          if sort_value_parameter_count == 1
+            value = send(sort_value_method, parameters)&.dig('v')
+          elsif sort_value_parameter_count == 2
+            value = send(sort_value_method, parameters, order_value)&.dig('v')
           end
 
           filter_order = DataCycleCore::ApiService.order_value_from_params(key, raw_query_params)
-          value = value.blank? ? filter_order : merge_api_filter_params(value, filter_order, SORT_VALUE_API_MAPPING[key])
+          value = value.blank? ? filter_order : merge_api_filter_params(value, filter_order, sort_value_method)
 
           if (advanced_key = DataCycleCore::Feature::Sortable.available_advanced_attribute_for_key(key)).present?
             value = advanced_key
@@ -86,8 +89,8 @@ module DataCycleCore
         return if geo.blank?
 
         parsed_params = parse_sort_params(geo, __method__)
-        lon = parsed_params['lon']
-        lat = parsed_params['lat']
+        lon = parsed_params&.dig('lon')
+        lat = parsed_params&.dig('lat')
 
         return unless lon.present? && lat.present?
 
@@ -245,7 +248,7 @@ module DataCycleCore
       end
 
       def sort_params_prefixed?(params)
-        params.any? { |p| p.starts_with?(*SORT_PARAM_PREFIXES) }
+        params.any? { |p| p&.starts_with?(*SORT_PARAM_PREFIXES) }
       end
     end
   end

@@ -1,9 +1,9 @@
 <% excluded_types ||= [] %>
-<% has_children = classification_tree&.any? { |d| d.sub_classification_alias.reject { |ca| excluded_types.include?(ca.internal_name) }.present? } %>
+<% has_children = concepts&.any? { |d| d.children.reject { |ca| excluded_types.include?(ca.internal_name) }.present? } %>
 
 <li class="filter <%= 'subtree' if has_children %>" data-id="<%= identifier %>">
   <%= hidden_field_tag "f[#{identifier}][c]", 'd' %>
-  <%= hidden_field_tag "f[#{identifier}][t]", :classification_alias_ids %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :concept_ids %>
   <%= hidden_field_tag "f[#{identifier}][n]", tree_label %>
   <%= hidden_field_tag "f[#{identifier}][m]", 'i' %>
 
@@ -12,14 +12,14 @@
   <div>
     <ul class="clearfix <%= 'split-list' unless has_children %>">
       <%= render partial: 'data_cycle_core/application/filters/classification_items',
-                  collection: classification_tree,
+                  collection: concepts,
                   as: :item,
                   locals: {
                     excluded_types: excluded_types,
                     tree_label: tree_label,
                     identifier: identifier,
                     value: value
-                  } if classification_tree.present? %>
+                  } if concepts.present? %>
     </ul>
   </div>
 </li>

@@ -18,7 +18,9 @@ _Manche Attribute werden unter einem anderen Namen über die APIv4 ausgegeben; m
 
 Der Inhalt kann als JSON-Body, URL-Encoded Form oder Multipart Form übergeben werden.
 
-`@type` kann entweder aus der APIv4 Ausgabe (der letzte @type eines Inhalts), oder vom entsprechenden [Schema](/schema) (hier ist es der Teil in Klammern) entnommen werden.
+`@type` kann entweder aus der APIv4 Ausgabe (der letzte @type eines Inhalts), oder vom entsprechenden [Schema](/schema) (hier ist es der Teil in Klammern) entnommen werden. Beide Schreibweisen führen zum selben Template, mit und ohne `dcls:`-Präfix.
+
+**Achtung:** Die APIv4 gibt `@type` als Array aus (z.B. `["CreativeWork", "MediaObject", "TextObject", "dcls:AdditionalInformation", "dcls:Ergänzende Information"]`). Übergeben werden muss genau **ein** Wert daraus als String, nicht das ganze Array.
 
 Beispiele:
 
@@ -673,3 +675,108 @@ Löschen von Klassifizierungen funktioniert genauso wie das Löschen von Attribu
   }
 }
 ```
+
+## Inhaltspool (Life-Cycle)
+
+Ist das Life-Cycle-Feature aktiv, liegt der Inhaltspool in einem eigenen Attribut — in der V-Cloud `data_pool`, mit dem Baum `Inhaltspools` und den Werten `Entwurf`, `Aktuell` und `Archiv`. Es ist eine Klassifizierung wie jede andere und wird als `dc:classification:data_pool` übergeben.
+
+Weil der Inhaltspool redaktionell gepflegt wird, ist er in den meisten Schemas nicht bearbeitbar. Damit eine Schnittstelle ihn setzen darf, muss er in deren Konfiguration in der `attribute_whitelist` stehen. Fehlt er dort, wird der Wert verworfen und die Response meldet ihn unter `warnings`:
+
+```json
+{ "message": "Some keys were ignored: 'dc:classification:data_pool' (property not defined in template)" }
+```
+
+```json
+{
+  "@graph": [
+    {
+      "@id": "test-event-1",
+      "@type": "Event",
+      "name": "Test-Event 1",
+      "dc:classification:data_pool": ["ID-DER-KLASSIFIZIERUNG-ENTWURF"]
+    }
+  ],
+  "@context": {
+    "@language": "de"
+  }
+}
+```
+
+Wird beim Anlegen kein Inhaltspool übergeben, setzt dataCycle den im Schema hinterlegten Standardwert — für Inhalte aus einer Schnittstelle ist das üblicherweise `Aktuell`. Dieser Standardwert greift nur, solange das Attribut leer bleibt: sobald ein Wert mitgeschickt wird, gilt ausschließlich dieser.
+
+**Achtung:** `dc:classification:universalClassifications` ist ein anderes Attribut. Wird eine Inhaltspool-Klassifizierung dort übergeben, ersetzt sie den Inhaltspool nicht, sondern kommt zum Standardwert hinzu — der Inhalt steht dann z.B. gleichzeitig in `Aktuell` und `Entwurf`.
+
+## Kennzeichnung der KI-Beteiligung (KI-Agent)
+
+Die Kennzeichnung der KI-Beteiligung hängt an einem eigenen Inhalt: dem KI-Agenten (`ArtificialIntelligenceAgent`). Er wird beim gekennzeichneten Inhalt unter `contributor` verknüpft und bringt den Beteiligungsgrad mit. Was die Grade bedeuten und wann ein eigener Agent sinnvoll ist, steht unter [Kennzeichnung der KI-Beteiligung](/docs/ai_agent).
+
+`contributor` gibt es bei den Inhaltstypen mit dem Feld **Mitwirkende**, also bei Medien, Creative Works und Ergänzenden Informationen. POI, Event und TouristDestination haben es nicht: ein von einer KI erzeugter Beschreibungstext wird deshalb als eingebettete Ergänzende Information übergeben und dort gekennzeichnet.
+
+_Beispiel 1: vorhandenen KI-Agenten verlinken_
+
+Für den Regelfall genügt ein KI-Agent je Beteiligungsgrad, und Importe legen diese Inhalte selbst an. Verlinkt wird ein vorhandener Agent über seine dataCycle ID, wie unter _Verlinkungen_ beschrieben — die ID ist je System eine andere.
+
+```json
+{
+  "@graph": [
+    {
+      "@id": "test-poi-1",
+      "@type": "POI",
+      "name": "Test POI",
+      "dc:additionalInformation": [
+        {
+          "@type": "dcls:Ergänzende Information",
+          "name": "Destinationsportrait",
+          "description": "Von einer KI erzeugter Beschreibungstext.",
+          "contributor": [
+            {
+              "@id": "ID-DES-KI-AGENTEN",
+              "@type": "ArtificialIntelligenceAgent"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "@context": {
+    "@language": "de"
+  }
+}
+```
+
+Der Grad am gekennzeichneten Inhalt wird aus den verknüpften KI-Agenten berechnet. Wird er trotzdem mitgeschickt, verwirft ihn die Schnittstelle und meldet ihn unter `warnings` als ignorierten Key.
+
+_Beispiel 2: neuen KI-Agenten erstellen_
+
+Soll das eingesetzte Werkzeug benannt werden, kann der KI-Agent im selben Request erstellt werden. Der Grad der KI-Beteiligung ist dabei ein Pflichtfeld mit genau einem Wert aus dem Baum `ODTA - AI-DegreeOfInvolvement`.
+
+```json
+{
+  "@graph": [
+    {
+      "@id": "test-bild-1",
+      "@type": "dcls:Bild",
+      "name": "Test Bild",
+      "contributor": [
+        {
+          "@id": "mein-ki-agent-1",
+          "@type": "ArtificialIntelligenceAgent",
+          "name": "Midjourney",
+          "dc:classification:odtaAiDegreeOfInvolvement": ["ID-DER-KLASSIFIZIERUNG-KI-GENERIERT"]
+        }
+      ]
+    }
+  ],
+  "@context": {
+    "@language": "de"
+  }
+}
+```
+
+**Voraussetzung:** `ArtificialIntelligenceAgent` muss in der Konfiguration der Schnittstelle unter `allowed_templates` stehen. Fehlt der Inhaltstyp dort, wird nur das Erstellen abgelehnt: der übrige Inhalt wird ohne Kennzeichnung gespeichert, `success` ist `'partial'`, und die Response meldet den KI-Agenten unter `error`:
+
+```json
+{ "message": "forbidden @type", "path": ["dc:additionalInformation", 0, "contributor", 0] }
+```
+
+**Hinweis:** Ein über die Schnittstelle erstellter KI-Agent gehört dieser Schnittstelle und steht neben den bereits vorhandenen. Wo das Werkzeug keine Rolle spielt, ist das Verlinken eines vorhandenen Agenten deshalb der bessere Weg.

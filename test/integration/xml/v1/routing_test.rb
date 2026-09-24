@@ -142,7 +142,7 @@ module DataCycleCore
           }
           get xml_v1_classification_trees_path(params)
 
-          count = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('xml').count
+          count = DataCycleCore::ConceptScheme.where(internal: false).visible('xml').count
 
           assert_response :success
           assert_equal 'application/xml; charset=utf-8', response.content_type

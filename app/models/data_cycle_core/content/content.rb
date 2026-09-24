@@ -19,7 +19,7 @@ module DataCycleCore
       PLAIN_PROPERTY_TYPES = ['key', *STRING_PROPERTY_TYPES, 'number', 'date', 'datetime', 'boolean', 'slug'].freeze
       LINKED_PROPERTY_TYPES = ['linked'].freeze
       EMBEDDED_PROPERTY_TYPES = ['embedded'].freeze
-      CLASSIFICATION_PROPERTY_TYPES = ['classification'].freeze
+      CLASSIFICATION_PROPERTY_TYPES = ThingTemplateExtensions::PropertyTypes::CLASSIFICATION_PROPERTY_TYPES
       SCHEDULE_PROPERTY_TYPES = ['schedule', 'opening_time'].freeze
       OPENING_TIME_PROPERTY_TYPES = ['opening_time'].freeze
       TIMESERIES_PROPERTY_TYPES = ['timeseries'].freeze
@@ -29,11 +29,29 @@ module DataCycleCore
       OEMBED_PROPERTY_TYPES = ['oembed'].freeze
       SIMPLE_OBJECT_PROPERTY_TYPES = ['object'].freeze
       SLUG_PROPERTY_TYPES = ['slug'].freeze
-      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, :single_embedded_locale, *WEBHOOK_ACCESSORS].freeze
+      # :webhook_filter_checked_for carries the id of the one receiver whose endpoint filter a caller
+      # has already answered for this content - set by DataCycleCore::Export::RelatedWebhooks#call
+      # and read by DataCycleCore::Export::Generic::Filter.filter_endpoints. An id rather than a
+      # flag, so that a content marked for one receiver cannot let a second one through unfiltered.
+      ATTR_ACCESSORS = [:datahash, :datahash_changes, :previous_datahash_changes, :original_id, :duplicate_id, :local_import, :webhook_run_at, :webhook_priority, :prevent_webhooks, :synchronous_webhooks, :allowed_webhooks, :webhook_source, :webhook_filter_checked_for, :single_embedded_locale, *WEBHOOK_ACCESSORS].freeze
       ATTR_WRITERS = [:webhook_data].freeze
       INTERNAL_PROPERTY_NAMES = ['id', 'external_source_id', 'external_key', 'schema_types', 'data_type'].freeze
       IMPORTABLE_INTERNAL_PROPERTY_NAMES = ['id', 'external_system_data', 'external_key'].freeze
+      # A placeholder the schema fills with the literal 'do_not_show'; TestData::ValueBuilder
+      # counts it among the internal names and no representation renders it.
       DUMMY_PROPERTY_NAMES = ['dummy'].freeze
+      # The priority of the external key a content was imported under, written by
+      # DataCycleCore::Generic::Common::ImportFunctionsDataHelper#merge_default_values from the
+      # delivered key's own priority and read back by its #update_primary_key? to decide whether a
+      # newly delivered key displaces the current one. Every instance fills it from its own
+      # import's priority list, so the value this one holds says nothing a receiver can use.
+      EXT_KEY_PRIORITY_PROPERTY_NAMES = ['dc_ext_key_priority'].freeze
+      # The MongoDB document a content was imported from, written by
+      # DataCycleCore::Generic::Common::ImportFunctionsDataHelper#add_mongo_infos and read back by
+      # DataCycleCore::Content::ExternalData#mongo_raw_data. Listed for
+      # #non_payload_property_names, and by name rather than as "every api-disabled property": a
+      # receiver rendering a representation of its own reads what it likes, visibility included.
+      MONGO_SOURCE_PROPERTY_NAMES = ['dc_mongo_collection', 'dc_mongo_key'].freeze
       PROPERTIES_WITH_IMPORTED_FLAG = [
         'data_pool'
       ].freeze
@@ -68,6 +86,7 @@ module DataCycleCore
       include Extensions::ConceptTransformations
       include Extensions::LinkedInText
       include Extensions::PropertyHelper
+      include Extensions::ClassifiableSchemes
 
       DataCycleCore.features.each_key do |key|
         feature = DataCycleCore::Feature[key]
@@ -91,14 +110,24 @@ module DataCycleCore
         embedded? && single_embedded_locale == true
       end
 
+      # Symbolizes the attributes and completes the template_name / thing_template pair from
+      # whichever of the two is given. Shared by initialize and StiSubclasses.new, which needs
+      # template_name filled in before AR picks the STI subclass.
+      #
+      # @param attributes [Hash, nil] Attributes passed to new.
+      # @return [Hash{Symbol => Object}] Symbolized attributes with both template keys set when either was.
+      def self.normalize_template_attributes(attributes)
+        attrs = attributes&.to_h&.symbolize_keys || {}
+        attrs[:thing_template] ||= DataCycleCore::ThingTemplate.cached_by_template_name(attrs[:template_name]) if attrs[:template_name].present?
+        attrs[:template_name] ||= attrs[:thing_template].template_name if attrs[:thing_template].present?
+        attrs
+      end
+
       # override initialize to setup template_name and thing_template correctly
       def initialize(attributes = nil)
-        attrs = attributes&.to_h&.symbolize_keys || {}
+        attrs = self.class.normalize_template_attributes(attributes)
         template_attrs = attrs.slice(:template_name, :thing_template)
         normal_attrs = attrs.except(:template_name, :thing_template)
-
-        template_attrs[:thing_template] ||= DataCycleCore::ThingTemplate.cached_by_template_name(template_attrs[:template_name]) if template_attrs[:template_name].present?
-        template_attrs[:template_name] ||= template_attrs[:thing_template].template_name if template_attrs[:thing_template].present?
 
         super(template_attrs) do
           validate_template!
@@ -240,10 +269,6 @@ module DataCycleCore
         api_schema_types&.first || schema&.dig('schema_type')
       end
 
-      def schema_ancestors
-        Array.wrap(schema&.dig('schema_ancestors')).deep_dup.then { |a| a.present? && !a.all?(::Array) ? [a] : a }
-      end
-
       def translatable?
         schema&.dig('features', 'translatable', 'allowed') || false
       end
@@ -291,6 +316,18 @@ module DataCycleCore
         api_name.to_s.camelize(:lower)
       end
 
+      # Whether v4 repeats this content's sd_license under schema.org's `license`
+      # as well — true where the content is itself the licensed work rather than
+      # metadata about one. Read by api/v4/api_base/attributes/_string_sd_license.jb,
+      # which writes the second key, and by OpenApi::EntityBuilder, which has to
+      # declare it: the builder derives property names from #api_name_for and so
+      # cannot see that a partial emits a sibling.
+      # @return [Boolean]
+      def sd_license_delivered_as_license?
+        template_name.in?(['Bild', 'Video', 'Audio', 'ImageObject', 'VideoObject', 'AudioObject']) ||
+          schema_ancestors.flatten.include?('CreativeWork')
+      end
+
       def writable_property_names
         property_names - virtual_property_names - inverse_linked_property_names
       end
@@ -321,6 +358,30 @@ module DataCycleCore
         name_property_selector(include_overlay) do |definition|
           definition.dig('features', 'overlay', 'allowed')
         end
+      end
+
+      # [#51643] The <base>_generated companion attributes a machine fills, recognized by the marker
+      # MasterData::Templates::Extensions::Generated derives from the postfix.
+      def generated_property_names(include_overlay = false)
+        name_property_selector(include_overlay) do |definition|
+          definition.dig('features', 'generated', 'generated_for')
+        end
+      end
+
+      # @return [String, nil] the editorial attribute a generated companion belongs to
+      def generated_base_property_name(property_name)
+        properties_for(property_name)&.dig('features', 'generated', 'generated_for')
+      end
+
+      # The editorial attributes that stop a companion being generated while any of them is filled:
+      # the base attribute, plus its override sibling where the template has one. Pre-#51643
+      # templates carry only the marker of the base, hence the fallback.
+      #
+      # @return [Array<String>] one or two attribute names, empty for a non-companion
+      def generated_blocking_property_names(property_name)
+        definition = properties_for(property_name)
+
+        Array.wrap(definition&.dig('features', 'generated', 'blocked_by').presence || definition&.dig('features', 'generated', 'generated_for'))
       end
 
       def aggregate_property_names_for(property_name, include_overlay = false)
@@ -447,16 +508,12 @@ module DataCycleCore
       # Computed properties calculated during the inline before_save pass, i.e. written by the
       # same save. This is the default; a compute that has to observe the *persisted* state
       # opts out with compute.async or compute.after_save, because before_save runs before the
-      # relation rows exist (e.g. collected_classification_contents is only filled by its
-      # triggers once the classification_contents rows are written).
+      # relation rows exist (e.g. collected_concept_contents is only filled by its
+      # triggers once the concept_contents rows are written).
       #
       # @return [Array<String>] property names computed inline, before the save
       def inline_computed_property_names(include_overlay = false)
-        name_property_selector(include_overlay) do |definition|
-          definition.key?('compute') &&
-            definition.dig('compute', 'async').to_s != 'true' &&
-            definition.dig('compute', 'after_save').to_s != 'true'
-        end
+        name_property_selector(include_overlay) { |definition| DataCycleCore::MasterData::Templates::ComputeDeferral.inline?(definition) }
       end
 
       # Computed properties recalculated after the save by UpdateAsyncComputedPropertiesJob
@@ -466,9 +523,7 @@ module DataCycleCore
       #
       # @return [Array<String>] property names computed in a background job, after the save
       def async_computed_property_names(include_overlay = false)
-        name_property_selector(include_overlay) do |definition|
-          definition.key?('compute') && definition.dig('compute', 'async').to_s == 'true'
-        end
+        name_property_selector(include_overlay) { |definition| DataCycleCore::MasterData::Templates::ComputeDeferral.async?(definition) }
       end
 
       # Computed properties recalculated synchronously right after the save that triggered them
@@ -478,9 +533,7 @@ module DataCycleCore
       #
       # @return [Array<String>] property names computed in-request, after the save
       def after_save_computed_property_names(include_overlay = false)
-        name_property_selector(include_overlay) do |definition|
-          definition.key?('compute') && definition.dig('compute', 'after_save').to_s == 'true'
-        end
+        name_property_selector(include_overlay) { |definition| DataCycleCore::MasterData::Templates::ComputeDeferral.after_save?(definition) }
       end
 
       def computed_without_fallback_property_names
@@ -494,6 +547,17 @@ module DataCycleCore
         PROPERTIES_WITH_IMPORTED_FLAG
       end
 
+      # The "<property>_imported" companions of #properties_with_imported_flag, each valued by
+      # the block: only the naming lives here, what a flag means for a given write is the
+      # caller's rule. data_pool_imported is what keeps the life cycle read-only in the editor
+      # (Abilities::Segments::LifeCycleIsEditable).
+      #
+      # @yieldparam property [String] a property from #properties_with_imported_flag
+      # @return [Hash] "<property>_imported" => the block's value for that property
+      def imported_flags
+        properties_with_imported_flag.to_h { |property| ["#{property}_imported", yield(property)] }
+      end
+
       def text_with_linked_property_names(include_overlay = false)
         name_property_selector(include_overlay) do |definition|
           definition['type'] == 'string' &&
@@ -504,8 +568,8 @@ module DataCycleCore
 
       def flat_computed_parameters(key, datahash = {}, nested = false)
         if computed_property_names.include?(key) && !datahash&.key?(key)
-          fct = Array.wrap(properties_for(key)&.dig('compute', 'parameters')).map { |p|
-            flat_computed_parameters(p.split('.').first, datahash, true)
+          fct = compute_dependency_names(properties_for(key)).map { |p|
+            flat_computed_parameters(p, datahash, true)
           }.flatten.uniq
           fct.unshift(key) if nested
           fct
@@ -524,26 +588,38 @@ module DataCycleCore
 
       def dependent_computed_property_names(keys)
         property_definitions.select { |_, definition|
-          Array.wrap(definition.dig('compute', 'parameters'))
-            .map { |p| p.split('.').first }
-            .intersect?(Array.wrap(keys))
+          compute_dependency_names(definition).intersect?(Array.wrap(keys))
         }.keys
+      end
+
+      # The attributes of this content a compute reads: its declared :parameters: and the attributes
+      # its :compute: :condition: looks up on the content. A condition of :type: content is as much
+      # a dependency as a parameter, and treating it as one is what makes the injected
+      # "only while the editorial attribute is empty" rule of the _generated companions work
+      # (#51643, see docs/generated_attributes.md) - emptying that attribute has to schedule the
+      # companion that may now fill it, while the producer's own computed_parameters stay exactly
+      # what its template declared.
+      #
+      # Same content only: the cross-content tracking of Thing::PropertyDependency is fed by the
+      # content_computed_properties view, which reads :parameters: alone.
+      #
+      # @param definition [Hash, nil] a property definition
+      # @return [Array<String>] property names, dotted paths reduced to their first segment
+      def compute_dependency_names(definition)
+        condition_names = Array.wrap(definition&.dig('compute', 'condition'))
+          .filter_map { |condition| condition['name'] if condition.is_a?(::Hash) && condition['type'] == 'content' }
+
+        (Array.wrap(definition&.dig('compute', 'parameters')) + condition_names)
+          .map { |p| p.to_s.split('.').first }
+          .uniq
       end
 
       def default_value_property_names(include_overlay = false)
         name_property_selector(include_overlay) { |definition| definition.key?('default_value') }
       end
 
-      def classification_property_names(include_overlay = false)
-        memoized_property_names(:classification, include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
-      end
-
-      def classification_properties(include_overlay = false)
-        property_selector(include_overlay) { |definition| CLASSIFICATION_PROPERTY_TYPES.include?(definition['type']) }
-      end
-
       def asset_property_names
-        name_property_selector { |definition| ASSET_PROPERTY_TYPES.include?(definition['type']) }
+        memoized_property_names(:asset) { |definition| ASSET_PROPERTY_TYPES.include?(definition['type']) }
       end
 
       def schedule_property_names(include_overlay = false)
@@ -555,7 +631,18 @@ module DataCycleCore
       end
 
       def timeseries_property_names(include_overlay = false)
-        name_property_selector(include_overlay) { |definition| TIMESERIES_PROPERTY_TYPES.include?(definition['type']) }
+        memoized_property_names(:timeseries, include_overlay) { |definition| TIMESERIES_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      # Properties no payload carries, whatever representation a receiver renders: a timeseries
+      # value is served from its own endpoint, and the constant behind each of the other three
+      # says why it joins them. Extensions::SyncApi#to_sync_h drops them from what it ships and
+      # DataHash#datahash_changes_trigger_webhooks? wakes nobody for a change to one, both from
+      # this list: a name reaching only the second would leave the payload carrying a value no
+      # later change ever refreshes on the far side.
+      # @return [Array<String>]
+      def non_payload_property_names
+        timeseries_property_names + mongo_source_property_names + dummy_property_names + ext_key_priority_property_names
       end
 
       def external_property_names
@@ -620,6 +707,18 @@ module DataCycleCore
 
       def internal_property_names
         INTERNAL_PROPERTY_NAMES
+      end
+
+      # @see MONGO_SOURCE_PROPERTY_NAMES
+      # @return [Array<String>]
+      def mongo_source_property_names
+        MONGO_SOURCE_PROPERTY_NAMES
+      end
+
+      # @see EXT_KEY_PRIORITY_PROPERTY_NAMES
+      # @return [Array<String>]
+      def ext_key_priority_property_names
+        EXT_KEY_PRIORITY_PROPERTY_NAMES
       end
 
       def resettable_import_property_names
@@ -788,7 +887,7 @@ module DataCycleCore
       delegate :convert_to_type, to: :'DataCycleCore::MasterData::DataConverter'
       delegate :convert_to_string, to: :'DataCycleCore::MasterData::DataConverter'
       delegate :string_to_geographic, to: :'DataCycleCore::MasterData::DataConverter'
-      delegate :geo_properties, :geo_property_names, to: :thing_template
+      delegate :geo_properties, :geo_property_names, :classification_properties, :classification_property_names, to: :thing_template
 
       def parent_templates
         DataCycleCore::ThingTemplate
@@ -823,7 +922,7 @@ module DataCycleCore
       end
 
       def self.shared_ordered_properties(user)
-        contents = includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
+        contents = includes(concepts: [:concept_path, :concept_scheme], full_concepts: [:concept_path, :concept_scheme])
 
         template_properties = all.thing_templates.template_things.map do |t|
           t.schema['properties'].dc_deep_dup
@@ -852,7 +951,7 @@ module DataCycleCore
         }.sort_by { |_, v| v['sorting'] }.to_h
 
         tree_label_names = ordered_properties.values.pluck('tree_label').compact.uniq
-        tree_labels = DataCycleCore::ClassificationTreeLabel.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
+        tree_labels = DataCycleCore::ConceptScheme.where(name: tree_label_names).index_by(&:name) if tree_label_names.present?
 
         ordered_properties.keep_if do |_, v|
           v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(tree_labels[v['tree_label']], 'edit')
@@ -877,7 +976,7 @@ module DataCycleCore
       def set_property_value(property_name, property_definition, value)
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
 
-        ActiveSupport::Deprecation.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}, caller: #{caller.join("\n")}") unless Rails.env.test?
+        DataCycleCore.deprecator.warn("DataCycleCore::Content::Content setter should not be used any more! property_name: #{property_name}, property_definition: #{property_definition}, value: #{value}, caller: #{caller.join("\n")}") unless Rails.env.test?
 
         send(
           :"#{NEW_STORAGE_LOCATION[property_definition['storage_location']]}=",
@@ -907,7 +1006,7 @@ module DataCycleCore
             # TODO: allow initialization of thing without persisting it, to correctly initialize default_values for embedded objects
             value.blank? || (value.is_a?(::Array) && value.all?(::String) && value.all?(&:uuid?)) ? DataCycleCore::Thing.by_ordered_values(value) : DataCycleCore::Thing.none
           elsif classification_property?(key)
-            DataCycleCore::Classification.by_ordered_values(value)
+            DataCycleCore::Concept.by_ordered_values(value)
           elsif asset_property?(key)
             DataCycleCore::Asset.by_ordered_values(value).first
           elsif schedule_property?(key)

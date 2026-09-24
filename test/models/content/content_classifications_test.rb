@@ -11,38 +11,35 @@ module DataCycleCore
           template_name: 'Artikel',
           data_hash: {
             name: 'TestArtikel',
-            tags: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1').map(&:primary_classification_id)
+            tags: DataCycleCore::Concept.for_tree('Tags').with_name('Tag 1').map(&:id)
           }
         )
 
-        @classification_tree = DataCycleCore::ClassificationTreeLabel.create(name: 'MAPPED TAGS')
-        @mapped_tag = @classification_tree.create_classification_alias('MAPPED TAG 1')
-        @mapped_tag.classifications << DataCycleCore::ClassificationAlias.for_tree('Tags')
-          .with_name('Tag 1')
-          .map(&:primary_classification)
-        @mapped_tag.save!
+        @concept_scheme = DataCycleCore::ConceptScheme.create(name: 'MAPPED TAGS')
+        @mapped_tag = @concept_scheme.create_concept('MAPPED TAG 1')
+        @mapped_tag.mapped_concepts << DataCycleCore::Concept.for_tree('Tags').with_name('Tag 1').to_a
       end
 
       test 'it should provide assigned classifications separately' do
-        assert_not_empty(@content.assigned_classification_aliases)
-        assert_includes(@content.assigned_classification_aliases.map(&:name), 'Tag 1')
-        assert_not_includes(@content.assigned_classification_aliases.map(&:name), 'MAPPED TAG 1')
+        assert_not_empty(@content.concepts)
+        assert_includes(@content.concepts.map(&:name), 'Tag 1')
+        assert_not_includes(@content.concepts.map(&:name), 'MAPPED TAG 1')
       end
 
       test 'it should provide mapped classifications separately' do
-        assert_not_empty(@content.mapped_classification_aliases)
-        assert_includes(@content.mapped_classification_aliases.map(&:name), 'MAPPED TAG 1')
-        assert_not_includes(@content.mapped_classification_aliases.map(&:name), 'Tag 1')
+        assert_not_empty(@content.mapped_concepts)
+        assert_includes(@content.mapped_concepts.map(&:name), 'MAPPED TAG 1')
+        assert_not_includes(@content.mapped_concepts.map(&:name), 'Tag 1')
       end
 
       test 'it should provide classifications for specific classification tree' do
-        assert_empty(@content.classification_aliases_for_tree(tree_name: 'Unkown Tree'))
+        assert_empty(@content.concepts_for_tree(scheme_name: 'Unkown Tree'))
 
-        assert_equal(1, @content.classification_aliases_for_tree(tree_name: 'Tags').size)
-        assert_includes(@content.classification_aliases_for_tree(tree_name: 'Tags').map(&:name), 'Tag 1')
+        assert_equal(1, @content.concepts_for_tree(scheme_name: 'Tags').size)
+        assert_includes(@content.concepts_for_tree(scheme_name: 'Tags').map(&:name), 'Tag 1')
 
-        assert_equal(1, @content.classification_aliases_for_tree(tree_name: 'Inhaltstypen').size)
-        assert_includes(@content.classification_aliases_for_tree(tree_name: 'Inhaltstypen').map(&:name), 'Artikel')
+        assert_equal(1, @content.concepts_for_tree(scheme_name: 'Inhaltstypen').size)
+        assert_includes(@content.concepts_for_tree(scheme_name: 'Inhaltstypen').map(&:name), 'Artikel')
       end
     end
   end

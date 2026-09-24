@@ -68,7 +68,7 @@ namespace :dc do
         end
 
         puts '-----------------------------'
-        mapping = DataCycleCore.data_definition_mapping['classification_contents']
+        mapping = DataCycleCore.data_definition_mapping['concept_contents']
         puts 'no mapping for updating classification contents available' if mapping.blank?
 
         mapping.each do |key, value|
@@ -208,46 +208,46 @@ namespace :dc do
         ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
           WITH rows_to_update AS (
-            SELECT content_data_id, classification_id
-            FROM classification_contents
+            SELECT content_data_id, concept_id
+            FROM concept_contents
             WHERE relation IN ('#{classifications.join("','")}')
             AND NOT EXISTS (
-                SELECT 1 FROM classification_contents AS cc
+                SELECT 1 FROM concept_contents AS cc
                 WHERE cc.relation = 'universal_classifications'
-                AND cc.content_data_id = classification_contents.content_data_id
-                AND cc.classification_id = classification_contents.classification_id
+                AND cc.content_data_id = concept_contents.content_data_id
+                AND cc.concept_id = concept_contents.concept_id
             )
           )
-          UPDATE classification_contents
+          UPDATE concept_contents
           SET relation = 'universal_classifications'
-          WHERE (content_data_id, classification_id) IN (SELECT content_data_id, classification_id FROM rows_to_update);
+          WHERE (content_data_id, concept_id) IN (SELECT content_data_id, concept_id FROM rows_to_update);
         SQL
 
         puts 'now histories'
         ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
           WITH rows_to_update AS (
-            SELECT cch1.content_data_history_id, cch1.classification_id
-            FROM classification_content_histories AS cch1
+            SELECT cch1.content_data_history_id, cch1.concept_id
+            FROM concept_content_histories AS cch1
             WHERE cch1.relation IN ('#{classifications.join("','")}')
               AND NOT EXISTS (
                 SELECT 1 FROM
-                  classification_content_histories AS cch2
+                  concept_content_histories AS cch2
                   WHERE cch1.content_data_history_id = cch2.content_data_history_id
-                  AND cch1.classification_id = cch2.classification_id
+                  AND cch1.concept_id = cch2.concept_id
                   AND cch2.relation = 'universal_classifications'
                 )
           )
-          UPDATE classification_content_histories
+          UPDATE concept_content_histories
           SET relation = 'universal_classifications'
-          WHERE (content_data_history_id, classification_id) IN (SELECT content_data_history_id, classification_id FROM rows_to_update);
+          WHERE (content_data_history_id, concept_id) IN (SELECT content_data_history_id, concept_id FROM rows_to_update);
         SQL
 
         puts 'delete rows, where a dataset with universal_classification already existed'
         ActiveRecord::Base.connection.execute <<~SQL.squish
           SET LOCAL statement_timeout = 0;
-          DELETE FROM classification_contents WHERE relation IN ('#{classifications.join("','")}');
-          DELETE FROM classification_content_histories WHERE relation IN ('#{classifications.join("','")}');
+          DELETE FROM concept_contents WHERE relation IN ('#{classifications.join("','")}');
+          DELETE FROM concept_content_histories WHERE relation IN ('#{classifications.join("','")}');
         SQL
       end
 
@@ -300,8 +300,8 @@ namespace :dc do
         end
       end
 
-      # switches classification_id in classification_contents according to their classification_tree_labels
-      desc 'changes classification_id for things according to old and new tree_label'
+      # switches concept_id in concept_contents according to their concept_schemes
+      desc 'changes concept_id for things according to old and new tree_label'
       task :update_classification_contents_based_on_similarity, [:source_attribute, :source_concept_scheme, :target_attribute, :target_concept_scheme, :relation, :templates, :debug] => :environment do |_, args|
         puts "Starting to migrate countries to their corresponding country codes\n"
         from_concept_scheme_name = args.source_concept_scheme
@@ -321,9 +321,9 @@ namespace :dc do
 
           # Count the amount of datasets that need to be updated
           select_cc = <<~SQL.squish
-            SELECT co2.classification_id AS new_classification_id, cc.id
-            FROM classification_contents AS cc
-              JOIN concepts AS co ON cc.classification_id = co.classification_id
+            SELECT co2.id AS new_concept_id, cc.id
+            FROM concept_contents AS cc
+              JOIN concepts AS co ON cc.concept_id = co.id
               JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
                 AND cs.name = ?
               JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
@@ -342,16 +342,16 @@ namespace :dc do
           rows_to_update = ActiveRecord::Base.connection.select_all(sanitized_select_cc)
           puts "Datasets to migrate:  #{rows_to_update.count}\n"
 
-          # Update the classification id in classification_contents old to new classification_ids
+          # Update the classification id in concept_contents old to new concept_ids
           update_cc = <<~SQL.squish
-            WITH classification_contents_update AS (
-              UPDATE classification_contents as c1
-              SET classification_id = cl_update.new_classification_id
+            WITH concept_contents_update AS (
+              UPDATE concept_contents as c1
+              SET concept_id = cl_update.new_concept_id
               FROM (
-                  SELECT co2.classification_id AS new_classification_id,
+                  SELECT co2.id AS new_concept_id,
                     cc.id
-                  FROM classification_contents AS cc
-                    JOIN concepts AS co ON cc.classification_id = co.classification_id
+                  FROM concept_contents AS cc
+                    JOIN concepts AS co ON cc.concept_id = co.id
                     JOIN concept_schemes AS cs ON cs.id = co.concept_scheme_id
                       AND cs.name = ?
                     JOIN concepts AS co2 ON co2.#{target_attribute} = co.#{source_attribute}
@@ -369,7 +369,7 @@ namespace :dc do
             SET cache_valid_since = null
             WHERE th.id IN (
                 SELECT content_data_id
-                FROM classification_contents_update
+                FROM concept_contents_update
               )
           SQL
 
@@ -588,7 +588,7 @@ namespace :dc do
                         locale: locale.to_s.in?(['de', 'en']) ? locale : 'de'
                       ),
                       'description' => value,
-                      'type_of_information' => DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(
+                      'type_of_information' => DataCycleCore::Concept.ids_for_tree_with_name(
                         mapping_type == 'internal' ? 'Informationstypen' : 'Externe Informationstypen',
                         info_type_mapping_key
                       )

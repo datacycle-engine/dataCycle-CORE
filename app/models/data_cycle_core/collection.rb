@@ -113,14 +113,6 @@ module DataCycleCore
     before_save :update_description_stripped, if: :description_changed?
     around_save :retry_on_unique_violation
 
-    def classification_tree_labels
-      concept_schemes.pluck(:id)
-    end
-
-    def classification_tree_labels=(value)
-      self.concept_scheme_ids = value
-    end
-
     def valid_write_links?
       valid_write_links.present?
     end
@@ -131,6 +123,34 @@ module DataCycleCore
       shared_users.pluck(:id).include?(user.id) ||
         shared_user_groups.pluck(:id).intersect?(user.user_groups.pluck(:id)) ||
         shared_roles.pluck(:id).include?(user.role_id)
+    end
+
+    # Drops +concept_id+ from every collection parameter that holds a list of concept ids. Called
+    # from Concept and ConceptScheme on destroy: a stored filter must not keep filtering on a
+    # concept that no longer exists. Raw SQL because `parameters` is a jsonb array of filter hashes
+    # and only the ones whose `v` is itself an array can lose an element.
+    def self.remove_concept_id_from_parameters(concept_id)
+      connection.exec_query sanitize_sql([<<~SQL.squish, { concept_id: }])
+        WITH subquery AS
+        (
+            SELECT
+              id,
+              jsonb_agg( CASE
+                WHEN jsonb_typeof( elem -> 'v' ) = 'array'
+                THEN jsonb_set( elem,'{v}',( ( elem -> 'v' ) - :concept_id ) )
+                ELSE elem
+            END ) AS new_parameters
+            FROM
+              collections ,
+              jsonb_array_elements( parameters ) elem
+            WHERE parameters::TEXT ILIKE '%' || :concept_id || '%'
+            GROUP BY id
+        )
+        UPDATE collections
+        SET
+          parameters = subquery.new_parameters FROM subquery
+        WHERE collections.id = subquery.id
+      SQL
     end
 
     def self.things

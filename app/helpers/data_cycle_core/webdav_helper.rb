@@ -73,8 +73,8 @@ module DataCycleCore
           .compact +
         ['Klassifizierungen:'] +
         thing
-          .classification_aliases
-          .map { |i| i.classification_alias_path.full_path_names.reverse.join(' > ') }
+          .concepts
+          .map { |i| i.concept_path.full_path_names.reverse.join(' > ') }
       ).join("\n")
     end
   end

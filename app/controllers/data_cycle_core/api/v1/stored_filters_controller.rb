@@ -17,7 +17,7 @@ module DataCycleCore
           query = @stored_filter.apply
           query = query.page(permitted_params[:page])
 
-          @contents = query.includes(:classifications, :translations, :watch_lists)
+          @contents = query.includes(:concepts, :translations, :watch_lists)
           @total = @contents.total_count
         end
 

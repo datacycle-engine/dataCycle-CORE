@@ -20,7 +20,7 @@ module DataCycleCore
       seg = Subject.new('Tags > Test')
 
       assert_equal DataCycleCore::Thing, seg.subject
-      assert seg.conditions.key?(:classification_aliases)
+      assert seg.conditions.key?(:concepts)
     end
 
     test 'to_restrictions renders the concept paths' do

@@ -47,25 +47,6 @@ module DataCycleCore
       }.compact
     end
 
-    def classification_polygon_properties(classification_polygon)
-      {
-        '@id': classification_polygon.id,
-        classificationId: classification_polygon.classification_alias.id,
-        name: classification_polygon.classification_alias.internal_name
-      }
-    end
-
-    def classification_polygon_features(classification_alias)
-      {
-        classification_polygon: {
-          type: 'FeatureCollection',
-          features: classification_alias.classification_polygons.map do |p|
-            value_to_geojson(p.geom_simple, classification_polygon_properties(p))
-          end
-        }
-      }.to_json
-    end
-
     def additional_map_values_overlay(content, definition, options)
       paths = definition&.dig('ui', 'edit', 'options', 'additional_value_paths')
       overlay_paths = definition&.dig('ui', 'edit', 'options', 'additional_values_overlay')
@@ -114,12 +95,12 @@ module DataCycleCore
       filter_bbox = nil
       concept_ids = (
         Array.wrap(filters&.select { |f| f['q'] == 'geo_within_classification' && f['t'] == 'geo_filter' }&.pluck('v')&.flatten) +
-        Array.wrap(filters&.select { |f| f['t'] == 'classification_alias_ids' }&.pluck('v')&.flatten)
+        Array.wrap(filters&.select { |f| f['t'] == 'concept_ids' }&.pluck('v')&.flatten)
       ).uniq
 
       if concept_ids.present?
-        polygons = DataCycleCore::ClassificationPolygon.where(classification_alias_id: concept_ids)
-        existing_concept_ids = polygons.pluck(:classification_alias_id)
+        polygons = DataCycleCore::ConceptPolygon.where(concept_id: concept_ids)
+        existing_concept_ids = polygons.pluck(:concept_id)
         filter_bbox = polygons.to_bbox
         filter_layers['concept_ids'] = existing_concept_ids
       end
@@ -136,11 +117,11 @@ module DataCycleCore
     def classification_tree_filter(tree_label)
       {
         label: tree_label,
-        value: DataCycleCore::ClassificationAlias
-          .includes(:classification_tree_label, :parent_classification_alias)
-          .where(classification_tree_labels: { name: tree_label })
+        value: DataCycleCore::Concept
+          .includes(:concept_scheme, :parent)
+          .where(concept_schemes: { name: tree_label })
           .order(created_at: :asc)
-          .group_by { |c| c.parent_classification_alias&.id }
+          .group_by { |c| c.parent&.id }
       }
     end
 

@@ -81,12 +81,12 @@ module DataCycleCore
             SQL
 
             sql = <<~SQL.squish
-              LEFT OUTER JOIN collected_classification_contents ccc ON ccc.thing_id = contents.id
+              LEFT OUTER JOIN collected_concept_contents ccc ON ccc.thing_id = contents.id
               AND ccc.link_type IN ('direct', 'related')
               AND ccc.hidden = FALSE
-              AND ccc.classification_tree_label_id IN (?)
-              LEFT OUTER JOIN concept_schemes cs ON cs.id = ccc.classification_tree_label_id
-              LEFT OUTER JOIN concepts c ON c.id = ccc.classification_alias_id
+              AND ccc.concept_scheme_id IN (?)
+              LEFT OUTER JOIN concept_schemes cs ON cs.id = ccc.concept_scheme_id
+              LEFT OUTER JOIN concepts c ON c.id = ccc.concept_id
               AND c.external_system_id IS NOT NULL
               AND c.external_key IS NOT NULL
             SQL

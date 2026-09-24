@@ -6,17 +6,21 @@ module DataCycleCore
       class StoredFiltersController < ::DataCycleCore::Api::V4::ContentsController
         VALIDATE_PARAMS_CONTRACT = MasterData::Contracts::ApiCollectionContract
 
+        def index
+          @stored_filters = apply_paging(DataCycleCore::StoredFilter.accessible_by(current_ability, :api).named)
+        end
+
         def create
           @collection = DataCycleCore::Collection.by_id_or_slug(permitted_params[:endpoint]).first!
           @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
           @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
-          @classification_trees_parameters |= Array.wrap(@collection.classification_tree_labels)
+          @classification_trees_parameters |= Array.wrap(@collection.concept_scheme_ids)
           @type = permitted_params.dig(:collection, :@type) || WatchList::API_V4_TYPE
 
           if @type == WatchList::API_V4_TYPE
             @new_collection = DataCycleCore::WatchList.create(
               full_path: permitted_params.dig(:collection, :name) || "#{@collection.name.presence || 'Temp Collection'} - #{Time.current.iso8601}",
-              classification_tree_labels: @classification_trees_parameters,
+              concept_scheme_ids: @classification_trees_parameters,
               linked_stored_filter_id: @collection.linked_stored_filter_id,
               manual_order: true,
               api: true,
@@ -29,7 +33,7 @@ module DataCycleCore
           elsif @type == StoredFilter::API_V4_TYPE
             # [TODO] create stored_filter, implement parameters transformation for APIv4 filters
             # @new_collection = @collection.to_stored_filter
-            # @new_collection.classification_tree_labels = @classification_trees_parameters
+            # @new_collection.concept_scheme_ids = @classification_trees_parameters
             # @new_collection.apply_sorting_from_api_parameters(permitted_params.to_h)
             # @new_collection.parameters += Array.wrap(permitted_params[:filter].to_h)
             # @new_collection.save!
@@ -54,6 +58,18 @@ module DataCycleCore
         end
 
         private
+
+        # ApiCollectionContract cannot validate #index: the :endpoint it requires is what
+        # #create resolves the source collection from, so #index would be rejected outright.
+        #
+        # Returning nil does not skip validation - ApiService#validate_api_params falls back
+        # to the catch-all ApiContract. That one also covers the content-lookup params this
+        # controller inherits from ContentsController (uuids, external_keys, content_id),
+        # which listing endpoints ignores, so `?uuids=<id>` answered 200 with every endpoint.
+        # ApiCollectionIndexContract is the list shape its siblings use instead.
+        def validate_params_contract
+          action_name == 'index' ? MasterData::Contracts::ApiCollectionIndexContract : super
+        end
 
         def permitted_parameter_keys
           super + [:endpoint, { collection: [:@type, :name, :validFrom, :validUntil] }]

@@ -1,0 +1,51 @@
+<%# value is nil for a filter just added from the dropdown, and jsonb of any shape for a stored one %>
+<% value = value.is_a?(::Hash) ? value : {} %>
+
+<div data-id="<%= identifier %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{identifier}][c]", local_assigns[:filter_code] || 'a' %>
+  <%= hidden_field_tag "f[#{identifier}][t]", :export_status %>
+  <%= hidden_field_tag "f[#{identifier}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name&.underscore_blanks, icon_class: 'filter' %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: active_ui_locale) %></span>
+  </div>
+
+  <%# system, then mode, then status, so the row reads as the query it builds:
+      "Export-Status | feratel | enthält nicht | Erfolgreich". The mode negates the status alone,
+      never the export itself (see Filter::Common::External#not_export_status). %>
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{identifier}][v][external_system_ids]",
+      options_for_select(export_status_system_options(value.dig('external_system_ids')), value.dig('external_system_ids')),
+      {
+        multiple: true,
+        class: 'multi-select',
+        data: {
+          initial_focus: true,
+          placeholder: ''
+        }
+      }) %>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= select_tag "f[#{identifier}][m]", options_for_select([[t("common.has", locale: active_ui_locale), 'i'], [t("common.has_not", locale: active_ui_locale), 'e']], filter_method) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{identifier}][v][status]",
+      options_for_select(export_status_filter_options, value.dig('status')),
+      {
+        multiple: true,
+        class: 'multi-select',
+        data: {
+          placeholder: ''
+        }
+      }) %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) && local_assigns[:filter_buttons] %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= identifier %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

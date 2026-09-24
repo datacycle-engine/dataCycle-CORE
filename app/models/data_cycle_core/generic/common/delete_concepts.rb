@@ -24,8 +24,10 @@ module DataCycleCore
           external_keys = raw_data.filter_map { |data| data.dump[locale]&.dig(*external_key_path) }
           external_keys.map! { |key| [options.dig(:import, :external_key_prefix), key].join } if options.dig(:import, :external_key_prefix)
 
-          to_destroy = DataCycleCore::ClassificationTree.includes(:sub_classification_alias).where(
-            sub_classification_alias: { external_source_id: utility_object.external_source.id, external_key: external_keys }
+          # develop destroyed the classification_trees row and let the cascade take the alias with
+          # it; the tree node is the concept itself now.
+          to_destroy = DataCycleCore::Concept.where(
+            external_system_id: utility_object.external_source.id, external_key: external_keys
           )
           count = to_destroy.count
 

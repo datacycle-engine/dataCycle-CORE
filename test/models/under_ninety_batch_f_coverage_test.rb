@@ -18,15 +18,15 @@ module DataCycleCore
       end
     end
 
-    # --- Classification --------------------------------------------------------
-    test 'Classification mapped_to / ancestors / descendants resolve from the primary alias' do
-      classification = DataCycleCore::ClassificationAlias.for_tree('Tags').first&.primary_classification
+    # --- Concept ---------------------------------------------------------------
+    test 'Concept mapped_inverse_concepts / ancestors / descendants resolve' do
+      concept = DataCycleCore::Concept.for_tree('Tags').first
 
-      skip 'no seeded Tags classification' if classification.nil?
+      skip 'no seeded Tags concept' if concept.nil?
 
-      assert_respond_to classification.mapped_to, :to_a
-      assert_kind_of Array, classification.ancestors
-      assert_kind_of Array, classification.descendants
+      assert_respond_to concept.mapped_inverse_concepts, :to_a
+      assert_respond_to concept.ancestors, :to_a
+      assert_respond_to concept.descendants, :to_a
     end
 
     # --- StoredFilterExtensions::FilterParamsHashParser ------------------------

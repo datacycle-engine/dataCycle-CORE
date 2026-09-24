@@ -6,10 +6,10 @@ module DataCycleCore
   class StoredFilterTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
       @current_user = User.find_by(email: 'tester@datacycle.at')
-      @person_and_organization_ids = DataCycleCore::ClassificationAlias
+      @person_and_organization_ids = DataCycleCore::Concept
         .for_tree('Inhaltstypen')
         .with_internal_name(['Person', 'Organisation']).pluck(:id)
-      @expected_parameters = [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'a' }].to_set
+      @expected_parameters = [{ 't' => 'concept_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'a' }].to_set
       @previous_user_filters = DataCycleCore.user_filters.deep_dup
     end
 
@@ -100,7 +100,7 @@ module DataCycleCore
       stored_filter = DataCycleCore::StoredFilter.new.apply_user_filter(@current_user, { scope: 'backend' })
 
       assert_equal [], stored_filter.parameters
-      assert_equal [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'u' }].to_set, stored_filter.user_filter_parameters.to_set
+      assert_equal [{ 't' => 'concept_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'u' }].to_set, stored_filter.user_filter_parameters.to_set
 
       DataCycleCore.user_filters = @previous_user_filters
     end
@@ -111,7 +111,7 @@ module DataCycleCore
       stored_filter = DataCycleCore::StoredFilter.new.apply_user_filter(@current_user, { scope: 'backend' })
 
       assert_equal [], stored_filter.parameters
-      assert_equal [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'uf' }].to_set, stored_filter.user_filter_parameters.to_set
+      assert_equal [{ 't' => 'concept_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'uf' }].to_set, stored_filter.user_filter_parameters.to_set
 
       DataCycleCore.user_filters = @previous_user_filters
     end
@@ -122,7 +122,7 @@ module DataCycleCore
       stored_filter = DataCycleCore::StoredFilter.new.apply_user_filter(@current_user, { scope: 'api_linked' })
 
       assert_equal [], stored_filter.parameters
-      assert_equal [{ 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'uf' }].to_set, stored_filter.user_filter_parameters.to_set
+      assert_equal [{ 't' => 'concept_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'uf' }].to_set, stored_filter.user_filter_parameters.to_set
 
       DataCycleCore.user_filters = @previous_user_filters
     end
@@ -170,7 +170,7 @@ module DataCycleCore
 
       # a base parameter that filters the same classifications as the forced user filter, but as a plain
       # (removable, `c: 'a'`) parameter - i.e. equal to the user filter ignoring context.
-      base_param = { 't' => 'classification_alias_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'a' }
+      base_param = { 't' => 'concept_ids', 'm' => 'i', 'n' => 'Inhaltstypen', 'v' => @person_and_organization_ids, 'c' => 'a' }
       stored_filter = DataCycleCore::StoredFilter.new(parameters: [base_param.deep_dup])
       stored_filter.apply_user_filter(@current_user, { scope: 'backend' })
 

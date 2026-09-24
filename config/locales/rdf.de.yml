@@ -1,0 +1,5 @@
+de:
+  rdf:
+    ontology:
+      title: "dataCycle Instanz-Ontologie"
+      comment: "Automatisch aus den DataDefinitions generierte RDFS/OWL-Ontologie der instanzeigenen Klassen (dcls:) und ihrer Properties, gemappt auf schema.org/dct/odta. Beschreibt das Vokabular (TBox) hinter den als JSON-LD ausgelieferten Instanzdaten."

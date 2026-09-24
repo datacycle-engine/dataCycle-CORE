@@ -17,12 +17,12 @@ module DataCycleCore
       end
 
       test 'system_admin may show the external uri of a concept' do
-        assert ability_for('system_admin').can?(:show_uri, DataCycleCore::ClassificationAlias)
+        assert ability_for('system_admin').can?(:show_uri, DataCycleCore::Concept)
       end
 
       test 'every other role may not show the external uri of a concept' do
         (DataCycleCore::Role.pluck(:name) - ['system_admin']).each do |role_name|
-          assert_not ability_for(role_name).can?(:show_uri, DataCycleCore::ClassificationAlias), "#{role_name} must not see concept uris"
+          assert_not ability_for(role_name).can?(:show_uri, DataCycleCore::Concept), "#{role_name} must not see concept uris"
         end
       end
     end

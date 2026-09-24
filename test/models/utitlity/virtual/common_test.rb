@@ -80,7 +80,7 @@ module DataCycleCore
             def joins(_association) = self
             def exists?(_condition) = true
           }.new
-          content = struct_double(classification_aliases: relation)
+          content = struct_double(concepts: relation)
 
           assert(subject.send(:content_in_filter?, content, [{ 'type' => 'classification', 'value' => 'Lizenzen > CC0' }], 'license'))
         end

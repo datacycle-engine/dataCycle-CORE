@@ -2,7 +2,11 @@
 
 module DataCycleCore
   class UpdateTranslatedComputedPropertiesJob < UniqueApplicationJob
-    queue_as :cache_invalidation
+    # Same starved tier as DataCycleCore::UpdateComputedPropertiesJob - see the note there. Priority
+    # matched to its siblings so it does not sort ahead of them on the strength of the
+    # DataCycleCore::ApplicationJob default it used to inherit.
+    queue_as :content_maintenance
+    queue_with_priority 12
     limits_concurrency key: ->(*args) { "#{args[0]}/#{args[1].join(',')}/#{args[2]&.join(',')}" }
 
     def perform(id, locales, keys = nil)

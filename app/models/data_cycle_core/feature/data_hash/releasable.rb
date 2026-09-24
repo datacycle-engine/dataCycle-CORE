@@ -22,11 +22,11 @@ module DataCycleCore
         def update_release_status(data_hash:, current_user:)
           data_links.where(receiver_id: current_user.id, permissions: 'write').update_all(permissions: 'read')
 
-          review_classification_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('review'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.pluck(:id)
+          review_concept_ids = Array.wrap(DataCycleCore::Feature::Releasable.stage_concept_id('review')).presence
 
-          return unless DataCycleCore::Feature::Releasable.allowed?(self) && review_classification_id.present?
+          return unless DataCycleCore::Feature::Releasable.allowed?(self) && review_concept_ids.present?
 
-          data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = review_classification_id
+          data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = review_concept_ids
         end
 
         def notify_subscribers(current_user:)

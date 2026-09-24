@@ -6,12 +6,12 @@
     </ul>
   </li>
 <% else %>
-  <li id="<%= @classification_tree_label.id %>">
-    <h5><%= t("tree_view.#{@classification_tree_label.name}", locale: active_ui_locale, default: @classification_tree_label.name) %></h5>
+  <li id="<%= @concept_scheme.id %>">
+    <h5><%= t("tree_view.#{@concept_scheme.name}", locale: active_ui_locale, default: @concept_scheme.name) %></h5>
     <ul class="children">
-      <%= render 'data_cycle_core/contents/tree/classification_trees',
-        classification_tree_label: @classification_tree_label,
-        classification_trees: @classification_trees %>
+      <%= render 'data_cycle_core/contents/tree/concepts',
+        concept_scheme: @concept_scheme,
+        concepts: @concepts %>
     </ul>
   </li>
 <% end %>

@@ -1,0 +1,24 @@
+---
+# [#51643] A _generated attribute without its base attribute is a config error, not a companion.
+- :data:
+    :name: TestGeneratedMissingBase
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :subtitle_generated:
+        :label: Untertitel (generiert)
+        :type: string
+        :storage_location: translated_value
+        :local: true
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :parameters:
+            - id

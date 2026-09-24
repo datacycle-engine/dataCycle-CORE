@@ -1,0 +1,42 @@
+---
+# Mirrors datacycle-schema-cms' focus_point mixin. The annotationPixie writes both attributes
+# through hidden fields on the ordinary save path, which parses submitted numbers with #to_i unless
+# the float format is declared -- a focus point of 0.25 would silently persist as 0.
+- :data:
+    :name: focus_point
+    :type: mixin
+    :properties:
+      :focus_point_x:
+        :label: Fokuspunkt X
+        :type: number
+        :storage_location: value
+        :local: true
+        :visible: api
+        :validations:
+          :format: float
+        :features:
+          :focus_point_editor:
+            :allowed: true
+        :api:
+          :name: x
+          :transformation:
+            :type: dc:FocusPoint
+            :method: merge_object
+            :name: dc:focusPoint
+      :focus_point_y:
+        :label: Fokuspunkt Y
+        :type: number
+        :storage_location: value
+        :local: true
+        :visible: api
+        :validations:
+          :format: float
+        :features:
+          :focus_point_editor:
+            :allowed: true
+        :api:
+          :name: y
+          :transformation:
+            :type: dc:FocusPoint
+            :method: merge_object
+            :name: dc:focusPoint

@@ -3,18 +3,18 @@
 json ||= {}
 
 unless @mode_parameters.include?('compact')
-  classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
-  if classification_aliases.present?
+  concepts = content.send(key)
+  if concepts.present?
     key_new = definition.dig('api', 'name') || key.camelize(:lower)
     if definition.dig('api', 'transformation', 'method') == 'serialize' && definition.dig('api', 'transformation', 'name') == 'string'
-      json[key_new] = classification_aliases.map do |classification_alias|
+      json[key_new] = concepts.map do |concept|
         {
           '@type' => definition.dig('api', 'type') || 'Enumeration',
-          'name' => classification_alias.description || classification_alias.name || classification_aliases.internal_name
+          'name' => concept.description || concept.name || concepts.internal_name
         }
       end
     else
-      json.merge! render 'classifications', classification_aliases:, key: key_new, definition:
+      json.merge! render 'classifications', concepts:, key: key_new, definition:
     end
   end
 end

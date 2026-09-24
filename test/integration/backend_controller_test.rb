@@ -9,9 +9,9 @@ module DataCycleCore
   class BackendControllerTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
     before(:all) do
       @routes = Engine.routes
-      @inhaltstypen = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-      @classification_tree = @inhaltstypen.classification_trees.find { |t| t.sub_classification_alias.present? }
-      @tags_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').first
+      @inhaltstypen = DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')
+      @inhaltstyp = @inhaltstypen.concepts.find { |c| c.children.present? }
+      @tags_concept = DataCycleCore::Concept.for_tree('Tags').first
       @thing = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Backend Cov Artikel' })
       @external_system = DataCycleCore::ExternalSystem.find_by(identifier: 'remote-system')
       @imported_thing = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Backend Cov Imported' })
@@ -25,7 +25,7 @@ module DataCycleCore
 
     # ---------- tree mode ----------
     test 'tree mode for a classification tree (ct_id) lists subtree and contents' do
-      get root_path(mode: 'tree', ctl_id: @inhaltstypen.id, ct_id: @classification_tree.id, reset: true), headers: { referer: root_path }
+      get root_path(mode: 'tree', ctl_id: @inhaltstypen.id, ct_id: @inhaltstyp.id, reset: true), headers: { referer: root_path }
 
       assert_response :success
     end
@@ -33,7 +33,7 @@ module DataCycleCore
     test 'tree mode within a container (con_id) loads part_of contents via xhr' do
       # request json: the container branch sets @contents but not @classification_trees,
       # so the html tree partial would crash -> the json branch renders the count partial.
-      get root_path(format: :json, mode: 'tree', ctl_id: @inhaltstypen.id, con_id: @thing.id, cpt_id: @classification_tree.id, reset: true),
+      get root_path(format: :json, mode: 'tree', ctl_id: @inhaltstypen.id, con_id: @thing.id, cpt_id: @inhaltstyp.id, reset: true),
           xhr: true, headers: { referer: root_path }
 
       assert_response :success
@@ -61,7 +61,7 @@ module DataCycleCore
 
     test 'starting a search while grouped by external systems does not raise' do
       # regression: the search form now submits ctl_id=external_systems instead of a blank ctl_id,
-      # which previously reached ClassificationTreeLabel.find('') and raised RecordNotFound
+      # which previously reached ConceptScheme.find('') and raised RecordNotFound
       get root_path(mode: 'tree', ctl_id: 'external_systems', reset: true),
           params: { f: { '0' => { 'c' => 'a', 'n' => 'Suche', 't' => 'fulltext_search', 'v' => 'Backend Cov' } } },
           headers: { referer: root_path }
@@ -85,10 +85,10 @@ module DataCycleCore
     # ---------- count_only modes ----------
     test 'count_only returns totals for each count_mode' do
       [
-        { count_mode: 'classification_alias', ct_id: @classification_tree.id },
-        { count_mode: 'ca_related', ct_id: @classification_tree.id },
-        { count_mode: 'ca_recursive', ct_id: @classification_tree.id },
-        { count_mode: 'classification_tree_label', ctl_id: @inhaltstypen.id },
+        { count_mode: 'concept', ct_id: @inhaltstyp.id },
+        { count_mode: 'ca_related', ct_id: @inhaltstyp.id },
+        { count_mode: 'ca_recursive', ct_id: @inhaltstyp.id },
+        { count_mode: 'concept_scheme', ctl_id: @inhaltstypen.id },
         { count_mode: 'container', con_id: @thing.id },
         { count_mode: 'external_system', es_id: @external_system.id }
       ].each do |extra|
@@ -124,8 +124,8 @@ module DataCycleCore
         f: {
           # a non-classification filter so the select-block reaches the geo/advanced clauses
           '0' => { 'c' => 'a', 'n' => 'Suche', 't' => 'fulltext_search', 'v' => 'Backend Cov' },
-          # a classification_alias_ids filter -> @selected_classification_aliases lookup
-          '1' => { 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids', 'v' => [@tags_alias.id] },
+          # a concept_ids filter -> @selected_classification_aliases lookup
+          '1' => { 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids', 'v' => [@tags_concept.id] },
           # a Hash-valued (empty) filter -> exercises the Hash branch of the pre_filters reject
           '2' => { 'c' => 'b', 'n' => 'Leer', 't' => 'fulltext_search', 'v' => { 'min' => '', 'max' => '' } }
         }

@@ -88,7 +88,7 @@ module DataCycleCore
       test 'it raises rather than deleting the entire export when no endpoint contains anything' do
         parameters = @endpoint.parameters
 
-        @endpoint.update!(parameters: [{ 'n' => 'Inhaltstypen', 't' => 'classification_alias_ids', 'v' => [SecureRandom.uuid] }])
+        @endpoint.update!(parameters: [{ 'n' => 'Inhaltstypen', 't' => 'concept_ids', 'v' => [SecureRandom.uuid] }])
 
         assert_raises(SUBJECT::Error) { cleanup.stale }
       ensure

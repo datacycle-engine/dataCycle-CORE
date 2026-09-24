@@ -128,7 +128,7 @@ module DataCycleCore
 
               in_filter = case config['type']
                           when 'classification'
-                            id = DataCycleCore::Concept.by_full_paths(config['value']).first&.classification_id
+                            id = DataCycleCore::Concept.by_full_paths(config['value']).first&.id
                             next false if id.nil?
 
                             Array.wrap(config['key']).any? { |k| Array.wrap(get_values_from_hash(data:, key_path: [k], external_source_id:)).include?(id) }

@@ -34,7 +34,7 @@ module DataCycleCore
         end
 
         test 'geoshape_from_concept queries classification polygons for the given concepts' do
-          ids = get_classification_ids('Tags', 'Tag 1')
+          ids = get_concept_ids('Tags', 'Tag 1')
 
           # Tags have no polygons, so the union query returns a blank geometry, but the SQL path is exercised.
           assert_nil(subject.geoshape_from_concept(computed_parameters: { 'areas' => ids }))

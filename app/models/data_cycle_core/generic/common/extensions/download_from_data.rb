@@ -30,7 +30,13 @@ module DataCycleCore
             end
           end
 
+          # data_sorting only decides which of several items sharing a data_id the $group keeps, and
+          # both callers here - DownloadBulkTouchFromData and DownloadBulkMarkDeleted - read nothing
+          # but the id, which is the same whichever one wins. Dropping it saves a $sort over every
+          # unwound item on each of those passes.
           def load_ids_from_mongo(options:, **)
+            options = options.deep_merge(download: { data_sorting: nil })
+
             if options.dig(:download, :data_id_transformation)
               load_data_from_mongo(options:, **)
                 .map { |s| data_id(options.dig(:download, :data_id_transformation), s) }

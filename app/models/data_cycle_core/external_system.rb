@@ -16,16 +16,15 @@ module DataCycleCore
     # relations as external_system
     has_many :things, through: :external_system_syncs, source: :syncable, source_type: 'DataCycleCore::Thing'
     has_many :users, through: :external_system_syncs, source: :syncable, source_type: 'DataCycleCore::User'
+    # rubocop:disable Rails/HasManyOrHasOneDependent
+    # Concept and ConceptScheme name the column external_system_id, so these need no foreign_key.
+    # concept_contents carries none at all, which is why there is no inverse for it here.
+    has_many :concepts, inverse_of: :external_system
+    has_many :concept_schemes, inverse_of: :external_system
+    # rubocop:enable Rails/HasManyOrHasOneDependent
 
     # relations as external_source
     # rubocop:disable Rails/HasManyOrHasOneDependent, Rails/InverseOf
-    has_many :classifications, foreign_key: :external_source_id, inverse_of: :external_source
-    has_many :classification_alias, foreign_key: :external_source_id, inverse_of: :external_source
-    has_many :classification_contents, foreign_key: :external_source_id
-    has_many :classification_content_histories, foreign_key: :external_source_id
-    has_many :classification_groups, foreign_key: :external_source_id, inverse_of: :external_source
-    has_many :classification_tree_labels, foreign_key: :external_source_id, inverse_of: :external_source
-    has_many :classification_trees, foreign_key: :external_source_id, inverse_of: :external_source
     has_many :content_contents, foreign_key: :external_source_id
     has_many :content_content_histories, foreign_key: :external_source_id
     has_many :imported_things, foreign_key: :external_source_id, class_name: 'DataCycleCore::Thing', inverse_of: :external_source
@@ -75,6 +74,7 @@ module DataCycleCore
       query
     }
     scope :with_import_config, -> { where("external_systems.config ->> 'import_config' IS NOT NULL") }
+    scope :with_export_config, -> { where("external_systems.config ->> 'export_config' IS NOT NULL") }
     scope :deactivated, -> { where(deactivated: true) }
     scope :activated, -> { where(deactivated: false) }
 

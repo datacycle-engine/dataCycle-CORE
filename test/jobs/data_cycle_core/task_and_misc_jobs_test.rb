@@ -46,12 +46,7 @@ module DataCycleCore
       assert_equal 'discard', DataCycleCore::RunTaskJob.concurrency_on_conflict.to_s
 
       job = DataCycleCore::RunTaskJob.new('my:task', ['a'])
-      SolidQueue::Job.create!(
-        queue_name: job.queue_name,
-        class_name: job.class.name,
-        arguments: job.serialize,
-        concurrency_key: job.concurrency_key
-      )
+      create_queue_row(job)
 
       assert_empty SolidQueue::BlockedExecution.where(concurrency_key: job.concurrency_key)
       assert_not DataCycleCore::RunTaskJob.perform_later('my:task', ['a'])
@@ -59,25 +54,23 @@ module DataCycleCore
     end
 
     # The counterpart for the default :block mode, which is what all but three UniqueApplicationJob
-    # subclasses use. The test adapter never writes solid_queue_jobs, so the blocking state has to be
-    # built by hand — without it abort_if_queued would find nothing and every one of those classes
-    # would silently stop deduplicating. CheckForDuplicatesJob stands in for the whole set: what is
-    # under test is UniqueApplicationJob's before_enqueue, not anything specific to that job.
-    test 'a blocking unique job drops a duplicate once one is waiting on the same key' do
+    # subclasses use. CheckForDuplicatesJob stands in for the whole set: what is under test is
+    # UniqueApplicationJob's before_enqueue, not anything specific to that job.
+    test 'a blocking unique job keeps one waiting duplicate and drops the next' do
       assert_equal 'block', DataCycleCore::CheckForDuplicatesJob.concurrency_on_conflict.to_s
 
       job = DataCycleCore::CheckForDuplicatesJob.new(UUID)
-      # a held semaphore makes SolidQueue block the next job for the key instead of readying it
-      SolidQueue::Semaphore.create!(key: job.concurrency_key, value: 0, expires_at: 1.hour.from_now)
-      row = SolidQueue::Job.create!(
-        queue_name: job.queue_name,
-        class_name: job.class.name,
-        arguments: job.serialize,
-        concurrency_key: job.concurrency_key
-      )
+      running = create_queue_row(job)
 
-      assert SolidQueue::BlockedExecution.exists?(job_id: row.id)
+      # the waiting slot is still free, and what goes into it is what carries the newest state
+      assert_predicate running, :ready?
+      assert_enqueued_jobs 1, only: DataCycleCore::CheckForDuplicatesJob do
+        assert DataCycleCore::CheckForDuplicatesJob.perform_later(UUID)
+      end
 
+      waiting = create_queue_row(job)
+
+      assert SolidQueue::BlockedExecution.exists?(job_id: waiting.id)
       assert_no_enqueued_jobs only: DataCycleCore::CheckForDuplicatesJob do
         assert_not DataCycleCore::CheckForDuplicatesJob.perform_later(UUID)
       end

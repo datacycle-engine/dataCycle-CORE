@@ -29,7 +29,7 @@ module DataCycleCore
         }
       }, content:)
 
-      assert_equal([@tag1.classification_id], value)
+      assert_equal([@tag1.id], value)
     end
 
     test 'should take classification for external system by identifier' do
@@ -44,7 +44,7 @@ module DataCycleCore
         }
       }, content:)
 
-      assert_equal([@tag1.classification_id], value)
+      assert_equal([@tag1.id], value)
     end
 
     test 'should take classification for default' do
@@ -59,7 +59,7 @@ module DataCycleCore
         }
       }, content:)
 
-      assert_equal([@tag2.classification_id], value)
+      assert_equal([@tag2.id], value)
     end
   end
 end

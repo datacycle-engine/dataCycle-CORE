@@ -11,7 +11,7 @@ module DataCycleCore
 
     def key_for(things_ids, method_name: 'update_things_search')
       DataCycleCore::CacheInvalidationDestroyJob
-        .new('DataCycleCore::ClassificationAlias', ALIAS_ID, method_name, things_ids)
+        .new('DataCycleCore::Concept', ALIAS_ID, method_name, things_ids)
         .concurrency_key
     end
 
@@ -41,7 +41,7 @@ module DataCycleCore
     end
 
     # every caller enqueues update_things_search beside this one and nothing that invalidates —
-    # ClassificationAlias#invalidate_things_cache hangs off after_update. The payload of a linking
+    # Concept#invalidate_things_cache hangs off after_update. The payload of a linking
     # content is cached under its own timestamps, which a classification change never moves, so
     # without the invalidation the re-export ships exactly what the receiver already has.
     test 'the linking contents are invalidated before the re-export goes out' do
@@ -53,7 +53,7 @@ module DataCycleCore
       DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*) {}) do
         DataCycleCore::Webhook::Update.stub(:execute_all, ->(*, **) { seen = DataCycleCore::Thing.find(article.id).cache_valid_since }) do
           DataCycleCore.stub(:webhooks, ['Destroy Job ES']) do
-            DataCycleCore::CacheInvalidationDestroyJob.perform_now('DataCycleCore::ClassificationAlias', ALIAS_ID, 'execute_things_webhooks_destroy', [image.id])
+            DataCycleCore::CacheInvalidationDestroyJob.perform_now('DataCycleCore::Concept', ALIAS_ID, 'execute_things_webhooks_destroy', [image.id])
           end
         end
       end

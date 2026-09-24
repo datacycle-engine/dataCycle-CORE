@@ -59,7 +59,7 @@ module DataCycleCore
 
     test 'filter_equal? recurses into union filters' do
       filter = subject.new
-      inner = { 't' => 'classification_alias_ids', 'c' => 'a', 'n' => 'N', 'q' => 'Q', 'v' => ['id'] }
+      inner = { 't' => 'concept_ids', 'c' => 'a', 'n' => 'N', 'q' => 'Q', 'v' => ['id'] }
       union1 = { 't' => 'union', 'c' => 'a', 'n' => 'N', 'q' => 'Q', 'v' => [inner] }
       union2 = { 't' => 'union', 'c' => 'a', 'n' => 'N', 'q' => 'Q', 'v' => [inner.dup] }
 
@@ -83,7 +83,7 @@ module DataCycleCore
       # a classification filter on a non-existent alias resolves to an empty, cheap query
       filter = subject.new(
         language: ['de'],
-        parameters: [{ 't' => 'classification_alias_ids', 'm' => 'i', 'c' => 'a', 'n' => 'x',
+        parameters: [{ 't' => 'concept_ids', 'm' => 'i', 'c' => 'a', 'n' => 'x',
                        'v' => ['00000000-0000-0000-0000-000000000000'] }]
       )
 

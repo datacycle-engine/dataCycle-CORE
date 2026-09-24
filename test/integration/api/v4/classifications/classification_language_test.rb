@@ -8,11 +8,11 @@ module DataCycleCore
       module Classifications
         class ClassificationLanguageTest < DataCycleCore::V4::Base
           before(:all) do
-            @tree = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags').visible('api').first
-            @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
+            @tree = DataCycleCore::ConceptScheme.where(name: 'Tags').visible('api').first
+            @trees = DataCycleCore::ConceptScheme.where(internal: false).visible('api').count
 
             # add translation
-            @classification_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2').first
+            @classification_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Tag 2').first
             I18n.with_locale(:en) do
               @classification_tag.attributes = {
                 name: 'Tag 2 - EN',
@@ -142,7 +142,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(@tree.concepts.count)
 
             json_data = response.parsed_body
 
@@ -170,7 +170,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(@tree.concepts.count)
 
             json_data = response.parsed_body
 
@@ -305,7 +305,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(@tree.concepts.count)
 
             json_data = response.parsed_body
 
@@ -348,7 +348,7 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            assert_api_count_result(@tree.classification_aliases.count)
+            assert_api_count_result(@tree.concepts.count)
 
             json_data = response.parsed_body
 

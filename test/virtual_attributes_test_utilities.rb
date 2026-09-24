@@ -6,11 +6,11 @@ module VirtualAttributeTestUtilities
   end
 
   def create_classification_dummy(data)
-    create_dummy(data, DataCycleCore::Classification)
+    create_dummy(data, DataCycleCore::Concept)
   end
 
   def create_classification_alias_dummy(data)
-    create_dummy(data, DataCycleCore::ClassificationAlias)
+    create_dummy(data, DataCycleCore::Concept)
   end
 
   def create_schedule_dummy(data)
@@ -34,7 +34,7 @@ module VirtualAttributeTestUtilities
           klass
         end
 
-        if klass == DataCycleCore::ClassificationAlias
+        if klass == DataCycleCore::Concept
           def name
             name_i18n[I18n.locale.to_s]
           end

@@ -1,7 +1,11 @@
 <% I18n.with_locale(locale) do %>
   <% object = DataCycleCore::DataHashService.get_internal_template(local_assigns[:embedded_template].presence || definition['template_name']) if local_assigns[:object].blank? %>
+  <%# a flagged embedded inside a copied block stays a link, as duplicate_data_hash keeps it for a page duplicate %>
+  <% copy = local_assigns[:duplicated_content].to_s == 'true' && !(local_assigns[:parent_copied].to_s == 'true' && object.try(:reusable?)) %>
+  <% item_assigns = local_assigns.merge(duplicated_content: copy) %>
+  <% reusable_usage = reusable_embedded_usage(object, duplicated_content: copy) %>
 
-  <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.new_record? || local_assigns[:duplicated_content] }",
+  <%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{ ' is-active' if (!local_assigns[:hide_embedded] && !definition.dig('ui', 'edit', 'hide_onload')) || object.new_record? || copy }",
         id: "#{sanitize_to_id(key)}_item_#{index}",
         data: {
           id: object.id,
@@ -22,6 +26,7 @@
         <%= tag.span(tag.i(class: 'fa fa-language translatable-attribute-icon'), class: 'translatable-icon') if attribute_translatable?(key, definition, content) %>
         <%= render 'data_cycle_core/shared/icon', icon_type: object&.icon_type, icon_class: object&.icon_class %>
         <span class="embedded-label"><%= object.translated_template_name(active_ui_locale) %></span>
+        <%= reusable_embedded_badge(reusable_usage) %>
         <%= render 'data_cycle_core/contents/helper_text', key: key, definition: definition, content: contextual_content(local_assigns) %>
         <%= render('data_cycle_core/contents/content_score', key: nil, content: object, definition: object.content_score_definition(nil)) if object.try(:content_score_allowed?) %>
         <%= tag.span object.try(object.title_property_name)&.strip_tags&.squish, data: { dc_tooltip: object.try(object.title_property_name)&.strip_tags&.squish }, class: "embedded-title#{' visible' if object.try(object.title_property_name).present?}" if object.title_property_name.present? %>
@@ -29,22 +34,24 @@
     </div>
 
     <% if attribute_editable?(key, definition, options, content) %>
+      <%= button_tag tag.i(class: 'fa fa-chain-broken'), type: :button, class: 'button unlink-embedded', data: { dc_tooltip: t('embedded.unlink_shared', locale: active_ui_locale) } if reusable_usage && reusable_usage.parent_count > 1 %>
+      <%= button_tag tag.i(class: 'fa fa-copy'), type: :button, class: 'button duplicate-embedded', data: { dc_tooltip: t('embedded.duplicate', locale: active_ui_locale) } if DataCycleCore::Feature::DuplicateEmbedded.enabled? %>
       <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject alert', data: {
                 confirm_delete: content&.translatable? && definition&.dig('translated').to_s == 'true' && object&.translations&.many? ? t('actions.delete_with_translated_html', locale: active_ui_locale) : nil
               } %>
     <% end %>
 
-    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.new_record? || local_assigns[:duplicated_content] %>
+    <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[id]", object.id) unless object.new_record? || copy %>
     <%= hidden_field_tag("#{embedded_key_prefix(key, index)}[template_name]", object.template_name, class: 'embedded-template') %>
 
-    <% if object.new_record? || local_assigns[:duplicated_content] %>
+    <% if object.new_record? || copy %>
       <div class="embedded-properties accordion-content" data-tab-content>
-        <%= render 'data_cycle_core/contents/editors/embedded/single_item', local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } }) %>
+        <%= render 'data_cycle_core/contents/editors/embedded/single_item', item_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } }) %>
       </div>
     <% else %>
       <div class="embedded-properties accordion-content remote-render" data-tab-content
         data-remote-path="data_cycle_core/contents/editors/embedded/single_item"
-        data-remote-options="<%= to_query_params(local_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } })).to_json %>">
+        data-remote-options="<%= to_query_params(item_assigns.merge({ object: object, locale: I18n.locale, event_data: { newContent: object.new_record? } })).to_json %>">
       </div>
     <% end %>
   <% end %>

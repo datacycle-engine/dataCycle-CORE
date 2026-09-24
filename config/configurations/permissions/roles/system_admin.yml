@@ -2,12 +2,9 @@ manage_system_subjects:
   actions: manage
   segment: SubjectByConditions
   parameters:
-    - - DataCycleCore::ClassificationTreeLabel
-      - DataCycleCore::ConceptScheme
-      - DataCycleCore::ClassificationAlias
-      - DataCycleCore::Classification
-      - DataCycleCore::ClassificationTree
+    - - DataCycleCore::ConceptScheme
       - DataCycleCore::Concept
+      - DataCycleCore::ConceptLink
 
 # only system_admin may recompute computed attributes from the admin dashboard
 # (super_admin's dash_board whitelist deliberately excludes these actions)
@@ -19,6 +16,27 @@ dash_board_computed_attributes:
   parameters:
     - - :dash_board
 
+# only system_admin may rewrite a grafana dashboard for external sharing: step 1 of the procedure
+# is an export from the internal org, and grafana.ini's org_mapping puts system_admin alone in it
+dash_board_grafana_dashboard:
+  actions:
+    - flatten_grafana_dashboard_form
+    - flatten_grafana_dashboard
+  segment: SubjectByConditions
+  parameters:
+    - - :dash_board
+
+# These four /api/config subjects expose the instance's own data model as configuration:
+# the raw schema/feature/common config and the generated RDF schema — ontology, SHACL
+# shapes and JSON-LD @context (:api_config_rdf, #50196). They stay system_admin-only.
+#
+# The OpenAPI document is deliberately NOT among them: it documents the API a caller is
+# already entitled to use, so it carries no subject at all and every authenticated user
+# reaches it (both the JSON document and its Swagger UI viewer).
+#
+# Anonymous access never gets this far anyway — the `authenticate` block wrapping
+# `namespace :api` in config/routes.rb blocks it. This file decides the answer for
+# logged-in non-admins. ':read' aliases :index and :show in CanCan.
 read_api_configs:
   actions: read
   segment: SubjectByConditions
@@ -26,10 +44,12 @@ read_api_configs:
     - - :api_config_schema
       - :api_config_features
       - :api_config_common
+      - :api_config_rdf
 
 # the developer guides document dataCycle internals, so only system_admin gets the sidebar entry
 # (#51344). Until then it hung off `can?(:home, :dash_board)`, which super_admin holds. This gates the
-# menu entry, not the route: /guides is served by StaticController, which authorizes nothing.
+# menu entry, not the route: /guides sits in an `authenticate` block in config/routes.rb, but
+# StaticController authorizes nothing, so any signed-in user can still open it by URL.
 show_guides:
   actions: show
   segment: SubjectByConditions
@@ -48,7 +68,7 @@ show_raw_data:
 show_concept_uri:
   actions: show_uri
   segment: SubjectByConditions
-  parameters: DataCycleCore::ClassificationAlias
+  parameters: DataCycleCore::Concept
 
 user_actions:
   actions: manage

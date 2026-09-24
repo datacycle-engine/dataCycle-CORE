@@ -16,7 +16,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     translate_days = { 'Monday' => 'Montag', 'Tuesday' => 'Dienstag', 'Wednesday' => 'Mittwoch', 'Thursday' => 'Donnerstag', 'Friday' => 'Freitag', 'Saturday' => 'Samstag', 'Sunday' => 'Sonntag' }
     translate_days
       .select { |_key, value| days.include?(value) }
-      .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
+      .map { |key, value| { key => DataCycleCore::Concept.for_tree('Wochentage').find_by(name: value).id } }
       .reduce(&:merge)
       .values
   end

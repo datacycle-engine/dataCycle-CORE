@@ -21,7 +21,7 @@
     href: classifications_path,
     icon: 'fa fa-sitemap',
     title: t('actions.manage', data: DataCycleCore::Concept.model_name.human(count: 2, locale: active_ui_locale), locale: active_ui_locale),
-    options: { class: 'classifications-link' } if DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability).exists? %>
+    options: { class: 'classifications-link' } if DataCycleCore::ConceptScheme.accessible_by(current_ability).exists? %>
 <% end %>
 
 <%= render layout: 'data_cycle_core/application/side_bar/section', locals: { title: t('data_cycle_core.side_bar.system_and_tools', locale: active_ui_locale) } do %>
@@ -80,6 +80,23 @@
     icon: 'fa fa-book',
     title: t('data_cycle_core.documentation', locale: active_ui_locale),
     options: { class: 'documentation-link' } %>
+
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: openapi_viewer_path,
+    icon: 'fa fa-plug',
+    title: t('data_cycle_core.openapi_viewer.title', locale: active_ui_locale),
+    options: { class: 'openapi-viewer-link' } %>
+
+  <%# Schema overview (#50201) and the OpenAPI viewer above are both intentionally NOT
+      gated by `can?`: each is available to every authenticated user. Both build their
+      document in-process from the instance's own data definitions, so neither depends on
+      an :api_config_* subject — the route-level `authenticate` is the whole gate.
+      Should either become admin-only, add the matching `can?` guard here. %>
+  <%= render 'data_cycle_core/application/side_bar/link',
+    href: schema_path,
+    icon: 'fa fa-cubes',
+    title: t('data_cycle_core.schema.root', locale: active_ui_locale),
+    options: { class: 'schema-link' } %>
 
   <%= render 'data_cycle_core/application/side_bar/link',
     href: DataCycleCore.logo.dig('footer_links', 'terms_and_conditions'),

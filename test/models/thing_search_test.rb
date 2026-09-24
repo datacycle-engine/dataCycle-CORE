@@ -5,9 +5,9 @@ require 'test_helper'
 module DataCycleCore
   class ThingSearchTest < DataCycleCore::TestCases::ActiveSupportTestCase
     def setup
-      create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids('Tags', ['Tag 1']) })
-      create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
-      create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids('Tags', ['Tag 1', 'Tag 2']) })
+      create_content('Artikel', { name: 'HEADLINE 1', tags: get_concept_ids('Tags', ['Tag 1']) })
+      create_content('Artikel', { name: 'HEADLINE 2', tags: get_concept_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
+      create_content('Artikel', { name: 'HEADLINE 3', tags: get_concept_ids('Tags', ['Tag 1', 'Tag 2']) })
     end
 
     test 'test search utility functions' do
@@ -25,40 +25,40 @@ module DataCycleCore
     end
 
     test 'filters contents based on single classification' do
-      assert_equal(3, DataCycleCore::Thing.with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel')).count)
+      assert_equal(3, DataCycleCore::Thing.with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel')).count)
     end
 
     test 'filters contents based on multiple classifications' do
       items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1', 'Tag 2'))
+        .with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_concept_ids(find_alias_ids('Tags', 'Tag 1', 'Tag 2'))
 
       assert_equal(3, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1'))
+        .with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_concept_ids(find_alias_ids('Tags', 'Tag 1'))
 
       assert_equal(2, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
+        .with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_concept_ids(find_alias_ids('Tags', 'Tag 2'))
 
       assert_equal(2, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
+        .with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_concept_ids(find_alias_ids('Tags', 'Tag 1'))
+        .with_concept_ids(find_alias_ids('Tags', 'Tag 2'))
 
       assert_equal(1, items.count)
     end
 
     test 'filters contents based on nested classifications' do
       items = DataCycleCore::Thing
-        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_alias_ids(find_alias_ids('Tags', 'Nested Tag 1'))
+        .with_concept_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_concept_ids(find_alias_ids('Tags', 'Nested Tag 1'))
 
       assert_equal(1, items.count)
     end
@@ -66,7 +66,7 @@ module DataCycleCore
     private
 
     def find_alias_ids(tree_name, *alias_names)
-      DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(alias_names).pluck(:id)
+      DataCycleCore::Concept.for_tree(tree_name).with_name(alias_names).pluck(:id)
     end
   end
 end

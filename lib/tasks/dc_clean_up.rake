@@ -49,14 +49,14 @@ namespace :dc do
         Rake::Task['dc:clean_up:external_source_data'].invoke(external_source.id)
       end
 
-      # find classifications for extenal_source
-      tree_label = DataCycleCore::ClassificationTreeLabel.where(external_source_id: external_source.id)
-      puts "Found ClassificationTreeLabels: #{tree_label.count}"
-      tree_label.each do |classification_tree_label|
-        if classification_tree_label.things.any?
-          puts "Found ClassificationTreeLabel with linked content: #{classification_tree_label.id}"
+      # find concept schemes for extenal_source
+      concept_schemes = DataCycleCore::ConceptScheme.where(external_system_id: external_source.id)
+      puts "Found ConceptSchemes: #{concept_schemes.count}"
+      concept_schemes.each do |concept_scheme|
+        if concept_scheme.things.any?
+          puts "Found ConceptScheme with linked content: #{concept_scheme.id}"
         else
-          classification_tree_label.destroy
+          concept_scheme.destroy
         end
       end
     end

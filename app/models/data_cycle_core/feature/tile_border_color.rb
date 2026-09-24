@@ -24,22 +24,22 @@ module DataCycleCore
         def tree_label_classes(content)
           return if configuration[:tree_label].blank?
 
-          if content&.classification_aliases&.loaded?
+          if content&.concepts&.loaded?
             content
-              &.classification_aliases
+              &.concepts
               &.map do |ca|
-                next unless Array.wrap(configuration[:tree_label]).include?(ca.classification_alias_path&.full_path_names&.last)
+                next unless Array.wrap(configuration[:tree_label]).include?(ca.concept_path&.full_path_names&.last)
 
-                ca.classification_alias_path
+                ca.concept_path
                   .full_path_names.values_at(-1, 0)
                   .join('_')
                   .underscore_blanks
               end
           else
             content
-              &.classification_aliases
+              &.concepts
               &.for_tree(configuration[:tree_label])
-              &.map { |c| "#{c.classification_tree_label&.name}_#{c.internal_name}".underscore_blanks }
+              &.map { |c| "#{c.concept_scheme&.name}_#{c.internal_name}".underscore_blanks }
           end
         end
 

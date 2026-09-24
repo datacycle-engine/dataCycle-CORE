@@ -61,6 +61,7 @@ module DataCycleCore
           end
 
           trigger_code_reload! if Rails.env.development? && valid?
+          invalidate_open_api_document_cache if valid?
         end
 
         def validate
@@ -121,6 +122,17 @@ module DataCycleCore
           FileUtils.touch(thing_template_file) if thing_template_file.present?
         end
 
+        # ThingTemplate.upsert_all (#update_templates) bypasses AR callbacks entirely, so this
+        # cannot be an after_commit hook on ThingTemplate -- it has to run here, right after an
+        # import actually changes template data. Clears OpenApi::DocumentBuilder's per-locale cache.
+        #
+        # The key comes from the builder itself (.cache_key) and is NOT rebuilt here: spelled out
+        # as a literal, the delete hit nothing once the allowlist fingerprint was introduced — with
+        # no error, just a document that did not show the import for up to an hour.
+        def invalidate_open_api_document_cache
+          I18n.available_locales.each { |locale| Rails.cache.delete(DataCycleCore::OpenApi::DocumentBuilder.cache_key(locale)) }
+        end
+
         def update_templates
           # Get Mapping of Rails Engines and their root paths
           # Rails.application.railties
@@ -145,7 +157,7 @@ module DataCycleCore
 
         def update_schema_types
           schema_types = []
-          tree_label = DataCycleCore::ClassificationTreeLabel.create_with(internal: true, external_key: 'SchemaTypes').find_or_create_by!(name: 'SchemaTypes')
+          tree_label = DataCycleCore::ConceptScheme.create_with(internal: true, external_key: 'SchemaTypes').find_or_create_by!(name: 'SchemaTypes')
 
           DataCycleCore::ThingTemplate.where.not(content_type: 'embedded').find_each do |thing_template|
             thing_template.schema_types.each do |types|
@@ -157,7 +169,7 @@ module DataCycleCore
             end
           end
 
-          tree_label.insert_all_classifications_by_path(schema_types)
+          tree_label.insert_all_concepts_by_path(schema_types)
         end
 
         def load_templates
@@ -229,6 +241,7 @@ module DataCycleCore
           add_aggregate_templates!
           add_inverse_aggregate_properties!
           add_inverse_linked_to_text_properties!
+          add_reusable_embedded_properties!
           disable_original_property_for_overlays!
           check_priorities_for_geographic_properties!
           add_required_properties!
@@ -291,6 +304,10 @@ module DataCycleCore
           @templates.each do |template|
             Extensions::LinkedInText.append_linked_to_text_props!(template.dig(:data, :properties))
           end
+        end
+
+        def add_reusable_embedded_properties!
+          Extensions::ReusableEmbedded.append_reusable_props!(@templates)
         end
 
         def disable_original_property_for_overlays!

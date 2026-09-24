@@ -1,0 +1,18 @@
+<%= render partial: 'data_cycle_core/contents/tree/concept', collection: concepts, locals: { concept_scheme: concept_scheme } %>
+
+<% if @tree_page < @tree_total_pages %>
+  <li class="load-more-link pagination-container">
+    <span class="inner-item">
+      <%= link_to t('common.load_more', locale: active_ui_locale), '#',
+                  class: 'button small secondary pagination-link',
+                  data: {
+                    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: active_ui_locale)}",
+                    additional_form_parameters: {
+                      tree_page: @tree_page + 1,
+                      ctl_id: concept_scheme&.id,
+                      ct_id: local_assigns[:concept]&.id
+                    }.compact.to_json
+                  } %>
+    </span>
+  </li>
+<% end %>

@@ -5,6 +5,7 @@ module DataCycleCore
     include DataCycleCore::FilterConcern
     include DataCycleCore::ExternalConnectionsConcern
     include DataCycleCore::ContentByIdOrTemplate
+    include DataCycleCore::EmbeddedObjectRenderer
     include DataCycleCore::AdminPanelActions
 
     before_action :set_watch_list, except: [:asset]
@@ -311,7 +312,7 @@ module DataCycleCore
     end
 
     def compare
-      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
+      @content = DataCycleCore::Thing.includes(:concepts).find(params[:id])
       authorize! :show, @content
 
       redirect_back_or_to(root_path, alert: (I18n.t 'controllers.error.no_source', locale: helpers.active_ui_locale)) && return if source_params.blank?
@@ -389,33 +390,6 @@ module DataCycleCore
         redirect_to thing_path(@content, watch_list_params)
       rescue StandardError, SystemStackError
         redirect_back_or_to(root_path, alert: I18n.t('controllers.error.definition_mismatch', locale: helpers.active_ui_locale))
-      end
-    end
-
-    def render_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) ||
-                 content_by_id_or_template
-      @key = render_embedded_object_params[:key]
-      @definition = render_embedded_object_params[:definition]
-      @index = render_embedded_object_params[:index]
-      @options = render_embedded_object_params[:options]
-      @locale = render_embedded_object_params[:locale]
-      @attribute_locale = render_embedded_object_params[:attribute_locale]
-      @duplicated_content = render_embedded_object_params[:duplicated_content]
-      @hide_embedded = render_embedded_object_params[:hide_embedded]
-      @translate = render_embedded_object_params[:translate]
-      @embedded_template = render_embedded_object_params[:embedded_template]
-
-      if @content&.persisted?
-        authorize! :edit, @content
-      else
-        authorize! :edit, DataCycleCore::Thing
-      end
-
-      I18n.with_locale(@locale || I18n.locale) do
-        @objects = DataCycleCore::Thing.includes(:translations).by_ordered_values(render_embedded_object_params[:object_ids]) if render_embedded_object_params[:object_ids].present?
-
-        render(json: { html: render_to_string(formats: [:html], layout: false).strip }) && return
       end
     end
 
@@ -705,11 +679,20 @@ module DataCycleCore
       end
     end
 
+    # Turbo frame body of the classificationPixie modal. Action and route keep the
+    # content_classifier name -- the backend feature they belong to is unchanged (#47879); only the
+    # frontend became its own feature, which is why the template is named explicitly.
+    #
+    # The route is drawn unconditionally, so the feature and the backend that answers for it are
+    # checked here rather than only on the button that opens the modal.
     def content_classifier_form_body
       @content = DataCycleCore::Thing.find(params[:id])
       authorize! :update, @content
+      raise CanCan::AccessDenied unless DataCycleCore::Feature['ClassificationPixie']&.allowed?(@content)
 
       @allowed_properties = @content.allowed_properties_for_user(current_user)
+
+      render :classification_pixie_form_body
     end
 
     private
@@ -810,10 +793,6 @@ module DataCycleCore
 
     def life_cycle_params
       params.expect(life_cycle: [:name, :id])
-    end
-
-    def render_embedded_object_params
-      params.permit(:id, :locale, :attribute_locale, :key, :index, :duplicated_content, :hide_embedded, :translate, :embedded_template, object_ids: [], definition: {}, options: {})
     end
 
     def validation_params

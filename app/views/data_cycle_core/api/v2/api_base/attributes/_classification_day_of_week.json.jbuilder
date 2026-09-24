@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+concepts = content.send(key)
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
-if classification_aliases.present?
+if concepts.present?
   day_of_week_uris = {
     'Montag' => 'https://schema.org/Monday',
     'Dienstag' => 'https://schema.org/Tuesday',
@@ -15,7 +15,7 @@ if classification_aliases.present?
     'Feiertag' => 'https://schema.org/PublicHolidays'
   }
 
-  days_of_week = classification_aliases.map { |classification_alias| day_of_week_uris[classification_alias.internal_name] || classification_alias.name }
+  days_of_week = concepts.map { |concept| day_of_week_uris[concept.internal_name] || concept.name }
 
   json.set! key_new, days_of_week
 end

@@ -93,7 +93,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:license' => @content.license_classification.first.uri,
                 'cc:useGuidelines' => @content.use_guidelines,
                 'url' => @content.attribution_url,
                 'copyrightNotice' => @content.copyright_notice_computed
@@ -156,8 +156,8 @@ module DataCycleCore
             # transformed classifications: event_status, event_attendance_mode
             assert_attributes(json_validate, required_attributes, ['event_status', 'event_attendance_mode']) do
               {
-                'eventStatus' => @content.event_status.first.classification_aliases.first.uri,
-                'eventAttendanceMode' => @content.event_attendance_mode.first.classification_aliases.first.uri
+                'eventStatus' => @content.event_status.first.uri,
+                'eventAttendanceMode' => @content.event_attendance_mode.first.uri
               }
             end
 
@@ -189,7 +189,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)
@@ -272,7 +272,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:license' => @content.license_classification.first.uri,
                 'cc:useGuidelines' => @content.use_guidelines,
                 'url' => @content.attribution_url,
                 'copyrightNotice' => @content.copyright_notice_computed
@@ -426,8 +426,8 @@ module DataCycleCore
             # transformed classifications: event_status, event_attendance_mode
             assert_attributes(json_validate, required_attributes, ['event_status', 'event_attendance_mode']) do
               {
-                'eventStatus' => @content.event_status.first.classification_aliases.first.uri,
-                'eventAttendanceMode' => @content.event_attendance_mode.first.classification_aliases.first.uri
+                'eventStatus' => @content.event_status.first.uri,
+                'eventAttendanceMode' => @content.event_attendance_mode.first.uri
               }
             end
 
@@ -487,7 +487,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)

@@ -1,0 +1,94 @@
+// dataCycle OpenAPI viewer — dark mode. Follows the OS/browser colour-scheme
+// preference by default; the sidebar toggle (.ov-theme-toggle, see
+// ../openapi_viewer/theme_toggle.js) can force either theme by setting
+// `data-ov-theme="dark"|"light"` on <html>, which then wins over the OS
+// preference. The same toggle also adds/removes the `dark-mode` class on
+// <html> unconditionally (kept in sync with the *effective* theme, whether
+// OS-derived or overridden) — Swagger UI ships its own built-in dark theme
+// keyed off that exact class (swagger-ui-dist/swagger-ui.css, `html.dark-mode
+// …`), so native elements we don't brand ourselves (inputs, selects, modals,
+// the json-schema renderer, per-method opblock colours, …) go dark for free.
+// Our own `#swagger-ui`-scoped overrides in swagger_theme.css carry an ID
+// selector, so they keep outranking Swagger's `html.dark-mode` rules
+// everywhere we intentionally branded (accent pink, method badge colours,
+// neutral card chrome, …) — this file only needs to redefine the --ov-*
+// tokens our OWN chrome (sidebar, main layout, palette, …) reads, plus the
+// one literal colour (the logo filter) that can't react to a custom-property
+// override. --ov-accent and --ov-post are not redefined below: dark mode
+// keeps the exact same brand pink / POST-method colour as light mode.
+@mixin ov-dark-tokens {
+  --ov-accent-dark: #ff3f7e; // hover lightens on a dark surface (light mode darkens)
+  --ov-accent-soft: rgba(229, 5, 78, 0.16);
+  --ov-accent-glow: rgba(229, 5, 78, 0.35);
+
+  // Neutral chrome shares the /schema dark palette (see modules/schema/_dark.scss)
+  // so both pages read as the same cool blue-grey in dark mode rather than the
+  // warmer grey this viewer used before.
+  --ov-border: #3a4660;
+  --ov-border-soft: #2a3448;
+  --ov-bg: #111827;
+  --ov-surface: #1a2332;
+  // input fields read as the page blue (--ov-bg), a shade darker so they still
+  // sit slightly recessed against the background (see swagger_theme.css inputs)
+  --ov-input-bg: #0c111c;
+  // schema cards read as the same recessed blue as the input fields, filling
+  // the whole field instead of the near-invisible black overlay (base.css)
+  --ov-schema-bg: #0c111c;
+  --ov-text: #e5e7eb;
+  --ov-muted: #9aa4b7;
+
+  --ov-get: #5aa2ff;
+
+  --ov-ok: #34c17e;
+  --ov-info: #5aa2ff;
+  --ov-err: #ff5f7a;
+
+  --ov-shadow-rgb: 0, 0, 0;
+
+  // Ctrl/⌘ K keycaps: inverse of the light look — a dark fill (the page
+  // background) with light text + border so the cap lifts off the field.
+  // Same --ov-kbd-* tokens the base rule (sidebar.css) reads, so no per-element
+  // override is needed. Resolves against the dark --ov-muted/--ov-bg above.
+  --ov-kbd-fg: var(--ov-muted);
+  --ov-kbd-bg: var(--ov-bg);
+  --ov-kbd-border: var(--ov-muted);
+}
+
+@mixin ov-dark-fixups {
+  .ov-brand .logo img {
+    filter: brightness(0) invert(1);
+  }
+}
+
+// 1) Follow the OS/browser preference, unless the on-page toggle forced light mode
+@media (prefers-color-scheme: dark) {
+  html:not([data-ov-theme="light"]) {
+    .ov-shell { @include ov-dark-tokens; }
+    @include ov-dark-fixups;
+  }
+}
+
+// 2) The on-page toggle forced dark mode — applies regardless of OS preference
+html[data-ov-theme="dark"] {
+  .ov-shell { @include ov-dark-tokens; }
+  @include ov-dark-fixups;
+}
+
+// native form controls / scrollbars: always follows the effective theme, not
+// just the OS-default case, since it's driven by the same class the toggle
+// keeps in sync either way
+html.dark-mode {
+  color-scheme: dark;
+
+  // Swagger paints every .json-schema-2020-12 level with a flat grey
+  // (`html.dark-mode .swagger-ui .json-schema-2020-12 { background:#2a2e30 }`),
+  // which showed through inside our blue schema card on the nested levels. Make
+  // the schema levels (and their buttons) transparent so the card blue
+  // (--ov-schema-bg) reads through the whole field. Our ID selector outranks
+  // Swagger's; the outer card rule (4 classes) still outranks this and keeps
+  // its background.
+  #swagger-ui .swagger-ui .json-schema-2020-12,
+  #swagger-ui .swagger-ui .json-schema-2020-12 button {
+    background: transparent;
+  }
+}

@@ -20,6 +20,14 @@ module DataCycleCore
           attribute_keys(content) || []
         end
 
+        # #allowed? below wants a target locale, a source locale and a user, so a dependent feature
+        # (generated_translation) can only hold this one to #enabled?.
+        #
+        # @return [Symbol]
+        def dependency_check
+          :enabled
+        end
+
         def allowed?(content, locale, source_locale, user)
           super(content) && target_locale_allowed?(locale) && source_locale_allowed?(source_locale) && user&.can?(:translate, content)
         end

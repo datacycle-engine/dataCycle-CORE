@@ -6,20 +6,22 @@
 # datacycle-schema-tourism now declares the node as `$$Betrieb`, so its external_key is
 # "Inhaltstypen > Ort > Betrieb". ConceptImporter only inserts and matches by external_key, so
 # without this migration an existing database ends up with both nodes under Ort. The external_key
-# therefore moves along with the label — on classification_aliases and on the primary
-# classification, which is keyed the same way.
+# therefore moves along with the label.
 #
 # Runs in every project (data migrations are gem-wide) but is inert where the concept does not
 # exist. Because dc:update imports configs *before* the data migrations, the "Betrieb" node may
 # already have been created by that import — then the old node is merged into it so content
 # classified as LocalBusiness keeps its content type.
+#
+# Written against ClassificationAlias, then ported to Concept by #41458: dc:update runs every
+# schema migration before the first data migration, so wherever this one is still pending it now
+# meets the post-cut schema. The projects that already ran it never load this file again.
 class RenameLocalBusinessContentTypeToBetrieb < ActiveRecord::Migration[8.0]
   OLD_EXTERNAL_KEY = 'Inhaltstypen > Ort > LocalBusiness'
   NEW_EXTERNAL_KEY = 'Inhaltstypen > Ort > Betrieb'
-  NAME = 'Betrieb'
   # German only, exactly as importing `$$Betrieb` into a fresh database leaves it — the label is
   # deliberately not translated (#51239).
-  NAME_I18N = { 'de' => NAME }.freeze
+  NAME_I18N = { 'de' => 'Betrieb' }.freeze
 
   def up
     old = concept(OLD_EXTERNAL_KEY)
@@ -50,18 +52,12 @@ class RenameLocalBusinessContentTypeToBetrieb < ActiveRecord::Migration[8.0]
     record.name_i18n = NAME_I18N
     record.external_key = NEW_EXTERNAL_KEY
     record.save!
-
-    # classifications keeps its own copy of both. The external_key is unique per external source,
-    # so leaving it behind would make the import insert a second classification row; the name is
-    # also synced by ClassificationAlias#update_primary_classification, but is set here so this
-    # migration does not depend on that callback.
-    record.primary_classification&.update!(name: NAME, external_key: NEW_EXTERNAL_KEY)
   end
 
   # System concepts carry their path as external_key; fall back to the path itself for databases
   # old enough to predate that.
   def concept(full_path)
-    DataCycleCore::ClassificationAlias.find_by(external_key: full_path, external_source_id: nil) ||
-      DataCycleCore::ClassificationAlias.by_full_paths(full_path).first
+    DataCycleCore::Concept.find_by(external_key: full_path, external_system_id: nil) ||
+      DataCycleCore::Concept.by_full_paths(full_path).first
   end
 end

@@ -1,7 +1,11 @@
-.focus-point-ui-hint {
+// Hint of one button in .focus-feature-buttons, rendered below it -- the gravity editor's, the
+// focus point editor's and the annotationPixie's. It belongs to the button above it, so it sits
+// closer to that one than the column's 0.5rem gap puts the next button -- and it carries no bottom
+// margin of its own, which is what used to push the following button away.
+.focus-feature-hint {
   color: var(--dark-gray);
   font-size: 0.8rem;
-  margin-top: -0.5rem;
+  margin: 0.25rem 0 0;
 }
 
 
@@ -16,6 +20,19 @@
     .fa {
       font-size: 1.1rem;
     }
+  }
+
+  // Controls that only make sense while one editor is open: the gravity editor's hint, and the
+  // focus point editor's hint, generate button and reset. Both editors put .editing on the button
+  // that opens them, so the column can show its own controls itself -- the alternative is
+  // rendering the markup and its translations in JS on every open.
+  .editing-control {
+    display: none;
+  }
+
+  &:has(.change-gravity-ui.editing) .editing-control--gravity,
+  &:has(.change-focus-point-ui.editing) .editing-control--focus-point {
+    display: block;
   }
 }
 

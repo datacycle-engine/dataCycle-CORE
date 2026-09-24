@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="<%= active_ui_locale %>" data-i18n-digest="<%= i18n_digest %>">
+  <head>
+    <%# no application bundle: the viewer ships its own entrypoint (show.html.erb) %>
+    <%= render 'data_cycle_core/application/head_base' %>
+  </head>
+  <body class="openapi-viewer-page">
+    <%# no flash markup: this layout ships no application.scss to style it, and the %>
+    <%# viewer controller sets no flash (an auth redirect renders the devise layout) %>
+    <%= yield %>
+
+    <%= yield_content!(:body_scripts) %>
+  </body>
+</html>

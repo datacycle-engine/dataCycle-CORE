@@ -26,17 +26,6 @@ test:
           mode: :primary
         max_pool_size: 1
 
-review:
-  clients:
-    default:
-      database: data_cycle_review
-      hosts:
-        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
-      options:
-        read:
-          mode: :primary
-        max_pool_size: 1
-
 staging:
   clients:
     default:
@@ -52,17 +41,6 @@ production:
   clients:
     default:
       database: data_cycle_production
-      hosts:
-        - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
-      options:
-        read:
-          mode: :primary
-        max_pool_size: 1
-
-pre_release:
-  clients:
-    default:
-      database: data_cycle_prerelease
       hosts:
         - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:

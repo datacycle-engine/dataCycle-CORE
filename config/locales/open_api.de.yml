@@ -1,0 +1,414 @@
+de:
+  open_api:
+    info:
+      description: "Instanzspezifische OpenAPI-3.1-Beschreibung der dataCycle API v4 (Datenstrukturen, Lese- sowie Schreib-/Verwaltungs-Endpunkte)."
+    schemas:
+      any_entity: "Beliebige Entität der Instanz (eines der ThingTemplate-Komponentenschemata)."
+      type_hierarchy: "schema.org-Typhierarchie inklusive dcls:{Template}."
+      entity_type: "schema.org-Typhierarchie dieser Entität: %{types}."
+      entity_reference: "Referenz-Stub einer verknüpften Entität ({ @id, @type }), wird geliefert, sofern nicht über include/fields expandiert."
+      asset_reference: "Referenz auf ein Asset ({ @id }); anders als bei verknüpften Entitäten ohne @type."
+      concept: "Ein SKOS-Concept (Klassifizierung), wie es die v4-API ausliefert."
+      concept_scheme: "Ein SKOS-ConceptScheme (Klassifizierungsbaum), wie es die v4-API ausliefert."
+      concept_scheme_has_concept: "URL des Concepts-Endpunkts dieses Schemas."
+      geo_json_type: "GeoJSON-Geometrietyp, z. B. Polygon, MultiPolygon, LineString."
+      geo_json_coordinates: "GeoJSON-Koordinaten-Array (Verschachtelung abhängig vom Geometrietyp)."
+      schedule_duration: "ISO-8601-Dauer."
+      schedule_repeat_frequency: "ISO-8601-Wiederholungsfrequenz."
+      property_value_type: "PropertyValue oder QuantitativeValue."
+      property_value_value_reference: "Verweis auf die Herkunft des Werts (z. B. Sync-Typ `import` bei externen Identifikatoren)."
+      collection_reference_type: "z. B. [CreativeWork, Collection, dcls:{Class}]."
+    filter:
+      attribute: |
+        Bedingung je Attribut (nach api_name).
+
+        Jeder Wert ist eine `min`/`max`/`equals`/`like`/`bool`-Bedingung. Beispiel: `attribute[price][in][max]=100`.
+      min_max: "Datum oder Datum-Uhrzeit."
+      schedule_all: |
+        Filtert über ALLE Schedule-Relationen.
+
+        Ignoriert `schedule_filter_exceptions`.
+      duplicate_candidates_exists: "`true` = nur Inhalte MIT Duplikatskandidaten, `false` = nur solche ohne."
+      duplicate_candidates_min_score: "Mindest-Score eines Kandidaten."
+      duplicate_candidates_max_score: "Höchst-Score eines Kandidaten."
+      duplicate_candidates_method: "Erkennungsmethode, z.B. `manual` oder `only_title`."
+      graph: |
+        Verschachtelter Filter über ein verknüpftes Attribut.
+
+        Beispiel: `filter[graph][region][dc:classification][in][withSubtree]=UUID`.
+      linked: "Veraltet: stattdessen `graph` verwenden."
+      union: |
+        Logisches ODER über die angegebenen Teilfilter.
+
+        Beispiel: `union: [ {search: "a"}, {search: "b"} ]`.
+      geo_box: |
+        Bounding-Box.
+
+        Koordinaten `[swLon, swLat, neLon, neLat]`. Beispiel: `9.5,47.1,9.9,47.4`.
+      geo_perimeter: |
+        Umkreis.
+
+        `[lon, lat, distance]` (Distanz in Metern). Beispiel: `9.53,47.13,5000`.
+      geo_shape: |
+        Geometrie als String.
+
+        Google-Polyline-, WKT- oder GeoJSON-String.
+      search_fields: |
+        Durchsuchte Felder.
+
+        Kommagetrennt. Beispiel: `name,dc:slug,dc:classification`.
+      string_list: |
+        UND-/ODER-Semantik.
+
+        Mehrere Einträge = UND; ein kommagetrennter Eintrag = ODER. Beispiel: `["A","B"]` (UND) vs. `["A,B"]` (ODER).
+      param: "Verschachtelter Inhaltsfilter in Bracket-Notation, z. B. `filter[search]=text` oder `filter[dc:classification][in][withSubtree]=UUID`. Entspricht dem `filter`-Objekt des POST-Bodys."
+      body: "JSON-Request-Body für Inhalts-Endpunkte (POST); bildet die Query-Parameter plus den verschachtelten `filter` ab."
+      delivery_params: "JSON-Request-Body für Einzelressourcen-Endpunkte (POST); bildet nur die Delivery-Query-Parameter ab (kein Filter)."
+      body_filter: |
+        Verschachtelter Inhaltsfilter.
+
+        Als Objekt im POST-Body (siehe `Filter`-Schema). Beispiel: `{ "search": "zermatt" }`.
+    envelope:
+      context: "JSON-LD-@context: eine Basis-Vokabular-URI gefolgt von einem Objekt mit Namespace-Präfixen (@base, @language, skos, dct, dc, dcls, …)."
+      total: "Gesamtzahl der passenden Einträge."
+      pages: "Gesamtzahl der Seiten (entfällt, wenn page[limit] verwendet wird)."
+      collection: "Vorhanden, wenn die Antwort auf einen gespeicherten Filter / eine Merkliste eingeschränkt ist."
+      list: "JSON-LD-Antwort-Envelope. Einzelne Endpunkte verfeinern die @graph-Einträge auf das konkrete Entitätsschema."
+    error:
+      source: "Verweist auf die Ursache des Fehlers."
+      parameter: "Name/Pfad des fehlerhaften Request-Parameters."
+      pointer: "JSON-Pointer / Pfad zum fehlerhaften Wert."
+      title: "Menschenlesbare Zusammenfassung des Fehlers."
+      detail: "Menschenlesbare Erläuterung speziell zu diesem Auftreten."
+    responses:
+      bad_request: "Die Anfrage enthält ungültige Parameter."
+      unauthorized: "Authentifizierung fehlt oder ist ungültig."
+      not_found: "Die angeforderte Ressource existiert nicht."
+      conflict: "Die Anfrage steht im Konflikt mit dem aktuellen Zustand einer anderen Ressource."
+      unprocessable_entity: "Die Anfrage war wohlgeformt, konnte aber wegen Validierungsfehlern nicht verarbeitet werden."
+    security:
+      bearer: "JSON Web Token, übergeben als `Authorization: Bearer <token>`."
+      token_query: "Zugriffstoken, übergeben als `token`-Query-Parameter."
+    parameters:
+      token: |
+        API-Zugriffstoken.
+
+        Alternative zum `Authorization`-Header. Beispiel: `?token=abc123`.
+      fields: |
+        Schränkt die zurückgegebenen Attribute ein.
+
+        Kommagetrennter Attributbaum in Punktnotation. Beispiel: `name,dc:classification`.
+      include: |
+        Expandiert verknüpfte / eingebettete Entitäten.
+
+        Kommagetrennter Attributbaum in Punktnotation. Beispiel: `location,openingHoursSpecification.dct:modified`.
+      language: |
+        Gewünschte Inhaltssprache(n).
+
+        Kommagetrennte Liste; Standard ist die Standardsprache der Instanz. Beispiel: `de` oder `de,en`.
+      sort: |
+        Sortierung der Ergebnisliste.
+
+        Kommagetrennte Sortierschlüssel; Präfix `-` = absteigend. Beispiel: `-dct:modified,name`.
+      classification_trees: |
+        Schränkt `dc:classification` auf bestimmte Bäume ein.
+
+        Kommagetrennte Liste von Klassifizierungsbaum-Label-IDs.
+      live_data: |
+        Fordert Live-/berechnete Werte an.
+
+        In Bracket-Notation; erlaubt sind nur die Schlüssel `@id` und `minPrice`. Beispiel: `dc:liveData[minPrice]=1`.
+      format: |
+        Ausgabeformat-Segment.
+
+        Spiegelt die Media-Type-Aushandlung wider: `json` oder `csv`.
+      page_size: "Anzahl der Einträge pro Seite."
+      page_number: "Seitenzahl (1-basiert)."
+      page_offset: "Zusätzlich zum Seiten-Offset übersprungene Einträge."
+      page_limit: |
+        Hartes Limit der zurückgegebenen Einträge.
+
+        Überschreibt bei positivem Wert die size-/number-basierte Paginierung.
+      section_flag: |
+        Schaltet den `%{key}`-Abschnitt des Antwort-Envelopes.
+
+        `0` = weglassen, `1` = einschließen.%{extra}
+      section_flag_meta_extra: " Der Wert `0` überspringt zusätzlich die Gesamtzahl-Abfrage."
+      page: "Paginierung (size / number / offset / limit)."
+      section: "Envelope-Abschnitte ein-/ausschalten."
+      api_subversion: "Optionales Versions-Präfixsegment der Route (`/api/v4(/:api_subversion)`); wird normalerweise von der Server-Basis absorbiert."
+      external_source_id: "ID oder Identifier des externen Systems."
+      external_key: "Externer Schlüssel eines Inhalts im externen System."
+      attribute: "API-Name eines (Zeitserien-)Attributs im Pfad."
+    paths:
+      common:
+        via_post_suffix: " (Body)"
+        redirect_location: "Ziel-URL der Weiterleitung."
+        content_uuid: "UUID des Inhalts (Thing)."
+        single_content: "Der Inhalt als JSON-LD-Dokument."
+        contents_list: "Eine JSON-LD-Liste von Inhalten."
+        timeseries_data: "Zeitseriendaten des Attributs."
+        timeseries_data_json_csv: "Zeitseriendaten (JSON oder CSV)."
+        timeseries_group_by: |
+          Aggregatfunktion und Zeit-Bucket der Zeitserie, z. B. `sum_day`, `avg_hour`.
+
+          Funktionen: sum/min/max/avg; Buckets: hour/day/week/month/quarter/year. Ohne Angabe: ungruppierte Rohwerte.
+        timeseries_time: "Zeitraum-Filter auf den Zeitstempel der Zeitserie, z. B. `time[in][min]=2026-01-01&time[in][max]=2026-12-31`."
+      contents:
+        timeseries_summary: "Zeitserie eines Attributs abrufen"
+        timeseries_format_summary: "Zeitserie eines Attributs abrufen (explizites Format-Segment)"
+        timeseries_name: "Name des Attributs, das die Zeitserie enthält (kein festes Enum)."
+        select_summary: "Mehrere Inhalte per UUID-Liste abrufen"
+        select_by_path_summary: "Mehrere Inhalte per UUID-Liste (im Pfad) abrufen"
+        select_response: "Eine JSON-LD-Liste der angeforderten Inhalte."
+        uuid_query: "Liste der abzurufenden Inhalts-UUIDs, eine je Eintrag."
+        uuids_query: "Dieselbe Liste als ein kommagetrennter Wert."
+        uuids_path: "Kommagetrennte Liste von Inhalts-UUIDs."
+        deleted_summary: "Gelöschte Inhalte auflisten"
+        deleted_response: "Eine JSON-LD-Liste gelöschter Inhalte."
+        universal_summary: "Beliebige Ressource per UUID auflösen (Redirect)"
+        universal_id: "UUID einer beliebigen aufzulösenden Ressource."
+        universal_response: "Weiterleitung zur aufgelösten Ressource."
+      duplicates:
+        id: "UUID des Inhaltes, dessen Duplikate adressiert werden."
+        duplicate_id: "UUID des Duplikat-Inhaltes des Paares."
+        index_summary: "Duplikatskandidaten eines Inhaltes abrufen"
+        index_response: "Die Duplikate des Inhaltes, höchster Score zuerst."
+        create_summary: "Zwei Inhalte als Duplikate markieren"
+        create_description: |
+          Markiert das Paar explizit, als eigener Kandidat mit der Methode `manual` und Score 100,
+          neben allen automatisch erkannten Kandidaten. Die Markierung bleibt bei der automatischen
+          Neuberechnung erhalten und reaktiviert ein als False Positive verworfenes Paar.
+        create_response: "Das Paar wurde neu markiert; Body wie beim GET-Endpunkt."
+        create_existing_response: "Das Paar war bereits manuell markiert; Body wie beim GET-Endpunkt."
+        merge_summary: "Duplikat in den Inhalt zusammenführen"
+        merge_description: |
+          Die Zusammenführung läuft asynchron (MergeDuplicateJob), damit die Antwortzeit nicht von
+          der Anzahl der zu verschiebenden Verlinkungen abhängt. Vorher wird auf dem Zielinhalt eine
+          benannte Version geschrieben, die den Merge dokumentiert.
+        merge_response: "Die Zusammenführung wurde eingeplant; das Paar ist aus den Kandidaten verschwunden."
+        false_positive_summary: "Duplikat als False Positive verwerfen"
+        false_positive_description: |
+          Das Paar verschwindet aus den Kandidaten und wird von der automatischen Neuberechnung nicht
+          wieder aufgenommen. Über `falsePositive=true` bleibt es abrufbar und kann durch erneutes
+          manuelles Markieren reaktiviert werden.
+        false_positive_response: "Das Paar wurde verworfen; Body wie beim GET-Endpunkt."
+        false_positive_param: "`true` liefert die verworfenen Paare statt der aktiven."
+        mark_request: "Der Inhalt, der als Duplikat des adressierten markiert wird."
+        mark_request_id: "UUID des zu markierenden Inhaltes. Muss denselben Inhaltstyp haben und darf nicht eingebettet sein."
+      external_connections:
+        id: "UUID des Inhaltes, dessen externe Verknüpfungen adressiert werden."
+        property_id: "Identifier, Name oder UUID des externen Systems."
+        value: "Externer Schlüssel (`external_key`) der Verknüpfung."
+        response: "Der vollständige Verknüpfungsstand des Inhaltes nach der Änderung."
+        create_summary: "Externe Verknüpfung hinzufügen"
+        create_description: |
+          Legt eine Verknüpfung vom Typ `duplicate` an. Idempotent: eine bestehende Verknüpfung
+          bleibt unverändert. Antwortet mit 422, wenn für dasselbe `propertyID`/`value`-Paar bereits
+          ein Import oder Export zuständig ist.
+        destroy_summary: "Externe Verknüpfung entfernen"
+        destroy_description: |
+          Entfernt eine Verknüpfung vom Typ `duplicate`. Idempotent: eine nicht mehr vorhandene
+          Verknüpfung ist kein Fehler, der aktuelle Stand wird zurückgegeben.
+        promote_summary: "Verknüpfung zum Primärsystem hochstufen"
+        promote_description: |
+          Das bisherige Primärsystem bleibt als Verknüpfung vom Typ `duplicate` erhalten, es gehen
+          also keine Daten verloren. Antwortet mit 409, wenn ein anderer Inhalt diesen externen
+          Schlüssel bereits als Primärschlüssel verwendet.
+        demote_summary: "Primärsystem herabstufen"
+        demote_description: |
+          Wandelt das primäre externe System des Inhaltes in eine Verknüpfung vom Typ `duplicate`
+          um. Danach hat der Inhalt kein Primärsystem mehr, der externe Schlüssel bleibt erhalten.
+      delivery:
+        endpoint_id: "UUID des Datenendpunkts (gespeicherter Filter)."
+        content_id: "UUID eines Inhalts innerhalb des Endpunkts."
+        contents_summary: "Inhalte eines Datenendpunkts abrufen (Liste)"
+        content_summary: "Einen Inhalt innerhalb eines Datenendpunkts abrufen"
+        suggest_summary: "Autovervollständigung (Volltext)"
+        suggest_by_title_summary: "Autovervollständigung (Titel)"
+        suggestions_response: "Eine JSON-LD-Liste von Vorschlägen."
+        suggest_search: "Angefangener Suchbegriff für die Autovervollständigung."
+        suggest_limit: "Maximale Anzahl an Vorschlägen."
+        facets_summary: "Facetten (Klassifizierungs-Trefferzahlen) abrufen"
+        facets_tree_label_id: "UUID des Klassifizierungsbaum-Labels, nach dem facettiert wird."
+        facets_response: "Facetten-Trefferzahlen pro Klassifizierung."
+        external_system_facets_summary: "Facetten nach externem System abrufen"
+        external_system_facets_min_count: "Externe Systeme mit weniger Treffern als angegeben werden weggelassen."
+        external_system_facets_response: "Trefferzahlen pro externem System, aus dem Inhalte importiert wurden."
+        facets_for_classification_summary: "Facetten für eine Klassifizierung abrufen"
+        facets_tree_label_id_plain: "UUID des Klassifizierungsbaum-Labels."
+        facets_classification_id: "UUID der Klassifizierung, auf die die Facetten eingeschränkt werden."
+        facets_for_classification_response: "Facetten-Trefferzahlen für die angegebene Klassifizierung."
+        statistics_summary: "Aggregierte Statistik über ein Attribut"
+        statistics_format_summary: "Statistik über ein Attribut (explizites Format-Segment)"
+        statistics_attribute: "API-Name des zu aggregierenden Attributs."
+        statistics_response: "Aggregierte Statistik für das Attribut."
+        statistics_response_json_csv: "Aggregierte Statistik (JSON oder CSV)."
+        statistics_group_by: "Zeit-Bucket-Größe für die Aggregation."
+        statistics_time: "Zeitraum-Filter auf das aggregierte Attribut, z. B. `time[in][min]=2026-01-01&time[in][max]=2026-12-31`."
+        timeseries_summary: "Zeitserie eines Inhalts (im Endpunkt-Scope)"
+        timeseries_format_summary: "Zeitserie eines Inhalts (Endpunkt-Scope, explizites Format-Segment)"
+        timeseries_name: "Name des Attributs, das die Zeitserie enthält."
+        elevation_summary: "Höhenprofil einer Route abrufen"
+        elevation_response: "Höhenprofil der Route."
+        download_endpoint_summary: "Ganze Inhaltssammlung als Datei herunterladen"
+        download_endpoint_response: "Die Sammlung als herunterladbare Datei."
+        download_thing_summary: "Einzelnen Inhalt als Datei herunterladen"
+        download_thing_response: "Der Inhalt als herunterladbare Datei."
+      classifications:
+        concept_schemes_summary: "Concept Schemes (Klassifizierungsbäume) auflisten."
+        concept_schemes_response: "Eine JSON-LD-Liste von Concept Schemes."
+        concept_schemes_search: "Freitextsuche über den Namen der Concept Schemes."
+        concept_scheme_summary: "Ein einzelnes Concept Scheme anzeigen."
+        concept_scheme_id: "ID des Concept Scheme (Klassifizierungsbaum-Label)."
+        concept_scheme_response: "Ein JSON-LD-Dokument mit dem Concept Scheme."
+        concepts_summary: "Die Concepts eines Concept Scheme auflisten."
+        concepts_response: "Eine JSON-LD-Liste von Concepts."
+        concepts_search: "Freitextsuche über den Namen der Concepts."
+        concept_summary: "Die Concepts unterhalb eines gegebenen Concepts eines Concept Scheme auflisten."
+        concept_classification_id: "ID des Concepts (Klassifizierungs-Alias), auf das das Ergebnis eingeschränkt wird."
+      endpoints:
+        endpoints_summary: "Zugängliche Daten-Endpoints (veröffentlichte Stored Filters) auflisten."
+        endpoints_response: "Eine JSON-LD-Liste von Daten-Endpoints."
+        create_summary: "Endpunkt / gespeicherten Filter anlegen."
+        create_description: "Erstellt aus einem Quell-Endpunkt und der angegebenen Inhaltsabfrage eine Sammlung / einen gespeicherten Filter. Antwortet mit HTTP 201."
+        create_response: "Ein JSON-LD-Dokument mit der angelegten Sammlung."
+        endpoint_ref: "ID oder Slug des Quell-Endpunkts (Collection / StoredFilter)."
+        collection_desc: "Metadaten der anzulegenden Sammlung."
+        collection_type: "Typ der Sammlung (WatchList oder StoredFilter)."
+        collection_name: "Name der anzulegenden Sammlung."
+        collection_valid_from: "Beginn der Gültigkeit."
+        collection_valid_until: "Ende der Gültigkeit."
+      collections:
+        collections_summary: "Zugängliche Sammlungen (Merklisten) auflisten."
+        collections_response: "Eine JSON-LD-Liste von Sammlungen."
+        collection_summary: "Eine Sammlung zu ihrer Inhaltsliste auflösen."
+        collection_description: "Leitet (302) auf den Inhalts-Endpunkt der Sammlung (`/endpoints/{id}`) weiter, der die enthaltenen Inhalte als JSON-LD-Liste liefert."
+        collection_id: "ID der Sammlung (Merkliste)."
+        collection_redirect: "Weiterleitung zur Inhaltsliste der Sammlung."
+        create_summary: "Neue (Download-)Sammlung anlegen."
+        create_description: "Legt eine neue Sammlung (Merkliste) an, optional vorbefüllt mit den angegebenen Inhalts-IDs. Erfordert die Berechtigung :create auf WatchList. Antwortet mit HTTP 200."
+        create_response: "Die angelegte Sammlung ({ id, name })."
+        create_thing_id: "Eine oder mehrere Inhalts-UUIDs, mit denen die Sammlung vorbefüllt wird."
+        add_item_summary: "Inhalt zur Sammlung hinzufügen."
+        add_item_response: "Die aktualisierte Sammlung."
+        remove_item_summary: "Inhalt aus der Sammlung entfernen."
+        remove_item_response: "Die aktualisierte Sammlung."
+        item_thing_id: "UUID des hinzuzufügenden/zu entfernenden Inhalts (im Pfad oder im Body)."
+        download_and_reset_summary: "Sammlung als Datei herunterladen und zurücksetzen."
+        download_and_reset_description: "Lädt die Inhalte der Sammlung als Datei herunter und leert anschließend die Sammlung. Hinweis: Für diese Route wurde im Code keine Controller-Action/View gefunden (#50193) — Verhalten vor Nutzung prüfen."
+        download_and_reset_response: "Die Sammlung als herunterladbare Datei."
+      authentication:
+        login_summary: "Mit E-Mail und Passwort anmelden und ein JWT erhalten."
+        login_response: "Authentifizierung erfolgreich; liefert das Token und den Benutzer."
+        check_summary: "Die übergebenen Zugangsdaten überprüfen."
+        check_description: "Liefert `{ \"success\": true }`, wenn die übergebenen Zugangsdaten (Bearer-Token oder token-Query) gültig sind."
+        check_response: "Die Zugangsdaten sind gültig."
+        login_iss: "Optionale Überschreibung des Issuers."
+        login_original_iss: "Optionale Überschreibung des ursprünglichen Issuers."
+        login_token: "Signiertes JSON Web Token."
+        login_exp: "Ablauf des Tokens als Unix-Zeitstempel."
+        login_user: "Der authentifizierte Benutzer (Felder abhängig von der User-API-Konfiguration)."
+        renew_summary: "Token erneuern."
+        renew_description: "Tauscht das übergebene (noch gültige) Token gegen ein frisches. Das aktuelle Token wird im Authorization-Header oder als token-Query übergeben."
+        renew_response: "Erneuerung erfolgreich; liefert das neue Token und den Benutzer."
+        logout_summary: "Abmelden (aktuelles Token ungültig machen)."
+        logout_response: "Erfolgreich abgemeldet; kein Inhalt."
+      data_links:
+        create_summary: "Externe Links (Zugriffsfreigaben) anlegen."
+        create_description: "Gewährt einer oder mehreren Personen Zugriff auf Inhalte. Jeder Eintrag wird unabhängig verarbeitet: HTTP 201, wenn alle erfolgreich sind, sonst 207."
+        create_response: "Alle Einträge erfolgreich angelegt."
+        multi_status_response: "Teilweise erfolgreich: pro Eintrag ein success-Flag sowie errors[]."
+        graph_desc: "Liste der anzulegenden externen Links (mindestens ein Eintrag)."
+        receiver_desc: "Empfänger:in des Links (wird bei Bedarf als Nutzer:in angelegt)."
+        item_desc: "Inhalt, auf den der Zugriff gewährt wird ({ @id, @type })."
+        permission_desc: "Gewährte Berechtigung."
+        comment_desc: "Optionaler Kommentar."
+        valid_from_desc: "Beginn der Gültigkeit."
+        valid_until_desc: "Ende der Gültigkeit."
+      users:
+        index_summary: "Aktuellen Benutzerkontext auflisten (Nutzer, Sammlungen, gespeicherte Filter)."
+        index_response: "Der aktuelle Benutzer samt zugänglicher Sammlungen und Filter."
+        show_summary: "Einzelnen Benutzer anzeigen."
+        show_id: "UUID des Benutzers."
+        show_response: "Der angeforderte Benutzer."
+        create_summary: "Benutzer anlegen."
+        create_description: "Legt einen neuen Benutzer an. Erfordert die Berechtigung :create_user."
+        create_response: "Der angelegte Benutzer samt Token."
+        update_summary: "Angemeldeten Benutzer aktualisieren."
+        update_description: "Aktualisiert den aktuell authentifizierten Benutzer."
+        update_response: "Der aktualisierte Benutzer samt Token."
+        password_summary: "Passwort-Zurücksetzen anfordern."
+        password_description: "Versendet eine E-Mail mit Anweisungen zum Zurücksetzen des Passworts."
+        password_response: "Die Anweisungen wurden versendet (kein Inhalt)."
+        change_password_summary: "Passwort per Reset-Token ändern."
+        change_password_response: "Passwort geändert; liefert den Benutzer samt Token."
+        resend_confirmation_summary: "Bestätigungs-E-Mail erneut senden."
+        resend_confirmation_response: "Die Bestätigungs-E-Mail wurde erneut versendet (kein Inhalt)."
+        confirm_summary: "Benutzer per Token bestätigen."
+        confirm_response: "Der Benutzer wurde bestätigt (kein Inhalt)."
+        field_email: "E-Mail-Adresse."
+        field_password: "Passwort."
+        field_password_confirmation: "Passwort-Bestätigung."
+        field_rank: "Rang der zuzuweisenden Rolle."
+        field_reset_token: "Token zum Zurücksetzen des Passworts."
+        field_confirmation_token: "Bestätigungs-Token."
+        field_layout: "Layout-Bezeichner für Mailer/Viewer."
+        field_redirect_url: "Weiterleitungs-/Forward-URL (muss auf der Allowlist stehen)."
+        field_additional_attributes: "Zusätzliche, feature-abhängige Benutzerattribute."
+        field_token: "Signiertes JSON Web Token."
+        field_exp: "Ablauf des Tokens als Unix-Zeitstempel."
+      external_sources:
+        create_summary: "Inhalt(e) im externen System anlegen."
+        update_summary: "Inhalt(e) im externen System aktualisieren."
+        destroy_summary: "Inhalt(e) im externen System löschen."
+        demote_summary: "Externes System für die Inhalte herabstufen."
+        show_summary: "Inhalt per externem Schlüssel auflösen."
+        show_description: "Leitet (302) auf den aufgelösten Inhalt weiter."
+        show_response: "Weiterleitung zum aufgelösten Inhalt."
+        import_body: "Systemspezifische Nutzlast, üblicherweise in @graph verpackt; wird von der API-Strategie des externen Systems verarbeitet."
+        import_response: "Ergebnis der Import-Strategie (Objekt oder Liste von Ergebnissen)."
+        timeseries_bulk_summary: "Zeitserien-Daten importieren (Bulk)."
+        timeseries_bulk_attr_summary: "Zeitserien-Daten importieren (Bulk, je Attribut)."
+        timeseries_summary: "Zeitserie eines Attributs importieren."
+        timeseries_format_summary: "Zeitserie eines Attributs importieren (explizites Format-Segment)."
+        timeseries_body: "Zeitserien-Nutzlast: je Attribut ein Array von [Zeitstempel, Wert] oder ein `data`-Array; alternativ CSV (text/csv)."
+        timeseries_response: "Die Zeitserien-Daten wurden zur Verarbeitung angenommen."
+        timeseries_empty_response: "Keine Daten übermittelt; nichts zu tun."
+        concepts_summary: "Concepts per externem Schlüssel auflisten."
+        concepts_response: "Eine JSON-LD-Liste von Concepts."
+        select_summary: "Inhalte per externen Schlüsseln auswählen."
+        select_response: "Eine JSON-LD-Liste der ausgewählten Inhalte."
+        external_keys: "Kommagetrennte Liste externer Schlüssel."
+        search_availability_summary: "Verfügbarkeit suchen (nur Feratel)."
+        search_additional_service_summary: "Zusatzleistungen suchen (nur Feratel)."
+        search_response: "Eine JSON-LD-Liste der Suchergebnisse."
+        facets_summary: "Orts-Facetten abrufen (nur Feratel)."
+        facets_type: "Facetten-Typ (z. B. accommodations, addservices)."
+        facets_response: "Facetten-Trefferzahlen pro Ort."
+        export_summary: "Things eines externen Systems exportieren."
+        export_description: "Exportiert die angegebenen (oder alle) Things eines externen Systems."
+        export_system_id: "ID oder Identifier des externen Systems."
+        export_ids: "Kommagetrennte Liste von Thing-IDs; ohne Angabe werden alle exportiert."
+        export_response: "Die exportierten Things."
+      translate:
+        text_summary: "Text übersetzen."
+        text_description: "Übersetzt einen Text zwischen zwei Locales. Erfordert die Berechtigung :api_translate_text auf dem Translate-Feature."
+        text_response: "Der übersetzte Text."
+        server: "Basis-URL der Translate-API (Geschwister von /api/v4)."
+        field_text: "Zu übersetzender Text."
+        field_source_locale: "Quell-Locale (optional; wird andernfalls erkannt)."
+        field_target_locale: "Ziel-Locale."
+      config:
+        server: "Basis-URL der Config-API (Geschwister von /api/v4)."
+        schema_index_summary: "Schema aller ThingTemplates abrufen."
+        schema_index_response: "Ein JSON-LD-Dokument mit den Template-Schemata."
+        schema_show_summary: "Schema eines einzelnen ThingTemplates abrufen."
+        schema_show_response: "Ein JSON-LD-Dokument mit dem Template-Schema."
+        template_name: "Name des ThingTemplates."
+        common_summary: "Allgemeine Instanz-Konfiguration abrufen."
+        common_response: "Ein JSON-LD-Dokument mit der Instanz-Konfiguration."
+        feature_summary: "Feature-Konfiguration abrufen."
+        feature_response: "Ein JSON-LD-Dokument mit den aktivierten Features."
+        openapi_summary: "Dieses OpenAPI-Dokument abrufen."
+        openapi_response: "Das OpenAPI-3.1-Dokument der Instanz."

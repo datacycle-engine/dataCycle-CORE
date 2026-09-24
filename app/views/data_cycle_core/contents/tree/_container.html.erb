@@ -2,7 +2,7 @@
   <%# within an external-system content list a container is shown as a plain row (no classification-tree drill-in) %>
   <%= render 'data_cycle_core/contents/tree/default', item:, external_system: local_assigns[:external_system], language: local_assigns[:language] %>
 <% else %>
-<li id="<%= item.id %>" data-parent-classification="<%= local_assigns[:classification_parent_tree]&.id || classification_tree.id %>" class="content-row tree-link-container">
+<li id="<%= item.id %>" class="content-row tree-link-container">
   <div class="inner-item container">
     <%= link_to '#',
             class: "tree-link type #{item.template_name.downcase}",
@@ -10,8 +10,8 @@
               disable: true,
               additional_form_parameters: {
                 con_id: item.id,
-                ctl_id: classification_tree_label&.id,
-                cpt_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id
+                ctl_id: concept_scheme&.id,
+                cpt_id: local_assigns[:parent_concept]&.id || concept.id
               }.compact.to_json
             } do %>
       <span class="icon"><i class="folder-icon"></i></span>
@@ -20,12 +20,12 @@
       <span class="children-count">
         (
         <span class="child-count-full result-count loading"
-            id="container-child-count-<%= classification_tree.id %>-<%= item.id %>"
+            id="container-child-count-<%= concept.id %>-<%= item.id %>"
             data-additional-form-parameters="<%= to_query_params({
               content_class: local_assigns[:content_class] || 'things',
               count_mode: 'container',
-              ctl_id: classification_tree_label&.id,
-              ct_id: classification_tree.id,
+              ctl_id: concept_scheme&.id,
+              ct_id: concept.id,
               con_id: item.id
             }).to_json %>"
             >-</span>

@@ -1,0 +1,82 @@
+<%= turbo_frame_tag "admin_dashboard_flatten_grafana_dashboard_form" do %>
+  <div class="reveal-header">
+    <i class="fa fa-line-chart" aria-hidden="true"></i>
+    <%= t('dash_board.maintenance.grafana_dashboard.title', locale: active_ui_locale) %>
+  </div>
+
+  <%= form_with url: admin_flatten_grafana_dashboard_path, method: :post, multipart: true, class: 'flatten-grafana-dashboard-form' do %>
+    <div class="reveal-body">
+      <div class="callout secondary">
+        <p><%= t('dash_board.maintenance.grafana_dashboard.intro', locale: active_ui_locale) %></p>
+
+        <ol>
+          <li><%= t('dash_board.maintenance.grafana_dashboard.step_export', locale: active_ui_locale) %></li>
+          <li><%= t('dash_board.maintenance.grafana_dashboard.step_flatten', locale: active_ui_locale) %></li>
+          <li><%= t('dash_board.maintenance.grafana_dashboard.step_import', locale: active_ui_locale) %></li>
+        </ol>
+      </div>
+
+      <% if @error.present? %>
+        <div class="callout alert flatten-grafana-dashboard-error"><%= @error %></div>
+      <% end %>
+
+      <% if @flattened.present? %>
+        <div class="callout success">
+          <%= t('dash_board.maintenance.grafana_dashboard.success', title: @flattened.dig('spec', 'title'), locale: active_ui_locale) %>
+        </div>
+
+        <% if @empty_variables.present? %>
+          <div class="callout warning flatten-grafana-dashboard-empty-variables">
+            <%= t('dash_board.maintenance.grafana_dashboard.empty_variables', names: @empty_variables.join(', '), locale: active_ui_locale) %>
+          </div>
+        <% end %>
+
+        <% if @untouched_references.present? %>
+          <div class="callout secondary flatten-grafana-dashboard-untouched">
+            <%= t('dash_board.maintenance.grafana_dashboard.untouched_references', names: @untouched_references.join(', '), locale: active_ui_locale) %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <div class="form-element">
+        <%= label_tag :dashboard do %>
+          <%= t('dash_board.maintenance.grafana_dashboard.file_label', locale: active_ui_locale) %>
+          <%= tag.i('*', class: 'required-field-marker', data: { dc_tooltip: t('common.required_field', locale: active_ui_locale) }) %>
+        <% end %>
+
+        <div class="file-row">
+          <%= file_field_tag :dashboard, accept: 'application/json', required: true %>
+
+          <% if @flattened.present? %>
+            <%= link_to safe_join([
+                tag.i(class: 'fa fa-download', aria: { hidden: true }),
+                t('dash_board.maintenance.grafana_dashboard.download', locale: active_ui_locale)
+              ], ' '),
+              @download_href,
+              download: @download_filename,
+              class: 'button primary flatten-grafana-dashboard-download',
+              data: { turbo: false } %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="buttons reveal-footer">
+      <%# turbo_submits_with disables the button for the duration of the request and swaps in the %>
+      <%# spinner, which matters here because the upload is answered by a re-render of this frame: %>
+      <%# nothing else would tell the operator that a 500 KB export is still being rewritten. %>
+      <%= button_tag safe_join([
+          tag.i(class: 'fa fa-line-chart', aria: { hidden: true }),
+          t('dash_board.maintenance.grafana_dashboard.button', locale: active_ui_locale)
+        ], ' '),
+        type: :submit,
+        class: 'button primary flatten_grafana_dashboard',
+        data: {
+          turbo_submits_with: safe_join([
+            tag.i(class: 'fa fa-refresh fa-spin fa-fw', aria: { hidden: true }),
+            t('dash_board.maintenance.grafana_dashboard.button_submitting', locale: active_ui_locale)
+          ], ' ')
+        } %>
+    </div>
+  <% end %>
+<% end %>

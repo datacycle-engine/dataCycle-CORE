@@ -1,0 +1,47 @@
+
+// ---------------------------------------------------------------------------
+// /schema/:id — template detail (card-raster layout, #50201 §8.1)
+// Light theme, solid magenta accent. Every rule is scoped to the detail page
+// (`main.schema-detail`) so the index card styles above are never affected —
+// both pages reuse the `.schema-card` class name for different components.
+// ---------------------------------------------------------------------------
+$schema-magenta: #e5054e;
+$schema-magenta-soft: rgba(229, 5, 78, 0.08);
+$schema-magenta-border: rgba(229, 5, 78, 0.25);
+$schema-ink: #1f2529;
+$schema-muted: #6b7278;
+$schema-line: #e4e7ea;
+
+// schema.org definition link — a small pill button shown under the title on the
+// /schema detail head and on content detail headers (#50201 follow-up). Defined
+// outside body.schema on purpose, since content detail pages are not body.schema.
+.schema-org-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font: 600 0.72rem/1.2 Helvetica, Arial, sans-serif;
+  color: $schema-magenta;
+  background: $schema-magenta-soft;
+  border: 1px solid $schema-magenta-border;
+  border-radius: 999px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  &:hover,
+  &:focus {
+    color: $schema-magenta;
+    background: rgba(229, 5, 78, 0.14);
+    border-color: rgba(229, 5, 78, 0.45);
+  }
+
+  .fa {
+    font-size: 0.85em;
+  }
+}
+
+// on content detail headers the link sits under the object title
+.detail-header .schema-org-link {
+  margin-top: 0.5rem;
+}

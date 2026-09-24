@@ -2,7 +2,7 @@
 
 related_objects = DataCycleCore::CreativeWork
   .where(is_part_of: content.id)
-  .includes({ classifications: { classification_aliases: { classification_tree: [:classification_tree_label] } }, translations: [] })
+  .includes({ concepts: [:concept_scheme], translations: [] })
 
 json.hasPart(related_objects) do |part|
   json.content_partial! 'header', content: part, options: { parent: false }

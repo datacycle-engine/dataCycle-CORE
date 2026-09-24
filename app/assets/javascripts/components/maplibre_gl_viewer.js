@@ -4,11 +4,20 @@ import debounce from "lodash/debounce";
 import isEmpty from "lodash/isEmpty";
 import pick from "lodash/pick";
 import throttle from "lodash/throttle";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import DomElementHelpers from "../helpers/dom_element_helpers";
 import MaplibreElevationProfileControl from "./map_controls/maplibre_elevation_profile_control";
 
+// maplibre-gl 6 ships as ES modules and loads its worker from a sibling of its own dist file,
+// building that URL at runtime from import.meta.url. Bundled, the URL would point next to our
+// own chunk, where Vite emits no maplibre-gl-worker.mjs, and every map would die on a 404 before
+// its first tile. Vite's ?worker&url emits the worker as a bundle of its own, which a plain ?url
+// would not: the worker imports maplibre-gl-shared.mjs, and only the bundle carries it along.
 const MaplibreGl = () =>
-	import("maplibre-gl/dist/maplibre-gl").then((mod) => mod.default);
+	import("maplibre-gl").then((maplibreGl) => {
+		maplibreGl.setWorkerUrl(maplibreWorkerUrl);
+		return maplibreGl;
+	});
 
 const iconPaths = {
 	start:

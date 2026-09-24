@@ -2,9 +2,6 @@
 
 months = content
   .send(key)
-  &.includes(:classification_aliases)
-  &.map(&:classification_aliases)
-  &.flatten&.uniq
   &.map(&:internal_name)
   &.map do |name|
     case name

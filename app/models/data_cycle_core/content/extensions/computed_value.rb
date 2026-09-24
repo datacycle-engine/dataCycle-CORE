@@ -72,8 +72,8 @@ module DataCycleCore
         # Recalculates the compute.after_save properties that the preceding before_save pass
         # deferred (see #update_computed_values_after_save). Called from #set_data_hash inside the
         # write transaction, after the record was saved and reloaded, so a compute reading the
-        # stored state — e.g. the collected_classification_contents its triggers only fill after
-        # the classification_contents rows are written — sees the final state, as the async job
+        # stored state — e.g. the collected_concept_contents its triggers only fill after
+        # the concept_contents rows are written — sees the final state, as the async job
         # would.
         #
         # Unlike the async job this runs in the caller's request, so the value is committed before
@@ -125,19 +125,23 @@ module DataCycleCore
           end
         end
 
-        # Discards a compute.after_save deferral that was never consumed. Consuming one clears it
-        # itself, so this only covers a pass that bailed out between deferring and consuming
-        # (invalid data, no changes) — without it that stale deferral would be recomputed on behalf
-        # of an unrelated save. Called by DataHash#set_data_hash, which both creates and consumes
-        # the deferral and is the only method able to observe that window.
+        # Discards the deferrals of a pass that bailed out between deferring and consuming them —
+        # invalid data, no changes, a rolled back recompute. Consuming one clears it itself, so
+        # only that window is left, and without this the stale deferral would be recomputed, or
+        # enqueued, on behalf of the next save of the same object: the rolled back save would still
+        # reach the queue. Called by DataHash#set_data_hash, which creates and consumes both
+        # deferrals and is the only method able to observe the window.
         #
-        # Unconditional on purpose: the deferral is fed from after_save_computed_property_names and
-        # is therefore always nil for a content without such a property, so gating this would cost
-        # a property_definitions scan to skip a single assignment.
+        # Not while a nested pass continues the caller's save. The compute.after_save recompute
+        # runs its own #set_data_hash between the caller deferring its async keys and draining them
+        # after the transaction, so resetting there would drop the recompute the caller legitimately
+        # scheduled — for a content declaring both kinds, the async value would simply never be
+        # computed.
         #
         # @return [void]
-        def reset_after_save_computed_keys
+        def reset_deferred_computed_keys
           @after_save_computed_keys = nil
+          @deferred_async_computed_keys = nil
         end
 
         def add_computed_values(data_hash:, keys:, current_user: nil)
@@ -148,8 +152,19 @@ module DataCycleCore
           after_save_keys = after_save_computed_property_names.intersection(keys)
 
           calculate_computed_values(data_hash:, current_user:, keys: inline_keys) if inline_keys.present?
-          update_computed_values_async(async_keys, I18n.locale) if async_keys.present?
+          defer_async_computed_values(async_keys, I18n.locale) if async_keys.present?
           defer_after_save_computed_values(after_save_keys, I18n.locale) if after_save_keys.present?
+        end
+
+        # [#51643] Records the compute.async keys DataHash#check_update_computed scheduled, so that
+        # #enqueue_async_computed_values can hand them to the queue once the save is written.
+        #
+        # @param keys [Array<String>] compute.async keys to recalculate
+        # @param locale [String, Symbol] locale the triggering save runs in
+        # @return [void]
+        def defer_async_computed_values(keys, locale)
+          @deferred_async_computed_keys ||= {}
+          @deferred_async_computed_keys[locale.to_s] = @deferred_async_computed_keys[locale.to_s].to_a | Array.wrap(keys)
         end
 
         # Records what #update_after_save_computed_values has to recalculate once the save is
@@ -163,6 +178,38 @@ module DataCycleCore
         # @return [void]
         def defer_after_save_computed_values(keys, locale)
           @after_save_computed_keys = { keys:, locale: }
+        end
+
+        # [#51643] Hands the deferred compute.async keys to the queue, once the save that scheduled
+        # them is written. Called by DataHash#set_data_hash, the only place that knows the save went
+        # through.
+        #
+        # An async compute reads the record rather than the data hash of the save that scheduled it
+        # — Utility::Compute::Generated#ai_agents weighs the *stored* companion value — so a worker
+        # claiming the job before that save is visible computes from the previous state and stores
+        # the result: with :fallback: false an empty value, not a skipped one. Enqueueing from
+        # DataHash#before_save_data_hash left that window open wherever no transaction spans the
+        # save, which the regression test in
+        # test/models/content/attributes/computed_generated_test.rb pins.
+        #
+        # after_all_transactions_commit rather than a bare enqueue covers the save that runs inside
+        # a joinable transaction of its own — an importer step
+        # (Generic::Common::ImportFunctionsDataHelper), DataHashService — where the job would
+        # otherwise be claimable before that transaction commits. It does not defer for the
+        # compute.after_save pass, whose enclosing transaction is opened joinable: false and
+        # therefore left out of ActiveRecord.all_open_transactions: the block runs at once, inside
+        # it. What makes a rolled back save enqueue nothing is not this call but where the job row
+        # lives — SolidQueue shares the primary database, so the row rolls back with the save.
+        #
+        # @return [void]
+        def enqueue_async_computed_values
+          deferred = @deferred_async_computed_keys
+          @deferred_async_computed_keys = nil
+          return if deferred.blank?
+
+          ActiveRecord.after_all_transactions_commit do
+            deferred.each { |locale, keys| update_computed_values_async(keys, locale) }
+          end
         end
 
         def calculate_computed_values(keys:, data_hash: {}, current_user: nil, force: false)

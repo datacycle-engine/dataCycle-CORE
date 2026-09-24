@@ -56,7 +56,7 @@ module DataCycleCore
                           import_classification(
                             utility_object:,
                             classification_data: extracted_classification_data.merge({ tree_name: }),
-                            parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
+                            parent: load_parent_classification_alias.call(raw_classification_data, external_source_id, options)
                           )
 
                           raw_classification_data_stack +=
@@ -139,14 +139,14 @@ module DataCycleCore
                         import_classification(
                           utility_object:,
                           classification_data: extracted_classification_data.merge({ tree_name: }),
-                          parent_classification_alias: nil
+                          parent: nil
                         )
 
                         extract_child_data.call(options, classification_data).each do |child_classification_data|
                           import_classification(
                             utility_object:,
                             classification_data: child_classification_data.merge({ tree_name: }),
-                            parent_classification_alias: load_parent_classification_alias.call(classification_data, external_source_id, options)
+                            parent: load_parent_classification_alias.call(classification_data, external_source_id, options)
                           )
                         end
 
@@ -204,83 +204,77 @@ module DataCycleCore
           end
         end
 
-        def import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
+        # One concept per imported node: the Classification and the ClassificationAlias this used to
+        # keep in step are the same record now, so the ClassificationGroup and the ClassificationTree
+        # that joined them are gone with them.
+        #
+        # +classification_data+ comes from the connector's own extract_data lambda, so its keys stay
+        # as they are - including :classification_polygons_attributes, which is handed on under the
+        # name Concept's nested attributes writer expects.
+        #
+        # @param parent [DataCycleCore::Concept, nil] what load_parent_classification_alias resolved
+        # @return [DataCycleCore::Concept, nil] nil only when the node carries no name
+        def import_classification(utility_object:, classification_data:, parent: nil)
           return if classification_data[:name].blank?
 
-          external_source_id = utility_object.external_source.id
-          external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
+          external_system_id = utility_object.external_source.id
+          external_system_id = nil if utility_object.options.dig('import', 'no_external_source_id')
 
           ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
             ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
-            classification = if classification_data[:external_key].blank?
-                               DataCycleCore::Classification
-                                 .find_or_initialize_by(
-                                   external_source_id:,
-                                   name: classification_data[:name]
-                                 )
-                             else
-                               DataCycleCore::Classification
-                                 .find_or_initialize_by(
-                                   external_source_id:,
-                                   external_key: classification_data[:external_key]
-                                 ) do |c|
-                                   c.name = classification_data[:name]
-                                 end
-                             end
+            concept = find_imported_concept(external_system_id:, classification_data:)
+            # A parent decides the scheme - the tree_name only has to answer for a root. That is what
+            # the dropped update_classification_tree_tree_label_id_trigger enforced from the database
+            # side, and concepts_propagate_scheme_trigger only fires on an UPDATE.
+            concept_scheme = parent&.concept_scheme || imported_concept_scheme(external_system_id:, tree_name: classification_data[:tree_name])
 
-            if classification.new_record?
-              classification_alias = DataCycleCore::ClassificationAlias.create!(
-                external_source_id:,
-                **classification_data.slice(:name, :description, :uri, :classification_polygons_attributes, :assignable, :external_key)
-              )
+            attributes = concept_attributes(classification_data, concept)
 
-              DataCycleCore::ClassificationGroup.create!(
-                classification:,
-                classification_alias:,
-                external_source_id:
-              )
-
-              tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-                external_source_id:,
-                name: classification_data[:tree_name],
-                external_key: classification_data[:tree_name]
-              ) do |item|
-                item.visibility = DataCycleCore.default_classification_visibilities
-              end
-
-              DataCycleCore::ClassificationTree.create!(
-                {
-                  classification_tree_label: tree_label,
-                  parent_classification_alias: classification_alias.id == parent_classification_alias&.id ? nil : parent_classification_alias,
-                  sub_classification_alias: classification_alias
-                }
-              )
+            if concept.nil?
+              concept_scheme.concepts.create!(external_system_id:, parent_concept: parent, **attributes)
             else
-              primary_classification_alias = classification.primary_classification_alias
-
-              if classification_data[:classification_polygons_attributes].present? && (polygon = primary_classification_alias.classification_polygons.first)
-                classification_data[:classification_polygons_attributes].first[:id] = polygon.id
-              end
-
-              primary_classification_alias.update!(name: classification_data[:name], **classification_data.slice(:description, :uri, :classification_polygons_attributes, :assignable, :external_key).compact_blank)
-
-              classification_tree = primary_classification_alias.classification_tree
-
-              classification_tree.parent_classification_alias = primary_classification_alias.id == parent_classification_alias&.id ? nil : parent_classification_alias
-              classification_tree.classification_tree_label = parent_classification_alias.classification_tree_label unless parent_classification_alias.nil?
-              classification_tree.save!
-
-              classification_alias = primary_classification_alias
+              concept.update!(**attributes)
+              concept.move_to_scheme(parent&.id, concept_scheme.id)
+              concept
             end
-
-            classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
-            classification.description = classification_data[:description] if classification_data[:description].present?
-            classification.uri = classification_data[:uri] if classification_data[:uri].present?
-            classification.external_key = classification_data[:external_key]
-            classification.save!
-            classification_alias
           end
+        end
+
+        private
+
+        # Not scoped to the tree, the way the Classification lookup this replaces was not: a node whose
+        # external_key moves to another tree is found here and then moved, rather than duplicated.
+        def find_imported_concept(external_system_id:, classification_data:)
+          if classification_data[:external_key].blank?
+            DataCycleCore::Concept.find_by(external_system_id:, internal_name: classification_data[:name])
+          else
+            DataCycleCore::Concept.find_by(external_system_id:, external_key: classification_data[:external_key])
+          end
+        end
+
+        def imported_concept_scheme(external_system_id:, tree_name:)
+          DataCycleCore::ConceptScheme.find_or_create_by(external_system_id:, name: tree_name, external_key: tree_name) do |item|
+            item.visibility = DataCycleCore.default_classification_visibilities
+          end
+        end
+
+        # A re-import delivers the polygon again, and nested attributes would add a second row unless
+        # the one already stored is named - there is at most one per concept.
+        #
+        # Blanks are dropped so a partial re-import cannot erase a description or a uri that is
+        # already there, which is why +assignable+ has to be merged past that: it is a boolean
+        # defaulting to true in the database, and `false` is blank?.
+        def concept_attributes(classification_data, concept)
+          attributes = classification_data
+            .slice(:description, :uri, :external_key)
+            .merge(concept_polygons_attributes: classification_data[:classification_polygons_attributes])
+            .compact_blank
+
+          attributes[:concept_polygons_attributes]&.first&.[]=(:id, concept&.concept_polygons&.first&.id)
+          attributes
+            .merge(classification_data.slice(:assignable).compact)
+            .merge(name: classification_data[:name])
         end
       end
     end

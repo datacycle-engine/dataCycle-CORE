@@ -80,9 +80,9 @@ module DataCycleCore
         # @return [void]
         def check_references(data, template)
           uniq_data = data.uniq
-          concepts = DataCycleCore::Concept.where(classification_id: uniq_data)
+          concepts = DataCycleCore::Concept.where(id: uniq_data)
           concepts = concepts.includes(:concept_scheme).where(concept_scheme: { name: template['tree_label'] }) unless template['universal']
-          concept_ids = concepts.pluck(:classification_id).uniq
+          concept_ids = concepts.pluck(:id).uniq
 
           return if concept_ids.size == uniq_data.size && concept_ids.to_set == uniq_data.to_set
 

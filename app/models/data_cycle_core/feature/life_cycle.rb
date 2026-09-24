@@ -25,12 +25,11 @@ module DataCycleCore
 
         def ordered_classifications(content = nil)
           @ordered_classifications ||= Hash.new do |h, k|
-            h[k] = DataCycleCore::ClassificationAlias
-              .joins(:primary_classification)
+            h[k] = DataCycleCore::Concept
               .for_tree(k[0])
               .by_ordered_values(k[1], :internal_name)
               .pluck(
-                Arel.sql("classification_aliases.internal_name, json_build_object('id', classifications.id, 'alias_id', classification_aliases.id)")
+                Arel.sql("concepts.internal_name, json_build_object('id', concepts.id)")
               ).to_h.with_indifferent_access
           end
 

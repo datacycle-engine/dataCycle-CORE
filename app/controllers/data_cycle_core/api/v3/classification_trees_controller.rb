@@ -5,72 +5,29 @@ module DataCycleCore
   module Api
     module V3
       class ClassificationTreesController < ::DataCycleCore::Api::V3::ApiBaseController
+        include DataCycleCore::ConceptSinceFilterConcern
+
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
         ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
 
         def index
-          @classification_tree_labels = ClassificationTreeLabel.where(internal: false)
-
-          if permitted_params.dig(:filter, :modified_since)
-            @classification_tree_labels = @classification_tree_labels.where(
-              ClassificationTreeLabel.arel_table[:updated_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
-            ).order(:updated_at)
-          end
-
-          if permitted_params.dig(:filter, :created_since)
-            @classification_tree_labels = @classification_tree_labels.where(
-              ClassificationTreeLabel.arel_table[:created_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
-            ).order(:created_at)
-          end
-
-          if permitted_params.dig(:filter, :deleted_since)
-            @classification_tree_labels = @classification_tree_labels.with_deleted.where(
-              ClassificationTreeLabel.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
-            ).order(:deleted_at)
-          end
-
-          @classification_tree_labels = apply_paging(@classification_tree_labels)
+          @concept_schemes = apply_since_filters(concept_scheme_scope(since_params), since_params)
+          @concept_schemes = apply_paging(@concept_schemes)
         end
 
         def show
-          @classification_tree_label = ClassificationTreeLabel.find(permitted_params[:id])
+          @concept_scheme = ConceptScheme.find(permitted_params[:id])
         end
 
         def classifications
-          @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
+          @concept_scheme = ConceptScheme.find_including_history(permitted_params[:id])
           @classification_id = permitted_params[:classification_id] || nil
+          scope = concept_scope_for_mode(@concept_scheme, since_params, @classification_id, strict: @mode_parameters.include?('strict'))
 
-          @classification_aliases = if @classification_id.present? && @mode_parameters.include?('strict')
-                                      DataCycleCore::ClassificationAlias.find(@classification_id).sub_classification_alias
-                                    elsif @mode_parameters.include?('strict')
-                                      @classification_tree_label.classification_aliases.includes(:parent_classification_alias).where(classification_trees: { parent_classification_alias_id: nil })
-                                    elsif @classification_id.present?
-                                      DataCycleCore::ClassificationAlias.find(@classification_id).descendants
-                                    else
-                                      @classification_tree_label.classification_aliases
-                                    end
-
-          if permitted_params.dig(:filter, :modified_since)
-            @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_table[:updated_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
-            ).reorder(nil).order(:updated_at)
-          end
-
-          if permitted_params.dig(:filter, :created_since)
-            @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_table[:created_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
-            ).reorder(nil).order(:created_at)
-          end
-
-          if permitted_params.dig(:filter, :deleted_since)
-            @classification_aliases = @classification_aliases.with_deleted.where(
-              ClassificationAlias.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
-            ).reorder(nil).order(:deleted_at)
-          end
-
-          @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
+          @concepts = apply_since_filters(scope, since_params)
+          @concepts = apply_paging(@concepts.order(:internal_name))
         end
 
         def prepare_url_parameters

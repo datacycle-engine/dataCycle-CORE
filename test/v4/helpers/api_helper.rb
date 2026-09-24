@@ -7,6 +7,10 @@ module DataCycleCore
       EXCLUDED_PROPERTIES =
         [
           'overlay', # overlays must be tested in a spererate task
+          # [#51643] injected wherever a template has a _generated companion, and computed from the
+          # AI agents that produced its effective values - no dummy fixture can fill it, and it is
+          # tested in api/v4/content/generated_contributor_test
+          'contributor_generated',
           'schedule', # legacy property for events
           'sub_event', # legacy property for events
           'legacy_potential_action', # legacy property for events

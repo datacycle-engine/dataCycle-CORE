@@ -436,7 +436,7 @@
       content: "\f0b0";
     }
 
-    &.classification_tree_ids::before {
+    &.concept_scheme_ids::before {
       content: "\f0e8";
     }
 
@@ -513,6 +513,7 @@
     }
 
     &.type-date::before,
+    &.type-datetime::before,
     &.type-daterange::before,
     &.type-schedule::before,
     &.type-object.key-duration::before {
@@ -521,6 +522,30 @@
 
     &.type-classification::before {
       content: "\f02b";
+    }
+
+    // Scalar / literal attribute types. Previously these had no dedicated glyph and
+    // fell back to the property-icon default (question-circle, \f059); giving each its
+    // own glyph makes them legible wherever dataCycle renders such a property icon
+    // (editor, viewers, lists) and on the /schema detail chips (SCHEMA_KIND_DC_ICONS).
+    &.type-string::before {
+      content: "\f031"; // font
+    }
+
+    &.type-string-url::before {
+      content: "\f0c1"; // link — a URL-typed string
+    }
+
+    &.type-number::before {
+      content: "\f292"; // hashtag
+    }
+
+    &.type-boolean::before {
+      content: "\f205"; // toggle-on
+    }
+
+    &.type-geographic::before {
+      content: "\f041"; // map-marker
     }
 
     &.type-linked::before {

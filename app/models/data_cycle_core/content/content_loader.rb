@@ -74,20 +74,30 @@ module DataCycleCore
         filter_contents(relation_contents, filter)
       end
 
+      # Concept.default_scope supplies the ORDER BY here; concept_contents carries no order column of
+      # its own, so without it Postgres may hand the rows back in a new order once anything writes to
+      # the table, and the sync_api serializes that as a changed value - the consuming instance then
+      # re-imports content that did not change.
       def load_classifications(relation_name, _overlay_flag = false)
-        rel = classifications.where(classification_contents: { relation: relation_name })
+        rel = concepts.where(concept_contents: { relation: relation_name })
 
-        if classification_contents.loaded?
-          loaded_records = classification_contents.select { |cc| cc.relation == relation_name }
-            .filter_map(&:classification)
-          rel.tap { |r| r.send(:load_records, loaded_records) }
-        end
+        return rel unless concept_contents.loaded?
 
-        rel
+        # the association autosaves, so a loaded target may hold rows a classification setter marked
+        # for destruction (Attributes::ClassificationAttributes) - gone on save, so not part of the value
+        rows = concept_contents.select { |cc| cc.relation == relation_name && !cc.marked_for_destruction? }
+
+        # only a preload (concept_contents: :concept) has the concepts at hand;
+        # a setter loading the rows on its own does not, and reading them here would be one query per row
+        return rel unless rows.all? { |cc| cc.association(:concept).loaded? }
+
+        # Concept.default_scope's ORDER BY never runs on this branch, so replay it here - Postgres
+        # sorts a NULL order_a last on ASC - and the two branches hand back the same order.
+        rel.tap { |r| r.send(:load_records, rows.filter_map(&:concept).sort_by { |c| [c.order_a || Float::INFINITY, c.id] }) }
       end
 
       def load_default_classification(tree_label, alias_name)
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name(tree_label, alias_name)
+        DataCycleCore::Concept.id_for_tree_with_name(tree_label, alias_name)
       end
 
       def load_asset_relation(relation_name)

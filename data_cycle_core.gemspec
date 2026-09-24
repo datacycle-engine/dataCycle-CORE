@@ -60,10 +60,22 @@ Gem::Specification.new do |s|
   s.add_dependency 'benchmark', '>= 0.5'
   # OpenStruct is used throughout the gem and stops being a default gem with Ruby 3.5
   s.add_dependency 'ostruct'
+  # ActiveSupport::JSON.decode passes its options to JSON.parse positionally, which json 3.0.0 made
+  # keyword-only, so loading any JSON-typed attribute would raise ArgumentError (given 2, expected 1)
+  s.add_dependency 'json', '< 3'
   # request-throttling middleware
   s.add_dependency 'rack-attack'
   # validator for json data
   s.add_dependency 'json-schema'
+
+  # RDF schema generation (RDFS/OWL ontology + SHACL shapes) from the DataDefinitions (#50196).
+  # The shapes are emitted triple by triple through Rdf::Terms.sh, so reading them back needs
+  # the shacl gem but writing them does not — it sits in GemfileCore's :test group instead.
+  s.add_dependency 'json-ld' # JSON-LD serialization + @context
+  s.add_dependency 'rdf' # RDF graph model + N-Triples writer
+  s.add_dependency 'rdf-rdfxml' # RDF/XML serialization
+  s.add_dependency 'rdf-turtle' # Turtle serialization
+  s.add_dependency 'rdf-vocab' # predefined vocabularies (schema.org, dct, skos, owl)
   # background-jobs
   s.add_dependency 'solid_queue'
   # Only still here for db/data_migrate/20260417160449_migrate_delayed_jobs_to_solid_queue.rb, which
@@ -144,6 +156,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'rexml' # used for Hash.from_xml
 
   s.add_dependency 'fastimage'
+
+  # official Model Context Protocol SDK, used for the api/mcp server
+  s.add_dependency 'mcp', '~> 1.5'
 
   s.post_install_message = 'run `bundle update & rails dc:upgrade` after updating this gem.'
   s.metadata['rubygems_mfa_required'] = 'true'

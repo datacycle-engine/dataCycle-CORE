@@ -43,7 +43,7 @@ module DataCycleCore
             data_hash[attribute] = if data_hash[attribute].blank?
                                      []
                                    else
-                                     DataCycleCore::Classification.where(external_source_id:, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
+                                     DataCycleCore::Concept.where(external_system_id: external_source_id, external_key: data_hash[attribute].map { |a| "#{external_prefix}#{a}" }).pluck(:id)
                                    end
 
             data_hash
@@ -53,7 +53,10 @@ module DataCycleCore
             data_hash[attribute] = if data_hash[attribute].blank?
                                      []
                                    else
-                                     DataCycleCore::Classification.includes(primary_classification_alias: [{ classification_tree: :classification_tree_label }]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).pluck(:id)
+                                     DataCycleCore::Concept
+                                       .for_tree(tree_label)
+                                       .where('LOWER(concepts.internal_name) IN (?)', data_hash[attribute].map { _1.to_s.downcase })
+                                       .pluck(:id)
                                    end
             data_hash
           end
@@ -66,10 +69,10 @@ module DataCycleCore
                 attribute =>
                   data_list.call(data_hash)&.filter_map do |item_data|
                     search_params = {
-                      external_source_id:,
+                      external_system_id: external_source_id,
                       external_key: external_prefix + item_data[key]
                     }
-                    DataCycleCore::Classification.find_by(search_params)&.id
+                    DataCycleCore::Concept.find_by(search_params)&.id
                   end || []
               }
             )
@@ -79,8 +82,8 @@ module DataCycleCore
             data_hash.merge(
               {
                 attribute => [
-                  DataCycleCore::Classification.find_by(
-                    external_source_id:, external_key: external_key.call(data_hash)
+                  DataCycleCore::Concept.find_by(
+                    external_system_id: external_source_id, external_key: external_key.call(data_hash)
                   )&.id
                 ].compact.presence
               }
@@ -108,7 +111,11 @@ module DataCycleCore
                           ]
                         )
                     else
-                      content_type.where(external_source_id: external_system_id, external_key:).order(
+                      # Redmine #41458: the only non-Thing +content_type+ a connector passes is
+                      # DataCycleCore::Concept (it was DataCycleCore::Classification), and concepts
+                      # name the column external_system_id - classifications named it
+                      # external_source_id, which only Thing still does.
+                      content_type.where(external_system_id:, external_key:).order(
                         [
                           Arel.sql("array_position(ARRAY[?]::varchar[], #{content_type.table_name}.external_key::varchar)"),
                           external_key

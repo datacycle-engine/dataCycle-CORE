@@ -1,0 +1,35 @@
+
+/* ============================ main ============================ */
+.ov-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: var(--ov-6) var(--ov-7);
+}
+
+.ov-dots {
+  position: absolute;
+  top: 1.5rem; right: 2rem;
+  width: 220px; height: 130px;
+  color: var(--ov-accent);
+  opacity: 0.35;
+  background-image: radial-gradient(currentColor 1.4px, transparent 1.5px);
+  background-size: 15px 15px;
+  -webkit-mask-image: radial-gradient(ellipse at top right, #000 20%, transparent 72%);
+  mask-image: radial-gradient(ellipse at top right, #000 20%, transparent 72%);
+  pointer-events: none;
+}
+
+/* loading */
+.openapi-viewer-loading {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--ov-3);
+  padding: var(--ov-7) var(--ov-4);
+  color: var(--ov-muted); font-size: 0.95rem;
+}
+.openapi-viewer-spinner {
+  width: 1.15rem; height: 1.15rem;
+  border: 2px solid var(--ov-border); border-top-color: var(--ov-accent);
+  border-radius: 50%; animation: ov-spin 0.7s linear infinite;
+}
+@keyframes ov-spin { to { transform: rotate(360deg); } }

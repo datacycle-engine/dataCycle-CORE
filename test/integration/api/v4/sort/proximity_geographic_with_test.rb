@@ -100,6 +100,21 @@ module DataCycleCore
 
             assert_equal([@poi_c.id, @poi_d.id, @poi_b.id, @poi_a.id, @poi_f.id, @poi_e.id], json_data['@graph'].pluck('@id'))
           end
+
+          test 'api/v4/things with an incomplete sort: proximity.geographic_with responds bad_request' do
+            expected_errors = [{
+              'source' => { 'parameter' => 'sort' },
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'proximity.geographic_with requires a longitude and a latitude'
+            }]
+
+            ['proximity.geographic_with(x)', 'proximity.geographic_with(14)', 'proximity.geographic_with(lon:14)', 'proximity.geographic_with'].each do |sort_param|
+              post api_v4_things_path(fields: 'dct:modified', sort: sort_param)
+
+              assert_response(:bad_request, "expected bad_request for sort: #{sort_param}")
+              assert_equal(expected_errors, response.parsed_body['errors'], "expected the error to name the sort parameter for sort: #{sort_param}")
+            end
+          end
         end
       end
     end

@@ -1414,7 +1414,13 @@ span.single_error.object-browser-error {
       .new-embedded-object-links {
         list-style: none;
 
-        .add-content-object {
+        .divider {
+          border-top: 1px solid $light-gray;
+          margin: 0.3rem 0;
+        }
+
+        .add-content-object,
+        .select-existing-embedded {
           justify-content: flex-start;
           padding: 0;
           height: auto;
@@ -1581,6 +1587,15 @@ span.single_error.object-browser-error {
           >.translatable-icon {
             margin-right: 0.3rem;
           }
+
+          >.reusable-embedded-badge {
+            margin-left: 0.5rem;
+            font-size: 0.8rem;
+
+            >.fa {
+              margin-right: 0.2rem;
+            }
+          }
         }
 
         >.embedded-title {
@@ -1621,6 +1636,12 @@ span.single_error.object-browser-error {
       .removeContentObject {
         padding: 0.3rem 0.5rem;
         margin: 0;
+      }
+
+      .unlink-embedded,
+      .duplicate-embedded {
+        padding: 0.3rem 0.5rem;
+        margin: 0 0.5rem 0 0;
       }
 
       &.hidden {

@@ -1,0 +1,14 @@
+<%#
+  Generate button for one text attribute of an image (#47881). The locale is the editor's own: the
+  form renders the other translations of an attribute without reloading, so a wand in one of those
+  asks for its own language rather than for the page's.
+%>
+<%= render 'data_cycle_core/contents/editors/features/pixie_generate_button',
+      content: content,
+      pixie: 'image_description_pixie',
+      css_class: 'image-description-pixie-button',
+      tooltip: t('feature.image_description_pixie.generate_for', data: translated_attribute_label(local_assigns[:key], local_assigns[:definition], content), locale: active_ui_locale),
+      data: {
+        attribute_key: local_assigns[:key].to_s.attribute_name_from_key,
+        locale: I18n.locale
+      } %>

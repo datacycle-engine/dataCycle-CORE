@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 json = {}
-classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
-if classification_aliases.present?
-  json[key.camelize(:lower)] = classification_aliases.map do |classification_alias|
-    case classification_alias.internal_name
+concepts = content.send(key)
+if concepts.present?
+  json[key.camelize(:lower)] = concepts.map do |concept|
+    case concept.internal_name
     when 'Montag'
       'https://schema.org/Monday'
     when 'Dienstag'
@@ -22,7 +22,7 @@ if classification_aliases.present?
     when 'Feiertag'
       'https://schema.org/PublicHolidays'
     else
-      classification_alias.name
+      concept.name
     end
   end
 end

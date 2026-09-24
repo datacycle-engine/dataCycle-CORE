@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class ClassificationsController < ApplicationController
-    FIXNUM_MAX = ((2**((0.size * 8) - 2)) - 1)
     DEFAULT_CLASSIFICATION_SEARCH_LIMIT = 128
     UNLINK_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
       required(:concept_scheme_link).hash do
@@ -12,18 +11,17 @@ module DataCycleCore
     end
 
     # #50677: params scope => attribute => the ability its form field is rendered under, enforced by
-    # without_unpermitted_gated_attributes. Keep in sync with _classification_tree_label_form and
-    # _classification_alias_form.
+    # without_unpermitted_gated_attributes. Keep in sync with _concept_scheme_form and _concept_form.
     # ui_configs is dropped whole because :color is the only sub-key permitted and it is the gated one;
     # a second one would need this to map sub-keys instead.
     GATED_ATTRIBUTES = {
-      classification_tree_label: {
+      concept_scheme: {
         internal: :update_internal,
         mappable: :update_mappable,
         hidden_mappings: :update_hidden_mappings,
         change_behaviour: :update_change_behaviour
       },
-      classification_alias: {
+      concept: {
         internal: :update_internal,
         ui_configs: :set_color
       }
@@ -32,69 +30,50 @@ module DataCycleCore
     def index
       respond_to do |format|
         format.html do
-          authorize! :index, DataCycleCore::ClassificationTreeLabel
+          authorize! :index, DataCycleCore::ConceptScheme
 
-          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel
+          @concept_schemes = DataCycleCore::ConceptScheme
             .accessible_by(current_ability)
             .order(:created_at)
             .distinct
         end
 
         format.json do
-          @mapped_classification_aliases = DataCycleCore::ClassificationAlias.none.page(1)
-          @classification_trees = DataCycleCore::ClassificationTree.none.page(1)
-          @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by(id: index_params[:classification_tree_label_id])
+          @mapped_concepts = DataCycleCore::Concept.none.page(1)
+          @concepts = DataCycleCore::Concept.none.page(1)
+          @concept_scheme = DataCycleCore::ConceptScheme.find_by(id: index_params[:concept_scheme_id])
           @type = index_params[:type]
 
-          if index_params.include?(:mapped_classification_alias_id)
-            @mapped_classification_alias = DataCycleCore::ClassificationAlias.find(index_params[:mapped_classification_alias_id])
-            @mapped_classification_aliases = @mapped_classification_alias.additional_classifications.primary_classification_aliases
-            @classification_trees = @mapped_classification_alias.sub_classification_alias
-            @classification_type = @mapped_classification_alias
-          elsif index_params.include?(:classification_tree_id)
-            @classification_tree = DataCycleCore::ClassificationTree.find(index_params[:classification_tree_id])
-            @classification_tree_label = @classification_tree.classification_tree_label
-            @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
-            @mapped_classification_aliases = @classification_tree.sub_classification_alias&.additional_classifications&.primary_classification_aliases || DataCycleCore::ClassificationAlias.none.page(1)
-            @classification_type = @classification_tree
-            @queue_classification_mappings = queued_classification_mappings(@classification_trees.pluck(:classification_alias_id))
-          elsif index_params.include?(:classification_tree_label_id)
-            @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
-            @classification_type = @classification_tree_label
-            @queue_classification_mappings = queued_classification_mappings(@classification_trees.pluck(:classification_alias_id))
+          # A mapped concept belongs to another scheme, so its subtree is only browsable, never
+          # administrable - which is what the view renders differently, and it keeps the scheme
+          # being administered rather than adopting the mapped concept's own.
+          @mapped_view = index_params.include?(:mapped_concept_id)
+
+          if @mapped_view || index_params.include?(:concept_id)
+            @concept = DataCycleCore::Concept.find(index_params[:mapped_concept_id] || index_params[:concept_id])
+            @concept_scheme = @concept.concept_scheme unless @mapped_view
+            @concepts = @concept.children
+            @mapped_concepts = @concept.mapped_concepts
+          elsif index_params.include?(:concept_scheme_id)
+            @concepts = @concept_scheme.concepts.roots
           else
-            raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
+            raise 'Missing parameter; either concept_scheme_id or concept_id must be provided'
           end
 
-          authorize! :index, @classification_tree_label
+          authorize! :index, @concept_scheme
 
-          @mapped_classification_aliases = @mapped_classification_aliases
-            .includes(:classification_alias_path, :classification_tree_label, :primary_classification)
+          @mapped_concepts = @mapped_concepts
+            .includes(:concept_path, :concept_scheme)
             .reorder(nil)
-            .order('classification_tree_labels.name ASC, classification_aliases.order_a ASC').references(:classification_tree_labels)
+            .order('concept_schemes.name ASC, concepts.order_a ASC').references(:concept_scheme)
 
-          if @classification_type.is_a?(DataCycleCore::ClassificationAlias)
-            @classification_trees = @classification_trees.includes(:classification_alias_path)
-          else
-            @classification_trees = @classification_trees
-              .joins(:sub_classification_alias)
-              .includes(
-                sub_classification_alias: [
-                  :classification_alias_path,
-                  :classification_tree_label,
-                  { additional_classifications: [{ primary_classification_alias: :classification_alias_path }],
-                    primary_classification: [{ additional_classification_aliases: :classification_alias_path }],
-                    classifications: [{ primary_classification_alias: :classification_alias_path }] }
-                ]
-              )
-
-            @classification_polygon_counts = @classification_trees
-              .joins(sub_classification_alias: :classification_polygons)
-              .group(:classification_alias_id)
-              .count
+          unless @mapped_view
+            @concept_polygon_counts = @concepts.reorder(nil).joins(:concept_polygons).group(:id).count
+            @queued_concept_mappings = queued_concept_mappings(@concepts.pluck(:id))
           end
 
-          @classification_trees = @classification_trees.order('"classification_aliases"."order_a" ASC')
+          @concepts = @concepts.includes(:concept_path, :concept_scheme, :external_system, children: :concept_path,
+                                                                                           mapped_concepts: :concept_path, mapped_inverse_concepts: :concept_path)
 
           render json: { html: render_to_string(formats: [:html], layout: false, action: 'children').strip }
         end
@@ -103,11 +82,11 @@ module DataCycleCore
 
     def search
       query = if search_params[:tree_label].present? && search_params[:tree_label] == 'Inhaltstypen'
-                DataCycleCore::ClassificationAlias.for_tree(search_params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
+                DataCycleCore::Concept.for_tree(search_params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
               elsif search_params[:tree_label].present?
-                DataCycleCore::ClassificationAlias.for_tree(search_params[:tree_label])
+                DataCycleCore::Concept.for_tree(search_params[:tree_label])
               else
-                DataCycleCore::ClassificationAlias.all
+                DataCycleCore::Concept.all
               end
 
       matches = nil
@@ -121,103 +100,71 @@ module DataCycleCore
       query = query.assignable
       query = query.limit(search_params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
       query = query.where.not(id: search_params[:exclude]) if search_params[:exclude].present?
-      if search_params[:exclude_tree_label].present?
-        query = query.includes(:classification_tree)
-          .where.not(classification_trees: { classification_tree_label_id: search_params[:exclude_tree_label] })
-      end
-      query = query.where(DataCycleCore::ClassificationPolygon.where('classification_polygons.classification_alias_id = classification_aliases.id').select(1).arel.exists) if search_params[:with_geometry].to_s == 'true'
+      query = query.where.not(concept_scheme_id: search_params[:exclude_tree_label]) if search_params[:exclude_tree_label].present?
+      query = query.where(DataCycleCore::ConceptPolygon.where('concept_polygons.concept_id = concepts.id').select(1).arel.exists) if search_params[:with_geometry].to_s == 'true'
       query = query.preload(*Array.wrap(search_params[:preload])) if search_params[:preload].present?
-      query = query.preload(:primary_classification, :classification_alias_path)
+      query = query.preload(:concept_path)
 
-      render plain: query.filter_map { |a|
-        next if a.primary_classification.nil?
-
-        {
-          classification_id: a.primary_classification.id,
-          classification_alias_id: a.id,
-          name: a.internal_name,
-          matched_name: helpers.matched_concept_path(a.full_path, matches),
-          full_path: a.full_path,
-          dc_tooltip: helpers.classification_tooltip(a),
-          disabled: search_params[:disabled_unless_any?].present? ? a.try(search_params[:disabled_unless_any?]).none? : !a.assignable
-        }
-      }.to_json, content_type: 'application/json'
+      render plain: query.map { |c| to_select_json(c, matched_name: helpers.matched_concept_path(c.full_path, matches), disabled_unless_any: search_params[:disabled_unless_any?]) }.to_json,
+             content_type: 'application/json'
     end
 
     def find
-      query = DataCycleCore::Concept.where(classification_id: find_params[:ids]).preload(:classification_alias_path)
+      query = DataCycleCore::Concept.where(id: find_params[:ids]).preload(:concept_path)
       query = query.for_tree(find_params[:tree_label]) if find_params[:tree_label].present?
 
-      render plain: query.map { |c|
-        {
-          classification_id: c.classification_id,
-          classification_alias_id: c.id,
-          name: c.internal_name,
-          full_path: c.full_path,
-          dc_tooltip: helpers.classification_tooltip(c),
-          disabled: !c.assignable
-        }
-      }.to_json, content_type: 'application/json'
+      render plain: query.map { |c| to_select_json(c) }.to_json, content_type: 'application/json'
     end
 
     def create
-      if create_params[:classification_tree_label]
-        @object = DataCycleCore::ClassificationTreeLabel.create!(create_params[:classification_tree_label])
+      if create_params[:concept_scheme]
+        @object = DataCycleCore::ConceptScheme.new(create_params[:concept_scheme])
       else
-        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(create_params[:classification_tree_label_id])
+        @concept_scheme = DataCycleCore::ConceptScheme.find(create_params[:concept_scheme_id])
+        @parent_concept = DataCycleCore::Concept.find(create_params[:parent_concept_id]) if create_params[:parent_concept_id].present?
 
-        @classification_tree = (DataCycleCore::ClassificationTree.find(create_params['classification_tree_id']) if create_params['classification_tree_id'])
+        # the `broader` link to @parent_concept is written by Concept's after_create callback
+        @object = DataCycleCore::Concept.new(create_params[:concept].except(:translation))
+        @object.concept_scheme = @concept_scheme
+        @object.parent_concept = @parent_concept
 
-        ActiveRecord::Base.transaction do
-          @classification_alias = DataCycleCore::ClassificationAlias.new(create_params[:classification_alias].except(:translation))
-          create_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
-            I18n.with_locale(locale.to_sym) do
-              @classification_alias.attributes = values
-            end
+        create_params.dig(:concept, :translation).presence&.each do |locale, values|
+          I18n.with_locale(locale.to_sym) do
+            @object.attributes = values
           end
-          @classification_alias.save!
-          @classification = DataCycleCore::Classification.create!(name: @classification_alias.internal_name)
-          @classification_group = DataCycleCore::ClassificationGroup.create!(
-            classification: @classification,
-            classification_alias: @classification_alias
-          )
-          @object = DataCycleCore::ClassificationTree.create!({
-            classification_tree_label: @classification_tree_label,
-            parent_classification_alias: @classification_tree.try(:sub_classification_alias),
-            sub_classification_alias: @classification_alias
-          })
         end
       end
 
+      @object.save!
+
       render json: { html: render_to_string(formats: [:html], layout: false, action: 'create').strip }
     rescue ActiveRecord::RecordInvalid
-      render json: { error: I18n.with_locale(helpers.active_ui_locale) { @classification_alias.errors.full_messages.join(', ') } }
+      render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end
 
     def update
-      if update_params[:classification_tree_label]
-        @object = DataCycleCore::ClassificationTreeLabel.find(update_params[:classification_tree_label][:id])
-        @object.update!(update_params[:classification_tree_label])
+      if update_params[:concept_scheme]
+        @object = DataCycleCore::ConceptScheme.find(update_params[:concept_scheme][:id])
+        @object.update!(update_params[:concept_scheme])
       else
-        @object = DataCycleCore::ClassificationAlias.find(update_params[:classification_alias][:id])
+        @object = DataCycleCore::Concept.find(update_params[:concept][:id])
 
-        update_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+        update_params.dig(:concept, :translation).presence&.each do |locale, values|
           I18n.with_locale(locale.to_sym) do
             @object.attributes = values
           end
         end
 
-        if update_params[:classification_alias]&.key?(:classification_ids)
-          classification_ids = Array.wrap(update_params[:classification_alias].delete('classification_ids'))
+        if update_params[:concept]&.key?(:mapped_concept_ids)
+          mapped_concept_ids = Array.wrap(update_params[:concept].delete('mapped_concept_ids'))
 
-          if classification_ids.sort != @object.classification_ids&.sort &&
-             @object.classification_tree_label.mappable
-            DataCycleCore::ClassificationMappingJob.perform_later(@object.id, classification_ids - @object.classification_ids, @object.classification_ids - classification_ids)
+          if mapped_concept_ids.sort != @object.mapped_concept_ids.sort && @object.concept_scheme.mappable
+            DataCycleCore::ClassificationMappingJob.perform_later(@object.id, mapped_concept_ids - @object.mapped_concept_ids, @object.mapped_concept_ids - mapped_concept_ids)
             flash[:success] = I18n.t('controllers.success.classification_mappings_queued', locale: helpers.active_ui_locale)
           end
         end
 
-        @object.attributes = update_params[:classification_alias].except(:translation)
+        @object.attributes = update_params[:concept].except(:translation)
         @object.save!
       end
 
@@ -227,7 +174,7 @@ module DataCycleCore
           layout: false,
           action: 'update',
           assigns: {
-            queue_classification_mappings: queued_classification_mappings([@object.id])
+            queued_concept_mappings: queued_concept_mappings([@object.id])
           }
         ).strip
       }.merge(flash.discard.to_h)
@@ -235,15 +182,15 @@ module DataCycleCore
       render json: { error: I18n.with_locale(helpers.active_ui_locale) { @object.errors.full_messages.join(', ') } }
     end
 
-    # Renders the "used in stored filters" panel for a classification_alias or classification_tree_label,
-    # shown via a lazily-loaded turbo frame from the classification admin's overflow menu.
+    # Renders the "used in stored filters" panel for a concept or concept_scheme, shown via a
+    # lazily-loaded turbo frame from the classification admin's overflow menu.
     def stored_filter_usage
       authorize! :index, DataCycleCore::StoredFilter
 
       @classification_id = stored_filter_usage_params[:id]
       usage = DataCycleCore::StoredFilter.used_by_classification(@classification_id)
 
-      # The count itself stays global (deleting a classification affects every user's saved
+      # The count itself stays global (deleting a concept affects every user's saved
       # searches), but listing names/links must not leak stored filters the current user cannot
       # open - same scope as StoredFiltersController#saved_searches, which the links point to.
       accessible_ids = DataCycleCore::StoredFilter.accessible_by(current_ability).where(id: usage.keys.map(&:id)).ids.to_set
@@ -254,12 +201,12 @@ module DataCycleCore
     end
 
     def destroy
-      if destroy_params.include?(:classification_tree_label_id)
-        @object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-      elsif destroy_params.include?(:classification_tree_id)
-        @object = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
+      if destroy_params.include?(:concept_scheme_id)
+        @object = DataCycleCore::ConceptScheme.find(destroy_params[:concept_scheme_id])
+      elsif destroy_params.include?(:concept_id)
+        @object = DataCycleCore::Concept.find(destroy_params[:concept_id])
       else
-        raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
+        raise 'Missing parameter; either concept_scheme_id or concept_id must be provided'
       end
 
       authorize! :destroy, @object
@@ -270,7 +217,7 @@ module DataCycleCore
     end
 
     def download
-      object = DataCycleCore::ClassificationTreeLabel.find(download_params[:classification_tree_label_id])
+      object = DataCycleCore::ConceptScheme.find(download_params[:concept_scheme_id])
 
       respond_to do |format|
         format.csv do
@@ -294,18 +241,18 @@ module DataCycleCore
     end
 
     def move
-      classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(move_params[:classification_tree_label_id])
+      concept_scheme = DataCycleCore::ConceptScheme.find(move_params[:concept_scheme_id])
 
-      authorize! :edit, classification_tree_label
+      authorize! :edit, concept_scheme
 
-      raise ActiveRecord::RecordNotFound if move_params[:classification_alias_id].blank?
+      raise ActiveRecord::RecordNotFound if move_params[:concept_id].blank?
 
-      aliases = DataCycleCore::ClassificationAlias.where(id: move_params.values_at(:classification_alias_id, :previous_alias_id, :new_parent_alias_id).compact).index_by(&:id)
+      concepts = DataCycleCore::Concept.where(id: move_params.values_at(:concept_id, :previous_concept_id, :new_parent_concept_id).compact).index_by(&:id)
 
-      aliases[move_params[:classification_alias_id]].move_after(
-        classification_tree_label,
-        move_params[:previous_alias_id]&.then { |pca| aliases[pca] },
-        move_params[:new_parent_alias_id]&.then { |npca| aliases[npca] }
+      concepts[move_params[:concept_id]].move_after(
+        concept_scheme,
+        move_params[:previous_concept_id]&.then { |id| concepts[id] },
+        move_params[:new_parent_concept_id]&.then { |id| concepts[id] }
       )
 
       flash.now[:success] = I18n.t('classification_administration.move.success', locale: helpers.active_ui_locale)
@@ -314,21 +261,21 @@ module DataCycleCore
     end
 
     def merge
-      aliases = DataCycleCore::ClassificationAlias.where(id: merge_params.values_at(:source_alias_id, :target_alias_id).compact).index_by(&:id)
-      source_alias = aliases[merge_params[:source_alias_id]]
-      target_alias = aliases[merge_params[:target_alias_id]]
+      concepts = DataCycleCore::Concept.where(id: merge_params.values_at(:source_concept_id, :target_concept_id).compact).index_by(&:id)
+      source_concept = concepts[merge_params[:source_concept_id]]
+      target_concept = concepts[merge_params[:target_concept_id]]
 
-      raise ActiveRecord::RecordNotFound if source_alias.nil? || target_alias.nil?
+      raise ActiveRecord::RecordNotFound if source_concept.nil? || target_concept.nil?
 
-      authorize! :edit, source_alias
-      authorize! :edit, target_alias
+      authorize! :edit, source_concept
+      authorize! :edit, target_concept
 
-      source_alias.merge_with_children(target_alias)
+      source_concept.merge_with_children(target_concept)
 
       flash.now[:success] = I18n.t('classification_administration.merge.success', locale: helpers.active_ui_locale)
 
       render json: flash.discard.to_h
-    rescue DataCycleCore::Error::AmbiguousClassificationExternalSystemError
+    rescue DataCycleCore::Error::AmbiguousConceptExternalSystemError
       render json: { error: I18n.t('classification_administration.merge.ambiguous_external_system', locale: helpers.active_ui_locale) }
     end
 
@@ -336,9 +283,7 @@ module DataCycleCore
       collection = DataCycleCore::Collection.find(link_params[:collection_id])
       concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
 
-      # the ability is declared on ClassificationTreeLabel, which is also what the button's can? checks,
-      # so authorizing the ConceptScheme denied every role without a blanket rule — super_admin included
-      authorize! :unlink_contents, concept_scheme.classification_tree_label
+      authorize! :unlink_contents, concept_scheme
 
       DataCycleCore::ConceptSchemeUnlinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
 
@@ -349,7 +294,7 @@ module DataCycleCore
       collection = DataCycleCore::Collection.find(link_params[:collection_id])
       concept_scheme = DataCycleCore::ConceptScheme.find(link_params[:id])
 
-      authorize! :link_contents, concept_scheme.classification_tree_label
+      authorize! :link_contents, concept_scheme
 
       DataCycleCore::ConceptSchemeLinkJob.perform_later(concept_scheme.id, collection.id, current_user.id)
 
@@ -358,15 +303,15 @@ module DataCycleCore
 
     # Usage: backs the geographic content editor's "shape from concept" overlay
     # (views/.../contents/editors/geographic/_shape_from_concept_overlay). That form posts the selected
-    # classification concept alias_ids (concepts[]) to geometry_classifications_path; this returns the
-    # combined ClassificationPolygon GeoJSON, rendered into the "<id>-geometry" turbo frame, so an editor
+    # concept ids (concepts[]) to geometry_classifications_path; this returns the
+    # combined ConceptPolygon GeoJSON, rendered into the "<id>-geometry" turbo frame, so an editor
     # can set a content's geometry from concept boundaries (e.g. region/municipality/protected-area shapes)
     # instead of drawing it by hand. Backend-only via authorize! :index, :backend (DC-24).
     def geometry
       authorize! :index, :backend
 
-      geojson = DataCycleCore::ClassificationPolygon
-        .where(classification_alias_id: geometry_params[:concepts])
+      geojson = DataCycleCore::ConceptPolygon
+        .where(concept_id: geometry_params[:concepts])
         .combined_geojson
 
       respond_to do |format|
@@ -383,14 +328,28 @@ module DataCycleCore
 
     private
 
-    # Which of the given classification aliases still have a mapping job outstanding, so the view can
+    # One concept as the async select2 endpoints deliver it. Both endpoints answer the same shape,
+    # and the id is the concept's own - the Classification/ClassificationAlias pair the client used
+    # to choose between (`data-alias-ids`) is one record now.
+    def to_select_json(concept, matched_name: nil, disabled_unless_any: nil)
+      {
+        id: concept.id,
+        name: concept.internal_name,
+        matched_name:,
+        full_path: concept.full_path,
+        dc_tooltip: helpers.concept_tooltip(concept),
+        disabled: disabled_unless_any.present? ? concept.try(disabled_unless_any).none? : !concept.assignable
+      }.compact
+    end
+
+    # Which of the given concepts still have a mapping job outstanding, so the view can
     # show them as queued. The key is asked of the job class instead of being spelled out here: it is
     # SolidQueue's +[group, param]+ join, and adding a +group:+ to +limits_concurrency+ would
     # otherwise silently turn this into an empty result rather than an error.
-    # @param classification_alias_ids [Array<String>]
+    # @param concept_ids [Array<String>]
     # @return [Array<String>] the subset that is queued or running
-    def queued_classification_mappings(classification_alias_ids)
-      keys = classification_alias_ids.index_by { |id| DataCycleCore::ClassificationMappingJob.new(id).concurrency_key }
+    def queued_concept_mappings(concept_ids)
+      keys = concept_ids.index_by { |id| DataCycleCore::ClassificationMappingJob.new(id).concurrency_key }
 
       SolidQueue::Job.live.where(concurrency_key: keys.keys).pluck(:concurrency_key).filter_map { |key| keys[key] }
     end
@@ -400,7 +359,7 @@ module DataCycleCore
     end
 
     def download_params
-      params.permit(:classification_tree_label_id, :include_contents, :specific_type)
+      params.permit(:concept_scheme_id, :include_contents, :specific_type)
     end
 
     def search_params
@@ -408,34 +367,34 @@ module DataCycleCore
     end
 
     def move_params
-      params.transform_keys(&:underscore).permit(:classification_alias_id, :classification_tree_label_id, :previous_alias_id, :new_parent_alias_id)
+      params.transform_keys(&:underscore).permit(:concept_id, :concept_scheme_id, :previous_concept_id, :new_parent_concept_id)
     end
 
     def merge_params
-      params.transform_keys(&:underscore).permit(:source_alias_id, :target_alias_id)
+      params.transform_keys(&:underscore).permit(:source_concept_id, :target_concept_id)
     end
 
     def destroy_params
-      params.permit(:classification_tree_label_id, :classification_tree_id)
+      params.permit(:concept_scheme_id, :concept_id)
     end
 
     def index_params
-      params.permit(:classification_tree_label_id, :classification_tree_id, :mapped_classification_alias_id, :type)
+      params.permit(:concept_scheme_id, :concept_id, :mapped_concept_id, :type)
     end
 
     def create_params
       return @create_params if defined? @create_params
 
       @create_params = begin
-        params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
-        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
+        params.dig(:concept_scheme, :visibility)&.delete_if(&:blank?)
+        params.dig(:concept_scheme, :change_behaviour)&.delete_if(&:blank?)
 
         without_unpermitted_gated_attributes(
           normalize_names(params).permit(
-            :classification_tree_label_id,
-            :classification_tree_id,
-            classification_tree_label: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
-            classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+            :concept_scheme_id,
+            :parent_concept_id,
+            concept_scheme: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
+            concept: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, mapped_concept_ids: [], ui_configs: [:color] }]
           )
         )
       end
@@ -445,20 +404,20 @@ module DataCycleCore
       return @update_params if defined? @update_params
 
       @update_params = begin
-        params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
-        params.dig(:classification_tree_label, :change_behaviour)&.delete_if(&:blank?)
+        params.dig(:concept_scheme, :visibility)&.delete_if(&:blank?)
+        params.dig(:concept_scheme, :change_behaviour)&.delete_if(&:blank?)
 
         without_unpermitted_gated_attributes(
           normalize_names(params).permit(
-            classification_tree_label: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
-            classification_alias: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, classification_ids: [], ui_configs: [:color] }]
+            concept_scheme: [:id, :name, :internal, :mappable, :hidden_mappings, { visibility: [], change_behaviour: [] }],
+            concept: [:id, :name, :internal, :uri, :assignable, :description, { translation: locale_params, mapped_concept_ids: [], ui_configs: [:color] }]
           )
         )
       end
     end
 
-    # #50677: attributes whose form field is gated on an ability of its own — the tree label form and the
-    # classification alias form only render them for holders of the mapped action. create/update
+    # #50677: attributes whose form field is gated on an ability of its own — the concept scheme form and
+    # the concept form only render them for holders of the mapped action. create/update
     # authorize nothing beyond this, so dropping the parameters here is what makes those gates hold for a
     # hand-crafted request too.
     def without_unpermitted_gated_attributes(permitted)
@@ -482,8 +441,8 @@ module DataCycleCore
     # only exclude external/internal subjects on an instance), the class on create
     def gated_subject(scope, id)
       model = case scope
-              when :classification_tree_label then DataCycleCore::ClassificationTreeLabel
-              when :classification_alias then DataCycleCore::ClassificationAlias
+              when :concept_scheme then DataCycleCore::ConceptScheme
+              when :concept then DataCycleCore::Concept
               end
 
       model.find_by(id:) || model

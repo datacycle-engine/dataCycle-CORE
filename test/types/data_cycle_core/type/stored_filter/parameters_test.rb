@@ -68,16 +68,6 @@ module DataCycleCore
           assert_equal 'user-2', string_result['v']
         end
 
-        test 'with_classification_paths resolves classification alias ids by full path' do
-          hash = { 'v' => ['Tags > Sub'] }
-
-          Params.with_classification_paths(hash, nil)
-
-          assert_equal 'classification_alias_ids', hash['t']
-          assert_equal 'Tags', hash['n']
-          assert_kind_of Array, hash['v']
-        end
-
         test 'with_user_group_classifications_for_treename resolves the relation' do
           relations = { 'group_relation' => { 'tree_label' => 'TreeLabel' } }
 
@@ -85,7 +75,7 @@ module DataCycleCore
             hash = { 'v' => 'TreeLabel' }
             Params.transform_with_user_group_classifications_for_treename(hash, nil)
 
-            assert_equal 'classification_alias_ids', hash['t']
+            assert_equal 'concept_ids', hash['t']
             assert_equal 'TreeLabel', hash['n']
           end
         end

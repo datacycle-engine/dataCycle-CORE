@@ -32,6 +32,7 @@ de:
     StructuredArticle: Strukturierter Artikel
     AdditionalDescription: Beschreibungstext
     AdditionalInformation: Ergänzende Information
+    ArtificialIntelligenceAgent: KI-Agent
     AudioObject: Audio
     ImageObject: Bild
     VideoObject: Video
@@ -97,6 +98,7 @@ de:
     belongs_to_aggregate: mit Aggregat verknüpft
     aggregate_for: Aggregats-Basis
     aggregate_for_override: Aggregats-Basis für
+    contributor_generated: KI-Mitwirkende
     overlay_overlay: (Overlay)
     overlay_override: (Overlay)
     overlay_add: (Anhang)
@@ -178,11 +180,13 @@ de:
 
   dash_board:
     delta: Delta
+    full_delta: Full Delta
     full: Full
     reset: Rebuild
     import: Import
     download: Download
     download_import: Download & Import
+    full_delta_hint: Lädt alle Daten herunter, importiert aber nur die tatsächlich geänderten
     delete: delete
     errors_were_encountered: errors were encountered
     schedule: "geplante Importe:"
@@ -208,6 +212,24 @@ de:
         missing_input: Bitte einen Geltungsbereich angeben und mindestens ein Computed
           Attribut auswählen
         warning: Dies kann lange dauern und viele Inhalte aktualisieren.
+      grafana_dashboard:
+        title: Grafana-Dashboard umschreiben
+        intro: Extern geteilte Dashboards lösen keine Variablen auf. Dieses Werkzeug
+          ersetzt jeden Platzhalter im Export durch seinen Wert.
+        step_export: 'Interne Org: Dashboard öffnen, Export als JSON - ohne „für eine
+          andere Instanz“, das ersetzt die Datasources und setzt die Variablenwerte zurück.'
+        step_flatten: 'Hier: Datei hochladen, umgeschriebene Datei herunterladen.'
+        step_import: 'Externe Org: Import über JSON in den Ordner „Analytics“, danach
+          Freigabe und externer Link.'
+        file_label: Dashboard-Export (JSON)
+        button: Umschreiben
+        button_submitting: Wird umgeschrieben
+        download: Umgeschriebenes Dashboard herunterladen
+        success: '„%{title}“ wurde umgeschrieben.'
+        empty_variables: 'Diese Variablen sind leer und bleiben es im Klon, ihre Panels
+          zeigen dauerhaft „nicht gesetzt“: %{names}'
+        untouched_references: 'Unverändert übernommen, dazu gibt es keine Variable: %{names}'
+        missing_file: Bitte eine JSON-Datei mit dem Dashboard-Export auswählen.
 
   notification:
     frequency:
@@ -283,6 +305,10 @@ de:
       remove_file: Datei entfernen
       file: Datei
       confirm_single_to_all_html: "%{label} wirklich für alle %{template} übernehmen?"
+      apply_pixie_to_all: Pixie auf alle %{template} anwenden
+      pixie_to_all_empty:
+        one: "%{message} Betrifft %{count} Datei."
+        other: "%{message} Betrifft %{count} Dateien."
       confirm_all_to_all_html: "Soll auch <b>%{label}</b> für alle %{template} übernommen werden?"
       confirm_all_to_all_header: Alle Attribute für alle %{template} übernehmen
     cancel: abbrechen
@@ -361,7 +387,15 @@ de:
         confirmation_text: Ja
         cancel_text: Nein, nur die aktuelle Sprache
       copy_linked_error: "Das Attribut konnte nicht übernommen werden: "
-    content_classifier:
+    annotation_pixie:
+      no_suggestions: Keine Vorschläge über der Schwelle.
+      classify_failed: Vorschläge konnten nicht geladen werden.
+      no_focus_point: Für dieses Bild wurde kein Fokuspunkt gefunden.
+      focus_point_failed: Der Fokuspunkt konnte nicht generiert werden.
+    image_description_pixie:
+      no_suggestion: Für dieses Attribut wurde kein Text vorgeschlagen.
+      failed: Der Textvorschlag konnte nicht geladen werden.
+    classification_pixie:
       classification_error_title: Klassifizierungsfehler
       apply_error_title: Fehler beim Übernehmen
       applied_title: Klassifizierungen übernommen
@@ -776,6 +810,12 @@ de:
     open_all: Alle aufklappen
     close_all: Alle zuklappen
     button_title: "%{title} hinzufügen"
+    select_existing: Bestehenden Inhalt verknüpfen
+    reusable_usage:
+      one: Wird in einem Inhalt verwendet
+      other: Wird in %{count} Inhalten verwendet
+    unlink_shared: Verknüpfung lösen und als Kopie übernehmen
+    duplicate: Kopie anlegen
 
   upload:
     drag_and_drop_html: "<p><b>Ein oder mehrere %{type} einfach hier
@@ -975,14 +1015,23 @@ de:
         belongs_to_aggregate: mit Aggregat verknüpft
       check_box_labels:
         aggregate_for_override: Aggregats-Basis überschreiben
+    annotation_pixie:
+      title: annotationPixie
+      generate_for: Vorschläge für %{data} generieren
+      focus_point_button_title: Fokuspunkt generieren
+      focus_point_hint: Der annotationPixie bestimmt den Fokuspunkt aus der Bildanalyse.
+    image_description_pixie:
+      title: imageDescriptionPixie
+      generate_for: Text für %{data} generieren
     focus_point_editor:
       button_title: Fokuspunkt festlegen
       editing_button_title: Bearbeitung beenden
+      hint: Klicken Sie in das Bild, um den Fokuspunkt zu setzen. Der Fokuspunkt
+        wird bevorzugt.
       updated_successfully: Der Fokuspunkt wurde erfolgreich gesetzt
       update_error: Der Fokuspunkt konnte nicht gesetzt werden
       reset_successfully: Der Fokuspunkt wurde erfolgreich zurückgesetzt
       clear_focus_point: Fokuspunkt zurücksetzen
-      hint: Der Fokuspunkt wird bevorzugt.
     gravity_editor:
       button_title: Bildausschnitt festlegen (Gravity)
       editing_button_title: Bearbeitung beenden
@@ -1105,10 +1154,17 @@ de:
     language: Sprache
     external_source: Externe Quelle
     external_system: Externe Systeme
+    export_status: Export-Status
+    export_status_options:
+      pending: Ausstehend
+      success: Erfolgreich
+      error: Fehler
+      failure: Endgültig fehlgeschlagen
+      nil: ohne Status
     creator: Ersteller
     editor: Bearbeiter
     last_editor: Letzter Bearbeiter
-    classification_tree_ids: Klassifizierungsbaum auswählen
+    concept_scheme_ids: Klassifizierungsbaum auswählen
     copyright_notice: Urheberrechtsvermerk
     created_at: Erstellungsdatum
     updated_at: Aktualisierungsdatum
@@ -1260,11 +1316,12 @@ de:
     publication_date: Publikationsdatum
 
   filter_groups:
-    classification_alias_ids: nach Klassifizierungen filtern ...
-    classification_tree_ids: nach Klassifizierungsbaum filtern ...
+    concept_ids: nach Klassifizierungen filtern ...
+    concept_scheme_ids: nach Klassifizierungsbaum filtern ...
     user: nach Personen filtern ...
     external_source: nach externen Quellen filtern ...
     external_system: nach externen Systemen filtern ...
+    export_status: nach Export-Status filtern ...
     validity_period: nach Gültigkeitszeitraum filtern ...
     offer_period: nach Angebotszeitraum filtern ...
     date_range: nach Datum filtern ...
@@ -1415,9 +1472,9 @@ de:
       error: Die Klassifizierungen konnten nicht zusammengeführt werden
       confirm_html: <b>%{source_path}</b> wird mit <b>%{target_path}</b> zusammengeführt.
       success: Die Klassifizierungen wurden erfolgreich zusammengeführt
-      ambiguous_external_system: Beide Klassifizierungen sind extern verknüpft.
-        Es kann nur eine Verknüpfung übernommen werden, deshalb ist ein
-        Zusammenführen nicht möglich
+      ambiguous_external_system: Die Klassifizierungen sind unterschiedlich
+        extern verknüpft. Es kann nur eine Verknüpfung übernommen werden,
+        deshalb ist ein Zusammenführen nicht möglich
     classification_polygon:
       link_tooltip: verknüpfte GeoShape anzeigen
     stored_filter_usage:
@@ -1709,6 +1766,8 @@ de:
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
       unknown_activity_type: "Unbekannter Typ für Activity"
       unknown: Unbekannter Fehler
+      embedding_endpoint_error: Die Bildannotierung konnte nicht geladen werden.
+      embedding_forbidden_error: Der Zugriff auf die Bildannotierung wurde verweigert.
       geocoding_endpoint_error: "GeoCoding: Der Endpunkt liefert keine Daten"
       geocoding_forbidden_error: "GeoCoding: Zugriff auf Endpunkt verweigert"
 
@@ -1905,7 +1964,7 @@ de:
           attributes:
             external_system_id:
               blank: darf nicht leer sein.
-        data_cycle_core/classification_alias:
+        data_cycle_core/concept:
           attributes:
             ui_configs:
               color_format: falsches Format für Farbe.
@@ -1965,18 +2024,6 @@ de:
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
-      data_cycle_core/classification_alias:
-        one: Klassifizierung
-        other: Klassifizierungen
-      data_cycle_core/classification:
-        one: Klassifizierung
-        other: Klassifizierungen
-      data_cycle_core/classification_tree:
-        one: Klassifizierungsbaum
-        other: Klassifizierungsbäume
-      data_cycle_core/classification_tree_label:
-        one: Klassifizierungsbaum
-        other: Klassifizierungsbäume
       data_cycle_core/thing:
         one: Inhalt
         other: Inhalte
@@ -2007,22 +2054,22 @@ de:
     attributes:
       data_cycle_core/watch_list:
         manual_order: Manuelle Sortierung als Standard-Sortierung verwenden
-      data_cycle_core/classification_tree_label:
+      data_cycle_core/concept_scheme:
         visibility: Sichtbar in
         change_behaviour: Änderungsverhalten
         external_key: Externe ID
         internal: intern (Systemklassifizierungsbaum)
         mappable: Klassifizierungen dürfen gemapped werden
         hidden_mappings: Gemappte Klassifizierungen ausblenden (nicht in Filtern, Detailansicht oder API)
-      data_cycle_core/classification_alias:
+      data_cycle_core/concept:
         assignable: Zuweisbar
         description: "Beschreibungstext"
-        classification_ids: Klassifizierungs-Mapping
+        mapped_concept_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
         uri: Externe URI
         external_key: Externe ID
         external_keys: Externe IDs (selbst + mapped)
-        mapped_to_string: Klassifizierungen gemapped von
+        mapped_inverse_concepts: Klassifizierungen gemapped von
         ui_configs: UI-Konfiguration
         ui_configs/color: Farbe
         ui_configs/icon: Icon
@@ -2033,8 +2080,8 @@ de:
         user_ids: Benutzer
         shared_collection_ids: "%{collection} oder %{stored_filter}"
         permissions: Berechtigungen
-        classification_ids_markets: Märkte
-        classification_ids_output_channels: Ausgabekanäle
+        concept_ids_markets: Märkte
+        concept_ids_output_channels: Ausgabekanäle
       data_cycle_core/user:
         name: Organisation
         given_name: Vorname
@@ -2309,7 +2356,146 @@ de:
       root: Schema
       containers: Container
       entities: Inhalte
-      embeddeds: Eingebettete Inhalte
+      parts:
+        aria_label: Schema-Ansicht
+        main: Hauptschema
+        embedded: Embedded-Schema
+        dependencies: Abhängigkeiten
+      dependencies:
+        title: Abhängigkeiten
+        description: "Verbindungen der Schemas – welche Felder auf welche Zieltypen verweisen."
+        empty: Keine Abhängigkeiten gefunden.
+        element: Schema-Element
+        target: Zieltyp
+        property_description: Beschreibung
+        usages: Verwendungen
+        fields:
+          one: "%{count} Feld"
+          other: "%{count} Felder"
+        overview: Abhängigkeits-Übersicht
+        root_label: Schema auswählen
+        view_label: Darstellung
+        views:
+          network: Netzwerk
+          tree: Baum
+          radial: Radial
+        zoom_label: Zoom
+        fullscreen: Vollbild
+        external: Extern
+        used_by: Verwendet von
+        circular_badge: zirkulär
+        more: Mehr …
+        node_deps:
+          one: "%{count} Abhängigkeit"
+          other: "%{count} Abhängigkeiten"
+        edges:
+          one: "%{count} Typ-Beziehung"
+          other: "%{count} Typ-Beziehungen"
+        truncation:
+          nodes: "%{shown} von %{total} Knoten"
+          levels: "%{depth} von %{max} Ebenen"
+        root_groups:
+          with_deps: Mit Abhängigkeiten
+          without_deps: Ohne eigene Abhängigkeiten
+        stats:
+          schemas: Schema-Abhängigkeiten
+          connections: Verbindungen
+          independent: Ohne Abhängigkeiten
+          circular: Zirkuläre Abhängigkeiten
+      language: Sprache
+      theme:
+        toggle_dark: Dunkelmodus aktivieren
+        toggle_light: Hellmodus aktivieren
+      back: Zurück zum Schema
+      sort:
+        label: "Sortieren nach"
+        aria_label: Sortierung
+        heading_asc: "Überschrift (A → Z)"
+        heading_desc: "Überschrift (Z → A)"
+        type_asc: "Typ (A → Z)"
+        type_desc: "Typ (Z → A)"
+        count_desc: "Inhalte (viele → wenige)"
+        count_asc: "Inhalte (wenige → viele)"
+      index:
+        stats: "%{templates} Templates · %{contents} Inhalte"
+        search_placeholder: Schema suchen …
+        search_label: Schema suchen
+        export: Als XLSX exportieren
+        filter_label: Schema filtern
+        all: Alle
+        with_content: Nur mit Inhalten
+        expand_all: Alle aufklappen
+        collapse_all: Alle einklappen
+        content_count:
+          one: "%{count} Inhalt"
+          other: "%{count} Inhalte"
+        empty: Keine Treffer.
+      cardinality:
+        array: mehrere
+      embedded:
+        title: "Attribut aus dem eingebetteten Inhalt „%{source}“ – zur Definition"
+      schema_org_link:
+        label: schema.org
+        title: "Zur schema.org-Definition von %{type}"
+      flags:
+        translated:
+          code: i18n
+          title: Übersetzbares Feld
+        classification:
+          code: TAGS
+          title: Klassifizierung / Tags
+        embedded:
+          code: REF
+          title: Eingebettet
+        linked:
+          code: LINK
+          title: Verknüpft
+        geographic:
+          code: GEO
+          title: Geografisch
+        overlay:
+          code: OVL
+          title: Overlay
+        fulltext:
+          code: IDX
+          title: Volltextsuche
+      filter:
+        search_placeholder: "Property suchen …"
+        count_rest: "von %{total} Properties"
+        empty: Keine Properties gefunden.
+        aria_group: Nach Kategorie filtern
+        categories:
+          all: Alle
+          linked: Verknüpfungen
+          embedded: Eingebettet
+          classification: Klassifizierung
+          geo: "Geo & Ort"
+          translated: Übersetzbar
+          fulltext: Volltext
+      xlsx:
+        no_documented_properties: Keine dokumentierten Properties.
+        hint:
+          recursive: rekursiv (siehe oben)
+          classification: "Klassifizierungsbaum: %{tree}"
+          linked: verknüpfter Inhalt
+    openapi_viewer:
+      title: API-Dokumentation
+      subtitle: Interaktive API-Referenz dieser Instanz
+      language: Sprache
+      loading: API-Dokumentation wird geladen …
+      overview: Übersicht
+      schemas: Schemas
+      details: Details
+      access_denied: Zugriff verweigert. Bitte an die Administration wenden.
+      spec_error: Die API-Beschreibung konnte nicht geladen werden.
+      toggle_group: Untergruppen ein-/ausklappen
+      expandable_to: "Über include/fields erweiterbar zu"
+      search: API durchsuchen …
+      clear_search: Suche zurücksetzen
+      no_results: Keine Ergebnisse
+      theme:
+        toggle_dark: Dunkelmodus aktivieren
+        toggle_light: Hellmodus aktivieren
     reports:
       root: "Reports"
       available_reports: "Verfügbare Reports"
@@ -2352,13 +2538,12 @@ de:
         skill_rating: Fähigkeiten
     general_solutions:
       directions: Anfahrt
-      parking: Parken
+      parking: Anreise mit Auto
       hours_available: Öffnungszeiten
       text: Beschreibung
       price: Preis
       description: Kurzbeschreibung
-      directions_public_transport: Öffentliche Verkehrsmittel
-      instructions: Wegbeschreibung
+      directions_public_transport: Öffentliche Anreise
       route_start: Start
       route_end: Ziel
       importantInformation: Wichtige Informationen
@@ -2890,6 +3075,7 @@ de:
     internal_server_error: Es ist ein unerwarteter Fehler aufgetreten
     unauthorized: Sie haben keine Berechtigung, die gewünschte Seite zu öffnen
     conflict: Die Anfrage konnte wegen eines Konflikts nicht abgeschlossen werden
+    service_unavailable: Die Anwendung wird gerade aktualisiert, bitte versuchen Sie es in einigen Minuten erneut
 
   invisible_captcha:
     sentence_for_humans: Wenn Sie ein Mensch sind, ignorieren Sie dieses Feld

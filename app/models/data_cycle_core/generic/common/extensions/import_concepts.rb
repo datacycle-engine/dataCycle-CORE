@@ -28,14 +28,14 @@ module DataCycleCore
                         concept_scheme_data = external_system_processor
                           .call(data_array: concept_scheme_data, options:, utility_object:)
 
-                        # ensure uniqueness of concept schemes by external_source_id and external_key to avoid upsert conflicts
-                        concept_scheme_data.uniq! { |csd| [csd[:external_source_id], csd[:external_key]] }
+                        # ensure uniqueness of concept schemes by external_system_id and external_key to avoid upsert conflicts
+                        concept_scheme_data.uniq! { |csd| [csd[:external_system_id], csd[:external_key]] }
 
                         upserted = []
                         if concept_scheme_data.present?
-                          upserted = DataCycleCore::ClassificationTreeLabel.upsert_all(
+                          upserted = DataCycleCore::ConceptScheme.upsert_all(
                             concept_scheme_data,
-                            unique_by: :index_ctl_on_external_source_id_and_external_key,
+                            unique_by: :index_concept_schemes_on_external_system_id_and_external_key,
                             returning: :id
                           )
                         end
@@ -77,7 +77,7 @@ module DataCycleCore
                         transformed_concepts.each do |concept_scheme, concepts|
                           next logging.error(step_label, nil, nil, 'ConceptScheme missing!') if concept_scheme.nil?
 
-                          upserted = concept_scheme.upsert_all_external_classifications(concepts)
+                          upserted = concept_scheme.upsert_all_external_concepts(concepts)
                           tree_item_count = upserted.count
                           times << Time.current
 
@@ -108,7 +108,7 @@ module DataCycleCore
 
                         # import new geoms
                         concept_geoms = data_geom_processor.call(data_array: concepts_data, utility_object:, options:)
-                        geoms_count = DataCycleCore::ClassificationPolygon.upsert_all_geoms(concept_geoms)
+                        geoms_count = DataCycleCore::ConceptPolygon.upsert_all_geoms(concept_geoms)
                         additional_text << "#{geoms_count} new geoms" if geoms_count.positive?
 
                         times << Time.current

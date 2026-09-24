@@ -1,10 +1,18 @@
 # frozen_string_literal: true
 
+# Not ported to concepts by #41458, unlike RenameLocalBusinessContentTypeToBetrieb, because the
+# backfill has nothing left to do: all 65 project checkouts pin a core that already contains this
+# file, so it has run everywhere, and ConceptImporter already assigns the very keys the UPDATEs
+# below compute while parsing a classifications.yml - a scheme's name, a concept's ' > '-joined
+# path. The system rows still carrying none are the ones the backend creates, whose create_params
+# permit no external_key; giving those a key is a question about the UI, not a migration.
 class UpdateExternalKeyForSystemClassifications < ActiveRecord::Migration[7.1]
   # uncomment the following line to disable transactions
   # disable_ddl_transaction!
 
   def up
+    return say('the pre-concept classification tables are gone (see #41458); nothing to migrate') unless table_exists?(:classification_aliases)
+
     execute <<~SQL.squish
       SET LOCAL statement_timeout = 0;
 

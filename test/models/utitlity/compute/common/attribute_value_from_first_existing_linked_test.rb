@@ -37,7 +37,7 @@ module DataCycleCore
           slug_value: 'slug-value',
           number_value: 1,
           schedule_value: @schedule_value,
-          classification_value: [@tag1.classification_id],
+          classification_value: [@tag1.id],
           asset_value: @image.id,
           collection_value: [@collection.id]
         }

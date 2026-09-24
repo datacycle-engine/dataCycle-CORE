@@ -100,7 +100,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:license' => @content.license_classification.first.uri,
                 'url' => @content.attribution_url,
                 'copyrightNotice' => @content.copyright_notice_computed
               }
@@ -160,7 +160,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)
@@ -301,7 +301,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['url', 'license', 'attribution_url', 'attribution_name', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:license' => @content.license_classification.first.uri,
                 'url' => @content.attribution_url,
                 'copyrightNotice' => @content.copyright_notice_computed
               }
@@ -358,7 +358,7 @@ module DataCycleCore
               }
             end
 
-            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             # embedded
             assert_attributes(json_validate, required_attributes, ['content_block']) do

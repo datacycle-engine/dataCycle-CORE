@@ -301,22 +301,22 @@ module DataCycleCore
 
           min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
           min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
-          @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by!(name: 'Feratel - Orte')
-          facets = Datacycle::Connector::FeratelDeskline::Facets::Locations.new(external_system, type, @classification_tree_label)
+          @concept_scheme = DataCycleCore::ConceptScheme.find_by!(name: 'Feratel - Orte')
+          facets = Datacycle::Connector::FeratelDeskline::Facets::Locations.new(external_system, type, @concept_scheme)
           facets_data = facets.facetted_locations || {}
-          @classification_aliases = build_concepts_search_query(@classification_tree_label.classification_aliases)
+          @concepts = build_concepts_search_query(@concept_scheme.concepts)
 
           if min_count_without_subtree.positive?
             filtered_facets_data = facets_data.select { |_, v| v[:countWithoutSubtree] >= min_count_without_subtree }
-            @classification_aliases = @classification_aliases.where(id: filtered_facets_data.keys)
+            @concepts = @concepts.where(id: filtered_facets_data.keys)
           end
 
           if min_count_with_subtree.positive?
             filtered_facets_data = facets_data.select { |_, v| v[:count] >= min_count_with_subtree }
-            @classification_aliases = @classification_aliases.where(id: filtered_facets_data.keys)
+            @concepts = @concepts.where(id: filtered_facets_data.keys)
           end
 
-          @classification_aliases.each do |c|
+          @concepts.each do |c|
             c.thing_count_without_subtree = facets_data.dig(c.id, :countWithoutSubtree)
             c.thing_count_with_subtree = facets_data.dig(c.id, :count)
           end

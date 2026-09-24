@@ -72,6 +72,24 @@ describe 'DataCycleCore::Utility::Virtual::Common#attribute_value_from_named_emb
     assert_nil(subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:))
   end
 
+  it 'should skip an embedded whose template has no name property' do
+    content = create_content_dummy({
+      my_attribute: [
+        { price: 12 },
+        { name: 'my.name', my_value: 'SOME VALUE' }
+      ]
+    })
+
+    virtual_attribute_parameters = [
+      { 'attribute' => 'my_attribute', 'name' => 'my.name' },
+      { 'attribute' => 'my_value' }
+    ]
+
+    value = subject.attribute_value_from_named_embedded(virtual_parameters: virtual_attribute_parameters, content:)
+
+    assert_equal('SOME VALUE', value)
+  end
+
   it 'should handle missing embedded' do
     content = create_content_dummy({
       my_attribute: [{

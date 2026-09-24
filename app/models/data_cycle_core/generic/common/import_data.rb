@@ -16,7 +16,7 @@ module DataCycleCore
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     filter_object = Import::FilterObject.new(nil, locale, mongo_item, binding)
                       .with_deleted
-                    filter_object = filter_object.with_deleted_since(utility_object.last_successful_try) if utility_object.mode == :incremental && utility_object.last_successful_try.present?
+                    filter_object = filter_object.with_deleted_since(utility_object.changed_from) if utility_object.changed_from.present?
 
                     iterate = filtered_items(iterator, locale, filter_object)
                     external_key_path = options.dig(:import, :external_key_path)

@@ -1,0 +1,11 @@
+/* dataCycle OpenAPI viewer — branded sidebar reference around Swagger UI (#50192).
+ * Split into partials under ./openapi_viewer/ for readability; order matters
+ * (later rules build on/override earlier ones), so keep it as-is. The viewer
+ * bundle pulls this in (see javascripts/openapi_viewer.js) and Vite resolves
+ * these @import statements in order — equivalent to a single-file output. */
+@import "./openapi_viewer/base.css";
+@import "./openapi_viewer/sidebar.css";
+@import "./openapi_viewer/main.css";
+@import "./openapi_viewer/swagger_theme.css";
+@import "./openapi_viewer/responsive.css";
+@import "./openapi_viewer/dark.scss";

@@ -37,9 +37,9 @@ module DataCycleCore
     #   data_set_person.set_data_hash(data_hash: person_hash, prevent_history: true)
     #   person_id = data_set_person.id
     #
-    #   data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-    #     .where('classification_tree_labels.name = ?', 'Inhaltstypen')
-    #     .where('classification_aliases.name = ?', 'Zitat').first.id
+    #   data_type_zitat_id = DataCycleCore::Concept.joins(concepts: [classification_tree: [:concept_scheme]])
+    #     .where('concept_schemes.name = ?', 'Inhaltstypen')
+    #     .where('concepts.name = ?', 'Zitat').first.id
     #
     #   # create a Örtlichkeit
     #   data_set_place1 = DataCycleCore::TestPreparations.data_set_object('Örtlichkeit')
@@ -104,10 +104,10 @@ module DataCycleCore
     #   # check consistency of data in DB
     #   assert_equal(5, DataCycleCore::Thing.count - count_thing)
     #   assert_equal(3, DataCycleCore::ContentContent.count)
-    #   assert_equal(7, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(7, DataCycleCore::ConceptContent.count)
     #   assert_equal(3, DataCycleCore::Thing::History.count)
     #   assert_equal(3, DataCycleCore::ContentContent::History.count)
-    #   assert_equal(4, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(4, DataCycleCore::ConceptContent::History.count)
     #
     #   # update the whole data_set to see if it is properly moved to history
     #   new_hash = data_set.get_data_hash
@@ -116,20 +116,20 @@ module DataCycleCore
     #
     #   assert_equal(5, DataCycleCore::Thing.count - count_thing)
     #   assert_equal(3, DataCycleCore::ContentContent.count)
-    #   assert_equal(7, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(7, DataCycleCore::ConceptContent.count)
     #   assert_equal(5, DataCycleCore::Thing::History.count)
     #   assert_equal(6, DataCycleCore::ContentContent::History.count)
-    #   assert_equal(8, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(8, DataCycleCore::ConceptContent::History.count)
     #
     #   data_set.destroy_content
     #   data_set.histories.each(&:destroy_content)
     #
     #   assert_equal(3, DataCycleCore::Thing.count - count_thing)
     #   assert_equal(0, DataCycleCore::ContentContent.count)
-    #   assert_equal(3, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(3, DataCycleCore::ConceptContent.count)
     #   assert_equal(0, DataCycleCore::Thing::History.count)
     #   assert_equal(0, DataCycleCore::ContentContent::History.count)
-    #   assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(0, DataCycleCore::ConceptContent::History.count)
     # end
   end
 end

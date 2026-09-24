@@ -2,7 +2,7 @@
   <% api_restriction_type = 'default' %>
 <% elsif api_restriction_type == 'user_list' %>
   <%= render 'data_cycle_core/application/filters/tag_groups/user', local_assigns %>
-<% elsif api_restriction_type== 'classification_tree_ids' || api_restriction_type == 'classification_alias_ids' %>
+<% elsif api_restriction_type== 'concept_scheme_ids' || api_restriction_type == 'concept_ids' %>
   <%= render_advanced_filter_tags_partial(
         {
           title: title,

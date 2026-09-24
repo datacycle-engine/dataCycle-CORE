@@ -595,6 +595,24 @@ describe DataCycleCore::MasterData::DataConverter do
       end
     end
 
+    div_html = '<div class="additions"><p>Angebots- und Preisänderungen vorbehalten.</p></div>'
+
+    it 'keeps div with class in full mode' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      assert_equal div_html, subject.sanitize_html_string(div_html, 'full')
+    end
+
+    it 'strips div to its content in non-full modes' do
+      DataCycleCore.features[:string_sanitizer][:enabled] = true
+      DataCycleCore::Feature['StringSanitizer'].reload
+
+      ['none', 'minimal', 'basic', 'list', 'default'].each do |mode|
+        assert_equal '<p>Angebots- und Preisänderungen vorbehalten.</p>', subject.sanitize_html_string(div_html, mode)
+      end
+    end
+
     placeholder_html = '<p>Hallo <span class="dc--placeholder" data-dc-placeholder="consent-youtube">Video</span> Ende</p>'
 
     it 'keeps the text editor placeholder attribute in full mode' do

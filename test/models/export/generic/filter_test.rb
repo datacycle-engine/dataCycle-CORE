@@ -12,7 +12,7 @@ module DataCycleCore
         before(:all) do
           @admin = DataCycleCore::User.find_by(email: 'admin@datacycle.at')
           @other = create_content('Bild', { name: 'Export Filter Image' })
-          @data = create_content('Artikel', { name: 'Export Filter Article', tags: get_classification_ids('Tags', 'Tag 3'), image: [@other.id] })
+          @data = create_content('Artikel', { name: 'Export Filter Article', tags: get_concept_ids('Tags', 'Tag 3'), image: [@other.id] })
 
           @endpoint = DataCycleCore::StoredFilter.new(name: 'Export Endpoint', user_id: @admin.id)
             .parameters_from_hash([{ with_classification_aliases_and_treename: { treeLabel: 'Inhaltstypen', aliases: ['Artikel'] } }])
@@ -38,7 +38,12 @@ module DataCycleCore
                   'stored_filters' => [@endpoint.id],
                   'endpoints' => [@endpoint.id]
                 } },
-                'bildfilter' => { 'filter' => { 'endpoints' => [@bild_endpoint.id] } }
+                'bildfilter' => { 'filter' => { 'endpoints' => [@bild_endpoint.id] } },
+                'stalefilter' => { 'filter' => {
+                  'watch_lists' => [SecureRandom.uuid],
+                  'stored_filters' => [SecureRandom.uuid]
+                } },
+                'mixedfilter' => { 'filter' => { 'watch_lists' => [SecureRandom.uuid, @watch_list.id] } }
               }
             }
           )
@@ -76,12 +81,48 @@ module DataCycleCore
           assert SUBJECT.filter_stored_filters(**args)
         end
 
+        test 'filter_watch_lists rejects a content whose configured watch list is gone' do
+          assert_not SUBJECT.filter_watch_lists(**args('stalefilter'))
+        end
+
+        test 'filter_stored_filters rejects a content whose configured stored filter is gone' do
+          assert_not SUBJECT.filter_stored_filters(**args('stalefilter'))
+        end
+
+        # one watch_list_data_hashes row answers it, however many lists are configured
+        test 'filter_watch_lists still matches on the watch lists that do resolve, in one query' do
+          assert_queries_count(1) { assert SUBJECT.filter_watch_lists(**args('mixedfilter')) }
+        end
+
         test 'filter_endpoints matches data contained in a configured endpoint' do
           assert SUBJECT.filter_endpoints(**args)
         end
 
         test 'filter_endpoints returns false when no configured endpoint contains the data' do
           assert_not SUBJECT.filter_endpoints(**args('bildfilter'))
+        end
+
+        # DataCycleCore::Export::RelatedWebhooks#call narrowed its whole fan-out by these endpoints
+        # in one query, so resolving them here would ask that question again per content. The answer
+        # is the marked one and not a containment check: bildfilter's endpoint holds Bild, not @data.
+        test 'filter_endpoints takes the answer a caller marked the content with' do
+          @data.webhook_filter_checked_for = @external_system.id
+
+          SUBJECT.stub(:endpoints_for, ->(*) { raise 'must not resolve the endpoints again' }) do
+            assert SUBJECT.filter_endpoints(**args('bildfilter'))
+          end
+        ensure
+          @data.webhook_filter_checked_for = nil
+        end
+
+        # the reason the mark carries an id and not a flag: what one receiver's caller answered says
+        # nothing about the next receiver's endpoints
+        test 'filter_endpoints still asks for a receiver the mark does not name' do
+          @data.webhook_filter_checked_for = SecureRandom.uuid
+
+          assert_not SUBJECT.filter_endpoints(**args('bildfilter'))
+        ensure
+          @data.webhook_filter_checked_for = nil
         end
 
         test 'filter_endpoints rejects a content the endpoint only links' do
@@ -157,6 +198,26 @@ module DataCycleCore
 
         test 'filter runs all webhook filters when no endpoints are configured' do
           assert SUBJECT.filter(**args('unconfigured'))
+        end
+
+        # DataCycleCore::Export::Onlim::Endpoint.serialize_data renders a content against the first
+        # filter this returns, so it has to resolve the same one .filter dispatches on: a payload
+        # built from the root stored_filters while the gate reads update's endpoints ships a graph
+        # the receiver was never meant to get.
+        test 'export_filter_ids_for prefers endpoints over a root stored_filters' do
+          system = DataCycleCore::ExternalSystem.new(
+            config: { 'export_config' => {
+              'filter' => { 'stored_filters' => [@endpoint.id] },
+              'update' => { 'filter' => { 'endpoints' => [@bild_endpoint.id] } }
+            } }
+          )
+
+          assert_equal [@bild_endpoint.id], SUBJECT.export_filter_ids_for(system, 'update')
+          assert_equal [@endpoint.id], SUBJECT.export_filter_ids_for(system, 'other')
+        end
+
+        test 'export_filter_ids_for is empty when neither key is configured' do
+          assert_empty SUBJECT.export_filter_ids_for(DataCycleCore::ExternalSystem.new(config: { 'export_config' => {} }), 'update')
         end
       end
     end

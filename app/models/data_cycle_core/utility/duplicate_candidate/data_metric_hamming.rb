@@ -10,15 +10,32 @@ module DataCycleCore
         PARAMETERS = ['name'].freeze
 
         class << self
+          # Narrows by trigram similarity of the name first, then scores how much of the rest of the
+          # schema two contents share. The name half goes through Base.same_locale_scope like every
+          # other name rule; before that this module compared `content.name` - read in the current
+          # locale - against a hard-coded 'de' translation, which crossed the two whenever the
+          # current locale was anything else.
+          #
+          # `preload` rather than the `includes`/`references` pair it replaces: both load the
+          # association, but `references` folds the load into the filtering join, so a candidate
+          # would carry only the locale the scope filtered by. Today that is the locale
+          # `get_data_hash_partial` reads anyway - nothing changes locale between building the
+          # relation and reading it - so `preload` buys independence of the two at the price of
+          # loading every locale, not a translation the pair it replaces would have missed.
+          #
+          # @param content [DataCycleCore::Thing] content to find candidates for
+          # @return [Array<Hash>, nil] candidate rows scored by schema overlap, nil when the content
+          #   has no name in the current locale
           def duplicates(content:, **)
+            return if content.name.blank?
+
             relevant_schema = relevant_schema(content)
             total = relevant_schema['properties'].size
             relevant_prop_names = relevant_schema['properties'].keys
 
             name_min_score = duplicate_parameter(content, 'name_min_score') || 0.8
-            duplicates = DataCycleCore::Thing.where(template_name: content.template_name)
-              .includes(:translations).where("thing_translations.locale = 'de'")
-              .references(:translations)
+            duplicates = same_locale_scope(content)
+              .preload(:translations)
               .where("similarity(thing_translations.content ->> 'name', ?) > ?", content.name, name_min_score)
 
             duplicates = if content.primary_geometry.present?
@@ -34,12 +51,11 @@ module DataCycleCore
                          end
 
             content_min_score = duplicate_parameter(content, 'content_min_score')&.*(100) || 80
-            duplicates.where.not(id: content.id)
-              .filter_map do |d|
-                diff = content.diff(d.get_data_hash_partial(relevant_prop_names), relevant_schema)
-                score = [0, 100 * (total - (diff.size * WEIGHTING)) / total].max
-                { thing_duplicate_id: d.id, method: identifier, score: } if score > content_min_score
-              end
+            duplicates.filter_map do |d|
+              diff = content.diff(d.get_data_hash_partial(relevant_prop_names), relevant_schema)
+              score = [0, 100 * (total - (diff.size * WEIGHTING)) / total].max
+              { thing_duplicate_id: d.id, method: identifier, score: } if score > content_min_score
+            end
           end
 
           def parameters(content:, **)

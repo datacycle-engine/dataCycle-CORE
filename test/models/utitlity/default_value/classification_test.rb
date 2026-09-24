@@ -20,17 +20,15 @@ module DataCycleCore
             'default_value' => { 'value' => 'Tag 1' }
           })
 
-          assert_equal([@tag1.classification_id], value)
+          assert_equal([@tag1.id], value)
         end
 
-        test 'schema_types concatenates the classifications resolved from the content schema type' do
-          content = struct_double(schema_ancestors: [], schema_type: 'CreativeWork', template_name: 'Artikel')
+        test 'schema_types resolves the template specific dcls: leaf, not the shared schema.org node' do
+          content = struct_double(thing_template: DataCycleCore::ThingTemplate.find_by(template_name: 'Organization'))
+          leaf = DataCycleCore::Concept.by_full_paths('SchemaTypes > Organization > dcls:Organization').pluck(:id)
 
-          subject.stub(:find_classification, ['cid-schema']) do
-            value = subject.schema_types(property_definition: { 'tree_label' => 'SchemaTypes' }, content:)
-
-            assert_equal(['cid-schema'], value)
-          end
+          assert_not_empty(leaf)
+          assert_equal(leaf, subject.schema_types(property_definition: { 'tree_label' => 'SchemaTypes' }, content:))
         end
 
         test 'by_user_and_name resolves the concept for the current user role' do
@@ -40,7 +38,7 @@ module DataCycleCore
             'default_value' => { 'value' => { 'administrator' => 'Tag 1' } }
           }, current_user:)
 
-          assert_equal([@tag1.classification_id], value)
+          assert_equal([@tag1.id], value)
         end
 
         test 'by_user_and_concept_id resolves the concept id for the current user role' do
@@ -49,7 +47,7 @@ module DataCycleCore
             'default_value' => { 'value' => { 'all' => @tag1.id } }
           }, current_user:)
 
-          assert_equal([@tag1.classification_id], value)
+          assert_equal([@tag1.id], value)
         end
 
         test 'by_user_or_group_and_name resolves the concept for the current user role' do
@@ -59,7 +57,7 @@ module DataCycleCore
             'default_value' => { 'value' => { 'administrator' => 'Tag 1' } }
           }, current_user:)
 
-          assert_equal([@tag1.classification_id], value)
+          assert_equal([@tag1.id], value)
         end
 
         test 'copy_from_string resolves classification ids from the configured data_hash values' do
@@ -68,7 +66,7 @@ module DataCycleCore
             data_hash: { 'name' => 'Tag 1' }
           )
 
-          assert_equal([@tag1.classification_id], value)
+          assert_equal([@tag1.id], value)
         end
       end
     end

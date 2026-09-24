@@ -11,13 +11,13 @@
   stored_filter: @stored_filter&.id,
   endpoint_id: @stored_filter&.id || @watch_list&.id,
   mode: @mode,
-  ctl_id: @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @classification_tree_label&.id,
-  ct_id: @classification_tree&.id,
+  ctl_id: @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @concept_scheme&.id,
+  ct_id: @concept&.id,
   es_id: @external_system&.id
 }) do %>
   <%= hidden_field_tag 'mode', @mode %>
-  <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
-  <%= hidden_field_tag 'ctl_id', @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @classification_tree_label&.id %>
+  <%= hidden_field_tag 'ct_id', @concept&.id %>
+  <%= hidden_field_tag 'ctl_id', @external_system_tree ? DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID : @concept_scheme&.id %>
   <%= hidden_field_tag 'es_id', @external_system&.id %>
 
   <%= conditional_filter_accordion(filter_config) do %>
@@ -32,7 +32,7 @@
         <%= render 'data_cycle_core/application/filters/sections/tag_groups',
                     config: filter_config,
                     filters: @filters,
-                    selected_classification_aliases: @selected_classification_aliases %>
+                    selected_concepts: @selected_concepts %>
 
         <div class="languagetags">
           <%= render 'data_cycle_core/application/filters/tag_groups/language',

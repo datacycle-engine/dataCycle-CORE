@@ -290,34 +290,36 @@ classification_overview:
     - classification_overview
     - classification_administration
 
+# What ClassificationTree carried before the concept hard cut. The concept itself is deliberately
+# absent: manage would OR past the narrower rules below, which is how the internal/external gating
+# on colour, mapping and destroy is enforced. A ConceptLink has no external system of its own, so
+# SubjectNotExternal reads it off the concept the link points at.
 classification_actions:
   actions: manage
   segment: SubjectNotExternal
-  parameters:
-    - DataCycleCore::Classification
-    - DataCycleCore::ClassificationTree
+  parameters: DataCycleCore::ConceptLink
 
 classification_tree_label_actions:
   actions: [download, create, edit, link_contents, unlink_contents]
   segment: SubjectByConditions
-  parameters: DataCycleCore::ClassificationTreeLabel
+  parameters: DataCycleCore::ConceptScheme
 
 classification_tree_label_update:
   # #50677: update_hidden_mappings gates the hidden_mappings checkbox — deliberately a separate action,
   # so a role may edit a tree without being able to hide its mappings from every content at once
   actions: [update, update_hidden_mappings]
   segment: SubjectNotExternal
-  parameters: DataCycleCore::ClassificationTreeLabel
+  parameters: DataCycleCore::ConceptScheme
 
 classification_alias_actions:
   actions: [create, update, view_all]
   segment: SubjectNotExternalAndNotInternal
-  parameters: DataCycleCore::ClassificationAlias
+  parameters: DataCycleCore::Concept
 
 classification_alias_map_and_color:
   actions: [map_classifications, set_color]
   segment: SubjectNotInternal
-  parameters: DataCycleCore::ClassificationAlias
+  parameters: DataCycleCore::Concept
 
 classification_tree_label_destroy:
   actions: destroy
@@ -331,8 +333,8 @@ classification_administration_copy:
   actions: [copy_api_link, copy_to_clipboard]
   segment: SubjectByConditions
   parameters:
-    - - DataCycleCore::ClassificationTreeLabel
-      - DataCycleCore::ClassificationAlias
+    - - DataCycleCore::ConceptScheme
+      - DataCycleCore::Concept
 
 thing_history_actions:
   actions: [show, restore_version]

@@ -11,7 +11,7 @@ module DataCycleCore
     end
 
     test 'filter_requires_n_for_comparison? detects filters whose value lives in n' do
-      assert feature.filter_requires_n_for_comparison?({ 't' => 'classification_alias_ids' })
+      assert feature.filter_requires_n_for_comparison?({ 't' => 'concept_ids' })
       assert feature.filter_requires_n_for_comparison?({ 't' => 'geo_filter', 'q' => 'geo_within_classification' })
       assert_not feature.filter_requires_n_for_comparison?({ 't' => 'fulltext_search' })
     end
@@ -68,8 +68,8 @@ module DataCycleCore
       assert_equal 'offer_period', result.first[1]
     end
 
-    test 'advanced_attribute_classification_tree_label reads from configuration' do
-      assert_nil SUBJECT.advanced_attribute_classification_tree_label('does-not-exist')
+    test 'advanced_attribute_tree_label reads from configuration' do
+      assert_nil SUBJECT.advanced_attribute_tree_label('does-not-exist')
     end
 
     test 'schedule_filter_exceptions_string joins translated exceptions' do

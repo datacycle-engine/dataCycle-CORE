@@ -72,20 +72,29 @@ module DataCycleCore
         assert(build_push_object(action: :create).webhook_valid?(@thing))
       end
 
-      test 'allowed? marks filter-checked and delegates to the webhook' do
+      test 'allowed? delegates to the webhook' do
         pobj = build_push_object
         fake = Object.new
         # `filter` mirrors the webhook strategy interface, so it cannot be renamed to a predicate
         def fake.filter(_data, _external_system) = true # rubocop:disable Naming/PredicateMethod
 
-        result = pobj.stub(:webhook, fake) { pobj.allowed?(@thing) }
-
-        assert(result)
-        assert_predicate(pobj, :filter_checked?)
+        assert(pobj.stub(:webhook, fake) { pobj.allowed?(@thing) })
 
         nil_hook = build_push_object
 
         assert_not(nil_hook.stub(:webhook, nil) { nil_hook.allowed?(@thing) })
+      end
+
+      # :deploy is the case the allowlist exists for: it is named nowhere, so it is re-asked rather
+      # than shipped on a verdict DataCycleCore::WebhookJob#check_filter may not retake.
+      test 'allowed? marks only the verdicts the worker may not retake' do
+        checked = [:create, :update, :delete, :deploy, :refresh].index_with do |action|
+          pobj = build_push_object(action:)
+          pobj.stub(:webhook, nil) { pobj.allowed?(@thing) }
+          pobj.filter_checked?
+        end
+
+        assert_equal({ create: false, update: false, delete: true, deploy: false, refresh: true }, checked)
       end
 
       test 'process delegates to the webhook unless it is missing' do
@@ -97,10 +106,9 @@ module DataCycleCore
         assert_nil(pobj.stub(:webhook, nil) { pobj.process(@thing) })
       end
 
-      test 'delete_action? and synchronous_filter?' do
+      test 'delete_action?' do
         assert_predicate(build_push_object(action: :delete), :delete_action?)
         assert_not(build_push_object(action: :create).delete_action?)
-        assert(build_push_object(action: :delete).synchronous_filter?(@thing))
       end
 
       test 'discard_job_on_failure? reads the export config flags' do

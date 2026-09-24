@@ -145,7 +145,7 @@ module DataCycleCore
           }
           get api_v3_classification_trees_path(params)
 
-          count = DataCycleCore::ClassificationTreeLabel.where(internal: false).count
+          count = DataCycleCore::ConceptScheme.where(internal: false).count
 
           assert_response :success
           assert_equal 'application/json; charset=utf-8', response.content_type

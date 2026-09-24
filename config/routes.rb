@@ -55,6 +55,7 @@ DataCycleCore::Engine.routes.draw do
   match '/409', to: 'exceptions#conflict_exception', via: :all, as: :conflict_exception
   match '/422', to: 'exceptions#unprocessable_entity_exception', via: :all, as: :unprocessable_entity_exception
   match '/500', to: 'exceptions#internal_server_error_exception', via: :all, as: :internal_server_error_exception
+  match '/503', to: 'exceptions#service_unavailable_exception', via: :all, as: :service_unavailable_exception
 
   root to: redirect('users/sign_in')
 
@@ -63,9 +64,13 @@ DataCycleCore::Engine.routes.draw do
     get '/*path', action: :show, as: :with
   end
 
-  scope module: 'static', path: 'guides', as: :guides, defaults: { root_path: 'guides' } do
-    get '/', action: :show
-    get '/*path', action: :show, as: :with
+  # Unlike the customer-facing /docs, /guides documents dataCycle internals (#51344), so it is
+  # gated here — `can?(:show, :guides)` only hides the sidebar entry, not the route.
+  authenticate do
+    scope module: 'static', path: 'guides', as: :guides, defaults: { root_path: 'guides' } do
+      get '/', action: :show
+      get '/*path', action: :show, as: :with
+    end
   end
 
   scope module: 'static', path: 'static', as: :static, defaults: { root_path: 'static' } do
@@ -93,8 +98,30 @@ DataCycleCore::Engine.routes.draw do
     id: uuid_regexp
   }
 
-  get '/schema', to: 'schema#index'
-  get '/schema/:id', to: 'schema#show', as: :schema_details
+  authenticate do
+    get '/schema', to: 'schema#index'
+    get '/schema/:id', to: 'schema#show', as: :schema_details
+  end
+  # Browsers (Accept: text/html) get the interactive viewer directly at the
+  # endpoint; API clients and the viewer's own spec fetch (application/json,
+  # */*, or no Accept header) fall through to the JSON document in the api/config
+  # namespace below. We match on the literal presence of "text/html" in the Accept
+  # header rather than req.format.html? on purpose: Rails resolves */* and a
+  # missing Accept header to the :html format, which would route curl/API clients
+  # (and the AuthenticationTest that expects a 401) to the viewer instead of the
+  # JSON endpoint. Only real browsers advertise text/html, so this keeps the
+  # public JSON API unchanged.
+  # `format: false` keeps the viewer on the extension-less path only, so
+  # /api/config/openapi.json always falls through to the JSON document even when a
+  # browser (Accept: text/html) opens it directly.
+  # The Accept check has to be a constraints BLOCK, not the `constraints:` option: the
+  # option replaces the scope's constraint instead of adding to it, so `authenticate`
+  # would silently stop gating the route and only CanCan would be left guarding it.
+  authenticate do
+    constraints(->(req) { req.headers['Accept'].to_s.include?('text/html') }) do
+      get '/api/config/openapi', to: 'open_api_viewer#show', as: :openapi_viewer, format: false
+    end
+  end
   get '/info', to: 'frontend#info', as: :info
   get '/i18n/translate', to: 'application#translate'
   # get '/export', to: 'nothing' # this route is reserved for jsonld file exports via rake task
@@ -298,6 +325,8 @@ DataCycleCore::Engine.routes.draw do
         post :rebuild_classification_mappings
         get :computed_attributes_form
         post :update_computed_attributes
+        get :flatten_grafana_dashboard_form
+        post :flatten_grafana_dashboard
       end
     end
 
@@ -446,6 +475,7 @@ DataCycleCore::Engine.routes.draw do
                 end
 
                 post 'endpoints', to: 'stored_filters#create'
+                get 'endpoints', to: 'stored_filters#index', as: nil
                 match 'endpoints/:id/things(/:content_id)', to: 'contents#index', as: 'stored_filter_things', via: [:get, :post]
                 match 'endpoints/:id/suggest', to: 'contents#typeahead', as: 'typeahead', via: [:get, :post]
                 match 'endpoints/:id/suggest_by_title', to: 'contents#typeahead_by_title', as: 'typeahead_by_title', via: [:get, :post]
@@ -453,6 +483,7 @@ DataCycleCore::Engine.routes.draw do
                 match 'endpoints/:id/facets/externalSystems', to: 'external_systems#facets', as: 'external_systems_facets', via: [:get, :post]
                 match 'endpoints/:id/facets/:classification_tree_label_id(/:classification_id)', to: 'classification_trees#facets', as: 'facets', via: [:get, :post]
                 get 'endpoints/:id/statistics/:attribute(/:format)', to: 'contents#statistics', as: 'statistics'
+                match 'endpoints/:id/mcp', to: 'mcp#create', as: 'mcp', via: [:get, :post, :delete] if DataCycleCore::Feature::Mcp.mount_enabled?(:endpoint)
                 match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
                 match 'endpoints/:id/:content_id/elevation_profile(/:format)', to: 'contents#elevation_profile', as: 'content_elevation_profile', via: [:get, :post]
                 match 'endpoints/:id/:content_id/download', to: 'downloads#thing', as: 'download_thing', via: [:get, :post]
@@ -519,6 +550,19 @@ DataCycleCore::Engine.routes.draw do
             end
             resources :feature, only: [] do
               match '/', action: :index, on: :collection, via: [:get, :post]
+            end
+            get 'openapi', to: 'openapi#index'
+            # RDF schema of the instance (#50196): ontology (RDFS/OWL), SHACL shapes
+            # and the JSON-LD @context as separate endpoints. ontology/shapes are
+            # content-negotiated via a format extension (.ttl/.jsonld/.rdf/.nt).
+            get 'rdf/ontology', to: 'rdf#ontology'
+            get 'rdf/shapes', to: 'rdf#shapes'
+            get 'rdf/context', to: 'rdf#context'
+          end
+
+          if DataCycleCore::Feature::Mcp.mount_enabled?(:global)
+            namespace :mcp do
+              match '/', to: 'mcp#create', via: [:get, :post, :delete]
             end
           end
 

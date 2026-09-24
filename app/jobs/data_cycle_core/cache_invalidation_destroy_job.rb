@@ -8,7 +8,7 @@ module DataCycleCore
     # lands in the btree-indexed solid_queue_jobs.concurrency_key, which rejects an index row over
     # 2704 bytes — roughly 72 UUIDs — so joining them raises PG::ProgramLimitExceeded on enqueue.
     # Sorted before hashing so the key identifies the set rather than the row order: every caller but
-    # ClassificationTreeLabel's batching plucks without an ORDER BY, so the same contents can arrive
+    # ConceptScheme's batching plucks without an ORDER BY, so the same contents can arrive
     # in any order — two such enqueues must not look like two jobs.
     limits_concurrency key: ->(*args) { "#{args[2]}/#{args[1]}/#{Digest::SHA256.hexdigest(Array.wrap(args[3]).sort.join(','))}" }
 
@@ -19,8 +19,8 @@ module DataCycleCore
     private
 
     # This path carries the invalidation because no caller does:
-    # ClassificationAlias#invalidate_things_cache hangs off after_update, and every path reaching
-    # this one — a destroyed alias, a mapping delta, ClassificationTreeLabel's hidden-mapping
+    # Concept#invalidate_things_cache hangs off after_update, and every path reaching
+    # this one — a destroyed alias, a mapping delta, ConceptScheme's hidden-mapping
     # batches — enqueues update_things_search beside it and nothing else. A payload is cached under
     # the timestamps of the content it belongs to, which a classification change never moves, so the
     # re-export would ship what the receiver already has.
@@ -49,7 +49,7 @@ module DataCycleCore
     def update_things_computed_properties(things_ids)
       return if things_ids.blank?
 
-      tree_label = changed_alias&.classification_tree_label&.name
+      tree_label = changed_alias&.concept_scheme&.name
       computed_properties = DataCycleCore::ThingTemplate.classification_change_computed_properties_for(tree_label)
       return if computed_properties.blank?
 
@@ -77,7 +77,7 @@ module DataCycleCore
     def changed_alias
       return @changed_alias if defined? @changed_alias
 
-      @changed_alias = DataCycleCore::ClassificationAlias.find_by(id: arguments[1])
+      @changed_alias = DataCycleCore::Concept.find_by(id: arguments[1])
     end
   end
 end

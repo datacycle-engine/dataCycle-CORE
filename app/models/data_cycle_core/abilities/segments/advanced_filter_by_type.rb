@@ -44,7 +44,7 @@ module DataCycleCore
           end
         end
 
-        def classification_alias_ids_type(data, *)
+        def concept_ids_type(data, *)
           default_type(__method__, data, *, key: :name)
         end
 

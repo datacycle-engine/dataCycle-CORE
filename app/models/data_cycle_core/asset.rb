@@ -112,6 +112,24 @@ module DataCycleCore
       local_blob_url(id: file.blob.id, file: filename)
     end
 
+    # Absolute URL of the original file on the unauthenticated asset route.
+    #
+    # Needed wherever an external service has to fetch the file itself before a content exists --
+    # the image proxy variants cannot be used there because they are derived from a persisted
+    # content (id + cache_valid_since).
+    #
+    # The route's own _url helper carries the host, which Common::Routing takes from the mailer
+    # options. Joining the path onto config.asset_host instead produced the same string wherever
+    # that is set -- production derives it from those same mailer options -- and a host-less
+    # "/assets/image/<id>/original/madrisa.jpg" wherever it is not, which no service could fetch.
+    #
+    # @return [String, nil] nil while no file is attached
+    def public_url
+      return unless file.attached?
+
+      local_asset_url(klass: self.class.name.demodulize.underscore, id:, version: 'original', file: filename)
+    end
+
     def file_extension
       return @file_extension if defined? @file_extension
       return @file_extension = nil if file.blank?

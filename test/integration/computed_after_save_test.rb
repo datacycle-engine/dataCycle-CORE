@@ -46,11 +46,11 @@ module DataCycleCore
 
     test 'the computed icon is stored before the update request answers' do
       with_icons do
-        update_classifications([@tags['Tag 2'].classification_id])
+        update_classifications([@tags['Tag 2'].id])
 
         assert_response :redirect
         assert_equal(
-          [@tags['Tag 2'].classification_id],
+          [@tags['Tag 2'].id],
           stored_icon_ids,
           'the icon must be persisted when the redirect is issued, not by a later job'
         )
@@ -61,9 +61,9 @@ module DataCycleCore
       with_icons do
         # assigned to the icon-less "Nested Tag 1" so the stored icon ("Tag 3") is a concept the
         # content is not directly classified with — its presence can only come from the compute
-        update_classifications([@tags['Nested Tag 1'].classification_id])
+        update_classifications([@tags['Nested Tag 1'].id])
 
-        assert_equal([@tags['Tag 3'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 3'].id], stored_icon_ids)
 
         follow_redirect!
 
@@ -75,21 +75,21 @@ module DataCycleCore
     test 'the update request does not defer the compute to a background job' do
       with_icons do
         DataCycleCore::UpdateAsyncComputedPropertiesJob.stub(:perform_later, ->(*) { flunk('compute.after_save must be handled inside the request') }) do
-          update_classifications([@tags['Tag 2'].classification_id])
+          update_classifications([@tags['Tag 2'].id])
         end
 
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids)
       end
     end
 
     test 'an icon-neutral classification change still reports success to the editor' do
       with_icons do
-        update_classifications([@tags['Tag 2'].classification_id])
+        update_classifications([@tags['Tag 2'].id])
         follow_redirect!
 
         # adding an icon-less concept stores the edit but leaves the icon alone: the recompute's
         # internal no_changes must not turn the editor's confirmation into "nothing happened"
-        update_classifications([@tags['Tag 2'].classification_id, @tags['Nested Tag 1'].classification_id])
+        update_classifications([@tags['Tag 2'].id, @tags['Nested Tag 1'].id])
 
         assert_response :redirect
         assert_nil(flash[:info], "the recompute's no_changes must not reach the editor")
@@ -98,54 +98,54 @@ module DataCycleCore
           flash[:success],
           'the save confirmation must not be swallowed'
         )
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids)
       end
     end
 
     test 'the computed icon cannot be forced through request params' do
       with_icons do
-        update_classifications([@tags['Tag 2'].classification_id])
+        update_classifications([@tags['Tag 2'].id])
 
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids)
 
         # computed properties are stripped in DataHashService#permit_param_for_prop, so a crafted
         # request cannot plant an icon the compute would not have produced
         patch thing_path(@content), params: {
           locale: 'de',
-          thing: { datahash: { primary_icon_classifications: [@tags['Nested Tag 1'].classification_id] } }
+          thing: { datahash: { primary_icon_classifications: [@tags['Nested Tag 1'].id] } }
         }, headers: { referer: thing_path(@content) }
 
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids, 'a computed property must not be writable from params')
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids, 'a computed property must not be writable from params')
       end
     end
 
     test 'a failing recompute rolls the whole editor save back' do
       with_icons do
-        update_classifications([@tags['Tag 2'].classification_id])
+        update_classifications([@tags['Tag 2'].id])
 
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids)
 
         # the template's only compute is the after_save one, so this hits exactly that pass
         DataCycleCore::Utility::Compute::Base.stub(:compute_values, ->(*) { raise 'compute exploded' }) do
-          assert_raises(RuntimeError) { update_classifications([@tags['Nested Tag 1'].classification_id]) }
+          assert_raises(RuntimeError) { update_classifications([@tags['Nested Tag 1'].id]) }
         end
 
         reloaded = DataCycleCore::Thing.find(@content.id)
 
         assert_equal(
-          [@tags['Tag 2'].classification_id],
+          [@tags['Tag 2'].id],
           Array.wrap(reloaded.get_data_hash['universal_classifications']),
           'the edit must not be stored when its computed value could not be calculated'
         )
-        assert_equal([@tags['Tag 2'].classification_id], Array.wrap(reloaded.get_data_hash['primary_icon_classifications']))
+        assert_equal([@tags['Tag 2'].id], Array.wrap(reloaded.get_data_hash['primary_icon_classifications']))
       end
     end
 
     test 'clearing the classifications clears the stored icon within the same request' do
       with_icons do
-        update_classifications([@tags['Tag 2'].classification_id])
+        update_classifications([@tags['Tag 2'].id])
 
-        assert_equal([@tags['Tag 2'].classification_id], stored_icon_ids)
+        assert_equal([@tags['Tag 2'].id], stored_icon_ids)
 
         update_classifications([])
 

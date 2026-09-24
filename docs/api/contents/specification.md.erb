@@ -2,7 +2,6 @@
 
 ```json
 {
-  "apiSubversion": "String",
   "fields": "String",
   "classificationTrees": "UUID,...",
   "filter": {
@@ -131,7 +130,7 @@
     "meta": "Integer [1,0]: 1",
     "links": "Integer [1,0]: 1"
   },
-  "sort": "String ?[+,-] (dct:modified,dct:created,name,*similarity,*proximity.geographic, proximity.geographic_with(lon,lat), *proximity.inTime, proximity.occurrence, proximity.occurrence(startDate,endDate,sortAttribute), random, @type(dcls:Type1,dcls:Type2), dc:classification(uuid1,uuid2), @id(uuid1,uuid2)): **default",
+  "sort": "String ?[+,-] (dct:modified,dct:created,dc:touched,name,*similarity,*proximity.geographic, proximity.geographic_with(lon,lat), *proximity.inTime, proximity.occurrence, proximity.occurrence(startDate,endDate,sortAttribute), random, @type(dcls:Type1,dcls:Type2), dc:classification(uuid1,uuid2), @id(uuid1,uuid2)): **default",
   "token": "String"
 }
 ```
@@ -149,6 +148,7 @@
   "attributeName": [
     "dct:created",
     "dct:modified",
+    "dc:touched",
     "dct:deleted",
     "schedule|eventSchedule|openingHoursSpecification|dc:diningHoursSpecification|hoursAvailable|validitySchedule"
   ]

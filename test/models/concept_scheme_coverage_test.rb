@@ -1,0 +1,82 @@
+# frozen_string_literal: true
+
+require 'test_helper'
+
+module DataCycleCore
+  class ConceptSchemeCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
+    before(:all) do
+      @label = DataCycleCore::ConceptScheme.create!(name: 'Coverage Tree Label')
+      @deepest = @label.create_or_update_concept_by_name('Coverage Root', { name: 'Coverage Child', external_key: 'CC-1' })
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'CTL Thing' })
+    end
+
+    test 'create_or_update_concept_by_name creates then updates the hierarchy' do
+      assert_equal('Coverage Child', @deepest.name)
+      assert_equal('CC-1', @deepest.external_key)
+
+      updated = @label.create_or_update_concept_by_name('Coverage Root', { name: 'Coverage Child', external_key: 'CC-2' })
+
+      assert_equal(@deepest.id, updated.id)
+      assert_equal('CC-2', updated.reload.external_key)
+    end
+
+    test 'ancestors / to_api_default_values / to_hash' do
+      assert_equal([], @label.ancestors)
+      assert_equal('skos:ConceptScheme', @label.to_api_default_values['@type'])
+      assert_equal(@label.id, @label.to_api_default_values['@id'])
+      assert_equal('DataCycleCore::ConceptScheme', @label.to_hash['class_type'])
+    end
+
+    test 'to_select_option and self.to_select_options' do
+      assert_kind_of(DataCycleCore::Filter::SelectOption, @label.to_select_option)
+      assert_predicate(DataCycleCore::ConceptScheme.to_select_options, :present?)
+    end
+
+    test 'stored_filters returns a relation scoped by the tree id' do
+      assert_kind_of(ActiveRecord::Relation, @label.stored_filters)
+    end
+
+    test 'sort_concepts_alphabetically! runs the ordering update' do
+      assert_nothing_raised { @label.sort_concepts_alphabetically! }
+    end
+
+    test 'to_csv_for_mappings exports the classification paths' do
+      assert_includes(@label.to_csv_for_mappings, 'Pfad zur Klassifizierung')
+    end
+
+    test 'to_csv_with_mappings and inverse export without error' do
+      assert_includes(@label.to_csv_with_mappings, 'Pfad zur Klassifizierung')
+      assert_includes(@label.to_csv_with_inverse_mappings, 'Pfad zur Klassifizierung')
+    end
+
+    test 'webhook helpers operate on the tree things' do
+      contents = DataCycleCore::Thing.where(id: @content.id)
+
+      @label.stub(:things, contents) do
+        assert_nothing_raised do
+          @label.send(:add_things_webhooks_job_update)
+          @label.send(:execute_things_webhooks)
+        end
+      end
+    end
+
+    # invalidate_things_cache lifts the tree's own things, not the ones linking them that the fan-out
+    # re-exports, and it runs in a job of its own with no ordering against this one. Without the
+    # invalidation here the re-export ships the payload the receiver already has.
+    test 'the contents linking the tree things are invalidated before the re-export goes out' do
+      linking = DataCycleCore::TestPreparations.create_content(template_name: 'Vererbte Sprachen', data_hash: { name: 'CTL Linking Thing', plain_reference: [@content.id] })
+      cache_valid_since = DataCycleCore::Thing.find(linking.id).cache_valid_since
+      seen = nil
+
+      @label.stub(:things, DataCycleCore::Thing.where(id: @content.id)) do
+        DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*) {}) do
+          DataCycleCore::Webhook::Update.stub(:execute_all, ->(*, **) { seen = DataCycleCore::Thing.find(linking.id).cache_valid_since }) do
+            DataCycleCore.stub(:webhooks, ['CTL ES']) { @label.send(:execute_things_webhooks) }
+          end
+        end
+      end
+
+      assert_operator seen, :>, cache_valid_since
+    end
+  end
+end

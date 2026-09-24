@@ -15,6 +15,10 @@ module DataCycleCore
           'VideoObject' => 'video'
         }.freeze
 
+        # The extension of a server-side program (https://example.com/bild.php?id=5) tells which
+        # script renders the file, not its format: php alone would store image/x-httpd-php for a Bild.
+        SCRIPT_EXTENSIONS = ['php', 'pl', 'cgi', 'asp', 'aspx', 'jsp'].freeze
+
         class << self
           def url_options
             Rails.application.config.action_mailer.default_url_options
@@ -34,9 +38,7 @@ module DataCycleCore
 
             mapped_content_type = CONTENT_TYPE_MAPPING[content.template_name]
 
-            MiniMime
-              .lookup_by_extension(data_hash['content_url']&.match(/.*\.(.*)/)&.[](1).to_s)
-              &.content_type
+            mime_type_from_url(data_hash['content_url'])
               &.then { |s| mapped_content_type.present? ? s.gsub('application', mapped_content_type.to_s) : s }
           end
 
@@ -45,19 +47,18 @@ module DataCycleCore
 
             return [] if file_format_path.blank?
 
-            classification_alias_candidate = DataCycleCore::ClassificationAlias
+            concept_candidate = DataCycleCore::Concept
               .for_tree(computed_definition&.dig('tree_label'))
-              .includes(:classification_alias_path)
-              .where(classification_alias_paths: { full_path_names: file_format_path.reverse.append(computed_definition&.dig('tree_label')) })
-              .primary_classifications
+              .includes(:concept_path)
+              .where(concept_paths: { full_path_names: file_format_path.reverse.append(computed_definition&.dig('tree_label')) })
               .limit(1)
               .pluck(:id)
 
-            return Array.wrap(classification_alias_candidate) if classification_alias_candidate.present?
+            return Array.wrap(concept_candidate) if concept_candidate.present?
 
-            tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: computed_definition&.dig('tree_label'))
+            tree_label = DataCycleCore::ConceptScheme.find_by(name: computed_definition&.dig('tree_label'))
 
-            Array.wrap(tree_label&.create_classification_alias(*Array.wrap(file_format_path))&.primary_classification&.id)
+            Array.wrap(tree_label&.create_concept(*Array.wrap(file_format_path))&.id)
           end
 
           def content_url(content:, computed_parameters:, **_args)
@@ -128,6 +129,26 @@ module DataCycleCore
           end
 
           private
+
+          # Reads the extension off the last path segment, else off the end of the query string,
+          # where a script serving the file names it (.../download.php?file=prospekt.pdf). Reading
+          # both as one string would join the query to the extension (.../dsc-4611.jpg?r=1 would
+          # give "jpg?r=1"). Inner segments are skipped because one can be a host, and "org" in
+          # .../unsafe/300x200/www.example.org/image would read as application/vnd.lotus-organizer.
+          # File.extname would miss the bare ".jpg" that the oastatic URLs end in (.../54123107/.jpg).
+          #
+          # @return [String, nil] a MIME type, or nil for a URL carrying no extension we know
+          def mime_type_from_url(url)
+            uri = Addressable::URI.parse(url)
+            return if uri.nil?
+
+            [uri.path.split('/').last, uri.query].filter_map { |tail|
+              extension = tail.to_s[/\.([a-z0-9]+)\z/i, 1].to_s.downcase
+              MiniMime.lookup_by_extension(extension)&.content_type unless SCRIPT_EXTENSIONS.include?(extension)
+            }.first
+          rescue Addressable::URI::InvalidURIError
+            nil
+          end
 
           def thing_dummy(content:, computed_parameters:)
             return if content.nil?

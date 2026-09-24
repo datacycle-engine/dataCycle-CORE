@@ -10,6 +10,11 @@ module DataCycleCore
       import: 'import'
     }.freeze
     FAILURE_STATUSES = ['error', 'failure'].freeze
+    # Every status DataCycleCore::WebhookJob writes: 'pending' when it starts, then one of the
+    # other three. A row created outside the job - Content::ExternalData#external_system_sync_by_system
+    # stores a key mapping without ever running one - keeps status NULL, so NULL is a fifth state
+    # this list deliberately does not name.
+    STATUSES = ['success', 'pending', 'error', 'failure'].freeze
 
     belongs_to :syncable, polymorphic: true
     belongs_to :external_system

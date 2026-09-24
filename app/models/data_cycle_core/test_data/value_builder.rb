@@ -174,7 +174,7 @@ module DataCycleCore
                 else
                   DataCycleCore::Concept.none
                 end
-        scope.assignable.limit(200).pluck(:classification_id)
+        scope.assignable.limit(200).pluck(:id)
       rescue StandardError
         []
       end

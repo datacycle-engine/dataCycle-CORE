@@ -115,32 +115,37 @@ module DataCycleCore
       importer = build
       importer.instance_variable_set(:@concept_schemes, { 'X' => { name: 'X', external_key: 'x' } })
 
-      DataCycleCore::ClassificationTreeLabel.stub(:with_deleted, ->(*_a, **_k) { raise 'db unavailable' }) do
+      DataCycleCore::ConceptScheme.stub(:where, ->(*_a, **_k) { raise 'db unavailable' }) do
         importer.send(:insert_concept_schemes)
       end
 
       assert(importer.errors.any? { |e| e.include?('error inserting concept_schemes') })
     end
 
+    # The double has to answer `external_system_id` and `id`, the two members insert_concepts reads
+    # off the scheme. Answering the former `external_source_id` instead left the scheme rejected
+    # before the insert and the test green on a NoMethodError, which is why the assertion below
+    # names the raised message rather than only the per-scheme prefix.
     test 'insert_concepts records a per-scheme error when the classification insert fails' do
       importer = build
       importer.instance_variable_set(:@concept_schemes, {
-        'X' => { name: 'X', external_source_id: 7, concepts: [{ external_key: 'k', name: 'K' }] }
+        'X' => { name: 'X', external_system_id: 7, concepts: [{ external_key: 'k', name: 'K' }] }
       })
 
       fake_scheme = Object.new
       fake_scheme.define_singleton_method(:blank?) { false }
-      fake_scheme.define_singleton_method(:external_source_id) { 7 }
-      fake_scheme.define_singleton_method(:insert_all_external_classifications) { |_concepts| raise 'insert failed' }
+      fake_scheme.define_singleton_method(:external_system_id) { 7 }
+      fake_scheme.define_singleton_method(:id) { SecureRandom.uuid }
+      fake_scheme.define_singleton_method(:insert_all_external_concepts) { |_concepts| raise 'insert failed' }
 
       relation = Object.new
       relation.define_singleton_method(:index_by) { |&_block| { 'X' => fake_scheme } }
 
-      DataCycleCore::ClassificationTreeLabel.stub(:where, ->(*_a, **_k) { relation }) do
+      DataCycleCore::ConceptScheme.stub(:where, ->(*_a, **_k) { relation }) do
         importer.send(:insert_concepts)
       end
 
-      assert(importer.errors.any? { |e| e.include?('error inserting concepts for X') })
+      assert(importer.errors.any? { |e| e.include?('error inserting concepts for X') && e.include?('insert failed') })
     end
   end
 end

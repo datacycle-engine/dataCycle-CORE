@@ -216,11 +216,11 @@
                 </div>
 
                 <div class="form-element">
-                  <%= f.label :classification_tree_labels, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
+                  <%= f.label :concept_scheme_ids, DataCycleCore::StoredFilter.human_attribute_name(:concept_schemes, locale: active_ui_locale) %>
                   <div class="v-select white">
                     <%= f.select(
-                    :classification_tree_labels,
-                    DataCycleCore::ClassificationTreeLabel.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
+                    :concept_scheme_ids,
+                    DataCycleCore::ConceptScheme.all.order(name: :asc).to_select_options(active_ui_locale).map(&:to_option_for_select),
                     {
                       include_blank: true
                     },

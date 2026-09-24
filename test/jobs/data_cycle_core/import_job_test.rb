@@ -6,7 +6,7 @@ module DataCycleCore
   class ImportJobTest < DataCycleCore::TestCases::ActiveSupportTestCase
     UUID = '00000000-0000-0000-0000-000000000000'
 
-    def external_system_double(config: {}, raise_on: nil)
+    def external_system_double(config: {}, raise_on: nil, error: StandardError.new('boom'))
       data = nil
       calls = []
       es = Object.new
@@ -18,7 +18,7 @@ module DataCycleCore
       es.define_singleton_method(:calls) { calls }
       [:download, :import, :download_single, :import_single].each do |method_name|
         es.define_singleton_method(method_name) do |*args|
-          raise StandardError, 'boom' if raise_on == method_name
+          raise error if raise_on == method_name
 
           calls << [method_name, *args]
           true
@@ -62,6 +62,23 @@ module DataCycleCore
       end
       assert es.data['last_download_import_failed']
       assert_predicate es.data['last_download_import_exception'], :present?
+    end
+
+    test 'import_job records a failure whose exception cannot be YAML dumped' do
+      # the shape a Mongo::Error::PoolClearedError has: an ivar holding the live pool's anonymous class
+      undumpable = StandardError.new('boom')
+      undumpable.instance_variable_set(:@pool, Class.new)
+      es = external_system_double(config: { 'download_config' => {} }, raise_on: :download, error: undumpable)
+
+      raised = assert_raises(StandardError) do
+        DataCycleCore::ExternalSystem.stub(:find, es) do
+          DataCycleCore::ImportJob.new(UUID).perform(UUID)
+        end
+      end
+
+      assert_same undumpable, raised
+      assert es.data['last_download_import_failed']
+      assert_equal 'StandardError: boom', es.data['last_download_import_exception']
     end
 
     test 'import_job stores the provider job id after enqueue' do

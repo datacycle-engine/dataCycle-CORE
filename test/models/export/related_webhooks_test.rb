@@ -48,10 +48,11 @@ module DataCycleCore
       # the contents an update webhook was triggered for, each with the system it was restricted to
       def triggered(related, content: nil, system_names: nil, invalidate: true, webhooks: [@external_system.name])
         calls = []
+        sources = DataCycleCore::Thing.where(id: content.id) if content
 
         DataCycleCore.stub(:webhooks, webhooks) do
           DataCycleCore::Webhook::Update.stub(:execute_all, ->(target, **kwargs) { calls << [target.id, kwargs[:external_system_id]] }) do
-            DataCycleCore::Export::RelatedWebhooks.new(related:, content:, system_names:, invalidate:).call
+            DataCycleCore::Export::RelatedWebhooks.new(related:, sources:, system_names:, invalidate:).call
           end
         end
 
@@ -62,6 +63,20 @@ module DataCycleCore
         triggered(...).map(&:first)
       end
 
+      # the receiver each re-exported content is marked pre-filtered for, which is what
+      # DataCycleCore::Export::Generic::Filter.filter_endpoints reads
+      def filter_marks(webhooks:)
+        marks = []
+
+        DataCycleCore.stub(:webhooks, webhooks) do
+          DataCycleCore::Webhook::Update.stub(:execute_all, ->(target, **) { marks << target.webhook_filter_checked_for }) do
+            DataCycleCore::Export::RelatedWebhooks.new(related: @image.related_contents, invalidate: false).call
+          end
+        end
+
+        marks
+      end
+
       test 'only the linking contents an endpoint contains are re-exported' do
         assert_equal [@article.id, @offer.id].to_set, @image.related_contents.pluck(:id).to_set
         assert_equal [[@article.id, @external_system.id]], triggered(@image.related_contents)
@@ -69,6 +84,16 @@ module DataCycleCore
 
       test 'a system filtering by something other than endpoints keeps the full set' do
         assert_equal [@article.id, @offer.id].to_set, triggered_ids(@image.related_contents, webhooks: [@template_system.name]).to_set
+      end
+
+      # #candidates answered the endpoint filter for the whole relation in one query, so
+      # Filter.filter_endpoints must not be put to each content again from inside this job
+      test 'a fan-out narrowed by endpoints marks its contents checked for that receiver' do
+        assert_equal [@external_system.id], filter_marks(webhooks: [@external_system.name])
+      end
+
+      test 'a fan-out narrowed by nothing leaves the filter to run per content' do
+        assert_equal [nil, nil], filter_marks(webhooks: [@template_system.name])
       end
 
       # the candidates stay a relation, so several endpoints have to combine into one query
@@ -220,7 +245,7 @@ module DataCycleCore
       end
 
       test 'the job is a no-op for a content that no longer exists' do
-        assert_nil DataCycleCore::RelatedWebhooksJob.perform_now(SecureRandom.uuid)
+        assert_empty(performed_ids { DataCycleCore::RelatedWebhooksJob.perform_now(SecureRandom.uuid) })
       end
 
       test 'a change enqueues the job' do
@@ -229,8 +254,9 @@ module DataCycleCore
         assert_equal [@image.id, nil, [@external_system.name], true], args
       end
 
-      # the fan-out lives in execute_update_webhooks, so the callers that never go through
-      # set_data_hash (classification renames, merges, dc:sync:trigger_webhooks) inherit it
+      # the fan-out lives in execute_update_webhooks, so the single-content callers that never go
+      # through set_data_hash (a merge, dc:sync:trigger_webhooks) inherit it. The bulk callers go
+      # through .fan_out, which coalesces instead — see the batch coverage below
       test 'every caller of the update webhooks fans out' do
         args = enqueued_args(&:execute_update_webhooks)
 
@@ -259,12 +285,13 @@ module DataCycleCore
         assert_equal [DataCycleCore::RelatedWebhooksJob], jobs
       end
 
-      # a job carrying the save's invalidation stands in for CacheInvalidationJob and has to run
-      # wherever that one would have: test/dummy/config/queue.yml leaves the webhook queue without
-      # a worker. Carrying none it is export fan-out and stays behind that queue.
-      test 'the fan-out job runs on the queue of whichever work it is doing' do
+      # Both variants, and not only the one carrying an invalidation: test/dummy/config/queue.yml
+      # leaves the webhook queue without a worker, and a fan-out resolving links there would hold a
+      # thread the queue keeps for HTTP pushes to the receiver.
+      test 'the fan-out job runs on the cache invalidation queue whatever work it is doing' do
         assert_equal DataCycleCore::CacheInvalidationJob.queue_name, DataCycleCore::RelatedWebhooksJob.new(@image.id, nil, nil, true).queue_name
-        assert_equal DataCycleCore::WebhookJob.queue_name, DataCycleCore::RelatedWebhooksJob.new(@image.id, nil, nil, false).queue_name
+        assert_equal DataCycleCore::CacheInvalidationJob.queue_name, DataCycleCore::RelatedWebhooksJob.new(@image.id, nil, nil, false).queue_name
+        assert_not_equal DataCycleCore::WebhookJob.queue_name, DataCycleCore::RelatedWebhooksJob.new(@image.id, nil, nil, false).queue_name
       end
 
       test 'a change with nothing to fan out to still enqueues the cache invalidation job' do
@@ -325,6 +352,24 @@ module DataCycleCore
         assert_empty calls
       end
 
+      # Three properties, three reasons, one list: Content::Content#non_payload_property_names
+      # holds them and says why no receiver hears about a change to any of the three.
+      test 'a change to non-payload properties alone triggers neither webhook nor fan-out' do
+        article = DataCycleCore::Thing.find(create_content('Artikel', { name: 'Related Webhooks Mongo Article', image: [@image.id], dc_mongo_key: 'doc-1', dc_ext_key_priority: 3, dummy: 'do_not_show' }).id)
+        calls = []
+
+        DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*a) { calls << [:job, *a] }) do
+          DataCycleCore::Webhook::Update.stub(:execute_all, ->(*, **) { calls << :webhook }) do
+            DataCycleCore.stub(:webhooks, [@external_system.name]) do
+              article.set_data_hash(data_hash: { dc_mongo_key: 'doc-2', dc_ext_key_priority: 1, dummy: 'do_not_show_either' })
+            end
+          end
+        end
+
+        assert_equal ['dc_mongo_key', 'dc_ext_key_priority', 'dummy'].sort, article.previous_datahash_changes.keys.sort
+        assert_empty calls
+      end
+
       # perform_later answers false for an enqueue abort_if_queued dropped, and the job already queued
       # carries the invalidation — the flag is part of its concurrency key. Guarding on blank? rather
       # than nil? would invalidate a second time, from a job holding the same rows from another queue.
@@ -371,10 +416,102 @@ module DataCycleCore
         assert_equal [image.id, [article.id], [@external_system.name], false], args
       end
 
+      # The point of coalescing: a batch member is re-exported by .fan_out's own per-content
+      # delivery, so the union walk must not hand it a second delivery as another member's linker.
+      # @article is the only content @endpoint contains, so it stands in for the whole overlap.
+      test 'a content changed alongside another is not re-exported as its linker' do
+        assert_equal([@article.id], performed_ids { perform_fan_out(@image.id) })
+        assert_empty(performed_ids { perform_fan_out([@image.id, @article.id]) })
+      end
+
+      test 'the bulk fan-out coalesces a batch into one job carrying every id' do
+        args = fan_out_args(DataCycleCore::Thing.where(id: [@image.id, @article.id]))
+
+        assert_equal 1, args.size
+        assert_equal [[@image.id, @article.id].sort, nil, [@external_system.name], false],
+                     [args.first.first.sort, *args.first.drop(1)]
+      end
+
+      # the deliveries the batch members get in their own right, which #execute_update_webhooks
+      # paired with the fan-out before .fan_out took the pairing over
+      test 'the bulk fan-out re-exports the changed contents themselves' do
+        ids = performed_ids do
+          DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*) {}) do
+            DataCycleCore::Content::RelatedWebhooks.fan_out(DataCycleCore::Thing.where(id: @article.id))
+          end
+        end
+
+        assert_equal [@article.id], ids
+      end
+
+      # find_in_batches yields no ORDER BY, so the same batch can arrive in either order and must
+      # not look like two jobs
+      test 'the coalesced fan-out is keyed on the set rather than the order of its ids' do
+        assert_equal fan_out_key([@image.id, @article.id]), fan_out_key([@article.id, @image.id])
+        assert_not_equal fan_out_key([@image.id]), fan_out_key([@image.id, @article.id])
+      end
+
+      # a save's own content plus the shared embedded it changed travel as one list, and the export
+      # invalidates from all of them in one statement (Export::RelatedWebhooks#call)
+      test 'a list may carry an invalidation' do
+        assert_enqueued_with(job: DataCycleCore::RelatedWebhooksJob, args: [[@image.id, @article.id], nil, [@external_system.name], true]) do
+          DataCycleCore::Content::RelatedWebhooks.enqueue([@image.id, @article.id], [@external_system.name], invalidate: true)
+        end
+      end
+
+      # SolidQueue claims ready executions in priority ASC, job_id ASC order (Execution.ordered), so
+      # the lower number runs first. A fan-out carrying an invalidation stands in for the
+      # CacheInvalidationJob its caller stood down, so it must not wait behind the jobs sharing its
+      # queue - until it runs, the contents it re-exports hold the caches its invalidation is there
+      # to lift. Carrying none it replaces nothing, .fan_out having invalidated up front, and has no
+      # claim ahead of the invalidations a save is waiting on. There is no third assertion against the
+      # content_maintenance tier: a claim reads one queue's ready set, so priorities set on two
+      # different queues never meet.
+      test 'only the fan-out standing in for a cache invalidation outranks one' do
+        assert_operator fan_out_priority(invalidate: true), :<, DataCycleCore::CacheInvalidationJob.priority
+        assert_equal DataCycleCore::CacheInvalidationJob.priority, fan_out_priority(invalidate: false)
+      end
+
+      # the reason args[0] is hashed: solid_queue_jobs.concurrency_key is btree-indexed, and an index
+      # row over 2704 bytes raises PG::ProgramLimitExceeded on enqueue — roughly 72 of these UUIDs
+      test 'a full batch of ids still fits the concurrency key index' do
+        ids = Array.new(DataCycleCore::Content::RelatedWebhooks::FAN_OUT_BATCH_SIZE) { SecureRandom.uuid }
+
+        assert_operator fan_out_key(ids).bytesize, :<, 2704
+      end
+
       private
 
       def both_systems
         [@external_system.name, @template_system.name]
+      end
+
+      # the arguments of every job one bulk fan-out enqueued
+      def fan_out_args(scope)
+        args = []
+
+        DataCycleCore::RelatedWebhooksJob.stub(:perform_later, ->(*a) { args << a }) do
+          DataCycleCore::Webhook::Update.stub(:execute_all, ->(*, **) {}) do
+            DataCycleCore.stub(:webhooks, [@external_system.name]) do
+              DataCycleCore::Content::RelatedWebhooks.fan_out(scope)
+            end
+          end
+        end
+
+        args
+      end
+
+      def fan_out_key(ids)
+        DataCycleCore::RelatedWebhooksJob.new(ids, nil, [@external_system.name], false).concurrency_key
+      end
+
+      def fan_out_priority(invalidate:)
+        DataCycleCore::RelatedWebhooksJob.new(@image.id, nil, [@external_system.name], invalidate).priority
+      end
+
+      # runs the fan-out job the way .fan_out enqueues it: no invalidation to carry
+      def perform_fan_out(ids)
+        DataCycleCore::RelatedWebhooksJob.perform_now(ids, nil, [@external_system.name], false)
       end
 
       # the contents the job triggered an update webhook for

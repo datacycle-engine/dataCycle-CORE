@@ -2,9 +2,10 @@
 
 module DataCycleCore
   class UpdateComputedPropertiesJob < UniqueApplicationJob
-    WEBHOOK_PRIORITY = 6
-
-    queue_as :cache_invalidation
+    # Not cache_invalidation: SolidQueue claims ready work by strict priority
+    # (SolidQueue::Execution.ordered), so priority 12 beside the invalidations' 5 is starved rather
+    # than deferred for as long as that queue has work - 24,084 rows standing on production in 2026-09.
+    queue_as :content_maintenance
     queue_with_priority 12
     limits_concurrency key: ->(*args) { args[0] }
 
@@ -32,7 +33,6 @@ module DataCycleCore
     def update_computed_properties(content, keys)
       return if keys.blank?
 
-      content.webhook_priority = WEBHOOK_PRIORITY
       content.update_computed_values(keys:)
     end
   end

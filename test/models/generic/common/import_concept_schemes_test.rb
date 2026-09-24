@@ -14,8 +14,8 @@ module DataCycleCore
       @utility_object = DummyUtilityObject.new(DummyExternalSource.new('53a82828-d3aa-4765-99ca-7aef176de1c2', {}))
       @db_utility_object = DummyUtilityObject.new(@local_system)
 
-      @existing_local = DataCycleCore::ClassificationTreeLabel.create!(name: 'ICSS Local Scheme', external_source_id: @local_system.id, external_key: 'icss-local-key', visibility: ['api'])
-      @existing_remote = DataCycleCore::ClassificationTreeLabel.create!(name: 'ICSS Remote Scheme', external_source_id: @remote_system.id)
+      @existing_local = DataCycleCore::ConceptScheme.create!(name: 'ICSS Local Scheme', external_system_id: @local_system.id, external_key: 'icss-local-key', visibility: ['api'])
+      @existing_remote = DataCycleCore::ConceptScheme.create!(name: 'ICSS Remote Scheme', external_system_id: @remote_system.id)
     end
 
     test 'process_content transforms raw data into concept scheme hash' do
@@ -24,7 +24,7 @@ module DataCycleCore
 
       assert_equal('cs1', result[:external_key])
       assert_equal('Scheme One', result[:name])
-      assert_equal(@utility_object.external_source.id, result[:external_source_id])
+      assert_equal(@utility_object.external_source.id, result[:external_system_id])
       assert_equal(DataCycleCore.default_classification_visibilities, result[:visibility])
       assert(result[:created_at].present? && result[:updated_at].present?)
       assert_not(result.key?(:external_system_identifier))
@@ -98,14 +98,14 @@ module DataCycleCore
 
     test 'external_system_identifiers_to_ids keeps new schemes and slices allowed keys' do
       now = Time.zone.now
-      data_array = [{ external_key: 'n1', name: 'ICSS Brand New', external_source_id: @local_system.id, created_at: now, updated_at: now, visibility: ['api'], extra_key: 'dropped' }]
+      data_array = [{ external_key: 'n1', name: 'ICSS Brand New', external_system_id: @local_system.id, created_at: now, updated_at: now, visibility: ['api'], extra_key: 'dropped' }]
       result = @subject.external_system_identifiers_to_ids(data_array:, options: {}, utility_object: @db_utility_object)
 
-      assert_equal([{ external_key: 'n1', name: 'ICSS Brand New', external_source_id: @local_system.id, created_at: now, updated_at: now, visibility: ['api'] }], result)
+      assert_equal([{ external_key: 'n1', name: 'ICSS Brand New', external_system_id: @local_system.id, created_at: now, updated_at: now, visibility: ['api'] }], result)
     end
 
     test 'external_system_identifiers_to_ids reuses external_key and visibility of existing schemes' do
-      data_array = [{ external_key: 'changed-key', name: 'ICSS Local Scheme', external_source_id: @local_system.id, visibility: ['filter'] }]
+      data_array = [{ external_key: 'changed-key', name: 'ICSS Local Scheme', external_system_id: @local_system.id, visibility: ['filter'] }]
       result = @subject.external_system_identifiers_to_ids(data_array:, options: {}, utility_object: @db_utility_object)
 
       assert_equal('icss-local-key', result.first[:external_key])
@@ -113,14 +113,14 @@ module DataCycleCore
     end
 
     test 'external_system_identifiers_to_ids skips duplicates from other sources by default' do
-      data_array = [{ external_key: 'dup-key', name: 'ICSS Remote Scheme', external_source_id: @local_system.id }]
+      data_array = [{ external_key: 'dup-key', name: 'ICSS Remote Scheme', external_system_id: @local_system.id }]
       result = @subject.external_system_identifiers_to_ids(data_array:, options: {}, utility_object: @db_utility_object)
 
       assert_empty(result)
     end
 
     test 'external_system_identifiers_to_ids prefixes duplicates when import_duplicates is enabled' do
-      data_array = [{ external_key: 'dup-key', name: 'ICSS Remote Scheme', external_source_id: @local_system.id }]
+      data_array = [{ external_key: 'dup-key', name: 'ICSS Remote Scheme', external_system_id: @local_system.id }]
       options = { import: { import_duplicates: true } }
       result = @subject.external_system_identifiers_to_ids(data_array:, options:, utility_object: @db_utility_object)
 
@@ -128,9 +128,9 @@ module DataCycleCore
     end
 
     test 'external_system_identifiers_to_ids raises when prefixed scheme exists from another source' do
-      DataCycleCore::ClassificationTreeLabel.create!(name: 'ICSS Conflict', external_source_id: @remote_system.id)
-      DataCycleCore::ClassificationTreeLabel.create!(name: "#{@local_system.name} - ICSS Conflict", external_source_id: @remote_system.id)
-      data_array = [{ external_key: 'conflict-key', name: 'ICSS Conflict', external_source_id: @local_system.id }]
+      DataCycleCore::ConceptScheme.create!(name: 'ICSS Conflict', external_system_id: @remote_system.id)
+      DataCycleCore::ConceptScheme.create!(name: "#{@local_system.name} - ICSS Conflict", external_system_id: @remote_system.id)
+      data_array = [{ external_key: 'conflict-key', name: 'ICSS Conflict', external_system_id: @local_system.id }]
       options = { import: { import_duplicates: true } }
 
       assert_raises(RuntimeError) do
@@ -138,11 +138,11 @@ module DataCycleCore
       end
     end
 
-    test 'external_system_identifiers_to_ids resolves external_system_identifier to external_source_id' do
+    test 'external_system_identifiers_to_ids resolves external_system_identifier to external_system_id' do
       data_array = [{ external_key: 'es-key', name: 'ICSS ES Scheme', external_system_identifier: 'remote-system' }]
       result = @subject.external_system_identifiers_to_ids(data_array:, options: {}, utility_object: @db_utility_object)
 
-      assert_equal(@remote_system.id, result.first[:external_source_id])
+      assert_equal(@remote_system.id, result.first[:external_system_id])
     end
 
     test 'external_system_identifiers_to_ids creates missing external systems on demand' do
@@ -152,7 +152,7 @@ module DataCycleCore
       new_system = DataCycleCore::ExternalSystem.find_by(identifier: 'icss-new-system')
 
       assert_not_nil(new_system)
-      assert_equal(new_system.id, result.first[:external_source_id])
+      assert_equal(new_system.id, result.first[:external_system_id])
     end
   end
 end

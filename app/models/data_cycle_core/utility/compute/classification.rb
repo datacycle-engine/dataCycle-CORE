@@ -10,24 +10,25 @@ module DataCycleCore
         extend Extensions::PrimaryIconExtension
 
         class << self
+          # A Classification carried its name in a plain column; a Concept translates it, so an
+          # untranslated locale would leave the keywords of a content that has tags empty.
           def keywords(computed_parameters:, **_args)
-            DataCycleCore::Classification
+            DataCycleCore::Concept
               .by_ordered_values(Array.wrap(computed_parameters.values).flatten.compact_blank)
-              .map(&:name)
+              .map { |concept| concept.name || concept.internal_name }
               .join(',')
               .presence
           end
 
           def description(computed_parameters:, **_args)
-            classification_ids = computed_parameters.values.flatten.compact_blank
+            concept_ids = computed_parameters.values.flatten.compact_blank
 
-            return if classification_ids.blank?
+            return if concept_ids.blank?
 
-            DataCycleCore::Classification
-              .where(id: classification_ids)
-              .classification_aliases
-              .map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
-              &.join(',')
+            DataCycleCore::Concept
+              .where(id: concept_ids)
+              .map { |concept| concept.description || concept.name || concept.internal_name }
+              .join(',')
           end
 
           def value(computed_definition:, **_args)
@@ -36,7 +37,7 @@ module DataCycleCore
 
             return if value.blank? || tree.blank?
 
-            DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree, value)
+            DataCycleCore::Concept.ids_for_tree_with_name(tree, value)
           end
 
           def from_geo_shape(computed_parameters:, computed_definition:, **_args)
@@ -48,8 +49,8 @@ module DataCycleCore
 
               if (location_value.is_a?(::String) && location_value.uuid?) || (location_value.is_a?(::Array) && location_value.first.to_s.uuid?)
                 polygons = DataCycleCore::Concept
-                  .where(classification_id: Array.wrap(location_value).compact_blank)
-                  .classification_polygons
+                  .where(id: Array.wrap(location_value).compact_blank)
+                  .concept_polygons
 
                 polygons.each do |polygon|
                   value = DataCycleCore::MasterData::DataConverter.string_to_geographic(polygon.geom)
@@ -89,15 +90,15 @@ module DataCycleCore
 
             return if values.empty?
 
-            uc = DataCycleCore::Concept.where(classification_id: values).preload(:concept_scheme, mapped_inverse_concepts: :concept_scheme).to_a
+            uc = DataCycleCore::Concept.where(id: values).preload(:concept_scheme, mapped_inverse_concepts: :concept_scheme).to_a
             uc += uc.flat_map(&:mapped_inverse_concepts)
-            uc.select! { |c| c.concept_scheme.name == computed_definition['tree_label'] }.map!(&:classification_id)
+            uc.select! { |c| c.concept_scheme.name == computed_definition['tree_label'] }.map!(&:id)
             uc
           end
 
           # Computes an "effective" classification: the manual override when it is set, otherwise the
           # classifications the content already carries in compute's tree_label through mappings — the
-          # 'related' collected_classification_contents produced by the mapping machinery. Reusing that
+          # 'related' collected_concept_contents produced by the mapping machinery. Reusing that
           # output (instead of re-deriving the mapping) keeps transitive and ancestor mappings correct,
           # and it includes mappings marked hidden (Redmine #47172), which stay in CCC as hidden 'related'
           # rows. Generalises the "override attribute + computed effective attribute per tree" pattern.
@@ -107,7 +108,7 @@ module DataCycleCore
           # compute — their values are not read here.
           #
           # Must not run in the inline before_save pass: CCC is only filled by its triggers once the
-          # classification_contents rows are written. Both post-save modes satisfy that; prefer
+          # concept_contents rows are written. Both post-save modes satisfy that; prefer
           # compute.after_save, which commits the value within the triggering request instead of a
           # cache_invalidation poll later, so the view rendered after the save-redirect shows it.
           #
@@ -133,11 +134,11 @@ module DataCycleCore
             return override_ids if override_ids.present?
             return if content.nil? || content.new_record?
 
-            content.collected_classification_contents
+            content.collected_concept_contents
               .for_scheme(tree_label)
               .where(link_type: 'related') # mapping-derived; deliberately includes hidden mappings (#47172)
               .concepts
-              .pluck(:classification_id)
+              .pluck(:id)
               .uniq
           end
 
@@ -147,7 +148,7 @@ module DataCycleCore
           # a virtual string) the value is stored, filterable and displayed with the other
           # classifications, while the api can still serialize it as a string (api.partial: string).
           #
-          # Reads the linked contents' collected_classification_contents, so concepts reached
+          # Reads the linked contents' collected_concept_contents, so concepts reached
           # through a mapping count as well - the same source the detail view and the api read.
           #
           # example config:
@@ -170,12 +171,12 @@ module DataCycleCore
             # nothing linked (any more) is a result, so [] - it unsets what a previous save collected
             return [] if linked_ids.blank?
 
-            DataCycleCore::CollectedClassificationContent
+            DataCycleCore::CollectedConceptContent
               .without_broader
               .where(thing_id: linked_ids)
               .for_scheme(tree_label)
               .concepts
-              .pluck(:classification_id)
+              .pluck(:id)
               .uniq
           end
 
@@ -187,12 +188,12 @@ module DataCycleCore
             concepts = []
             values.each do |value|
               external_key = "#{concept_scheme.name} > #{value}"
-              found = DataCycleCore::Concept.for_tree(concept_scheme.classification_tree_label.name).find_by(external_key:)&.classification_id
+              found = DataCycleCore::Concept.for_tree(concept_scheme.name).find_by(external_key:)&.id
               if found
                 concepts << found
               else
                 new = Concept.create(name: value, concept_scheme: concept_scheme, external_key:)
-                concepts << new.classification_id
+                concepts << new.id
               end
             end
             concepts
@@ -208,26 +209,25 @@ module DataCycleCore
           # get only those classifications, that are not an ancestor of another one
           def get_ids_from_geometry(tree_label:, geometry:)
             query_sql = <<~SQL.squish
-              WITH filtered_classifications AS (
-                SELECT classification_polygons.classification_alias_id,
-                  concepts.classification_id,
+              WITH filtered_concepts AS (
+                SELECT concept_polygons.concept_id,
                   cap.ancestor_ids
-                FROM classification_polygons
-                  INNER JOIN concepts ON concepts.id = classification_polygons.classification_alias_id
+                FROM concept_polygons
+                  INNER JOIN concepts ON concepts.id = concept_polygons.concept_id
                   INNER JOIN concept_schemes ON concept_schemes.id = concepts.concept_scheme_id
-                  INNER JOIN classification_alias_paths cap ON cap.id = concepts.id
+                  INNER JOIN concept_paths cap ON cap.id = concepts.id
                 WHERE concept_schemes.name = :tree_label
                   AND ST_Intersects (
-                    classification_polygons.geom_simple,
+                    concept_polygons.geom_simple,
                     ST_GeomFromText (:geo, 4326)
                   )
               )
-              SELECT DISTINCT filtered_classifications.classification_id
-              FROM filtered_classifications
+              SELECT DISTINCT filtered_concepts.concept_id
+              FROM filtered_concepts
               WHERE NOT EXISTS (
                   SELECT 1
-                  FROM filtered_classifications AS fc
-                  WHERE fc.ancestor_ids @> ARRAY [filtered_classifications.classification_alias_id]::uuid []
+                  FROM filtered_concepts AS fc
+                  WHERE fc.ancestor_ids @> ARRAY [filtered_concepts.concept_id]::uuid []
                 );
             SQL
 
@@ -259,12 +259,12 @@ module DataCycleCore
 
             return if ids.blank?
 
-            source_concepts = DataCycleCore::Concept.where(classification_id: ids)
+            source_concepts = DataCycleCore::Concept.where(id: ids)
             source_concepts = source_concepts.for_tree(computed_definition.dig('compute', 'source_concept_scheme')) if computed_definition.dig('compute', 'source_concept_scheme').present?
             mapping = computed_definition.dig('compute', 'mapping').to_h
             key = computed_definition.dig('compute', 'key').presence || 'internal_name'
             source_concepts = source_concepts.pluck(key.to_sym)
-            concepts = DataCycleCore::Concept.for_tree(computed_definition.dig('compute', 'concept_scheme')).to_h { |c| [c.send(key), c.classification_id] }
+            concepts = DataCycleCore::Concept.for_tree(computed_definition.dig('compute', 'concept_scheme')).to_h { |c| [c.send(key), c.id] }
 
             source_concepts.filter_map do |source_concept|
               concepts[mapping[source_concept] || source_concept]
@@ -286,7 +286,7 @@ module DataCycleCore
             return [] if key_path.blank? || tree_label.blank?
 
             classification_ids = get_values_from_embedded(key_path, computed_parameters)&.flatten&.uniq
-            DataCycleCore::Concept.where(classification_id: classification_ids).includes(:concept_scheme).where(concept_scheme: { name: tree_label }).pluck(:classification_id)
+            DataCycleCore::Concept.where(id: classification_ids).includes(:concept_scheme).where(concept_scheme: { name: tree_label }).pluck(:id)
           end
 
           # Retrieves classification IDs from linked content by checking multiple paths

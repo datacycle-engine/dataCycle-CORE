@@ -15,7 +15,7 @@ module DataCycleCore
       DataCycleCore::User.find_by(email: 'admin@datacycle.at')
     end
 
-    # :link_contents/:unlink_contents are granted on DataCycleCore::ClassificationTreeLabel — the record
+    # :link_contents/:unlink_contents are granted on DataCycleCore::ConceptScheme — the record
     # the button's can? checks too — and admin@datacycle.at is the super_admin that grant belongs to.
     # Checking the ConceptScheme instead matched no rule, so the role being offered the action was
     # rejected here and shown a lost-connection error. No can? stub: that is the point of the test.

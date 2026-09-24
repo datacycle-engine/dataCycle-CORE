@@ -20,16 +20,16 @@ module DataCycleCore
     #
     # * +:block+ (the default) — the first job takes the semaphore and becomes ready, the second is
     #   blocked on it. A third would only add work the blocked one is about to do anyway, so abort
-    #   as soon as a blocked duplicate exists.
-    # * +:discard+ — SolidQueue destroys the losing job at dispatch, so there is never a blocked row
-    #   to recognise, and it only does so for as long as the semaphore is held. Ask the jobs table
-    #   instead: that closes the window in which the lock has lapsed, and it lets +perform_later+
-    #   answer +false+ rather than hand back a row that has already been deleted again.
+    #   once the key has both of them outstanding.
+    # * +:discard+ — SolidQueue destroys the losing job at dispatch, so there is never a second one
+    #   to find, and it only destroys for as long as the semaphore is held. Abort on the first
+    #   outstanding job instead: that closes the window in which the lock has lapsed, and it lets
+    #   +perform_later+ answer +false+ rather than hand back a row that has already been deleted again.
     # @return [void]
     def abort_if_queued
       raise "#{self.class.name} inherits #{UniqueApplicationJob.name} but declares no limits_concurrency to be unique by" if concurrency_key.nil?
 
-      throw :abort if concurrency_on_conflict.to_s == 'discard' ? duplicate_pending? : duplicate_queued?
+      throw :abort if concurrency_on_conflict.to_s == 'discard' ? duplicate_pending? : duplicate_waiting?
     end
   end
 end

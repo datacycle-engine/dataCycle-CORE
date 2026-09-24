@@ -10,7 +10,7 @@ module DataCycleCore
           end
 
           def count_classifications_by_tree_label(computed_parameters:, computed_definition:, **_args)
-            computed_parameters&.values&.flatten&.then { |v| DataCycleCore::Classification.where(id: v).for_tree(computed_definition.dig('compute', 'tree_label')) }&.count || 0
+            computed_parameters&.values&.flatten&.then { |v| DataCycleCore::Concept.where(id: v).for_tree(computed_definition.dig('compute', 'tree_label')) }&.count || 0
           end
 
           def min_attribute_value_from_linked(computed_parameters:, computed_definition:, **args)

@@ -17,9 +17,17 @@ module DataCycleCore
         end
       end
 
+      # Before the enqueue rather than only in DataCycleCore::WebhookJob#check_filter: a content the
+      # filter rejects otherwise costs a solid_queue_jobs row, a concurrency semaphore and a worker
+      # claim to reach the same answer. It does not replace that check for a create or an update -
+      # DataCycleCore::Export::PushObject#allowed? says which verdicts travel with the job and why.
+      #
+      # Unconditional on purpose: #allowed? runs the receiver's export strategy, which may gate on
+      # more than the configured filter. A caller that has answered part of that filter for a whole
+      # set says so on the content, and DataCycleCore::Export::Generic::Filter.filter_endpoints is
+      # where that mark is honoured - see its doc block for why it belongs there and not here.
       def self.execute(utility_object, data)
-        # check filter for webhook immediately if it is delete action
-        return if utility_object.synchronous_filter?(data) && !utility_object.allowed?(data)
+        return unless utility_object.allowed?(data)
 
         utility_object.process(data)
       end

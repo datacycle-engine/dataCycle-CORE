@@ -1,7 +1,7 @@
 <% breadcrumb :admin %>
 
 <section>
-  <% if can?(:rebuild_classification_mappings, :dash_board) || can?(:update_computed_attributes, :dash_board) || can?(:clear_all, :cache) %>
+  <% if can?(:rebuild_classification_mappings, :dash_board) || can?(:update_computed_attributes, :dash_board) || can?(:flatten_grafana_dashboard, :dash_board) || can?(:clear_all, :cache) %>
     <div class="row">
       <div class="small-12 columns maintenance-administration">
         <h4>
@@ -26,6 +26,34 @@
           </button>
           <div class="reveal update-computed-attributes-reveal" id="<%= computed_attributes_reveal_id %>" data-reveal>
             <%= turbo_frame_tag "admin_dashboard_computed_attributes_form", src: admin_computed_attributes_form_path, loading: 'lazy' do %>
+              <div class="reveal-body text-center">
+                <i class="fa fa-spinner fa-spin fa-2x" aria-hidden="true"></i>
+              </div>
+            <% end %>
+
+            <button
+              class="close-button"
+              data-close
+              aria-label="Close modal"
+              type="button"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% end %>
+
+        <% if can?(:flatten_grafana_dashboard, :dash_board) %>
+          <% flatten_grafana_dashboard_reveal_id = SecureRandom.hex(10) %>
+          <button
+            type="button"
+            class="button small flatten-grafana-dashboard-button"
+            data-open="<%= flatten_grafana_dashboard_reveal_id %>"
+          >
+            <i class="fa fa-line-chart" aria-hidden="true"></i>
+            <%= t('dash_board.maintenance.grafana_dashboard.title', locale: active_ui_locale) %>
+          </button>
+          <div class="reveal flatten-grafana-dashboard-reveal" id="<%= flatten_grafana_dashboard_reveal_id %>" data-reveal>
+            <%= turbo_frame_tag "admin_dashboard_flatten_grafana_dashboard_form", src: admin_flatten_grafana_dashboard_form_path, loading: 'lazy' do %>
               <div class="reveal-body text-center">
                 <i class="fa fa-spinner fa-spin fa-2x" aria-hidden="true"></i>
               </div>

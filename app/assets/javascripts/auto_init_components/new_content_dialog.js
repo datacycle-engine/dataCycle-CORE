@@ -1,4 +1,5 @@
 import ConfirmationModal from "../components/confirmation_modal";
+import BusyButtons from "../helpers/busy_buttons";
 import CalloutHelpers from "../helpers/callout_helpers";
 import {
 	getFormDataAsObject,
@@ -6,12 +7,15 @@ import {
 } from "../helpers/dom_element_helpers";
 import ObjectUtilities from "../helpers/object_utilities";
 import ObserverHelpers from "../helpers/observer_helpers";
+import PixieHelpers from "../helpers/pixie_helpers";
 import QuillHelpers from "../helpers/quill_helpers";
 import UuidHelper from "../helpers/uuid_helper";
 
 class NewContentDialog {
 	static selector = "form.new-content-multi-step-form";
 	static className = "new-content-dialog";
+	// what PixieHelpers.renderMessage marks the callout with, so re-applying replaces it
+	static pixieMessageClass = "pixie-to-all-files-message";
 
 	constructor(form) {
 		this.form = form;
@@ -102,6 +106,25 @@ class NewContentDialog {
 				"dc:form:submitWithoutRedirect",
 				this.copyToReferenceField.bind(this),
 			);
+			this.$form.on(
+				"dc:upload:applyPixieToAllFiles",
+				this.applyPixieToAllFiles.bind(this),
+			);
+			this.referencedAssetField.on(
+				"dc:upload:storeFormValues",
+				this.storeFormValues.bind(this),
+			);
+			this.referencedAssetField.on(
+				"dc:form:renderPixieMessage",
+				this.renderPixieMessage.bind(this),
+			);
+			this.referencedAssetField.on(
+				"dc:form:clearPixieMessage",
+				this.clearPixieMessage.bind(this),
+			);
+			// a pixie applied from another file's form ran before this one was rendered, so what it
+			// found for this file is waiting on the file rather than in the dom
+			this.referencedAssetField.triggerHandler("dc:form:requestPixieMessages");
 			this.$form
 				.find(".set-all-attributes")
 				.on("click", this.copyToAllReferenceFields.bind(this));
@@ -141,6 +164,12 @@ class NewContentDialog {
 
 				this.addCopyAttributeButtons(formElement);
 				this.triggerSyncWithContentUploader(formElement);
+				// this editor did not exist when the form asked for what a pixie had said about
+				// this file, so a message targeting this translation had nowhere to go and was
+				// dropped; asking again renders the ones whose editor is now there
+				this.referencedAssetField?.triggerHandler(
+					"dc:form:requestPixieMessages",
+				);
 			}
 		}
 	}
@@ -220,8 +249,22 @@ class NewContentDialog {
 			this.processSingleFormData(formElementKey, $target);
 		}
 	}
+	/**
+	 * .disabled is this button's own busy spinner; the pixies and the other copy buttons are frozen
+	 * the way they freeze it, so nothing writes into the form while it is being copied.
+	 *
+	 * The release belongs to this copy and is held here rather than on the instance.
+	 * +setUploaderFormFields+ is where several independent flows end -- a form submit copying to
+	 * every file, this form being stored before a pixie is applied -- so releasing there let
+	 * whichever finished first hand the buttons back while this copy was still in flight, and left
+	 * this copy's own release with nothing to free: the buttons it had frozen stayed frozen.
+	 */
 	processSingleFormData(formElementKey, target) {
 		target.addClass("disabled");
+		const releaseButtons = BusyButtons.hold(null, {
+			container: this.form,
+			except: [target?.[0]],
+		});
 
 		QuillHelpers.updateEditors(this.$form);
 		let formData = this.$form.serializeArray();
@@ -229,7 +272,9 @@ class NewContentDialog {
 			(f) => f.name.includes(formElementKey) || !f.name.includes("thing"),
 		);
 
-		this.processFormData(formData, target, true, true);
+		return this.processFormData(formData, target, true, true).finally(
+			releaseButtons,
+		);
 	}
 	processFormData(
 		formData,
@@ -271,7 +316,7 @@ class NewContentDialog {
 			}
 		});
 
-		Promise.all(requests).then(
+		return Promise.all(requests).then(
 			(_data) =>
 				this.setUploaderFormFields(formData, target, allFiles, copyPrimary),
 			(_error) =>
@@ -321,16 +366,173 @@ class NewContentDialog {
 
 		const buttonHtml = `<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle ${this.templateTranslationPlural} übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-spinner fa-fw fa-spin"></i></button>`;
 
-		for (const el of formFields.get()) {
+		// An editor marks itself data-no-copy-to-all when several editors share its attribute name:
+		// Zielgruppen and Veranstaltungskategorien are two of the annotationPixie's editors of
+		// universal_classifications. Copying one of them would carry the other along -- a copy is
+		// filtered out of the serialized form by the shared data-key and stored under it, with no
+		// name to tell the two apart -- so they get no copy button. The pixie's own "apply to all
+		// files" button stays and asks per image instead of copying.
+		const copyable = formFields.not("[data-no-copy-to-all]");
+
+		for (const el of copyable.get()) {
 			el.insertAdjacentHTML("beforebegin", buttonHtml);
 			this.formFieldVisibilityObserver.observe(el);
 		}
 
 		if (this.primaryAttributeKey?.length)
-			formFields
+			copyable
 				.filter(`[data-key*="[${this.primaryAttributeKey}]"]`)
 				.prev(".copy-attribute-to-all")
 				.addClass("primary-attribute-button");
+
+		this.addPixieToAllButtons(formFields);
+	}
+
+	/**
+	 * An attribute a pixie can fill gets a second button next to that pixie's wand: its suggestion
+	 * is per image, so copying this file's value to the others is not what is wanted there -- every
+	 * file is asked for its own. It belongs with the wand rather than in the gutter of copy buttons,
+	 * and carries the copy button's icon because applying to every file is what it does.
+	 */
+	async addPixieToAllButtons(formFields) {
+		const buttons = formFields
+			.get()
+			.map((item) => item.querySelector(".pixie-generate-button"))
+			.filter(Boolean)
+			.map((generateButton) => this.pixieToAllButton(generateButton))
+			.filter(Boolean);
+		if (!buttons.length) return;
+
+		const tooltip = await I18n.translate("frontend.upload.apply_pixie_to_all", {
+			template: this.templateTranslationPlural,
+		});
+
+		for (const button of buttons) button.dataset.dcTooltip = tooltip;
+	}
+
+	/**
+	 * Puts one "apply to all files" button next to a pixie's wand.
+	 *
+	 * Buttons are added per container, and the same container comes back here whenever one of its
+	 * translated editors finishes rendering, so a wand that already has its button is skipped. The
+	 * check and the insertion happen in one synchronous step: the tooltip its caller awaits would
+	 * otherwise let a second pass find the wand still bare and add a second button.
+	 *
+	 * @param generateButton [HTMLElement] the wand this button belongs to
+	 * @return [HTMLElement|null] the inserted button, or null if this wand already had one
+	 */
+	pixieToAllButton(generateButton) {
+		if (
+			generateButton.nextElementSibling?.classList.contains(
+				"pixie-to-all-files",
+			)
+		)
+			return null;
+
+		const button = document.createElement("button");
+
+		button.type = "button";
+		button.className = "pixie-generate-button pixie-to-all-files";
+		button.innerHTML = `<span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span>`;
+		// what the pixie needs to ask for one image, minus the image itself -- including the
+		// data-pixie each wand partial declares, which is what PixieToAllFiles looks its table up by
+		Object.assign(button.dataset, generateButton.dataset);
+
+		generateButton.insertAdjacentElement("afterend", button);
+
+		return button;
+	}
+
+	/**
+	 * Shows what a pixie found for this file next to the attribute it was applied to -- the same
+	 * callout the wand renders for the file it filled, so a run over every file reads the same
+	 * wherever the user looks.
+	 *
+	 * The concept scheme is part of the target because several of the annotationPixie's editors
+	 * share one data-key: Zielgruppen and Veranstaltungskategorien are both universal_classifications,
+	 * and a message for one of them belongs under that one alone.
+	 *
+	 * @param data [Object] {target: {key, conceptSchemeId}, message, type}
+	 */
+	renderPixieMessage(event, data = null) {
+		event.preventDefault();
+
+		if (!data?.message) return;
+
+		const formElement = this.pixieFormElement(data.target);
+		if (!formElement) return;
+
+		PixieHelpers.renderMessage(
+			formElement,
+			NewContentDialog.pixieMessageClass,
+			data.message,
+			data.type || "info",
+		);
+	}
+
+	/**
+	 * Removes the callout of one attribute, for a message that no longer holds.
+	 */
+	clearPixieMessage(event, data = null) {
+		event.preventDefault();
+
+		const formElement = this.pixieFormElement(data?.target);
+
+		if (formElement)
+			PixieHelpers.clearMessage(
+				formElement,
+				NewContentDialog.pixieMessageClass,
+			);
+	}
+
+	/**
+	 * The editor a pixie message belongs to, or null while it is not rendered -- a translated
+	 * attribute's other locales are rendered on demand, which is what #initTranslatableField
+	 * replays the remembered messages for.
+	 */
+	pixieFormElement(target) {
+		if (!target?.key) return null;
+
+		const scheme = target.conceptSchemeId;
+
+		return (
+			this.$form
+				.find(`.form-element[data-key="${target.key}"]`)
+				.filter(
+					(_index, element) =>
+						!scheme || element.dataset.conceptSchemeId === scheme,
+				)
+				.get(0) || null
+		);
+	}
+
+	/**
+	 * Stores what this form currently holds on its file, the way navigating away from it does. A
+	 * file's fields are only written when its form is left, so anything edited in a form that is
+	 * still open exists in the dom alone -- and is lost as soon as that form is re-rendered from
+	 * those fields.
+	 *
+	 * @return [Promise] resolved once the values have reached the file
+	 */
+	storeFormValues(event) {
+		event.preventDefault();
+
+		QuillHelpers.updateEditors(this.$form);
+
+		return this.processFormData(this.$form.serializeArray());
+	}
+	/**
+	 * A pixie's "apply to all files" button sits inside this form, which is the only element it can
+	 * reach from there -- the file this form belongs to is what holds the other files, and the
+	 * uploader's own events are bound on that file's field.
+	 */
+	applyPixieToAllFiles(event, data = undefined) {
+		event.preventDefault();
+
+		return this.referencedAssetField.triggerHandler(
+			"dc:upload:applyPixieToAllFiles",
+			data,
+		);
 	}
 	triggerSyncWithContentUploader(target = null) {
 		let key;
@@ -357,14 +559,22 @@ class NewContentDialog {
 		);
 
 		for (const key in groupedAttributes) {
-			this.$form
+			const value =
+				typeof groupedAttributes[key] === "string"
+					? groupedAttributes[key].trim()
+					: groupedAttributes[key];
+
+			// Every editor of that attribute, because triggerHandler fires on the first matched
+			// element only: the annotationPixie renders one editor per concept scheme into the
+			// shared universal_classifications, so its second tree would never be filled. An editor
+			// keeps the ids of its own tree and drops the rest -- a simple select has no option for
+			// them, and an async one looks them up scoped by its tree_label.
+			for (const editor of this.$form
 				.find(`[data-key="${key}"]`)
 				.find(DataCycle.config.EditorSelectors.join(", "))
-				.triggerHandler("dc:import:data", {
-					value:
-						typeof groupedAttributes[key] === "string"
-							? groupedAttributes[key].trim()
-							: groupedAttributes[key],
+				.get())
+				$(editor).triggerHandler("dc:import:data", {
+					value,
 					locale: data.locale || "de",
 					force: true,
 				});

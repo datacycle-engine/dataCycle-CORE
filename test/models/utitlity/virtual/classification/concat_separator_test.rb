@@ -13,7 +13,7 @@ module DataCycleCore
         before(:all) do
           @content = create_content(
             'Virtual-Classification-Concat',
-            { name: 'With gravity', gravity: get_classification_ids('Gravity', *CONCEPT_NAMES) }
+            { name: 'With gravity', gravity: get_concept_ids('Gravity', *CONCEPT_NAMES) }
           )
           @without_classifications = create_content(
             'Virtual-Classification-Concat',

@@ -9,9 +9,9 @@ module DataCycleCore
         class ClassificationDataTest < DataCycleCore::V4::Base
           before(:all) do
             DataCycleCore::Thing.delete_all
-            @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
+            @trees = DataCycleCore::ConceptScheme.where(internal: false).visible('api').count
 
-            @classification_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
+            @classification_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Nested Tag 2').first
             I18n.with_locale(:en) do
               @classification_tag.attributes = {
                 name: 'Nested Tag 2 - EN',
@@ -23,7 +23,7 @@ module DataCycleCore
 
           # TODO: test full concept data is returned with correct values
           test 'api/v4/concept_schemes/(:id) test full concept scheme with correct values' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
             params = {
@@ -65,7 +65,7 @@ module DataCycleCore
 
           # TODO: test full concept data is returned with correct values
           test 'api/v4/concept_schemes/(:id) test full concept scheme with language en' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
             params = {
@@ -113,7 +113,7 @@ module DataCycleCore
 
           # TODO: test full concept data is returned with correct values
           test 'api/v4/concept_schemes/(:id) test full concept scheme with language en,de' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
             params = {
@@ -169,15 +169,14 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) with full data' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
-            update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
+            update_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Nested Tag 2').first
             external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
-            update_tag.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
+            update_tag.update_column(:external_system_id, external_source_id)
+            update_tag.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -278,21 +277,19 @@ module DataCycleCore
 
             assert_equal({}, json_validate)
 
-            update_tag.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_key, nil)
+            update_tag.update_column(:external_system_id, nil)
+            update_tag.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) with full data and language=en' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
-            update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
+            update_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Nested Tag 2').first
             external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
-            update_tag.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
+            update_tag.update_column(:external_system_id, external_source_id)
+            update_tag.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -393,21 +390,19 @@ module DataCycleCore
 
             assert_equal({}, json_validate)
 
-            update_tag.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_key, nil)
+            update_tag.update_column(:external_system_id, nil)
+            update_tag.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) with full data and language=en,de,it' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
-            update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
+            update_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Nested Tag 2').first
             external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
-            update_tag.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
+            update_tag.update_column(:external_system_id, external_source_id)
+            update_tag.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -568,20 +563,18 @@ module DataCycleCore
 
             assert_equal({}, json_validate)
 
-            update_tag.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_key, nil)
+            update_tag.update_column(:external_system_id, nil)
+            update_tag.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) with identifier' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
 
-            update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 3').first
+            update_tag = DataCycleCore::Concept.for_tree('Tags').with_name('Tag 3').first
             external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
-            update_tag.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_source_id, external_source_id)
-            update_tag.primary_classification.update_column(:external_key, 'test-identifier')
+            update_tag.update_column(:external_system_id, external_source_id)
+            update_tag.update_column(:external_key, 'test-identifier')
 
             params = {
               id: tree_id,
@@ -611,13 +604,12 @@ module DataCycleCore
 
             assert_equal({}, json_validate)
 
-            update_tag.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_source_id, nil)
-            update_tag.primary_classification.update_column(:external_key, nil)
+            update_tag.update_column(:external_system_id, nil)
+            update_tag.update_column(:external_key, nil)
           end
 
           test 'api/v4/concept_schemes/(:id) test dc:slugifiedName' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
             params = { id: tree_id, fields: 'dc:slugifiedName' }
@@ -639,7 +631,7 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts test dc:slugifiedName' do
-            tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             tree_id = tree.id
 
             params = { id: tree_id, fields: 'dc:slugifiedName' }

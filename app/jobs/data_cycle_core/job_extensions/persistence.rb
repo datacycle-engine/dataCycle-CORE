@@ -47,12 +47,20 @@ module DataCycleCore
         timer&.shutdown
       end
 
-      # Checks if a duplicate job with the same concurrency key is *waiting* on this one.
-      # @return [Boolean] true if a blocked duplicate exists
-      def duplicate_queued?
+      # Checks if the concurrency key's outstanding slots are taken: under +:block+ one job holds the
+      # semaphore and a second waits behind it, and a third would only add work that second one is
+      # about to do anyway.
+      #
+      # Counted on the jobs table rather than on SolidQueue::BlockedExecution, whose rows are stamped
+      # with concurrency_duration.from_now — three minutes under the default concurrency control
+      # period. A queue that takes days to drain holds nothing but expired blocked rows, so a
+      # blocked-execution lookup stops recognising duplicates exactly when the backlog needs it to,
+      # and every enqueue adds another job for a key that already has one waiting.
+      # @return [Boolean] true if a duplicate already waits behind the one holding the lock
+      def duplicate_waiting?
         return false if concurrency_key.nil?
 
-        SolidQueue::BlockedExecution.exists?(expires_at: Time.current.., concurrency_key:)
+        live_duplicates.many?
       end
 
       # Checks if any live job already holds this concurrency key — the ready or claimed one that

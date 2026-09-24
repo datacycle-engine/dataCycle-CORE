@@ -60,8 +60,8 @@ def render_score_for_template(sheet, template, styles)
     content_contents = []
     related_things = []
     schedules = []
-    classification_contents = []
-    classifications = []
+    concept_contents = []
+    concepts = []
     asset_contents = []
     assets = []
     content_ids = batch.map(&:id)
@@ -83,12 +83,12 @@ def render_score_for_template(sheet, template, styles)
     end
 
     if classification_attributes.present?
-      classification_contents = DataCycleCore::ClassificationContent.where(
+      concept_contents = DataCycleCore::ConceptContent.where(
         content_data_id: content_ids,
         relation: classification_attributes
       ).group_by { |v| [v.content_data_id, v.relation] }
 
-      classifications = DataCycleCore::Classification.where(id: classification_contents.values.flatten.map(&:classification_id))
+      concepts = DataCycleCore::Concept.where(id: concept_contents.values.flatten.map(&:concept_id))
     end
 
     if asset_attributes.present?
@@ -120,7 +120,7 @@ def render_score_for_template(sheet, template, styles)
           end
 
           classification_attributes.each do |a|
-            content.set_memoized_attribute(a, classifications.select { |c| classification_contents[[content.id, a]]&.map(&:classification_id)&.include?(c.id) })
+            content.set_memoized_attribute(a, concepts.select { |c| concept_contents[[content.id, a]]&.map(&:concept_id)&.include?(c.id) })
           end
 
           asset_attributes.each do |a|

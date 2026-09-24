@@ -47,17 +47,17 @@ module DataCycleCore
         assert(advanced[:filters].any? { |f| f['c'] == 'u' && f['buttons'] == true })
       end
 
-      test 'classification_tree_filters resolves aliases for a configured tree' do
+      test 'classification_tree_filters resolves the concepts of a configured tree' do
         mf = subject
         config = { filter: [{ type: 'classification_tree', config: 'Tags' }], excluded_types: [] }
         selected = [{ 'c' => 's', 'n' => 'Tags', 'v' => ['x'], 'identifier' => 'id-1' }]
 
-        mf.stub(:filterable_classification_aliases, { 'Tags' => [] }) do
+        mf.stub(:filterable_concepts, { 'Tags' => [] }) do
           mf.classification_tree_filters(@user, config, selected)
         end
         tree_filter = config[:filter].first
 
-        assert tree_filter.key?(:classification_aliases)
+        assert tree_filter.key?(:concepts)
         assert_equal ['x'], tree_filter[:value]
         assert_equal 'id-1', tree_filter[:identifier]
       end

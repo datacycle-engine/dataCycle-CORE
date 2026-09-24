@@ -7,9 +7,9 @@ module DataCycleCore
     module Compute
       class StringTest < DataCycleCore::TestCases::ActiveSupportTestCase
         before(:all) do
-          tree = DataCycleCore::ClassificationTreeLabel.create!(name: 'Compute String Test Tree')
-          child_alias = tree.create_or_update_classification_alias_by_name('CS Parent', { name: 'CS Child', external_key: 'CSC-1' })
-          @child_classification_id = child_alias.primary_classification.id
+          tree = DataCycleCore::ConceptScheme.create!(name: 'Compute String Test Tree')
+          child_alias = tree.create_or_update_concept_by_name('CS Parent', { name: 'CS Child', external_key: 'CSC-1' })
+          @child_concept_id = child_alias.id
         end
 
         def subject
@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         def child_concept
-          DataCycleCore::Concept.for_tree('Compute String Test Tree').find_by(classification_id: @child_classification_id)
+          DataCycleCore::Concept.for_tree('Compute String Test Tree').find_by(id: @child_concept_id)
         end
 
         test 'concat joins all flattened parameter values with the configured separator' do
@@ -122,26 +122,26 @@ module DataCycleCore
 
         test 'classification_name returns the matching concept name' do
           definition = { 'compute' => { 'tree_label' => 'Compute String Test Tree' } }
-          value = subject.classification_name(computed_parameters: { 'c' => [@child_classification_id] }, computed_definition: definition)
+          value = subject.classification_name(computed_parameters: { 'c' => [@child_concept_id] }, computed_definition: definition)
 
           assert_equal(child_concept.name, value)
         end
 
         test 'classification_name returns nil for blank classifications or tree label' do
           assert_nil(subject.classification_name(computed_parameters: { 'c' => [] }, computed_definition: { 'compute' => { 'tree_label' => 'Tags' } }))
-          assert_nil(subject.classification_name(computed_parameters: { 'c' => [@child_classification_id] }, computed_definition: { 'compute' => {} }))
+          assert_nil(subject.classification_name(computed_parameters: { 'c' => [@child_concept_id] }, computed_definition: { 'compute' => {} }))
         end
 
         test 'parent_classification_name returns the parent concept name' do
           definition = { 'compute' => { 'tree_label' => 'Compute String Test Tree' } }
-          value = subject.parent_classification_name(computed_parameters: { 'c' => [@child_classification_id] }, computed_definition: definition)
+          value = subject.parent_classification_name(computed_parameters: { 'c' => [@child_concept_id] }, computed_definition: definition)
 
           assert_equal(child_concept.parent.name, value)
         end
 
         test 'parent_classification_name returns nil for blank classifications or tree label' do
           assert_nil(subject.parent_classification_name(computed_parameters: { 'c' => [] }, computed_definition: { 'compute' => { 'tree_label' => 'Tags' } }))
-          assert_nil(subject.parent_classification_name(computed_parameters: { 'c' => [@child_classification_id] }, computed_definition: { 'compute' => {} }))
+          assert_nil(subject.parent_classification_name(computed_parameters: { 'c' => [@child_concept_id] }, computed_definition: { 'compute' => {} }))
         end
       end
     end

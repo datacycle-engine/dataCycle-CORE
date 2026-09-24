@@ -199,6 +199,30 @@ module DataCycleCore
       assert_nil(actual)
     end
 
+    # parse_sort_params knows only the prefixed form and an exact positional pair, and returns nil
+    # for everything else. sort: proximity.geographic_with(x) hit that nil and raised NoMethodError
+    # (500); the unparsed argument now reaches sort_proximity_geographic_with, which rejects it with
+    # BadRequestError (400) - see sortable_test.rb.
+    test 'sort_proximity_geographic_with_value returns nil for unparseable arguments' do
+      stored_filter = DataCycleCore::StoredFilter.new
+
+      ['x', '14', '1,2,3'].each do |order_string|
+        actual = stored_filter.send(:sort_proximity_geographic_with_value, {}, order_string)&.dig('v')
+
+        assert_nil(actual, "expected no sort value for #{order_string.inspect}")
+      end
+    end
+
+    # ',' strips to [nil, nil], which sort_params_prefixed? dereferenced - a NoMethodError (500) for
+    # every sort key that parses positional arguments, not only the one that motivated the fix.
+    test 'the value methods parsing positional arguments return nil for a bare comma' do
+      stored_filter = DataCycleCore::StoredFilter.new
+
+      [:sort_proximity_geographic_with_value, :sort_by_proximity_value, :sort_by_in_occurrence_with_distance].each do |method_name|
+        assert_nil(stored_filter.send(method_name, {}, ','), "expected no sort value from #{method_name}")
+      end
+    end
+
     test 'merge_api_filter_params for missing lon/lat' do
       sort_string = [[nil, nil], { 'in' => { 'min' => '2025-04-01', 'max' => '2025-05-01' }, 'relation' => 'eventSchedule' }]
       filter_string = [['14', '46'], { 'in' => { 'min' => '2025-04-03', 'max' => '2025-05-03' }, 'relation' => 'openingHoursSpecification' }]

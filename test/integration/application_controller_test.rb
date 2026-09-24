@@ -39,7 +39,7 @@ module DataCycleCore
     # ---------- add_tag_group ----------
     test 'add_tag_group builds options from an f filter hash' do
       post add_tag_group_path, params: {
-        f: { 'tag-group-1' => { 'n' => 'Tags', 't' => 'classification_alias_ids', 'v' => [] } }
+        f: { 'tag-group-1' => { 'n' => 'Tags', 't' => 'concept_ids', 'v' => [] } }
       }
 
       assert_response :success

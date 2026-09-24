@@ -1,0 +1,3 @@
+<%= render partial: 'concept', collection: concepts, locals: { concept_scheme: concept_scheme, ancestors: parent_concept&.then { |c| c.ancestors.pluck(:id).reverse + [c.id] } || [], type: type } %>
+
+<%= render('data_cycle_core/classifications/new_concept', concept_scheme: concept_scheme, parent_concept: parent_concept) if can?(:create, concept_scheme) %>

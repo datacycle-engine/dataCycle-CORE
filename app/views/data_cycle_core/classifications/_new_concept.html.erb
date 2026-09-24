@@ -1,0 +1,7 @@
+<li class="new-button">
+  <div class="new-button-spacer">
+    <button type="button" class="button small create hollow"><i class="fa fa-plus"></i> <%= t('classifications.new_classification', locale: active_ui_locale) %></button>
+  </div>
+
+  <%= tag.div(class: 'remote-render inverted classification-alias-form-container new', data: { remote_path: 'data_cycle_core/classifications/concept_form', remote_options: to_query_params(concept_scheme:, parent_concept:, concept: DataCycleCore::Concept.new).to_json }) %>
+</li>

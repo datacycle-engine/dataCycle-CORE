@@ -83,7 +83,7 @@ module DataCycleCore
 
     test 'process_content adds and removes classifications' do
       content = create_content('POI', { name: 'DCUA POI Four', external_key: 'dcua-4', external_source_id: @local_system.id })
-      classification_id = @tag_concepts.pick(:classification_id)
+      classification_id = @tag_concepts.pick(:id)
       raw_data = { 'id' => 'dcua-4' }
       add_options = { import: { external_key_path: 'id', attributes: [{ key: 'universal_classifications', value: 'DCUA Tree > DCUA Tag' }] } }
 
@@ -108,7 +108,7 @@ module DataCycleCore
     test 'load_value_for_attribute resolves classification ids by concept path' do
       value = @subject.load_value_for_attribute({ type: 'classification', value: 'DCUA Tree > DCUA Tag' }, @utility_object)
 
-      assert_equal(@tag_concepts.pluck(:classification_id), value)
+      assert_equal(@tag_concepts.pluck(:id), value)
     end
 
     test 'validate_attributes assigns types and filters unknown attributes' do

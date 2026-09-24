@@ -62,7 +62,7 @@ module DataCycleCore
         # classification ids for the hard-coded Geocoding/geocoded ownership tag. Used by the
         # content to apply, check and drop the tag.
         def geocoded_classification_ids
-          DataCycleCore::Concept.for_tree(GEOCODING_TREE).with_internal_name(GEOCODED_ALIAS).pluck(:classification_id)
+          DataCycleCore::Concept.for_tree(GEOCODING_TREE).with_internal_name(GEOCODED_ALIAS).pluck(:id)
         end
 
         # true when the address hash can yield a *meaningful* position, i.e. one precise enough to be

@@ -4,14 +4,14 @@
   <div class="small-12 columns">
     <h1><%= t('data_cycle_core.classifications', locale: active_ui_locale) %></h1>
 
-    <% grouped_classification_tree_labels(@classification_tree_labels).each do |group_key, tree_labels| %>
+    <% grouped_concept_schemes(@concept_schemes).each do |group_key, concept_schemes| %>
       <%= tag.h4(group_key) if group_key.present? %>
 
       <ul class="classification_trees backend-treeview-list">
-        <%= render partial: 'classification_tree_label', collection: tree_labels, as: :tree_label %>
+        <%= render partial: 'concept_scheme', collection: concept_schemes, as: :concept_scheme %>
 
-        <% if !group_key && can?(:create, DataCycleCore::ClassificationTreeLabel) %>
-          <%= render 'data_cycle_core/classifications/new_classification_tree_label' %>
+        <% if !group_key && can?(:create, DataCycleCore::ConceptScheme) %>
+          <%= render 'data_cycle_core/classifications/new_concept_scheme' %>
         <% end %>
       </ul>
     <% end %>

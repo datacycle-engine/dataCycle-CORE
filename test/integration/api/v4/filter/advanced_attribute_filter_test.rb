@@ -243,6 +243,50 @@ module DataCycleCore
             assert_api_count_result(2)
             assert_equal([@cs_b.id, @cs_c.id].sort, json_data['@graph'].pluck('@id').sort)
           end
+
+          test 'api/v4/things with filter[attribute][{attributeName}][notIn][bool]' do
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    notIn: {
+                      bool: true
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path,
+                 params: post_params,
+                 as: :json
+
+            json_data = response.parsed_body
+
+            assert_api_count_result(2)
+            assert_equal([@cs_b.id, @cs_c.id].sort, json_data['@graph'].pluck('@id').sort)
+
+            post_params = {
+              filter: {
+                attribute: {
+                  'dcls:active': {
+                    notIn: {
+                      bool: false
+                    }
+                  }
+                }
+              }
+            }
+
+            post api_v4_things_path,
+                 params: post_params,
+                 as: :json
+
+            json_data = response.parsed_body
+
+            assert_api_count_result(1)
+            assert_equal(@cs_a.id, json_data['@graph'].first['@id'])
+          end
         end
       end
     end

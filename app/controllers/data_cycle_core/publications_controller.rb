@@ -12,7 +12,7 @@ module DataCycleCore
         .find_by(template_name: 'Publikations-Plan')
         &.schema
         &.dig('properties')
-        &.select { |_, v| v['type'] == 'classification' && Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility).intersect?(['show', 'show_more']) }
+        &.select { |_, v| v['type'] == 'classification' && Array(DataCycleCore::ConceptScheme.find_by(name: v['tree_label'])&.visibility).intersect?(['show', 'show_more']) }
         .to_h { |k, v| [k, v['tree_label']] }
 
       @stored_filter ||= DataCycleCore::StoredFilter.new
@@ -30,20 +30,7 @@ module DataCycleCore
       query = @stored_filter.apply
 
       @filters = @stored_filter.parameters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
-      @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .where(
-          id: @filters
-            .select { |f|
-              f['t'].in?(['classification_alias_ids', 'geo_within_classification']) ||
-                (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
-            }
-            .pluck('v')
-            .flatten
-            .compact
-            .uniq
-        )
-        .includes(:classification_alias_path)
-        .index_by(&:id)
+      @selected_concepts = selected_concepts_by_id(@filters)
 
       query2 = DataCycleCore::Thing.joins(:content_content_b).where(template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
 
@@ -51,15 +38,15 @@ module DataCycleCore
 
       query2 = query2.where("(things.metadata ->> 'publish_at')::date <= ?", params[:publications_until]) if params[:publications_until].present?
 
-      @publication_classification_alias_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' && @publication_classifications.value?(f['n']) }
+      @publication_concept_ids = @filters.select { |f| f['c'] == 'd' && f['t'] == 'concept_ids' && @publication_classifications.value?(f['n']) }
 
-      if @publication_classification_alias_ids.present?
+      if @publication_concept_ids.present?
         content_ids = []
-        @publication_classification_alias_ids.each_with_index do |alias_ids, index|
+        @publication_concept_ids.each_with_index do |alias_ids, index|
           if index.zero?
-            content_ids = query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
+            content_ids = query2.with_concept_ids(alias_ids['v']).pluck(:id)
           else
-            content_ids &= query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
+            content_ids &= query2.with_concept_ids(alias_ids['v']).pluck(:id)
           end
         end
 
@@ -74,7 +61,7 @@ module DataCycleCore
 
         render json: { html: helpers.result_count(@count_mode, @total_count, @content_class || 'things') }
       else
-        @contents = query2.order(Arel.sql("(things.metadata ->> 'publish_at')::date ASC")).page(params[:page]).per(25).includes(:classifications, content_content_b: [{ content_a: :translations }]).without_count
+        @contents = query2.order(Arel.sql("(things.metadata ->> 'publish_at')::date ASC")).page(params[:page]).per(25).includes(:concepts, content_content_b: [{ content_a: :translations }]).without_count
 
         @last_page = @contents.last_page?
 

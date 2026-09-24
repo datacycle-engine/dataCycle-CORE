@@ -41,9 +41,7 @@ module DataCycleCore
         def to_opening_hours_specifications
           return nil if empty?
 
-          day_of_week_classification_ids = DAY_HASH
-            .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
-            .reduce(&:merge)
+          day_of_week_classification_ids = self.class.day_of_week_concept_ids
           DAY_HASH
             .keys
             .map { |day| data[day] }
@@ -70,6 +68,14 @@ module DataCycleCore
           return true if @data.empty?
 
           @data.none? { |_day, ranges| ranges.present? }
+        end
+
+        # The Wochentage concept per English weekday name, which both the specification parser and the
+        # renderer need. One lookup per call, not per weekday: DAY_HASH has seven entries.
+        def self.day_of_week_concept_ids
+          concepts = DataCycleCore::Concept.for_tree('Wochentage').where(name: DAY_HASH.values).index_by(&:name)
+
+          DAY_HASH.transform_values { |name| concepts[name]&.id }
         end
 
         def self.parse_opening_times(data, external_source_id, external_key, day_transformation = nil)
@@ -153,9 +159,7 @@ module DataCycleCore
         end
 
         def parse_opening_hours_specification(data_hash)
-          day_of_week_classification_ids = DAY_HASH
-            .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
-            .reduce(&:merge)
+          day_of_week_classification_ids = self.class.day_of_week_concept_ids
           DAY_HASH
             .keys
             .map { |day|

@@ -1,20 +1,27 @@
 <% random_id = SecureRandom.hex(10) %>
 
-<div class="new-embedded-button-wrapper">
-  <a data-toggle="<%= random_id %>" id="<%= id %>" class="button new-embedded-button">
-    <i class="fa fa-plus" aria-hidden="true"></i>
-  </a>
+<a data-toggle="<%= random_id %>" id="<%= id %>" class="button new-embedded-button">
+  <i class="fa fa-plus" aria-hidden="true"></i>
+</a>
 
-  <div class="dropdown-pane new-embedded-object" id="<%= random_id %>" data-dropdown data-hover="false" data-close-on-click="true" data-position="bottom">
-    <ul class="new-embedded-object-links">
-      <% templates.each do |template| %>
-        <li class="option">
-          <a class="add-content-object in-dropdown" href="#" data-template="<%= template.template_name %>">
-            <%= render 'data_cycle_core/shared/icon', icon_type: template&.icon_type, icon_class: template&.icon_class %>
-            <%= template.translated_template_name(active_ui_locale) %>
-          </a>
-        </li>
-      <% end %>
-    </ul>
-  </div>
+<div class="dropdown-pane new-embedded-object" id="<%= random_id %>" data-dropdown data-hover="false" data-close-on-click="true" data-position="bottom">
+  <ul class="new-embedded-object-links">
+    <% templates.each do |template| %>
+      <li class="option">
+        <a class="add-content-object in-dropdown" href="#" data-template="<%= template.template_name %>">
+          <%= render 'data_cycle_core/shared/icon', icon_type: template&.icon_type, icon_class: template&.icon_class %>
+          <%= template.translated_template_name(active_ui_locale) %>
+        </a>
+      </li>
+    <% end %>
+    <% if local_assigns[:browser_id].present? %>
+      <li class="divider"></li>
+      <li class="option">
+        <a class="select-existing-embedded in-dropdown" data-open="object_browser_<%= browser_id %>">
+          <i class="fa fa-link" aria-hidden="true"></i>
+          <%= t('embedded.select_existing', locale: active_ui_locale) %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
 </div>

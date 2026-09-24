@@ -104,8 +104,10 @@ describe DataCycleCore::Generic::Common::Transformations::LegacyLinkFunctions do
   end
 
   it 'find_thing_ids queries non-Thing content types without plucking' do
-    result = subject.find_thing_ids(external_system_id: external_source_id, external_key: ['EK'], content_type: DataCycleCore::Classification, pluck_id: false)
+    result = subject.find_thing_ids(external_system_id: external_source_id, external_key: ['EK'], content_type: DataCycleCore::Concept, pluck_id: false)
 
-    assert_respond_to(result, :to_a)
+    # Executed, not just built: concepts name the column external_system_id, and asserting on the
+    # unexecuted relation let a query against the dropped external_source_id pass as green.
+    assert_empty(result.to_a)
   end
 end

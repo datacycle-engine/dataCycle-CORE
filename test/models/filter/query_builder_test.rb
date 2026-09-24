@@ -42,7 +42,7 @@ module DataCycleCore
       test 'arel_table accessors return tables' do
         b = builder
 
-        [:classification_content, :classification, :classification_tree, :classification_group, :classification_alias, :classification_polygon, :duplicate_candidate, :thing_duplicate, :thing_template].each do |accessor|
+        [:concept_content, :concept, :concept_polygon, :duplicate_candidate, :thing_duplicate, :thing_template].each do |accessor|
           assert_kind_of(Arel::Table, b.send(accessor))
         end
       end

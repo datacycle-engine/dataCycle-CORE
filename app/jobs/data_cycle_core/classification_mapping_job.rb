@@ -7,12 +7,12 @@ module DataCycleCore
     limits_concurrency key: ->(*args) { args[0] }, duration: 10.minutes
 
     def perform(id, to_insert = [], to_delete = [])
-      ca = DataCycleCore::ClassificationAlias.find_by(id:)
+      ca = DataCycleCore::Concept.find_by(id:)
 
       return if ca.nil?
 
-      insert_ids = Array.wrap(to_insert) - ca.classification_ids
-      delete_ids = Array.wrap(to_delete).intersection(ca.classification_ids)
+      insert_ids = Array.wrap(to_insert) - ca.mapped_concept_ids
+      delete_ids = Array.wrap(to_delete).intersection(ca.mapped_concept_ids)
 
       # Mapping rebuilds can touch a large number of paths/contents; in production the work runs
       # in a forked process to keep its memory and long-running statements out of the worker. In
@@ -37,12 +37,18 @@ module DataCycleCore
       ActiveRecord::Base.transaction(joinable: false, requires_new: true) do
         ActiveRecord::Base.connection.exec_query('SET LOCAL statement_timeout = 0;')
 
-        ca.classification_groups.insert_all(insert_ids.map { |cid| { classification_id: cid } }, unique_by: :classification_groups_ca_id_c_id_uq_idx, returning: false) if insert_ids.present?
-        ca.classification_groups.where(classification_id: delete_ids).delete_all if delete_ids.present?
+        if insert_ids.present?
+          DataCycleCore::ConceptLink.insert_all(
+            insert_ids.map { |cid| { parent_id: ca.id, child_id: cid, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED } },
+            unique_by: :index_concept_links_on_parent_id_and_child_id,
+            returning: false
+          )
+        end
+        ca.mapped_concept_links.where(child_id: delete_ids).delete_all if delete_ids.present?
 
         # one job per side effect (search / webhooks / computed recompute) for the union of all
-        # affected contents — see ClassificationAlias#classifications_changed
-        ca.send(:classifications_changed, insert_ids + delete_ids)
+        # affected contents — see Concept#mapped_concepts_changed
+        ca.mapped_concepts_changed(insert_ids + delete_ids)
 
         ca.touch
       end

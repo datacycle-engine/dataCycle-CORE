@@ -26,7 +26,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes({ concepts: [], translations: [] })
             .find(permitted_params[:id])
         end
 
@@ -74,9 +74,9 @@ module DataCycleCore
               classifications.split(',').map(&:strip).compact_blank
             }.reject(&:empty?).each do |classifications|
               query = if @mode_parameters.include?('strict')
-                        query.classification_alias_ids_without_subtree(classifications)
+                        query.concept_ids_without_subtree(classifications)
                       else
-                        query.classification_alias_ids_with_subtree(classifications)
+                        query.concept_ids_with_subtree(classifications)
                       end
             end
           end

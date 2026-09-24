@@ -53,8 +53,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id, DataCycleCore::ClassificationAlias.find_by(name: 'POI').id, DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'Person').id, DataCycleCore::Concept.find_by(name: 'POI').id, DataCycleCore::Concept.find_by(name: 'Veranstaltung').id]
               }],
               api: true
             )
@@ -67,8 +67,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'POI').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'POI').id]
               }],
               api: true
             )
@@ -81,8 +81,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Ort').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'Ort').id]
               }],
               api: true
             )
@@ -95,8 +95,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'Veranstaltung').id]
               }],
               api: true
             )
@@ -109,8 +109,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id, DataCycleCore::ClassificationAlias.find_by(name: 'Veranstaltung').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'Person').id, DataCycleCore::Concept.find_by(name: 'Veranstaltung').id]
               }],
               api: true
             )
@@ -123,8 +123,8 @@ module DataCycleCore
                 'c' => 'd',
                 'm' => 'i',
                 'n' => 'Inhaltstypen',
-                't' => 'classification_alias_ids',
-                'v' => [DataCycleCore::ClassificationAlias.find_by(name: 'Person').id]
+                't' => 'concept_ids',
+                'v' => [DataCycleCore::Concept.find_by(name: 'Person').id]
               }],
               api: true
             )

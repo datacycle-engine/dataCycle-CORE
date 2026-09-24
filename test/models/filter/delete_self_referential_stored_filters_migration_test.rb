@@ -26,7 +26,7 @@ module DataCycleCore
       cycle_b.update_columns(parameters: [relation_param(cycle_a.id)])
 
       valid = DataCycleCore::StoredFilter.create!(name: 'valid', user_id: @user.id, language: ['de'], parameters: [
-                                                    { 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'classification_alias_ids', 'v' => get_concept_ids('Inhaltstypen', 'Organisation') }
+                                                    { 'c' => 'a', 'm' => 'i', 'n' => 'Inhaltstypen', 't' => 'concept_ids', 'v' => get_concept_ids('Inhaltstypen', 'Organisation') }
                                                   ])
 
       DeleteSelfReferentialStoredFilters.new.up

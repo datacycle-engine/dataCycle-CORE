@@ -62,7 +62,7 @@ module DataCycleCore
         end
 
         test 'data_in_filter? matches a classification filter by resolved concept id' do
-          DataCycleCore::Concept.stub(:by_full_paths, [struct_double(classification_id: 'cid-1')]) do
+          DataCycleCore::Concept.stub(:by_full_paths, [struct_double(id: 'cid-1')]) do
             filter = [{ 'type' => 'classification', 'value' => ['Tags > Tag 1'], 'key' => ['tags'] }]
 
             assert(subject.send(:data_in_filter?, 'place', { 'tags' => ['cid-1'] }, filter))

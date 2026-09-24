@@ -1,0 +1,97 @@
+<main class="ov-shell">
+  <aside class="ov-sidebar">
+    <div class="ov-brand">
+      <%= link_to root_path, class: 'ov-brand-link', title: 'dataCycle' do %>
+        <%= render 'data_cycle_core/application/logo', inverted: true %>
+      <% end %>
+
+      <%# ---- Light/dark toggle (behaviour: openapi_viewer/theme_toggle.js) ---- %>
+      <button type="button" class="ov-theme-toggle" data-ov-theme-toggle
+              data-label-dark="<%= t('data_cycle_core.openapi_viewer.theme.toggle_dark', locale: @spec_language) %>"
+              data-label-light="<%= t('data_cycle_core.openapi_viewer.theme.toggle_light', locale: @spec_language) %>"
+              aria-pressed="false">
+        <i class="fa fa-moon-o" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="ov-nav-wrap">
+      <div class="ov-search-wrap">
+        <div class="ov-search">
+          <i class="fa fa-search ov-search-icon" aria-hidden="true"></i>
+          <input type="search"
+                 id="ov-nav-search"
+                 class="ov-search-input"
+                 placeholder="<%= t('data_cycle_core.openapi_viewer.search', locale: @spec_language) %>"
+                 aria-label="<%= t('data_cycle_core.openapi_viewer.search', locale: @spec_language) %>"
+                 autocomplete="off"
+                 spellcheck="false"
+                 role="combobox"
+                 aria-expanded="false"
+                 aria-controls="ov-palette">
+          <kbd class="ov-search-kbd" aria-hidden="true"><span class="ov-kbd-mod">Ctrl</span><span>K</span></kbd>
+          <button type="button"
+                  id="ov-nav-search-clear"
+                  class="ov-search-clear"
+                  aria-label="<%= t('data_cycle_core.openapi_viewer.clear_search', locale: @spec_language) %>"
+                  hidden>
+            <i class="fa fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="ov-palette" id="ov-palette" role="listbox" hidden>
+          <div class="ov-palette-results" id="ov-palette-results"></div>
+          <div class="ov-palette-empty" id="ov-palette-empty" hidden><%= t('data_cycle_core.openapi_viewer.no_results', locale: @spec_language) %></div>
+        </div>
+      </div>
+
+      <nav class="ov-nav" id="ov-nav" aria-label="<%= t('data_cycle_core.openapi_viewer.title', locale: @spec_language) %>">
+        <span class="ov-nav-skeleton" aria-hidden="true"></span>
+        <span class="ov-nav-skeleton" aria-hidden="true"></span>
+        <span class="ov-nav-skeleton" aria-hidden="true"></span>
+      </nav>
+    </div>
+
+    <div class="ov-doc-card">
+      <span class="ov-doc-card-title"><%= t('data_cycle_core.openapi_viewer.title', locale: @spec_language) %></span>
+      <span class="ov-doc-card-sub"><%= t('data_cycle_core.openapi_viewer.subtitle', locale: @spec_language) %></span>
+
+      <% if @available_locales.size > 1 %>
+        <nav class="ov-locales" aria-label="<%= t('data_cycle_core.openapi_viewer.language', locale: @spec_language) %>">
+          <% @available_locales.each do |locale| %>
+            <%= link_to locale.to_s.upcase,
+                        openapi_viewer_path(language: locale),
+                        class: "ov-locale#{' is-active' if locale == @spec_language}",
+                        aria: { current: ('page' if locale == @spec_language) } %>
+          <% end %>
+        </nav>
+      <% end %>
+    </div>
+
+  </aside>
+
+  <div class="ov-main">
+    <span class="ov-dots" aria-hidden="true"></span>
+
+    <div id="swagger-ui"
+         data-spec-url="<%= @spec_path %>"
+         data-language="<%= @spec_language %>"
+         data-label-overview="<%= t('data_cycle_core.openapi_viewer.overview', locale: @spec_language) %>"
+         data-label-schemas="<%= t('data_cycle_core.openapi_viewer.schemas', locale: @spec_language) %>"
+         data-label-details="<%= t('data_cycle_core.openapi_viewer.details', locale: @spec_language) %>"
+         data-label-access-denied="<%= t('data_cycle_core.openapi_viewer.access_denied', locale: @spec_language) %>"
+         data-label-spec-error="<%= t('data_cycle_core.openapi_viewer.spec_error', locale: @spec_language) %>"
+         data-label-toggle-group="<%= t('data_cycle_core.openapi_viewer.toggle_group', locale: @spec_language) %>"
+         data-label-expandable-to="<%= t('data_cycle_core.openapi_viewer.expandable_to', locale: @spec_language) %>"
+         data-clipboard-notice="<%= t('actions.copied_to_clipboard', locale: @spec_language) %>"
+         data-heavy-schema-threshold="8">
+      <div class="openapi-viewer-loading">
+        <span class="openapi-viewer-spinner" aria-hidden="true"></span>
+        <span><%= t('data_cycle_core.openapi_viewer.loading', locale: @spec_language) %></span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<% content_for :body_scripts do %>
+  <%= dc_javascript_tag 'entrypoints/openapi_viewer.js' %>
+<% end %>

@@ -155,7 +155,7 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
     value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
 
     assert_kind_of(ActiveRecord::Relation, value)
-    assert_kind_of(DataCycleCore::Classification, value.first)
+    assert_kind_of(DataCycleCore::Concept, value.first)
     assert_equal(3, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'], value.pluck(:id))
   end
@@ -167,12 +167,12 @@ describe 'DataCycleCore::Utility::Virtual::Common#overlay' do
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One'
         }]),
-      my_classification_add: DataCycleCore::Classification.none
+      my_classification_add: DataCycleCore::Concept.none
     })
     value = subject.overlay(virtual_parameters: ['my_classification', 'my_classification_override', 'my_classification_add'], content:, virtual_definition: { 'type' => 'classification' })
 
     assert_kind_of(ActiveRecord::Relation, value)
-    assert_kind_of(DataCycleCore::Classification, value.first)
+    assert_kind_of(DataCycleCore::Concept, value.first)
     assert_equal(1, value.size)
     assert_equal(['00000000-0000-0000-0000-000000000001'], value.pluck(:id))
   end

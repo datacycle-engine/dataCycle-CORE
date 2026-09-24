@@ -5,6 +5,7 @@ module DataCycleCore
     module Templates
       class TemplateTransformer
         include Extensions::Overlay
+        include Extensions::Generated
         include Extensions::LinkedInText
         include MixinResolutionPolicy
 
@@ -74,6 +75,7 @@ module DataCycleCore
           add_overlay_properties!(new_properties)
           add_linked_in_text_properties!(new_properties)
           add_missing_parameters!(new_properties)
+          add_generated_properties!(new_properties) # last step: no features.generated marker may point at a property a :condition: dropped in add_missing_parameters! -> filter_conditional_properties!
 
           new_properties
         end

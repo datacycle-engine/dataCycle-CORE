@@ -25,7 +25,7 @@ module DataCycleCore
         end
 
         test 'api for specific classificaiton_trees' do
-          classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+          classification_tree = DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')
           get api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
@@ -37,14 +37,14 @@ module DataCycleCore
         end
 
         test 'list of classifications within a classification_tree' do
-          classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+          classification_tree = DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')
           get classifications_api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
           assert_equal('application/json; charset=utf-8', response.content_type)
           json_data = response.parsed_body
 
-          total = classification_tree.classification_trees.count
+          total = classification_tree.concepts.count
           pages = (total / 25.0).ceil
 
           assert_equal({ 'total' => total, 'pages' => pages }, json_data['meta'])

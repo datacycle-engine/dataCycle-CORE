@@ -9,15 +9,15 @@ module DataCycleCore
       module Number
         class ClassificationValueTest < DataCycleCore::TestCases::ActiveSupportTestCase
           before(:all) do
-            @tree = DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: 'TestColumnCounts')
-            @two_columns = @tree.create_classification_alias({ name: '2 Spalten', external_key: 'test-columns-2' })
+            @tree = DataCycleCore::ConceptScheme.find_or_create_by(name: 'TestColumnCounts')
+            @two_columns = @tree.create_concept({ name: '2 Spalten', external_key: 'test-columns-2' })
 
             # a second tree the test content is NOT classified in, for the nil case
-            @unassigned_tree = DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: 'TestRowCounts')
-            @unassigned_tree.create_classification_alias({ name: '1 Zeile', external_key: 'test-rows-1' })
+            @unassigned_tree = DataCycleCore::ConceptScheme.find_or_create_by(name: 'TestRowCounts')
+            @unassigned_tree.create_concept({ name: '1 Zeile', external_key: 'test-rows-1' })
 
             image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image').deep_dup
-            image_data_hash['universal_classifications'] = [@two_columns.primary_classification.id]
+            image_data_hash['universal_classifications'] = [@two_columns.id]
             @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
           end
 

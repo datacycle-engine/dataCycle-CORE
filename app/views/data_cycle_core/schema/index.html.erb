@@ -1,29 +1,341 @@
 <% breadcrumb :schema, autoroot: false %>
 
-<main role="index">
-  <h1>
-    <%= t('data_cycle_core.schema.root', locale: active_ui_locale) %>
+<%
+  groups = @schema_groups # [[content_type, [templates]], ...] — already grouped & sorted by the presenter
+  total_templates = groups.sum { |_, templates| templates.size }
+  total_things = @thing_counts.values.sum
+%>
 
-    <a class="download" href="<%= schema_path + '.xlsx' %>">
-      <i class="fa fa-download"></i>
-    </a>
-  </h1>
+<%# ---- Brand strip (replaces the hidden app nav; instance logo in black,
+       rendered like the /api/config/openapi viewer) ---- %>
+<div class="schema-brand">
+  <%= link_to root_path, class: 'schema-brand-link', title: 'dataCycle' do %>
+    <%= render 'data_cycle_core/application/logo', inverted: true %>
+  <% end %>
+</div>
 
-  <ul>
-    <% ['container', 'entity'].each do |content_type| %>
-      <li><%= t("data_cycle_core.schema.#{content_type.pluralize}", locale: active_ui_locale) %></li>
+<main class="schema-index" data-schema-index>
+  <%# ---- Header ---- %>
+  <header class="schema-index__header">
+    <div class="schema-index__titles">
+      <h1 class="schema-index__title"><%= t('data_cycle_core.schema.root', locale: @schema_language) %></h1>
+      <p class="schema-index__stats">
+        <%= t('data_cycle_core.schema.index.stats', templates: number_with_delimiter(total_templates), contents: number_with_delimiter(total_things), locale: @schema_language) %>
+      </p>
+    </div>
 
-      <ul class="<%= content_type %>_templates">
-        <% @schema.templates_with_content_type(content_type)
-                  .sort_by { |item| Array.wrap(item.schema_name).first.to_s }
-                  .each do |template| %>
-          <li>
-            <a href="/schema/<%= template.template_name %>">
-              <%= Array.wrap(template.schema_name).join(' / ') %> (<em><%= template.template_name %></em>)
-            </a>
-          </li>
-        <% end %>
-      </ul>
+    <div class="schema-index__actions">
+      <%# ---- SearchBar ---- %>
+      <label class="schema-search">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input type="search" data-schema-search autocomplete="off"
+               placeholder="<%= t('data_cycle_core.schema.index.search_placeholder', locale: @schema_language) %>"
+               aria-label="<%= t('data_cycle_core.schema.index.search_label', locale: @schema_language) %>">
+      </label>
+
+      <a class="schema-index__export" href="<%= schema_path(format: :xlsx, language: @schema_language) %>" aria-label="<%= t('data_cycle_core.schema.index.export', locale: @schema_language) %>">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        <span>XLSX</span>
+      </a>
+
+      <%= render 'data_cycle_core/schema/theme_toggle' %>
+
+      <%# ---- LanguageSwitcher (mirrors /api/config/openapi) ---- %>
+      <% if @available_locales.many? %>
+        <nav class="schema-locales" aria-label="<%= t('data_cycle_core.schema.language', locale: @schema_language) %>">
+          <% @available_locales.each do |locale| %>
+            <%= link_to locale.to_s.upcase,
+                        schema_path(language: locale),
+                        class: "schema-locale#{' is-active' if locale == @schema_language}",
+                        aria: { current: ('page' if locale == @schema_language) } %>
+          <% end %>
+        </nav>
+      <% end %>
+    </div>
+  </header>
+
+  <%# ---- FilterBar ---- %>
+  <%# Two mutually-exclusive schema buttons drive the grid: "Hauptschema" (the %>
+  <%# main schema — entity + container, the standalone contents) and the embedded %>
+  <%# schema. An independent "nur mit Inhalten" toggle narrows either schema to %>
+  <%# the templates that actually hold content (thing count > 0). All three are %>
+  <%# client-side (schema/index_filter.js), so embedded %>
+  <%# contents never appear %>
+  <%# under Hauptschema. Default view: Hauptschema, all templates. %>
+  <%
+    embedded_templates = (groups.find { |content_type, _| content_type == 'embedded' } || [nil, []]).last
+    embedded_total = embedded_templates.size
+    main_total = total_templates - embedded_total
+  %>
+
+  <div class="schema-filter" role="group" aria-label="<%= t('data_cycle_core.schema.index.filter_label', locale: @schema_language) %>">
+    <%# Schema toggle: main schema (brand red) vs embedded schema (violet). The %>
+    <%# three buttons exclude each other and swap what the page shows below, so %>
+    <%# they are a tablist over the two panels (grid / dependency view) rather %>
+    <%# than three independent toggle buttons. %>
+    <div class="schema-parts" role="tablist" aria-label="<%= t('data_cycle_core.schema.parts.aria_label', locale: @schema_language) %>" data-schema-parts>
+      <button type="button" role="tab" id="schema-tab-main" aria-controls="schema-panel-grid" aria-selected="true"
+              class="schema-part is-active" data-schema-part="main">
+        <i class="fa fa-th-large schema-part__icon" aria-hidden="true"></i>
+        <%= t('data_cycle_core.schema.parts.main', locale: @schema_language) %>
+        <span class="schema-part__count"><%= main_total %></span>
+      </button>
+      <% if embedded_total.positive? %>
+        <button type="button" role="tab" id="schema-tab-embedded" aria-controls="schema-panel-grid" aria-selected="false"
+                tabindex="-1" class="schema-part" data-schema-part="embedded">
+          <i class="fa fa-puzzle-piece schema-part__icon" aria-hidden="true"></i>
+          <%= t('data_cycle_core.schema.parts.embedded', locale: @schema_language) %>
+          <span class="schema-part__count"><%= embedded_total %></span>
+        </button>
+      <% end %>
+      <% if @dependency.rows.present? %>
+        <button type="button" role="tab" id="schema-tab-deps" aria-controls="schema-panel-deps" aria-selected="false"
+                tabindex="-1" class="schema-part schema-part--deps" data-schema-part="deps">
+          <i class="fa fa-sitemap schema-part__icon" aria-hidden="true"></i>
+          <%= t('data_cycle_core.schema.parts.dependencies', locale: @schema_language) %>
+          <span class="schema-part__count"><%= @dependency.rows.size %></span>
+        </button>
+      <% end %>
+    </div>
+
+    <%# Independent toggle: keep only templates that actually hold content (count > 0) %>
+    <button type="button" class="schema-filter__toggle" data-schema-with-content aria-pressed="false">
+      <i class="fa fa-filter" aria-hidden="true"></i>
+      <%= t('data_cycle_core.schema.index.with_content', locale: @schema_language) %>
+    </button>
+
+    <%# Sort dropdown: reorder the cards within each schema.org-type group by heading %>
+    <%# (template name), type (schema.org path subtitle) or content count, each %>
+    <%# ascending/descending. Behaviour lives in schema_index_filter.js; the default %>
+    <%# is heading A→Z. Applies to whichever schema is currently shown. %>
+    <div class="schema-sort">
+      <label class="schema-sort__label" for="schema-sort-select"><%= t('data_cycle_core.schema.sort.label', locale: @schema_language) %></label>
+      <div class="schema-sort__control">
+        <select id="schema-sort-select" data-schema-sort aria-label="<%= t('data_cycle_core.schema.sort.aria_label', locale: @schema_language) %>">
+          <option value="heading_asc"><%= t('data_cycle_core.schema.sort.heading_asc', locale: @schema_language) %></option>
+          <option value="heading_desc"><%= t('data_cycle_core.schema.sort.heading_desc', locale: @schema_language) %></option>
+          <option value="type_asc"><%= t('data_cycle_core.schema.sort.type_asc', locale: @schema_language) %></option>
+          <option value="type_desc"><%= t('data_cycle_core.schema.sort.type_desc', locale: @schema_language) %></option>
+          <option value="count_desc"><%= t('data_cycle_core.schema.sort.count_desc', locale: @schema_language) %></option>
+          <option value="count_asc"><%= t('data_cycle_core.schema.sort.count_asc', locale: @schema_language) %></option>
+        </select>
+        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <%# ---- Grid, arranged by schema.org top-level type ---- %>
+  <%# Cards from both schemas live in one grid, grouped under their schema.org %>
+  <%# type (CreativeWork, Place, …) so related templates sit together. The schema %>
+  <%# toggle, the "nur mit Inhalten" toggle and search only toggle card visibility %>
+  <%# (see schema_index_filter.js); empty groups are hidden and the per-group count %>
+  <%# reflects the currently visible cards. %>
+  <div class="schema-groups" id="schema-panel-grid" role="tabpanel" aria-labelledby="schema-tab-main" tabindex="0">
+    <% @schema_type_groups.each do |type_name, templates| %>
+      <section class="schema-group" data-schema-group="<%= type_name %>">
+        <h2 class="schema-group__title">
+          <%= type_name %>
+          <span class="schema-group__count" data-schema-group-count><%= templates.size %></span>
+        </h2>
+        <ul class="schema-group__grid">
+          <% templates.each do |template| %>
+            <%
+              display_name = schema_display_path(template)
+              count = @thing_counts.fetch(template.template_name, 0)
+            %>
+            <li class="schema-card" data-schema-card data-type="<%= template.content_type %>"
+                data-part="<%= schema_node_group(template.content_type) %>"
+                data-search="<%= "#{display_name} #{template.template_name}".downcase %>"
+                data-sort-name="<%= template.template_name.to_s.downcase %>"
+                data-sort-path="<%= display_name.to_s.downcase %>"
+                data-sort-count="<%= count %>">
+              <a class="schema-card__link" href="<%= schema_details_path(template.template_name) %>">
+                <span class="schema-card__header">
+                  <span class="schema-card__icon">
+                    <i class="fa fa-<%= schema_template_icon(template) %>" aria-hidden="true"></i>
+                  </span>
+                  <span class="schema-card__name" title="<%= template.template_name %>"><%= template.template_name %></span>
+                </span>
+                <span class="schema-card__key" data-dc-tooltip="<%= display_name %>"><%= display_name %></span>
+                <span class="schema-card__footer">
+                  <span class="schema-card__count<%= ' is-zero' if count.zero? %>" title="<%= t('data_cycle_core.schema.index.content_count', count: count, locale: @schema_language) %>">
+                    <%= number_with_delimiter(count) %>
+                  </span>
+                  <i class="fa fa-chevron-right schema-card__chevron" aria-hidden="true"></i>
+                </span>
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </section>
     <% end %>
-  </ul>
+  </div>
+
+  <%# ---- EmptyState ---- %>
+  <p class="schema-index__empty" data-schema-empty hidden><%= t('data_cycle_core.schema.index.empty', locale: @schema_language) %></p>
+
+  <%# ---- Dependency view (shown only when the "Abhängigkeiten" tab is active) ---- %>
+  <%# Per-schema connection table: each template expands to its connection %>
+  <%# properties (Schema-Element → Zieltyp), with the property label as the %>
+  <%# description and the involved template's content count as "Verwendungen". %>
+  <%# Colours carry over: pink dot = main schema, violet = embedded, grey = shared. %>
+  <div class="schema-deps" id="schema-panel-deps" role="tabpanel" aria-labelledby="schema-tab-deps" tabindex="0" data-schema-deps>
+    <% if @dependency.rows.present? %>
+      <%# Stat tiles (Schema-Abhängigkeiten / Verbindungen / ohne Abhängigkeiten / zirkulär) %>
+      <dl class="schema-deps__tiles">
+        <% @dependency.stats.each_with_index do |(key, value), index| %>
+          <div class="schema-deps__tile<%= ' schema-deps__tile--primary' if index.zero? %>">
+            <dt class="schema-deps__tile-label"><%= t("data_cycle_core.schema.dependencies.stats.#{key}", locale: @schema_language) %></dt>
+            <dd class="schema-deps__tile-value"><%= number_with_delimiter(value) %></dd>
+          </div>
+        <% end %>
+      </dl>
+
+      <%# ---- Dependency overview: interactive graph + detail sidebar ---- %>
+      <%# The graph payload (aggregated template→target edges, "used by" reverse %>
+      <%# edges, cycle markers) is rendered into the JSON tag below and consumed %>
+      <%# by the SchemaDependencyGraph auto-init component, which draws the %>
+      <%# surroundings of the focused template fully client-side (with d3). %>
+      <section class="schema-graph" data-schema-dep-graph>
+        <header class="schema-graph__header">
+          <div class="schema-graph__titles">
+            <h2 class="schema-graph__title">
+              <%= t('data_cycle_core.schema.dependencies.overview', locale: @schema_language) %>
+              <i class="fa fa-info-circle schema-graph__info" aria-hidden="true"
+                 title="<%= t('data_cycle_core.schema.dependencies.description', locale: @schema_language) %>"></i>
+            </h2>
+            <%# The tile above counts property→target pairs (one per table row); the %>
+            <%# graph draws them aggregated per type pair, hence its own number here. %>
+            <%# The truncation hint next to it is written by the component whenever a %>
+            <%# drawing does not fit its node budget. %>
+            <p class="schema-graph__meta">
+              <span><%= t('data_cycle_core.schema.dependencies.edges', count: @dependency.edge_count, locale: @schema_language) %></span>
+              <span class="schema-graph__truncation" data-graph-truncation></span>
+            </p>
+          </div>
+
+          <div class="schema-graph__controls">
+            <div class="schema-sort__control schema-graph__root">
+              <select data-graph-root aria-label="<%= t('data_cycle_core.schema.dependencies.root_label', locale: @schema_language) %>"></select>
+              <i class="fa fa-chevron-down" aria-hidden="true"></i>
+            </div>
+            <%# Drawing switcher: force-directed network, multi-level tree or %>
+            <%# radial tree (see components/schema_dependency_layouts.js) %>
+            <div class="schema-graph__views" role="group" aria-label="<%= t('data_cycle_core.schema.dependencies.view_label', locale: @schema_language) %>">
+              <% DataCycleCore::SchemaController::GRAPH_VIEWS.each do |view, icon| %>
+                <% label = t("data_cycle_core.schema.dependencies.views.#{view}", locale: @schema_language) %>
+                <button type="button" data-graph-view="<%= view %>" aria-pressed="false"
+                        title="<%= label %>" aria-label="<%= label %>">
+                  <i class="fa fa-<%= icon %>" aria-hidden="true"></i>
+                </button>
+              <% end %>
+            </div>
+            <div class="schema-graph__zoom" role="group" aria-label="<%= t('data_cycle_core.schema.dependencies.zoom_label', locale: @schema_language) %>">
+              <button type="button" data-graph-zoom="-1" aria-label="−"><i class="fa fa-minus" aria-hidden="true"></i></button>
+              <span data-graph-zoom-level></span>
+              <button type="button" data-graph-zoom="1" aria-label="+"><i class="fa fa-plus" aria-hidden="true"></i></button>
+            </div>
+            <button type="button" class="schema-graph__fullscreen" data-graph-fullscreen
+                    aria-label="<%= t('data_cycle_core.schema.dependencies.fullscreen', locale: @schema_language) %>">
+              <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+            </button>
+            <ul class="schema-graph__legend">
+              <li><span class="schema-rel__dot schema-rel__dot--main"></span><%= t('data_cycle_core.schema.parts.main', locale: @schema_language) %></li>
+              <li><span class="schema-rel__dot schema-rel__dot--embedded"></span><%= t('data_cycle_core.schema.parts.embedded', locale: @schema_language) %></li>
+              <li><span class="schema-rel__dot schema-rel__dot--external"></span><%= t('data_cycle_core.schema.dependencies.external', locale: @schema_language) %></li>
+            </ul>
+          </div>
+        </header>
+
+        <div class="schema-graph__body">
+          <div class="schema-graph__canvas" data-graph-canvas></div>
+          <aside class="schema-graph__sidebar" data-graph-sidebar aria-live="polite"></aside>
+        </div>
+
+        <%= render 'data_cycle_core/schema/graph_data', dependency: @dependency, schema_language: @schema_language %>
+      </section>
+
+      <%# Section header for the detail table %>
+      <header class="schema-rel__header">
+        <div class="schema-rel__intro">
+          <span class="schema-rel__intro-icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+          <div>
+            <h2 class="schema-rel__title">
+              <%= t('data_cycle_core.schema.dependencies.title', locale: @schema_language) %>
+              <span class="schema-rel__title-count">(<%= @dependency.rows.size %>)</span>
+            </h2>
+            <p class="schema-rel__desc"><%= t('data_cycle_core.schema.dependencies.description', locale: @schema_language) %></p>
+          </div>
+        </div>
+      </header>
+
+      <div class="schema-deps__toolbar">
+        <button type="button" class="schema-filter__toggle schema-deps__expand" data-schema-expand-all
+                data-label-expand="<%= t('data_cycle_core.schema.index.expand_all', locale: @schema_language) %>"
+                data-label-collapse="<%= t('data_cycle_core.schema.index.collapse_all', locale: @schema_language) %>"
+                aria-pressed="false">
+          <i class="fa fa-plus-square-o" aria-hidden="true"></i>
+          <span data-schema-expand-label><%= t('data_cycle_core.schema.index.expand_all', locale: @schema_language) %></span>
+        </button>
+      </div>
+
+      <%# Connection table (visual grid; native <details> per schema for expand) %>
+      <div class="schema-rel">
+        <div class="schema-rel__row schema-rel__row--head">
+          <span class="schema-rel__cell schema-rel__cell--element"><%= t('data_cycle_core.schema.dependencies.element', locale: @schema_language) %></span>
+          <span class="schema-rel__cell schema-rel__cell--arrow" aria-hidden="true"></span>
+          <span class="schema-rel__cell schema-rel__cell--target"><%= t('data_cycle_core.schema.dependencies.target', locale: @schema_language) %></span>
+          <span class="schema-rel__cell schema-rel__cell--desc"><%= t('data_cycle_core.schema.dependencies.property_description', locale: @schema_language) %></span>
+          <span class="schema-rel__cell schema-rel__cell--usage"><%= t('data_cycle_core.schema.dependencies.usages', locale: @schema_language) %></span>
+        </div>
+
+        <% @dependency.rows.each do |row| %>
+          <details class="schema-rel__group" data-schema-dep>
+            <summary class="schema-rel__row schema-rel__row--template">
+              <span class="schema-rel__cell schema-rel__cell--element">
+                <i class="fa fa-chevron-right schema-rel__caret" aria-hidden="true"></i>
+                <span class="schema-rel__dot schema-rel__dot--<%= row[:group] %>"></span>
+                <a class="schema-rel__name" href="<%= schema_details_path(row[:template_name]) %>"><%= row[:template_name] %></a>
+                <span class="schema-rel__fields"><%= t('data_cycle_core.schema.dependencies.fields', count: row[:connections].size, locale: @schema_language) %></span>
+              </span>
+              <span class="schema-rel__cell schema-rel__cell--arrow"></span>
+              <span class="schema-rel__cell schema-rel__cell--target"></span>
+              <span class="schema-rel__cell schema-rel__cell--desc"></span>
+              <span class="schema-rel__cell schema-rel__cell--usage schema-rel__usage<%= ' is-zero' if row[:content_count].zero? %>"><%= number_with_delimiter(row[:content_count]) %></span>
+            </summary>
+
+            <% row[:connections].each do |connection| %>
+              <% connection[:targets].each do |target| %>
+                <div class="schema-rel__row schema-rel__row--prop">
+                  <span class="schema-rel__cell schema-rel__cell--element">
+                    <code class="schema-rel__key"><%= connection[:key] %></code>
+                    <% if connection[:cardinality] == :many %><span class="schema-rel__many" title="<%= t('data_cycle_core.schema.cardinality.array', locale: @schema_language) %>">[ ]</span><% end %>
+                  </span>
+                  <span class="schema-rel__cell schema-rel__cell--arrow"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>
+                  <span class="schema-rel__cell schema-rel__cell--target">
+                    <span class="schema-rel__dot schema-rel__dot--<%= target[:group] %>"></span>
+                    <% if target[:template].present? %>
+                      <a class="schema-rel__target" href="<%= schema_details_path(target[:template]) %>"><%= target[:label] %></a>
+                    <% else %>
+                      <span class="schema-rel__target"><%= target[:label] %></span>
+                    <% end %>
+                  </span>
+                  <span class="schema-rel__cell schema-rel__cell--desc"><%= connection[:label] %></span>
+                  <span class="schema-rel__cell schema-rel__cell--usage schema-rel__usage<%= ' is-zero' if target[:usage].to_i.zero? %>">
+                    <%= target[:usage].nil? ? '–' : number_with_delimiter(target[:usage]) %>
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          </details>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="schema-index__empty"><%= t('data_cycle_core.schema.dependencies.empty', locale: @schema_language) %></p>
+    <% end %>
+  </div>
 </main>
+
+<% content_for :body_scripts do %>
+  <%= dc_javascript_tag 'entrypoints/schema.js' %>
+<% end %>

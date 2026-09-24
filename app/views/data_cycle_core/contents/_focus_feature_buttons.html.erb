@@ -1,0 +1,84 @@
+<%#
+  Gravity and focus point controls of an image's detail page, shared by _bild_details and
+  _image_object_details. Both editors work in place: the button opens an overlay on the image above
+  and every change is persisted at once (PATCH /things/:id/update_focus_point) -- the detail page
+  never hands over to the edit form for these two.
+
+  The controls marked .editing-control belong to one open editor and are hidden until it is open
+  (_focus_point_editor.scss), the modifier naming which: the gravity editor's hint, and the focus
+  point editor's hint, generate button and reset. They are rendered here with the buttons that open
+  those editors, so their labels are translated once while the page renders rather than over four
+  POST /i18n/translate the moment a user opens one.
+
+  The annotationPixie's button sits inside the editor rather than beside it: a generated point is
+  placed in the crosshair of the open editor and written by it, so it is stored, reported and reset
+  exactly like one placed by hand, and the pixie needs no write path of its own.
+%>
+<%
+  can_gravity_editor = DataCycleCore::Feature::GravityEditor.user_can_edit?(content, current_user)
+  can_focus_point_editor = DataCycleCore::Feature::FocusPointEditor.user_can_edit?(content, current_user)
+  focus_point_keys = DataCycleCore::Feature::FocusPointEditor.attribute_keys
+  # writing through the focus point editor's endpoint means needing exactly its rights; what the
+  # pixie adds on top is an image the annotation service can be asked about
+  can_annotation_pixie = can_focus_point_editor && DataCycleCore::Feature['AnnotationPixie']&.allowed?(content)
+%>
+
+<% if can_gravity_editor || can_focus_point_editor %>
+  <div class="focus-feature-buttons">
+    <% if can_gravity_editor %>
+      <div class="focus-feature-button">
+        <button
+          class="button change-gravity-ui"
+          data-thing-id="<%= content.id %>"
+          data-gravity-info="<%= gravity_concepts_json %>"
+          data-gravity="<%= content.try(DataCycleCore::Feature::GravityEditor.attribute_keys.first)&.first&.id %>"
+          data-editor-active-text="<%= t('actions.deactivate_gravity_editor',  locale: active_ui_locale) %>"
+        >
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+          <%= t('feature.gravity_editor.button_title',  locale: active_ui_locale) %>
+        </button>
+        <p class="focus-feature-hint editing-control editing-control--gravity"><%= t('feature.gravity_editor.hint', locale: active_ui_locale) %></p>
+      </div>
+    <% end %>
+
+    <% if can_focus_point_editor %>
+      <div class="focus-feature-button">
+        <button
+          class="button change-focus-point-ui"
+          data-thing-id="<%= content.id %>"
+          data-focus-point-x-key="<%= focus_point_keys[0] %>"
+          data-focus-point-y-key="<%= focus_point_keys[1] %>"
+          data-focus-point-x="<%= content.try(focus_point_keys[0]) %>"
+          data-focus-point-y="<%= content.try(focus_point_keys[1]) %>"
+        >
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+          <%= t('feature.focus_point_editor.button_title',  locale: active_ui_locale) %>
+        </button>
+        <p class="focus-feature-hint editing-control editing-control--focus-point"><%= t('feature.focus_point_editor.hint', locale: active_ui_locale) %></p>
+      </div>
+
+      <% if can_annotation_pixie %>
+        <div class="focus-feature-button editing-control editing-control--focus-point">
+          <button
+            class="button annotation-pixie-focus-point"
+            data-dc-tooltip="<%= t('feature.annotation_pixie.focus_point_button_title', locale: active_ui_locale) %>"
+          >
+            <i class="fa fa-magic" aria-hidden="true"></i>
+            <%= t('feature.annotation_pixie.focus_point_button_title', locale: active_ui_locale) %>
+          </button>
+          <p class="focus-feature-hint"><%= t('feature.annotation_pixie.focus_point_hint', locale: active_ui_locale) %></p>
+        </div>
+      <% end %>
+
+      <div class="focus-feature-button editing-control editing-control--focus-point">
+        <button
+          class="button alert hollow focus-point-clear"
+          data-dc-tooltip="<%= t('feature.focus_point_editor.clear_focus_point', locale: active_ui_locale) %>"
+        >
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <%= t('feature.focus_point_editor.clear_focus_point', locale: active_ui_locale) %>
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -4,7 +4,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
   json.set! key_new, []
   json.set! key_new do
-    json.array!(value.presence&.includes(:translations, :classifications)&.sum do |specification|
+    json.array!(value.presence&.includes(:translations, :concepts)&.sum do |specification|
       if specification.time.present?
         specification.time.map do |time|
           [specification, time]

@@ -1,0 +1,412 @@
+en:
+  open_api:
+    info:
+      description: "Per-instance OpenAPI 3.1 description of the dataCycle API v4 (data structures, read and write/management endpoints)."
+    schemas:
+      any_entity: "Any entity of the instance (one of the ThingTemplate component schemas)."
+      type_hierarchy: "schema.org type hierarchy including dcls:{Template}."
+      entity_type: "schema.org type hierarchy of this entity: %{types}."
+      entity_reference: "Reference stub of a linked entity ({ @id, @type }), returned unless expanded via include/fields."
+      asset_reference: "Reference to an asset ({ @id }); unlike linked entities, without @type."
+      concept: "A SKOS concept (classification) as delivered by the v4 API."
+      concept_scheme: "A SKOS concept scheme (classification tree) as delivered by the v4 API."
+      concept_scheme_has_concept: "URL of the scheme's concepts endpoint."
+      geo_json_type: "GeoJSON geometry type, e.g. Polygon, MultiPolygon, LineString."
+      geo_json_coordinates: "GeoJSON coordinate array (nesting depends on the geometry type)."
+      schedule_duration: "ISO 8601 duration."
+      schedule_repeat_frequency: "ISO 8601 recurrence frequency."
+      property_value_type: "PropertyValue or QuantitativeValue."
+      property_value_value_reference: "Reference to the value's origin (e.g. sync type `import` for external identifiers)."
+      collection_reference_type: "e.g. [CreativeWork, Collection, dcls:{Class}]."
+    filter:
+      attribute: |
+        Condition per attribute (by api_name).
+
+        Each value is a `min`/`max`/`equals`/`like`/`bool` condition. Example: `attribute[price][in][max]=100`.
+      min_max: "Date or date-time."
+      schedule_all: |
+        Filters over ALL schedule relations.
+
+        Ignores `schedule_filter_exceptions`.
+      duplicate_candidates_exists: "`true` = only contents WITH duplicate candidates, `false` = only those without."
+      duplicate_candidates_min_score: "Minimum score of a candidate."
+      duplicate_candidates_max_score: "Maximum score of a candidate."
+      duplicate_candidates_method: "Detection method, e.g. `manual` or `only_title`."
+      graph: |
+        Nested filter applied to a related attribute.
+
+        Example: `filter[graph][region][dc:classification][in][withSubtree]=UUID`.
+      linked: "Deprecated: use `graph` instead."
+      union: |
+        Logical OR over the given sub-filters.
+
+        Example: `union: [ {search: "a"}, {search: "b"} ]`.
+      geo_box: |
+        Bounding box.
+
+        Coordinates `[swLon, swLat, neLon, neLat]`. Example: `9.5,47.1,9.9,47.4`.
+      geo_perimeter: |
+        Radius.
+
+        `[lon, lat, distance]` (distance in metres). Example: `9.53,47.13,5000`.
+      geo_shape: |
+        Geometry as a string.
+
+        Google Polyline, WKT or GeoJSON string.
+      search_fields: |
+        Searched fields.
+
+        Comma-separated. Example: `name,dc:slug,dc:classification`.
+      string_list: |
+        AND / OR semantics.
+
+        Several entries = AND; one comma-separated entry = OR. Example: `["A","B"]` (AND) vs. `["A,B"]` (OR).
+      param: "Nested content filter in bracket notation, e.g. `filter[search]=text` or `filter[dc:classification][in][withSubtree]=UUID`. Equivalent to the `filter` object of the POST body."
+      body: "JSON request body for content endpoints (POST); mirrors the query parameters plus the nested `filter`."
+      delivery_params: "JSON request body for single-resource read endpoints (POST); mirrors the delivery query parameters (no filter)."
+      body_filter: |
+        Nested content filter.
+
+        As an object in the POST body (see the `Filter` schema). Example: `{ "search": "zermatt" }`.
+    envelope:
+      context: "JSON-LD @context: a base vocabulary URI followed by an object of namespace prefixes (@base, @language, skos, dct, dc, dcls, …)."
+      total: "Total number of matching items."
+      pages: "Total number of pages (omitted when page[limit] is used)."
+      collection: "Present when the response is scoped to a stored filter / watch list."
+      list: "JSON-LD response envelope. Individual endpoints refine @graph items to the concrete entity schema."
+    error:
+      source: "Points at the cause of the error."
+      parameter: "Name/path of the offending request parameter."
+      pointer: "JSON pointer / path to the offending value."
+      title: "Human-readable summary of the error."
+      detail: "Human-readable explanation specific to this occurrence."
+    responses:
+      bad_request: "The request contains invalid parameters."
+      unauthorized: "Authentication is missing or invalid."
+      not_found: "The requested resource does not exist."
+      conflict: "The request conflicts with the current state of another resource."
+      unprocessable_entity: "The request was well-formed but could not be processed due to validation errors."
+    security:
+      bearer: "JSON Web Token passed as `Authorization: Bearer <token>`."
+      token_query: "Access token passed as the `token` query parameter."
+    parameters:
+      token: |
+        API access token.
+
+        Alternative to the `Authorization` header. Example: `?token=abc123`.
+      fields: |
+        Restricts the returned attributes.
+
+        Comma-separated attribute tree (dot notation). Example: `name,dc:classification`.
+      include: |
+        Expands linked / embedded entities.
+
+        Comma-separated attribute tree (dot notation). Example: `location,openingHoursSpecification.dct:modified`.
+      language: |
+        Requested content locale(s).
+
+        Comma-separated list; defaults to the instance default locale. Example: `de` or `de,en`.
+      sort: |
+        Sorting of the result list.
+
+        Comma-separated sort keys; prefix `-` for descending. Example: `-dct:modified,name`.
+      classification_trees: |
+        Restricts `dc:classification` to given trees.
+
+        Comma-separated list of classification tree label ids.
+      live_data: |
+        Requests live / computed values.
+
+        In bracket notation; only the keys `@id` and `minPrice` are permitted. Example: `dc:liveData[minPrice]=1`.
+      format: |
+        Output-format segment.
+
+        Mirrors the media-type negotiation: `json` or `csv`.
+      page_size: "Number of items per page."
+      page_number: "Page number (1-based)."
+      page_offset: "Items skipped in addition to the page offset."
+      page_limit: |
+        Hard limit of returned items.
+
+        When positive, overrides size/number based paging.
+      section_flag: |
+        Toggles the `%{key}` section of the response envelope.
+
+        `0` = omit, `1` = include.%{extra}
+      section_flag_meta_extra: " Setting it to `0` also skips the total count query."
+      page: "Pagination (size / number / offset / limit)."
+      section: "Toggle envelope sections."
+      api_subversion: "Optional route version-prefix segment (`/api/v4(/:api_subversion)`); normally absorbed by the server base."
+      external_source_id: "Id or identifier of the external system."
+      external_key: "External key of a content within the external system."
+      attribute: "api_name of a (timeseries) attribute addressed in the path."
+    paths:
+      common:
+        via_post_suffix: " (via body)"
+        redirect_location: "Target URL of the redirect."
+        content_uuid: "UUID of the content (Thing)."
+        single_content: "The content, as a JSON-LD document."
+        contents_list: "A JSON-LD list of contents."
+        timeseries_data: "Time series data for the attribute."
+        timeseries_data_json_csv: "Time series data (JSON or CSV)."
+        timeseries_group_by: |
+          Aggregate function and time bucket of the time series, e.g. `sum_day`, `avg_hour`.
+
+          Functions: sum/min/max/avg; buckets: hour/day/week/month/quarter/year. Omit for ungrouped raw values.
+        timeseries_time: "Time-range filter on the time series timestamp, e.g. `time[in][min]=2026-01-01&time[in][max]=2026-12-31`."
+      contents:
+        timeseries_summary: "Fetch the time series of an attribute"
+        timeseries_format_summary: "Fetch the time series of an attribute (explicit format segment)"
+        timeseries_name: "Name of the attribute holding the time series (not a fixed enum)."
+        select_summary: "Fetch multiple contents by UUID list"
+        select_by_path_summary: "Fetch multiple contents by UUID list (in path)"
+        select_response: "A JSON-LD list of the requested contents."
+        uuid_query: "List of content UUIDs to fetch, one per entry."
+        uuids_query: "The same list as one comma-separated value."
+        uuids_path: "Comma-separated list of content UUIDs."
+        deleted_summary: "List deleted contents"
+        deleted_response: "A JSON-LD list of deleted contents."
+        universal_summary: "Resolve any resource by UUID (redirect)"
+        universal_id: "UUID of any resource to resolve."
+        universal_response: "Redirect to the resolved resource."
+      duplicates:
+        id: "UUID of the content whose duplicates are addressed."
+        duplicate_id: "UUID of the duplicate content of the pair."
+        index_summary: "List the duplicate candidates of a content"
+        index_response: "The duplicates of the content, highest score first."
+        create_summary: "Mark two contents as duplicates"
+        create_description: |
+          Marks the pair explicitly, as an own candidate with method `manual` and score 100, next to
+          every automatically detected candidate. The marking survives the automatic recalculation
+          and reactivates a pair that was dismissed as a false positive.
+        create_response: "The pair was newly marked; body as for the GET operation."
+        create_existing_response: "The pair was already marked manually; body as for the GET operation."
+        merge_summary: "Merge a duplicate into the content"
+        merge_description: |
+          The merge itself runs asynchronously (MergeDuplicateJob), so the response time does not
+          depend on the number of links to move. A named version documenting the merge is written on
+          the target content beforehand.
+        merge_response: "The merge was queued; the pair is gone from the candidates."
+        false_positive_summary: "Dismiss a duplicate as a false positive"
+        false_positive_description: |
+          The pair leaves the candidates and is not picked up again by the automatic recalculation.
+          It stays readable via `falsePositive=true` and can be reactivated by marking it manually.
+        false_positive_response: "The pair was dismissed; body as for the GET operation."
+        false_positive_param: "`true` returns the dismissed pairs instead of the active ones."
+        mark_request: "The content to be marked as a duplicate of the addressed one."
+        mark_request_id: "UUID of the content to mark. Must be of the same template and must not be embedded."
+      external_connections:
+        id: "UUID of the content whose external connections are addressed."
+        property_id: "Identifier, name or UUID of the external system."
+        value: "External key (`external_key`) of the connection."
+        response: "The full connection state of the content after the change."
+        create_summary: "Add an external connection"
+        create_description: |
+          Creates a connection of type `duplicate`. Idempotent: an existing connection stays
+          unchanged. Answers 422 when an import or export already holds the same
+          `propertyID`/`value` pair.
+        destroy_summary: "Remove an external connection"
+        destroy_description: |
+          Removes a connection of type `duplicate`. Idempotent: a connection that is no longer there
+          is not an error, the current state is returned.
+        promote_summary: "Promote a connection to the primary external system"
+        promote_description: |
+          The previous primary system is kept as a connection of type `duplicate`, so no data is
+          lost. Answers 409 when another content already uses that external key as its primary.
+        demote_summary: "Demote the primary external system"
+        demote_description: |
+          Turns the primary external system of the content into a connection of type `duplicate`.
+          The content then has no primary system, the external key is kept.
+      delivery:
+        endpoint_id: "UUID of the data endpoint (stored filter)."
+        content_id: "UUID of a content within the endpoint."
+        contents_summary: "Fetch the contents of a data endpoint (list)"
+        content_summary: "Fetch a single content within a data endpoint"
+        suggest_summary: "Autocomplete (full text)"
+        suggest_by_title_summary: "Autocomplete (title)"
+        suggestions_response: "A JSON-LD list of suggestions."
+        suggest_search: "Partial search term for autocomplete."
+        suggest_limit: "Maximum number of suggestions."
+        facets_summary: "Fetch facets (classification counts)"
+        facets_tree_label_id: "UUID of the classification tree label to facet on."
+        facets_response: "Facet counts per classification."
+        external_system_facets_summary: "Fetch facets by external system"
+        external_system_facets_min_count: "External systems with fewer matches than this are omitted."
+        external_system_facets_response: "Match counts per external system contents were imported from."
+        facets_for_classification_summary: "Fetch facets for a classification"
+        facets_tree_label_id_plain: "UUID of the classification tree label."
+        facets_classification_id: "UUID of the classification to scope facets to."
+        facets_for_classification_response: "Facet counts for the given classification."
+        statistics_summary: "Aggregated statistics for an attribute"
+        statistics_format_summary: "Statistics for an attribute (explicit format segment)"
+        statistics_attribute: "API name of the attribute to aggregate."
+        statistics_response: "Aggregated statistics for the attribute."
+        statistics_response_json_csv: "Aggregated statistics (JSON or CSV)."
+        statistics_group_by: "Time-bucket size for the aggregation."
+        statistics_time: "Time-range filter on the aggregated attribute, e.g. `time[in][min]=2026-01-01&time[in][max]=2026-12-31`."
+        timeseries_summary: "Time series of a content (endpoint scope)"
+        timeseries_format_summary: "Time series of a content (endpoint scope, explicit format segment)"
+        timeseries_name: "Name of the attribute holding the time series."
+        elevation_summary: "Fetch the elevation profile of a route"
+        elevation_response: "Elevation profile of the route."
+        download_endpoint_summary: "Download the whole content collection as a file"
+        download_endpoint_response: "The collection as a downloadable file."
+        download_thing_summary: "Download a single content as a file"
+        download_thing_response: "The content as a downloadable file."
+      classifications:
+        concept_schemes_summary: "List concept schemes (classification trees)."
+        concept_schemes_response: "A JSON-LD list of concept schemes."
+        concept_schemes_search: "Full-text search over the concept scheme name."
+        concept_scheme_summary: "Show a single concept scheme."
+        concept_scheme_id: "Concept scheme (classification tree label) id."
+        concept_scheme_response: "A JSON-LD document containing the concept scheme."
+        concepts_summary: "List the concepts of a concept scheme."
+        concepts_response: "A JSON-LD list of concepts."
+        concepts_search: "Full-text search over the concept name."
+        concept_summary: "List the concepts below a given concept of a concept scheme."
+        concept_classification_id: "Concept (classification alias) id to scope the result to."
+      endpoints:
+        endpoints_summary: "List accessible data endpoints (published stored filters)."
+        endpoints_response: "A JSON-LD list of data endpoints."
+        create_summary: "Create an endpoint / stored filter."
+        create_description: "Creates a collection / stored filter from a source endpoint and the given content query. Responds with HTTP 201."
+        create_response: "A JSON-LD document with the created collection."
+        endpoint_ref: "Id or slug of the source endpoint (collection / stored filter)."
+        collection_desc: "Metadata of the collection to create."
+        collection_type: "Type of the collection (WatchList or StoredFilter)."
+        collection_name: "Name of the collection to create."
+        collection_valid_from: "Start of validity."
+        collection_valid_until: "End of validity."
+      collections:
+        collections_summary: "List accessible collections (watch lists)."
+        collections_response: "A JSON-LD list of collections."
+        collection_summary: "Resolve a collection to its content listing."
+        collection_description: "Redirects (302) to the collection's content endpoint (`/endpoints/{id}`), which delivers the contained things as a JSON-LD list."
+        collection_id: "Collection (watch list) id."
+        collection_redirect: "Redirect to the collection's content listing."
+        create_summary: "Create a new (download) collection."
+        create_description: "Creates a new collection (watch list), optionally pre-filled with the given content ids. Requires the :create ability on WatchList. Responds with HTTP 200."
+        create_response: "The created collection ({ id, name })."
+        create_thing_id: "One or more content UUIDs to pre-fill the collection with."
+        add_item_summary: "Add a content to the collection."
+        add_item_response: "The updated collection."
+        remove_item_summary: "Remove a content from the collection."
+        remove_item_response: "The updated collection."
+        item_thing_id: "UUID of the content to add/remove (in the path or the body)."
+        download_and_reset_summary: "Download the collection as a file and reset it."
+        download_and_reset_description: "Downloads the collection's contents as a file and then empties the collection. Note: no controller action/view was found for this route in the codebase (#50193) — verify the behaviour before relying on it."
+        download_and_reset_response: "The collection as a downloadable file."
+      authentication:
+        login_summary: "Log in with email and password and receive a JWT."
+        login_response: "Authentication succeeded; returns the token and the user."
+        check_summary: "Verify the presented credentials."
+        check_description: "Returns `{ \"success\": true }` when the presented credentials (Bearer token or token query) are valid."
+        check_response: "The credentials are valid."
+        login_iss: "Optional issuer override."
+        login_original_iss: "Optional original issuer override."
+        login_token: "Signed JSON Web Token."
+        login_exp: "Token expiry as a Unix timestamp."
+        login_user: "The authenticated user (fields depend on the User API configuration)."
+        renew_summary: "Renew the token."
+        renew_description: "Exchanges the presented (still valid) token for a fresh one. The current token travels in the Authorization header or the token query."
+        renew_response: "Renewal succeeded; returns the new token and the user."
+        logout_summary: "Log out (invalidate the current token)."
+        logout_response: "Logged out successfully; no content."
+      data_links:
+        create_summary: "Create external links (access grants)."
+        create_description: "Grants one or more people access to contents. Each entry is processed independently: HTTP 201 when all succeed, otherwise 207."
+        create_response: "All entries created successfully."
+        multi_status_response: "Partial success: a per-entry success flag plus errors[]."
+        graph_desc: "List of external links to create (at least one entry)."
+        receiver_desc: "Receiver of the link (created as a user on demand)."
+        item_desc: "Content the access is granted for ({ @id, @type })."
+        permission_desc: "Granted permission."
+        comment_desc: "Optional comment."
+        valid_from_desc: "Start of validity."
+        valid_until_desc: "End of validity."
+      users:
+        index_summary: "List the current user context (user, collections, stored filters)."
+        index_response: "The current user along with accessible collections and filters."
+        show_summary: "Show a single user."
+        show_id: "UUID of the user."
+        show_response: "The requested user."
+        create_summary: "Create a user."
+        create_description: "Creates a new user. Requires the :create_user ability."
+        create_response: "The created user along with a token."
+        update_summary: "Update the authenticated user."
+        update_description: "Updates the currently authenticated user."
+        update_response: "The updated user along with a token."
+        password_summary: "Request a password reset."
+        password_description: "Sends an email with instructions to reset the password."
+        password_response: "The instructions were sent (no content)."
+        change_password_summary: "Change the password via a reset token."
+        change_password_response: "Password changed; returns the user along with a token."
+        resend_confirmation_summary: "Resend the confirmation email."
+        resend_confirmation_response: "The confirmation email was resent (no content)."
+        confirm_summary: "Confirm a user via a token."
+        confirm_response: "The user was confirmed (no content)."
+        field_email: "Email address."
+        field_password: "Password."
+        field_password_confirmation: "Password confirmation."
+        field_rank: "Rank of the role to assign."
+        field_reset_token: "Password reset token."
+        field_confirmation_token: "Confirmation token."
+        field_layout: "Layout identifier for mailer/viewer."
+        field_redirect_url: "Redirect/forward URL (must be on the allowlist)."
+        field_additional_attributes: "Additional, feature-dependent user attributes."
+        field_token: "Signed JSON Web Token."
+        field_exp: "Token expiry as a Unix timestamp."
+      external_sources:
+        create_summary: "Create content(s) in the external system."
+        update_summary: "Update content(s) in the external system."
+        destroy_summary: "Delete content(s) in the external system."
+        demote_summary: "Demote the external system for the contents."
+        show_summary: "Resolve a content by external key."
+        show_description: "Redirects (302) to the resolved content."
+        show_response: "Redirect to the resolved content."
+        import_body: "System-specific payload, usually wrapped in @graph; processed by the external system's API strategy."
+        import_response: "Result of the import strategy (object or list of results)."
+        timeseries_bulk_summary: "Import timeseries data (bulk)."
+        timeseries_bulk_attr_summary: "Import timeseries data (bulk, per attribute)."
+        timeseries_summary: "Import the timeseries of an attribute."
+        timeseries_format_summary: "Import the timeseries of an attribute (explicit format segment)."
+        timeseries_body: "Timeseries payload: a per-attribute array of [timestamp, value], or a `data` array; CSV is accepted as text/csv."
+        timeseries_response: "The timeseries data was accepted for processing."
+        timeseries_empty_response: "No data submitted; nothing to do."
+        concepts_summary: "List concepts by external key."
+        concepts_response: "A JSON-LD list of concepts."
+        select_summary: "Select contents by external keys."
+        select_response: "A JSON-LD list of the selected contents."
+        external_keys: "Comma-separated list of external keys."
+        search_availability_summary: "Search availability (Feratel only)."
+        search_additional_service_summary: "Search additional services (Feratel only)."
+        search_response: "A JSON-LD list of the search results."
+        facets_summary: "Get location facets (Feratel only)."
+        facets_type: "Facet type (e.g. accommodations, addservices)."
+        facets_response: "Facet counts per location."
+        export_summary: "Export the things of an external system."
+        export_description: "Exports the given (or all) things of an external system."
+        export_system_id: "Id or identifier of the external system."
+        export_ids: "Comma-separated list of thing ids; when omitted, all are exported."
+        export_response: "The exported things."
+      translate:
+        text_summary: "Translate a text."
+        text_description: "Translates a text between two locales. Requires the :api_translate_text ability on the Translate feature."
+        text_response: "The translated text."
+        server: "Base URL of the Translate API (a sibling of /api/v4)."
+        field_text: "Text to translate."
+        field_source_locale: "Source locale (optional; otherwise detected)."
+        field_target_locale: "Target locale."
+      config:
+        server: "Base URL of the Config API (a sibling of /api/v4)."
+        schema_index_summary: "Get the schema of all ThingTemplates."
+        schema_index_response: "A JSON-LD document with the template schemas."
+        schema_show_summary: "Get the schema of a single ThingTemplate."
+        schema_show_response: "A JSON-LD document with the template schema."
+        template_name: "Name of the ThingTemplate."
+        common_summary: "Get the common instance configuration."
+        common_response: "A JSON-LD document with the instance configuration."
+        feature_summary: "Get the feature configuration."
+        feature_response: "A JSON-LD document with the enabled features."
+        openapi_summary: "Get this OpenAPI document."
+        openapi_response: "The instance's OpenAPI 3.1 document."

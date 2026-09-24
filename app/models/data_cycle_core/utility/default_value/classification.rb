@@ -15,25 +15,13 @@ module DataCycleCore
             concepts = DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label'))
               .with_internal_name(value)
             concepts = concepts.limit(property_definition.dig('validations', 'max').to_i) if property_definition.dig('validations', 'max').present?
-            concepts.pluck(:classification_id)
+            concepts.pluck(:id)
           end
 
           def schema_types(property_definition:, content:, **_args)
-            schema_types = []
-
-            if content.schema_ancestors.present?
-              content.schema_ancestors.each do |path|
-                schema_types.concat(
-                  find_classification(transform_path(path, content, property_definition['tree_label']))
-                )
-              end
-            elsif content.schema_type.present?
-              schema_types.concat(
-                find_classification(transform_path([content.schema_type], content, property_definition['tree_label']))
-              )
+            content.thing_template.schema_types.flat_map do |path|
+              find_classification(([property_definition['tree_label']] + path).join(' > '))
             end
-
-            schema_types.compact
           end
 
           def by_user_and_name(property_definition:, current_user:, **_additional_args)
@@ -43,14 +31,14 @@ module DataCycleCore
             DataCycleCore::Concept
               .for_tree(property_definition&.dig('tree_label'))
               .with_internal_name(name)
-              .pluck(:classification_id)
+              .pluck(:id)
           end
 
           def by_user_and_concept_id(property_definition:, current_user:, **_additional_args)
             concept_id = property_definition&.dig('default_value', 'value', current_user&.role&.name) ||
                          property_definition&.dig('default_value', 'value', 'all')
 
-            DataCycleCore::Concept.where(id: concept_id).pluck(:classification_id)
+            DataCycleCore::Concept.where(id: concept_id).pluck(:id)
           end
 
           def by_user_or_group_and_name(property_definition:, current_user:, **_additional_args)
@@ -61,7 +49,7 @@ module DataCycleCore
             DataCycleCore::Concept
               .for_tree(property_definition&.dig('tree_label'))
               .with_internal_name(name)
-              .pluck(:classification_id)
+              .pluck(:id)
           end
 
           def copy_from_string(property_definition:, data_hash:, **_additional_args)
@@ -69,10 +57,9 @@ module DataCycleCore
               data_hash.dig(*path.split('.'))
             }.flatten.uniq
 
-            query = DataCycleCore::ClassificationAlias
+            query = DataCycleCore::Concept
               .for_tree(property_definition['tree_label'])
               .with_internal_name(names)
-              .primary_classifications
             query = query.limit(1) if property_definition.dig('validations', 'max') == 1
 
             query.pluck(:id)
@@ -88,21 +75,15 @@ module DataCycleCore
 
             return [] if value.blank?
 
-            DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label')).with_internal_name(value).pluck(:classification_id)
+            DataCycleCore::Concept.for_tree(property_definition&.dig('tree_label')).with_internal_name(value).pluck(:id)
           end
 
           private
 
-          def transform_path(path, content, tree_label)
-            path.push("dcls:#{content.template_name}") if path.last != content.template_name
-
-            ([tree_label] + path).join(' > ')
-          end
-
           def find_classification(path)
             return [] if path.blank?
 
-            DataCycleCore::Concept.by_full_paths(path).limit(1).pluck(:classification_id).compact
+            DataCycleCore::Concept.by_full_paths(path).limit(1).pluck(:id).compact
           end
         end
       end

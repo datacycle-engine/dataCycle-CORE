@@ -168,11 +168,15 @@ module DataCycleCore
     has_many :timeseries, class_name: 'DataCycleCore::Timeseries', inverse_of: :thing
 
     has_many :schedules, class_name: 'DataCycleCore::Schedule'
-    has_many :collected_classification_contents, class_name: 'DataCycleCore::CollectedClassificationContent'
-    has_many :related_classification_contents, -> { related }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
-    has_many :full_classification_contents, -> { without_broader }, inverse_of: false, class_name: 'DataCycleCore::CollectedClassificationContent'
-    has_many :full_classification_aliases, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationAlias', source: :classification_alias
-    has_many :full_classification_tree_labels, through: :full_classification_contents, class_name: 'DataCycleCore::ClassificationTreeLabel', source: :classification_tree_label
+    has_many :collected_concept_contents, class_name: 'DataCycleCore::CollectedConceptContent'
+    has_many :related_concept_contents, -> { related }, inverse_of: false, class_name: 'DataCycleCore::CollectedConceptContent'
+    # #47172/#50677: a concept that only reached this content through a mapping into a scheme flagged
+    # with hidden_mappings is not carried at all, which without_broader already excludes - so this is
+    # the set every display, search and sort path reads, and the one a scoped preload should target
+    # (PreloadService.preload(records, :full_concepts, Concept.for_tree(...))).
+    has_many :full_concept_contents, -> { without_broader }, inverse_of: false, class_name: 'DataCycleCore::CollectedConceptContent'
+    has_many :full_concepts, through: :full_concept_contents, class_name: 'DataCycleCore::Concept', source: :concept
+    has_many :full_concept_schemes, through: :full_concept_contents, class_name: 'DataCycleCore::ConceptScheme', source: :concept_scheme
     has_many :content_collection_links, class_name: 'DataCycleCore::ContentCollectionLink'
     has_many :geometries, class_name: 'DataCycleCore::Geometry', inverse_of: :thing, autosave: true
     has_many :embeddings, class_name: 'DataCycleCore::Embedding', inverse_of: :thing

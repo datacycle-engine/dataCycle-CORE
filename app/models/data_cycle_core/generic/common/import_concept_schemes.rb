@@ -5,7 +5,7 @@ module DataCycleCore
     module Common
       module ImportConceptSchemes
         module ClassMethods
-          ALLOWED_CONCEPT_SCHEME_KEYS = [:external_key, :name, :external_source_id, :updated_at, :created_at, :visibility].freeze
+          ALLOWED_CONCEPT_SCHEME_KEYS = [:external_key, :name, :external_system_id, :updated_at, :created_at, :visibility].freeze
 
           def import_data(utility_object:, options:)
             DataCycleCore::Generic::Common::ImportFunctions.import_concept_schemes(
@@ -50,7 +50,7 @@ module DataCycleCore
 
               {
                 external_key:,
-                external_source_id: utility_object.external_source&.id,
+                external_system_id: utility_object.external_source&.id,
                 name:,
                 external_system_identifier:,
                 created_at: Time.zone.now,
@@ -85,7 +85,7 @@ module DataCycleCore
 
               data_array.filter { |da| da[:external_system_identifier].present? }.each do |da|
                 es_id = external_systems.find { |es| es['identifier'] == da[:external_system_identifier] || es['name'] == da[:external_system_identifier] }&.dig('id')
-                da[:external_source_id] = es_id if es_id.present?
+                da[:external_system_id] = es_id if es_id.present?
               end
             end
 
@@ -95,18 +95,18 @@ module DataCycleCore
               existing = concept_schemes_by_name[da[:name]]
 
               # Check if the concept_scheme already exists
-              if existing.present? && existing.external_system_id != da[:external_source_id]
+              if existing.present? && existing.external_system_id != da[:external_system_id]
                 # prefix name if import_duplicates is true, ignore it otherwise
                 next if options.dig(:import, :import_duplicates).blank?
 
                 da[:name] = "#{utility_object.external_source.name} - #{da[:name]}"
-              elsif existing.present? && existing.external_system_id == da[:external_source_id]
+              elsif existing.present? && existing.external_system_id == da[:external_system_id]
                 da[:external_key] = existing.external_key
               end
 
               existing = concept_schemes_by_name[da[:name]]
               raise "ConceptScheme (#{da[:name]}) already exists from another source!" if existing.present? &&
-                                                                                          existing.external_system_id != da[:external_source_id]
+                                                                                          existing.external_system_id != da[:external_system_id]
 
               da[:visibility] = existing.visibility if existing.present?
               da.slice(*ALLOWED_CONCEPT_SCHEME_KEYS)

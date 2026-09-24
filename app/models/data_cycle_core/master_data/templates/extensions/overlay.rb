@@ -35,6 +35,27 @@ module DataCycleCore
           ].freeze
           ALLOWED_PROP_OVERRIDES = ['default_value', 'ui'].freeze
 
+          # A legacy overlay is an embedded template an original names in its overlay attribute
+          # (features.overlay.allowed on the original); it may only carry the original's properties.
+          #
+          # @param templates [Array<Hash>] every template as TemplateImporter holds them
+          # @param overlay_name [String] the template to find the originals of
+          # @return [Array<Hash>] the originals whose overlay attribute names it
+          def self.legacy_originals(templates, overlay_name)
+            overlay_key = DataCycleCore::Feature::Overlay.attribute_keys.first
+            return [] if overlay_key.blank?
+
+            templates.select { |t| t.dig(:data, :features, :overlay, :allowed) && overlay_name == t.dig(:data, :properties, overlay_key, 'template_name') }
+          end
+
+          # @return [Array<String>] the names of every legacy overlay template
+          def self.legacy_overlay_names(templates)
+            overlay_key = DataCycleCore::Feature::Overlay.attribute_keys.first
+            return [] if overlay_key.blank?
+
+            templates.filter_map { |t| t.dig(:data, :properties, overlay_key, 'template_name') if t.dig(:data, :features, :overlay, :allowed) }
+          end
+
           def overlay_version_prop(key, prop, version, allowed_visibilities = ['show', 'edit'])
             version_prop = prop.deep_dup.except(*OVERLAY_PROP_EXCEPTIONS)
             override_props = version_prop.dig('features', 'overlay', version)&.slice(*ALLOWED_PROP_OVERRIDES) || {}

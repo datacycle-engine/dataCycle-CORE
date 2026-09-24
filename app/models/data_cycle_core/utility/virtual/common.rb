@@ -29,16 +29,17 @@ module DataCycleCore
             content&.property_definitions&.dig(*path)
           end
 
+          # The children are whatever content_contents links to the parent, not what the template
+          # declares: one mislinked row is enough to put a UnitPriceSpecification, which has no
+          # name property, under a Trail's additional_information, where an unguarded name would
+          # reach Content#method_missing and take the whole APIv4 list page down with a NoMethodError.
           def attribute_value_from_named_embedded(virtual_parameters:, content:, **_args)
             virtual_parameters.reduce(content) do |content_part, params|
-              if !content_part.respond_to?(params['attribute'])
-                nil
-              elsif params['name']
-                content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']) } ||
-                  content_part&.send(params['attribute'])&.find { |c| c.name == I18n.t(params['name'], default: params['name']&.split('.')&.last) }
-              else
-                content_part&.send(params['attribute'])
-              end
+              value = content_part.try(params['attribute'])
+              next value unless params['name']
+
+              value&.find { |c| c.try(:name) == I18n.t(params['name'], default: params['name']) } ||
+                value&.find { |c| c.try(:name) == I18n.t(params['name'], default: params['name'].split('.').last) }
             end
           end
 
@@ -65,7 +66,7 @@ module DataCycleCore
           end
 
           def content_classification_for_tree(virtual_definition:, content:, **_args)
-            content.classifications_for_tree(tree_name: virtual_definition['tree_label'])
+            content.concepts_for_tree(scheme_name: virtual_definition['tree_label'])
           end
 
           def attribute_value_by_first_match(virtual_definition:, content:, **_args)
@@ -133,7 +134,7 @@ module DataCycleCore
 
               in_filter = case config['type']
                           when 'classification'
-                            content.classification_aliases.joins(:classification_alias_path).exists?(classification_alias_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })
+                            content.concepts.joins(:concept_path).exists?(concept_path: { full_path_names: config['value'].split('>').map(&:strip).reverse })
                           else
                             content.try(config['type']) == config['value']
                           end

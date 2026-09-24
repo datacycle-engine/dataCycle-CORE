@@ -3,9 +3,9 @@
 json ||= {}
 key_new = attribute_key(key, definition)
 
-classification_aliases = content.send(:"#{key}_overlay").includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
-classification_string = classification_aliases
-  .presence.map { |classification_alias| classification_alias.uri || classification_alias.name || classification_alias.internal_name }
+concepts = content.send(:"#{key}_overlay")
+classification_string = concepts
+  .presence.map { |concept| concept.uri || concept.name || concept.internal_name }
   .join(',')
 
 json = { key_new => classification_string } if classification_string.present?

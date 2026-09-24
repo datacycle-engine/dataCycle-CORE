@@ -29,7 +29,7 @@
 @import 'modules/components/sortable';
 @import 'modules/components/confirmation_modal';
 @import 'modules/static';
-@import 'modules/schema';
+// modules/schema is NOT imported here: /schema loads it through entrypoints/schema.js
 @import 'modules/admin_board';
 @import 'modules/exceptions';
 //load logs
@@ -69,7 +69,10 @@
 @import 'modules/components/transitions';
 @import 'modules/components/permissions';
 @import 'modules/components/additional_attribute_partials';
-@import 'modules/components/content_classifier';
+@import 'modules/components/busy_buttons';
+@import 'modules/components/pixie_generate_button';
+@import 'modules/components/classification_pixie';
+@import 'modules/components/annotation_pixie';
 @import 'modules/tailwind_dummy';
 
 @import '@simonwep/pickr/dist/themes/nano.min';

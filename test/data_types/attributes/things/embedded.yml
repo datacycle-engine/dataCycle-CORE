@@ -238,3 +238,64 @@
         :type: boolean
         :storage_location: value
         :advanced_search: true
+
+- :data:
+    :name: Embedded-Entity-Reusable
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :schema_types:
+        :label: SchemaTypes
+        :type: classification
+        :tree_label: SchemaTypes
+        :visible: false
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :embedded_creative_work:
+        :label: Embedded Creative-Work
+        :type: embedded
+        :template_name:
+          - Embedded-Creative-Work-2
+          - Embedded-Creative-Work-Reusable
+      :first_block_name:
+        :label: Erster Block
+        :type: string
+        :storage_location: translated_value
+        :compute:
+          :module: Common
+          :method: attribute_value_by_first_match
+          :fallback: false
+          :parameters:
+            - embedded_creative_work
+          :value:
+            - :attribute: embedded_creative_work.name
+
+- :data:
+    :name: Embedded-Creative-Work-Reusable
+    :type: object
+    :content_type: embedded
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :nested_creative_work:
+        :label: Nested Creative-Work
+        :type: embedded
+        :template_name: Embedded-Creative-Work-2

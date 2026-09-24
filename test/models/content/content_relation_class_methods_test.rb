@@ -9,7 +9,7 @@ module DataCycleCore
         @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Testbild' })
         @image2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Testbild 2' })
         @image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Testbild 3' })
-        @tag = DataCycleCore::Classification.for_tree('Tags').first
+        @tag = DataCycleCore::Concept.for_tree('Tags').first
         @pois = []
 
         5.times do |i|

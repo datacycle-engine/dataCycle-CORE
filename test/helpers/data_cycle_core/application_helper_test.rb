@@ -67,8 +67,8 @@ module DataCycleCore
     end
 
     test 'result_count formats classification counts and content counts' do
-      assert_equal '5', result_count('classification_alias', 5, 'thing')
-      assert_equal '-', result_count('classification_alias', 0, 'thing')
+      assert_equal '5', result_count('concept', 5, 'thing')
+      assert_equal '-', result_count('concept', 0, 'thing')
       assert_predicate result_count('grid', 3, 'thing'), :present?
     end
 

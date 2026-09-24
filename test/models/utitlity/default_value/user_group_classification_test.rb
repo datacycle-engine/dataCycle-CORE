@@ -10,10 +10,9 @@ module DataCycleCore
           DataCycleCore::Utility::DefaultValue::UserGroupClassification
         end
 
-        def user_with_classification_ids(ids)
+        def user_with_concept_ids(ids)
           chain = Class.new {
             define_method(:try) { |_key| self }
-            define_method(:primary_classifications) { self }
             define_method(:pluck) { |_attribute| ids }
           }.new
 
@@ -24,14 +23,14 @@ module DataCycleCore
           assert_nil(subject.by_user(current_user: nil, key: 'editors'))
         end
 
-        test 'by_user wraps the primary classification ids of the user group resolved by key' do
-          current_user = user_with_classification_ids([10, 20])
+        test 'by_user wraps the concept ids of the user group resolved by key' do
+          current_user = user_with_concept_ids([10, 20])
 
           assert_equal([10, 20], subject.by_user(current_user:, key: 'editors'))
         end
 
         test 'by_user returns nil for an ambiguous value of a single-valued relation' do
-          current_user = user_with_classification_ids([10, 20])
+          current_user = user_with_concept_ids([10, 20])
 
           DataCycleCore::Feature::UserGroupClassification.stub(:attribute_relations, { 'editors' => { 'multiple' => false } }) do
             assert_nil(subject.by_user(current_user:, key: 'editors'))
@@ -39,7 +38,7 @@ module DataCycleCore
         end
 
         test 'by_user keeps a single value of a single-valued relation' do
-          current_user = user_with_classification_ids([10])
+          current_user = user_with_concept_ids([10])
 
           DataCycleCore::Feature::UserGroupClassification.stub(:attribute_relations, { 'editors' => { 'multiple' => false } }) do
             assert_equal([10], subject.by_user(current_user:, key: 'editors'))

@@ -467,6 +467,64 @@ module DataCycleCore
             assert_equal(error_object, json_data['errors'].first)
           end
 
+          # Nothing constrains the shape of a request parameter, so a scalar can land where
+          # ApiService#validate_api_filters walks a hash or an array. Every row below answered with a
+          # 500 before it reported a bad request: the wrapper rows raised NoMethodError on String#each,
+          # the nested ones the bare RuntimeError that guarded the recursion.
+          test 'api/v4/things with wrongly shaped filter wrappers responds with bad request' do
+            [
+              [{ attribute: 'x' }, 'filter[attribute]', 'must be a hash'],
+              [{ graph: 'x' }, 'filter[graph]', 'must be a hash'],
+              [{ linked: 'x' }, 'filter[linked]', 'must be a hash'],
+              [{ attribute: { 'dct:modified': 'x' } }, 'filter[attribute][dct:modified]', 'must be a hash'],
+              [{ linked: { contentLocation: 'x' } }, 'filter[linked][contentLocation]', 'must be a hash'],
+              [{ union: 'x' }, 'filter[union]', 'must be an array'],
+              [{ union: { contentId: { in: ['x'] } } }, 'filter[union]', 'must be an array'],
+              [{ union: ['x'] }, 'filter[union][0]', 'must be a hash']
+            ].each do |filter, parameter, detail|
+              post api_v4_things_path(filter: filter)
+
+              assert_response :bad_request
+              assert_equal('application/json; charset=utf-8', response.content_type)
+              json_data = response.parsed_body
+
+              assert_equal(1, json_data.size)
+              assert_equal(1, json_data['errors'].size)
+              error_object = {
+                'source' => {
+                  'parameter' => parameter
+                },
+                'title' => 'Invalid Query Parameter',
+                'detail' => detail
+              }
+
+              assert_equal(error_object, json_data['errors'].first)
+            end
+          end
+
+          # The request from AppSignal incident 188 on the route that reported it. ContentsController
+          # validates params in a before_action, i.e. before the endpoint's stored filter is looked
+          # up, so a wrongly shaped filter answers 400 even for an :id that does not exist.
+          test 'api/v4/endpoints with a scalar attribute filter responds with bad request' do
+            get api_v4_stored_filter_path(id: SecureRandom.uuid, filter: { attribute: 'x' }, page: { size: '1' })
+
+            assert_response :bad_request
+            assert_equal('application/json; charset=utf-8', response.content_type)
+            json_data = response.parsed_body
+
+            assert_equal(1, json_data.size)
+            assert_equal(1, json_data['errors'].size)
+            error_object = {
+              'source' => {
+                'parameter' => 'filter[attribute]'
+              },
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'must be a hash'
+            }
+
+            assert_equal(error_object, json_data['errors'].first)
+          end
+
           test 'api/v4/things detail error for expired items' do
             params = {
               id: @content.id

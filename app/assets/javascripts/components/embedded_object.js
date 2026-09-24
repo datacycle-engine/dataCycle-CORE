@@ -5,6 +5,7 @@ import difference from "lodash/difference";
 import intersection from "lodash/intersection";
 import ObserverHelpers from "../helpers/observer_helpers";
 import DcStickyBar from "./dc_sticky_bar";
+import EmbeddedCopyActions from "./embedded_copy_actions";
 
 class EmbeddedObject {
 	constructor(selector) {
@@ -16,6 +17,9 @@ class EmbeddedObject {
 		);
 		this.addButtons = this.parent.querySelectorAll(
 			":scope > .embedded-editor-header .new-embedded-button-wrapper .add-content-object",
+		);
+		this.reusableBrowser = this.parent.querySelector(
+			":scope > .embedded-editor-header .reusable-embedded-browser",
 		);
 		this.page = 1;
 		this.id = this.$element.prop("id");
@@ -44,6 +48,9 @@ class EmbeddedObject {
 			import: this.import.bind(this),
 			addItem: this.addNewItem.bind(this),
 			removeItem: this.handleRemoveEvent.bind(this),
+			selectExisting: this.selectExisting.bind(this),
+			unlinkItem: this.unlinkEmbedded.bind(this),
+			duplicateItem: this.duplicateEmbedded.bind(this),
 			scrollToLocationHash: this.scrollToLocationHash.bind(this),
 			clear: this.clear.bind(this),
 		};
@@ -80,6 +87,12 @@ class EmbeddedObject {
 		element
 			.querySelector(this.selectorForRemoveContentObject())
 			?.addEventListener("click", this.eventHandlers.removeItem);
+		element
+			.querySelector(this.selectorForItemChild(".unlink-embedded"))
+			?.addEventListener("click", this.eventHandlers.unlinkItem);
+		element
+			.querySelector(this.selectorForItemChild(".duplicate-embedded"))
+			?.addEventListener("click", this.eventHandlers.duplicateItem);
 
 		this.setupSwappableButtons(element);
 	}
@@ -87,48 +100,41 @@ class EmbeddedObject {
 		return this.element.dataset.locale || "de";
 	}
 	import(_event, data) {
+		return this.addItems(data.value, "split_view", data.locale, data.translate);
+	}
+	// "existing" links the ids as they are, "split_view" copies them (see renderEmbeddedObjects).
+	// As before, the batch renders while the list is below max and the server validates the total.
+	async addItems(ids, type, locale = null, translate = false) {
+		const items = this.$element.children(".content-object-item");
 		const newItems = difference(
-			data.value,
-			this.$element
-				.children(".content-object-item")
-				.map((_index, elem) => $(elem).data("id"))
-				.get(),
+			ids,
+			items.map((_index, elem) => $(elem).data("id")).get(),
 		);
 
-		if (
-			this.write &&
-			(this.max === 0 ||
-				this.$element.children(".content-object-item").length < this.max) &&
-			newItems.length > 0
-		) {
-			return this.renderEmbeddedObjects(
-				"split_view",
-				newItems,
-				data.locale,
-				data.translate,
-			);
-		}
+		if (!this.write || newItems.length === 0) return;
 
-		if (
-			this.write &&
-			this.max !== 0 &&
-			ids.length + newItems.length > this.max
-		) {
-			return I18n.translate("frontend.split_view.copy_linked_error").then(
-				(prefix) =>
-					I18n.translate("frontend.maximum_embedded", {
-						data: this.max,
-					}).then(
-						(text) =>
-							new ConfirmationModal({
-								text: `${this.label}: ${prefix}${text}`,
-							}),
-					),
-			);
-		}
+		if (this.max === 0 || items.length < this.max)
+			return this.renderEmbeddedObjects(type, newItems, locale, translate);
+
+		return this.maxReachedModal(
+			type === "split_view"
+				? await I18n.translate("frontend.split_view.copy_linked_error")
+				: "",
+		);
+	}
+	async maxReachedModal(prefix = "") {
+		const text = await I18n.translate("frontend.maximum_embedded", {
+			data: this.max,
+		});
+
+		return new ConfirmationModal({ text: `${this.label}: ${prefix}${text}` });
+	}
+	// a control of an item sits directly under it or under .form-element > .editor-block
+	selectorForItemChild(selector, parent = "") {
+		return `:scope ${parent} > ${selector}, :scope ${parent} > .form-element > .editor-block > ${selector}`;
 	}
 	selectorForEmbeddedHeader(selector) {
-		return `:scope > .embedded-header > ${selector}, :scope > .form-element > .editor-block > .embedded-header > ${selector}`;
+		return this.selectorForItemChild(`.embedded-header > ${selector}`);
 	}
 	setSwapClasses(element) {
 		let elem = element;
@@ -191,34 +197,20 @@ class EmbeddedObject {
 	) {
 		const index = this.index;
 		const newIds = difference(ids, this.ids);
-		if (type === "split_view") this.index += newIds.length;
-		else if (type === "new") this.index++;
+		if (type === "new") this.index++;
+		else this.index += newIds.length;
 
 		this.parent.classList.add("loading-embedded");
 		this.ids.push(...newIds);
 
-		const promise = DataCycle.httpRequest(
-			`${this.url}/render_embedded_object`,
-			{
-				method: "POST",
-				body: {
-					index: index,
-					locale: this.locale(),
-					attribute_locale: locale,
-					key: this.key,
-					definition: this.definition,
-					options: this.options,
-					content_id: this.content_id,
-					content_type: this.content_type,
-					content_template_name: this.templateName,
-					content_template: this.template,
-					object_ids: newIds,
-					duplicated_content: type === "split_view",
-					translate: translate,
-					embedded_template: specificEmbeddedTemplate,
-				},
-			},
-		);
+		const promise = this.requestEmbeddedHtml({
+			index: index,
+			attribute_locale: locale,
+			object_ids: newIds,
+			duplicated_content: type === "split_view",
+			translate: translate,
+			embedded_template: specificEmbeddedTemplate,
+		});
 
 		promise
 			.then(this.insertNewElements.bind(this, newIds))
@@ -226,6 +218,22 @@ class EmbeddedObject {
 			.finally(() => this.parent.classList.remove("loading-embedded"));
 
 		return promise;
+	}
+	requestEmbeddedHtml(body) {
+		return DataCycle.httpRequest(`${this.url}/render_embedded_object`, {
+			method: "POST",
+			body: {
+				locale: this.locale(),
+				key: this.key,
+				definition: this.definition,
+				options: this.options,
+				content_id: this.content_id,
+				content_type: this.content_type,
+				content_template_name: this.templateName,
+				content_template: this.template,
+				...body,
+			},
+		});
 	}
 	insertNewElements(ids, data) {
 		const loadMore = this.element.querySelector(
@@ -270,13 +278,18 @@ class EmbeddedObject {
 		else console.error(error);
 	}
 	selectorForRemoveContentObject(parent = "") {
-		return `:scope ${parent} > .removeContentObject, :scope ${parent} > .form-element > .editor-block > .removeContentObject`;
+		return this.selectorForItemChild(".removeContentObject", parent);
 	}
 	addEventHandlers() {
 		for (const button of this.addButtons) {
 			button.removeEventListener("click", this.eventHandlers.addItem);
 			button.addEventListener("click", this.eventHandlers.addItem);
 		}
+
+		if (this.reusableBrowser)
+			$(this.reusableBrowser)
+				.off("dc:objectBrowser:change", this.eventHandlers.selectExisting)
+				.on("dc:objectBrowser:change", this.eventHandlers.selectExisting);
 
 		this.$element
 			.off("init.zf.accordion", this.eventHandlers.scrollToLocationHash)
@@ -318,12 +331,7 @@ class EmbeddedObject {
 	}
 	removeObject(element) {
 		const id = element.data("id");
-		if (id !== undefined) {
-			this.element
-				.querySelector(`input[type="hidden"][value="${id}"]`)
-				?.remove();
-			this.ids = this.ids.filter((x) => x !== id);
-		}
+		if (id !== undefined) this.ids = this.ids.filter((x) => x !== id);
 
 		element.remove();
 
@@ -365,6 +373,9 @@ class EmbeddedObject {
 				?.remove();
 
 		for (const child of contentObjectItems) this.setSwapClasses(child);
+
+		if (this.reusableBrowser)
+			this.reusableBrowser.dataset.excluded = JSON.stringify(this.ids);
 
 		this.updateContainerClass();
 	}
@@ -446,5 +457,7 @@ class EmbeddedObject {
 				this.removeObject($(element));
 	}
 }
+
+Object.assign(EmbeddedObject.prototype, EmbeddedCopyActions);
 
 export default EmbeddedObject;

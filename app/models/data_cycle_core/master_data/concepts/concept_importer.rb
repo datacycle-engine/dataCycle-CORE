@@ -8,7 +8,7 @@ module DataCycleCore
         DEDUPLICATE = ['Inhaltstypen'].freeze
         MERGE = ['Inhaltstypen'].freeze
 
-        attr_reader :errors, :counts
+        attr_reader :errors, :counts, :concept_mappings
 
         def initialize(paths: nil, import_concepts: true, import_mappings: true)
           @paths = Array.wrap(paths).presence || [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
@@ -63,14 +63,17 @@ module DataCycleCore
         def insert_concept_schemes
           return if @concept_schemes.blank?
 
-          ctls = @concept_schemes.values
-          existing = DataCycleCore::ClassificationTreeLabel.with_deleted.where(external_key: ctls.pluck(:external_key)).pluck(:external_key)
+          external_keys = @concept_schemes.values.pluck(:external_key)
+          # A scheme an operator deleted must not come back on the next config import, and a deleted
+          # one now lives in concept_scheme_histories (see ConceptScheme::History).
+          existing = DataCycleCore::ConceptScheme.where(external_key: external_keys).pluck(:external_key) +
+                     DataCycleCore::ConceptScheme::History.where(external_key: external_keys).pluck(:external_key)
           to_insert = @concept_schemes.reject { |_, v| v[:external_key]&.in?(existing) }
 
           return if to_insert.blank?
 
-          DataCycleCore::ClassificationTreeLabel.insert_all(
-            to_insert.values.map { |cs| cs.slice(:name, :internal, :visibility, :external_key, :external_source_id) }
+          DataCycleCore::ConceptScheme.insert_all(
+            to_insert.values.map { |cs| cs.slice(:name, :internal, :visibility, :external_key, :external_system_id) }
           )
 
           @counts[:concept_schemes] = to_insert.size
@@ -81,23 +84,29 @@ module DataCycleCore
         def insert_concepts
           return if @concept_schemes.blank?
 
-          loaded_cs = DataCycleCore::ClassificationTreeLabel.where(name: @concept_schemes.keys).index_by(&:name)
+          loaded_cs = DataCycleCore::ConceptScheme.where(name: @concept_schemes.keys).index_by(&:name)
 
           @concept_schemes.each_value do |cs|
             concept_scheme = loaded_cs[cs[:name]]
 
-            next if concept_scheme.blank? || concept_scheme.external_source_id != cs[:external_source_id]
+            next if concept_scheme.blank? || concept_scheme.external_system_id != cs[:external_system_id]
             next if cs[:concepts].blank?
 
             concepts = Array.wrap(cs[:concepts])
-            existing = DataCycleCore::ClassificationAlias.with_deleted.where(external_source_id: cs[:external_source_id], external_key: concepts.pluck(:external_key))
-            existing_keys = existing.pluck(:external_key)
-            deleted_keys = existing.only_deleted.pluck(:external_key)
+            external_keys = concepts.pluck(:external_key)
+            deleted_keys = DataCycleCore::Concept::History.where(external_system_id: cs[:external_system_id], external_key: external_keys).pluck(:external_key)
             concepts.reject! { |c| deleted_keys.include?(c[:external_key]) } # do not re-insert deleted concepts
             next if concepts.blank?
 
-            concept_scheme.insert_all_external_classifications(concepts)
-            @counts[:concepts] += (concepts.pluck(:external_key) - existing_keys).size
+            # Counted from the rows that appeared rather than from the keys that were missing
+            # beforehand: the two agree only while the import is idempotent, so the prediction
+            # stays silent on the one run worth reporting - under #41458's too-narrow ON CONFLICT
+            # target it said 87 while 688 rows were written.
+            scheme_concepts = DataCycleCore::Concept.where(concept_scheme_id: concept_scheme.id)
+            before = scheme_concepts.count
+
+            concept_scheme.insert_all_external_concepts(concepts)
+            @counts[:concepts] += scheme_concepts.count - before
           rescue StandardError => e
             @errors.push("error inserting concepts for #{cs[:name]} => #{e}")
           end
@@ -106,36 +115,29 @@ module DataCycleCore
         def insert_concept_mappings
           return if @concept_mappings.blank?
 
-          new_groups = []
+          new_links = []
           full_paths = (@concept_mappings.keys + @concept_mappings.values).flatten
-          concepts = DataCycleCore::ClassificationAlias
-            .includes(:primary_classification)
+          concept_ids = DataCycleCore::Concept
             .by_full_paths(full_paths)
-            .each_with_object({}) do |ca, h|
-            h[ca.full_path] ||= []
-            h[ca.full_path] << { classification_alias_id: ca.id, classification_id: ca.primary_classification&.id }
-          end
+            .each_with_object({}) { |concept, h| (h[concept.full_path] ||= []) << concept.id }
 
           @concept_mappings.each do |key, value|
-            next unless concepts.key?(key)
+            next unless concept_ids.key?(key)
 
             Array.wrap(value).each do |v|
-              next unless concepts.key?(v)
+              next unless concept_ids.key?(v)
 
-              parents = concepts[key]
-              children = concepts[v]
-
-              parents.each do |parent|
-                children.each do |child|
-                  new_groups.push({ classification_alias_id: parent[:classification_alias_id], classification_id: child[:classification_id], created_at: Time.zone.now, updated_at: Time.zone.now }) # created_at and updated_at required for primary_classification in tests
+              concept_ids[key].each do |parent_id|
+                concept_ids[v].each do |child_id|
+                  new_links.push({ parent_id:, child_id:, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED })
                 end
               end
             end
           end
 
-          return if new_groups.blank?
+          return if new_links.blank?
 
-          result = DataCycleCore::ClassificationGroup.insert_all(new_groups, unique_by: :classification_groups_ca_id_c_id_uq_idx)
+          result = DataCycleCore::ConceptLink.insert_all(new_links, unique_by: :index_concept_links_on_parent_id_and_child_id)
 
           @counts[:concept_mappings] = result.count
         end
@@ -145,7 +147,7 @@ module DataCycleCore
             load_concept_mappings_from_path(path)
           end
 
-          @concept_mappings = @concept_mappings&.values&.reduce(&:merge)&.compact
+          @concept_mappings = @concept_mappings&.values&.reduce(&:merge)&.compact || {}
         end
 
         def load_concepts
@@ -326,11 +328,11 @@ module DataCycleCore
               .uniq
             cs[:internal] = false if cs[:internal].nil?
             es_id = es_mapping[cs.delete(:external_source)] if cs[:external_source].present?
-            cs[:external_source_id] = es_id
+            cs[:external_system_id] = es_id
             cs[:concepts].uniq! { |c| c[:external_key] } # deduplicate concepts by external_key
             cs[:concepts].each.with_index do |c, index|
               c[:order_a] = index
-              c[:external_source_id] = es_id if es_id.present?
+              c[:external_system_id] = es_id if es_id.present?
             end
           end
         end

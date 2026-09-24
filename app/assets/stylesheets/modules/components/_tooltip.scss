@@ -74,6 +74,8 @@
 .select2-results__option [data-dc-tooltip],
 .select2-selection [data-dc-tooltip],
 a [data-dc-tooltip],
-.ql-formats [data-dc-tooltip] {
+// a button in a text editor toolbar -- the imageDescriptionPixie's wand, the aiLector's -- keeps
+// the pointer its own rule gives it; only the tooltipped icons around it inherit
+.ql-formats [data-dc-tooltip]:not(button) {
   cursor: inherit !important;
 }

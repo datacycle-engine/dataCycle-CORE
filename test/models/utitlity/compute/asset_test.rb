@@ -16,6 +16,43 @@ module DataCycleCore
           end
         end
 
+        test 'file_format reads the extension off the last path segment, else off the end of the query' do
+          cases = {
+            'https://storage.test/939765/dsc-4611.jpg?r=1' => 'image/jpeg',                    # a query string is not part of it
+            'https://www.test/index.php?rex_media_file=foto.png' => 'image/png',               # unless a script names the file at the query's end
+            'http://img.test/img/1250/625/54123107/.jpg' => 'image/jpeg',                      # a segment that is only the extension counts
+            'https://thumbor.test/unsafe/300x200/www.example.org/image' => nil,                # an inner segment is not read: it can be a host
+            'https://cms.test/o/adaptive-media/image/197087233/Preview-1280x0/image' => nil,   # the dot in the host is not one
+            'https://example.mov/image/123' => nil,                                            # and neither is a TLD that reads like one
+            'https://www.test/bild.php?id=5' => nil,                                           # a server-side program names no format
+            '://nope' => nil                                                                   # a url the parser rejects answers nil, it does not raise
+          }
+
+          DataCycleCore::Asset.stub(:find_by, nil) do
+            cases.each do |url, expected|
+              value = subject.file_format(
+                computed_parameters: { 'asset' => nil, 'content_url' => url },
+                data_hash: { 'content_url' => url },
+                content: struct_double(template_name: 'Bild')
+              )
+
+              expected.nil? ? assert_nil(value, url) : assert_equal(expected, value, url)
+            end
+          end
+        end
+
+        test 'file_format prefers the content type of the local asset over the url' do
+          DataCycleCore::Asset.stub(:find_by, struct_double(content_type: 'image/webp')) do
+            value = subject.file_format(
+              computed_parameters: { 'asset' => 'asset-id', 'content_url' => 'https://cdn.test/photo.jpg' },
+              data_hash: { 'content_url' => 'https://cdn.test/photo.jpg' },
+              content: struct_double(template_name: 'Bild')
+            )
+
+            assert_equal('image/webp', value)
+          end
+        end
+
         test 'content_url_from_slug uses the parameter slug for the primary locale' do
           content = Class.new { def first_available_locale(_ = nil) = I18n.locale }.new
 

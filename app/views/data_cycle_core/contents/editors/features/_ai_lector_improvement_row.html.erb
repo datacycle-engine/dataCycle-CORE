@@ -19,7 +19,7 @@
 
   <%= turbo_frame_tag("#{identifier}-context-overlay", loading: 'lazy',
     src: remote_render_path(
-      options: { overlay_id: "#{identifier}-context-overlay", key: k, classification_tree_label: v[:classification_tree_label], locale: I18n.locale }.to_json,
+      options: { overlay_id: "#{identifier}-context-overlay", key: k, concept_scheme: v[:classification_tree_label], locale: I18n.locale }.to_json,
       partial: 'data_cycle_core/contents/editors/features/ai_lector_context_frame'
     ),
     class: 'ai-lector-context-overlay reveal', data: { reveal: true }) if v[:allow_direct_user_input] %>

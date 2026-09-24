@@ -64,7 +64,8 @@
     <div class="card-section buttons">
       <div
         class="button-row <%= 'disabled' unless @data[:downloadable] %>"
-        data-dc-tooltip="<%= t('dash_board.download_import', locale: active_ui_locale) %>"
+        data-dc-tooltip="<%= t('dash_board.download_import', locale: active_ui_locale) %><br>
+        <b><%= t('dash_board.full_delta', locale: active_ui_locale) %>:</b> <%= t('dash_board.full_delta_hint', locale: active_ui_locale) %>"
       >
         <%= tag.span(tag.i(class: 'fa fa-level-up'), class: 'icon') %>
 
@@ -74,6 +75,14 @@
               disabled: !@data[:downloadable],
               class: 'button small',
               form: { class: 'download-import button_to', data: { turbo: true, turbo_stream: true } }
+          ) %>
+
+        <%= button_to(
+              tag.span(t('dash_board.full_delta', locale: active_ui_locale)),
+              admin_download_import_path(id: @data[:uuid], mode: 'full_delta'),
+              disabled: !@data[:downloadable],
+              class: 'button small',
+              form: { class: 'download-import-full-delta button_to', data: { turbo: true, turbo_stream: true } }
           ) %>
 
         <%= button_to(

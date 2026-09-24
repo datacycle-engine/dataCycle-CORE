@@ -9,7 +9,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         I18n.with_locale(translation.locale) do
           json.set! translation.locale do
             translated_objects = content.send(key)
-            json.array!(translated_objects.presence&.includes(:translations, :classifications)) do |translated_object|
+            json.array!(translated_objects.presence&.includes(:translations, :concepts)) do |translated_object|
               if translated_object.schema.present?
                 json.content_partial! 'context', content: translated_object
                 ordered_api_properties(validation: translated_object.schema).each do |key, prop|
@@ -23,7 +23,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         end
       end
     else
-      json.array!(value.presence&.includes(:translations, :classifications)) do |object|
+      json.array!(value.presence&.includes(:translations, :concepts)) do |object|
         I18n.with_locale(object.first_available_locale) do
           if object.schema.present?
             json.content_partial! 'context', content: object

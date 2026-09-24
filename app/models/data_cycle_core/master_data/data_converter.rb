@@ -14,7 +14,7 @@ module DataCycleCore
         minimal: ['b', 'strong', 'i', 'em', 'u', 'br', 'p'],
         basic: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'br', 'p', 'sub', 'sup'],
         list: ['ul', 'ol', 'li', 'br', 'p'],
-        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td']
+        full: ['b', 'strong', 'i', 'em', 'h1', 'h2', 'h3', 'h4', 'u', 'blockquote', 'ul', 'ol', 'li', 'br', 'a', 'contentlink', 'p', 'sub', 'sup', 'span', 'div', 'table', 'thead', 'tbody', 'tr', 'th', 'td']
       }.freeze
 
       SANITIZED_ATTRIBUTES = {

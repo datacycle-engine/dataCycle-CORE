@@ -16,12 +16,12 @@ module DataCycleCore
 
       test 'add publication schedules to content' do
         publication_date = Time.zone.now
-        classification_tree_labels = DataCycleCore::Feature::PublicationSchedule.classification_tree_labels(@content)
+        concept_schemes = DataCycleCore::Feature::PublicationSchedule.concept_schemes(@content)
 
-        assert_predicate classification_tree_labels, :present?
+        assert_predicate concept_schemes, :present?
 
-        classifications = classification_tree_labels.transform_values do |c|
-          DataCycleCore::ClassificationAlias.for_tree(c)&.map(&:primary_classification)
+        classifications = concept_schemes.transform_values do |c|
+          DataCycleCore::Concept.for_tree(c)&.to_a
         end
 
         assert classifications.values.all?(&:present?)
@@ -54,12 +54,12 @@ module DataCycleCore
       test 'search publication schedules' do
         publication_date = Time.zone.now.to_date.to_s
 
-        classification_tree_labels = DataCycleCore::Feature::PublicationSchedule.classification_tree_labels(@content)
+        concept_schemes = DataCycleCore::Feature::PublicationSchedule.concept_schemes(@content)
 
-        assert_predicate classification_tree_labels, :present?
+        assert_predicate concept_schemes, :present?
 
-        classifications = classification_tree_labels.transform_values do |c|
-          DataCycleCore::ClassificationAlias.for_tree(c)&.map(&:primary_classification)
+        classifications = concept_schemes.transform_values do |c|
+          DataCycleCore::Concept.for_tree(c)&.to_a
         end
 
         assert classifications.values.all?(&:present?)
@@ -81,18 +81,18 @@ module DataCycleCore
           f: classifications.map.with_index { |(k, v), i|
             [i.to_s, {
               c: 'd',
-              t: 'classification_alias_ids',
-              n: classification_tree_labels[k],
+              t: 'concept_ids',
+              n: concept_schemes[k],
               m: 'i',
-              v: [v.first.primary_classification_alias.id]
+              v: [v.first.id]
             }]
           }.to_h.merge({
             'ct' => {
               c: 'd',
-              t: 'classification_alias_ids',
+              t: 'concept_ids',
               n: 'Inhaltstypen',
               m: 'i',
-              v: [@content_with_publication_schedule.data_type.first.primary_classification_alias.id]
+              v: [@content_with_publication_schedule.data_type.first.id]
             }
           })
         }, headers: {

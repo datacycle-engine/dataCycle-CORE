@@ -1,0 +1,63 @@
+// Shared look of every AI button in an attribute's row: the generate buttons of all pixies
+// (#47879, #47881) and the ai_lector's dropdown, which busy_buttons.js already freezes as one kind
+// of thing. A suggestion is an offer, not the primary action of the form, so none of them gets the
+// weight of a filled button.
+//
+// The transform is in the transition for the ai_lector's :active alone (_ai_lector.scss), so that
+// rule needs no transition of its own and this file may be imported before or after it.
+.pixie-generate-button,
+.ai-lector-dropdown-button {
+  color: var(--pixie-brand, #663399);
+  background: transparent;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.15s ease-out, transform 0.1s ease-out;
+
+  .fa {
+    font-size: 1.2rem;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--purple);
+    outline: none;
+  }
+
+  &:focus-visible {
+    filter: drop-shadow(0 0 2px var(--pixie-brand, #663399));
+  }
+}
+
+// A wand sits in a label line or a quill toolbar, where the label's own line-height would
+// otherwise make the row taller than the text beside it.
+.pixie-generate-button {
+  line-height: 1;
+}
+
+// The upload mask's "apply this pixie to every file" button, next to the wand it belongs to. It
+// only means something once there is more than one file, which is the same condition the copy
+// buttons are shown under -- and it has to say so louder than `button:has(.fa)`, which is where a
+// button gets its display from.
+.pixie-generate-button.pixie-to-all-files {
+  display: none;
+}
+
+.show-copy-attribute-to-all .pixie-generate-button.pixie-to-all-files {
+  display: inline-grid;
+}
+
+// The imageDescriptionPixie's wand sits in the quill toolbar rather than in a label, and the
+// toolbar's group is a plain block: without this the second button would sit under the wand
+// instead of beside it. The labels the other pixies render into are flex rows already.
+.ql-formats:has(> .pixie-to-all-files) {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+// Every pixie renders its messages through PixieHelpers.renderMessage, which marks them with this
+// class next to the per-pixie one it clears them by.
+.pixie-message {
+  margin: 0.5rem 0 0;
+}

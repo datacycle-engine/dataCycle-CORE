@@ -10,9 +10,9 @@ module DataCycleCore
           uuids = permitted_params[:uuids]&.split(',')
 
           if uuids.present? && uuids.is_a?(::Array) && uuids.size.positive?
-            query = DataCycleCore::ClassificationPolygon
-              .joins(:classification_alias)
-              .where(classification_alias: { id: uuids })
+            query = DataCycleCore::ConceptPolygon
+              .joins(:concept)
+              .where(concept: { id: uuids })
 
             render(json: query.to_bbox) && return if permitted_params[:bbox]
 

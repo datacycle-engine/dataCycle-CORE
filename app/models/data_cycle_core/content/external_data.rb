@@ -87,11 +87,9 @@ module DataCycleCore
 
         update_columns(external_key: nil, external_source_id: nil, cache_valid_since: Time.zone.now)
 
-        data_hash = {}
-        properties_with_imported_flag.each do |property|
-          key = "#{property}_imported"
-          data_hash[key] = false if respond_to?(key)
-        end
+        # a flag this template does not carry is sliced away in set_data_hash, but not before
+        # that call resets the deferred computed keys and warns 'no changes'
+        data_hash = imported_flags { false }.select { |key, _| respond_to?(key) }
 
         set_data_hash(data_hash:, prevent_history: true) if data_hash.present?
       end

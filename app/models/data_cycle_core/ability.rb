@@ -19,7 +19,7 @@ module DataCycleCore
     def concept_scheme(cs_name)
       @concept_scheme ||= Hash.new do |h, name|
         h[name] = begin
-          DataCycleCore::ClassificationTreeLabel.find_by(name:)
+          DataCycleCore::ConceptScheme.find_by(name:)
         end
       end
 

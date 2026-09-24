@@ -16,7 +16,7 @@ class ClassificationVisibilitySwitcher {
 		if (!this.item.checked) return;
 
 		const sibling = this.checkboxContainer.querySelector(
-			`[name="classification_tree_label[visibility][]"][value="${this.siblingValue}"]`,
+			`[name="concept_scheme[visibility][]"][value="${this.siblingValue}"]`,
 		);
 
 		if (sibling) sibling.checked = false;

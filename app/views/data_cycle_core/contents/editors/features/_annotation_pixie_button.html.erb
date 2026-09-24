@@ -1,0 +1,14 @@
+<%#
+  Generate button for one classification attribute + concept scheme. The webhook classifies exactly
+  one tree per request, so every button stands for exactly one tree and only a click triggers it --
+  and the tooltip names the tree it fills.
+%>
+<%= render 'data_cycle_core/contents/editors/features/pixie_generate_button',
+      content: content,
+      pixie: 'annotation_pixie',
+      css_class: 'annotation-pixie-classify',
+      tooltip: t('feature.annotation_pixie.generate_for', data: local_assigns[:concept_scheme_name], locale: active_ui_locale),
+      data: {
+        concept_scheme_id: local_assigns[:concept_scheme_id],
+        property_key: local_assigns[:property_key]
+      } %>

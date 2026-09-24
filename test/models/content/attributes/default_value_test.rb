@@ -85,7 +85,7 @@ module DataCycleCore
         end
 
         test 'create thing with data_hash_service/create_internal_object' do
-          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').find_by(name: 'Bild')
           params = {
             datahash: {
               name: 'TestBild 1'
@@ -99,7 +99,7 @@ module DataCycleCore
         end
 
         test 'create thing with data_hash_service/create_internal_object with multiple languages' do
-          data_type = DataCycleCore::Classification.for_tree('Inhaltstypen').find_by(name: 'Bild')
+          data_type = DataCycleCore::Concept.for_tree('Inhaltstypen').find_by(name: 'Bild')
           params = {
             translations: {
               de: {

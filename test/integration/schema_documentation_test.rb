@@ -17,12 +17,15 @@ module DataCycleCore
 
       assert_response :success
 
-      assert_select 'ul.container_templates > li', {
-        count: DataCycleCore::ThingTemplate.where(content_type: 'container').count
+      # the redesigned index renders one .schema-card per template, tagged with
+      # its content_type; counts are derived from the same source the view groups
+      # by (Schema.templates_with_content_type), so nothing is hard-coded
+      assert_select '.schema-card[data-type="container"]', {
+        count: DataCycleCore::Schema.templates_with_content_type('container').size
       }
 
-      assert_select 'ul.entity_templates > li', {
-        count: DataCycleCore::ThingTemplate.where(content_type: 'entity').count
+      assert_select '.schema-card[data-type="entity"]', {
+        count: DataCycleCore::Schema.templates_with_content_type('entity').size
       }
     end
   end

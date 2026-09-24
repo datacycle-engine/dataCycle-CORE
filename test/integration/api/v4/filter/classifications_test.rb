@@ -14,29 +14,29 @@ module DataCycleCore
           before(:all) do
             DataCycleCore::Thing.delete_all
 
-            @cc_by40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY 4.0').first
-            @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
-            @cc_by_sa40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY-SA 4.0').first
-            @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
+            @cc_by40 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY 4.0').first
+            @cc_by = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY').first
+            @cc_by_sa40 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY-SA 4.0').first
+            @cc0 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC0').first
 
             @poi_a = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             license_classification = @poi_a.get_data_hash
-            license_classification['license_classification'] = [@cc_by40.primary_classification.id, @cc_by_sa40.primary_classification.id]
+            license_classification['license_classification'] = [@cc_by40.id, @cc_by_sa40.id]
             @poi_a.set_data_hash(prevent_history: true, data_hash: license_classification)
 
             @poi_b = DataCycleCore::V4::DummyDataHelper.create_data('poi')
             license_classification = @poi_b.get_data_hash
-            license_classification['license_classification'] = [@cc_by.primary_classification.id]
+            license_classification['license_classification'] = [@cc_by.id]
             @poi_b.set_data_hash(prevent_history: true, data_hash: license_classification)
 
             @food_establishment_a = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
             license_classification = @food_establishment_a.get_data_hash
-            license_classification['license_classification'] = [@cc_by40.primary_classification.id]
+            license_classification['license_classification'] = [@cc_by40.id]
             @food_establishment_a.set_data_hash(prevent_history: true, data_hash: license_classification)
 
             @food_establishment_b = DataCycleCore::V4::DummyDataHelper.create_data('food_establishment')
             license_classification = @food_establishment_b.get_data_hash
-            license_classification['license_classification'] = [@cc_by_sa40.primary_classification.id]
+            license_classification['license_classification'] = [@cc_by_sa40.id]
             @food_establishment_b.set_data_hash(prevent_history: true, data_hash: license_classification)
           end
 
@@ -112,7 +112,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             # withSubtree place (4)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 classifications: {
@@ -147,7 +147,7 @@ module DataCycleCore
             assert_api_count_result(0)
 
             # withSubtree food establisment AND CC BY(1)
-            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            food_establishment = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
             post_params = {
               filter: {
                 classifications: {
@@ -199,7 +199,7 @@ module DataCycleCore
 
             ### withoutSubtree
             # withoutSubtree place (0)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 classifications: {
@@ -359,7 +359,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             # withSubtree place (4)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 classifications: {
@@ -394,7 +394,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             # withSubtree food establisment AND CC BY(4)
-            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            food_establishment = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
             post_params = {
               filter: {
                 classifications: {
@@ -446,7 +446,7 @@ module DataCycleCore
 
             ### withoutSubtree
             # withoutSubtree place (8)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 classifications: {
@@ -606,7 +606,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             # withSubtree place (4)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 'dc:classification': {
@@ -641,7 +641,7 @@ module DataCycleCore
             assert_api_count_result(0)
 
             # withSubtree food establisment AND CC BY(1)
-            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            food_establishment = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
             post_params = {
               filter: {
                 'dc:classification': {
@@ -693,7 +693,7 @@ module DataCycleCore
 
             ### withoutSubtree
             # withoutSubtree place (0)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 'dc:classification': {
@@ -853,7 +853,7 @@ module DataCycleCore
             assert_api_count_result(4)
 
             # withSubtree place (4)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 'dc:classification': {
@@ -888,7 +888,7 @@ module DataCycleCore
             assert_api_count_result(1)
 
             # withSubtree food establisment AND CC BY(4)
-            food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
+            food_establishment = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
             post_params = {
               filter: {
                 'dc:classification': {
@@ -940,7 +940,7 @@ module DataCycleCore
 
             ### withoutSubtree
             # withoutSubtree place (8)
-            place = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Ort').first
+            place = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name('Ort').first
             post_params = {
               filter: {
                 'dc:classification': {

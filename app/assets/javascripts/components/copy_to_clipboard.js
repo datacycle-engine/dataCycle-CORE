@@ -24,6 +24,11 @@ class CopyToClipboard {
 	 */
 	copyValueToClipboard(event) {
 		event.preventDefault();
+		// Both suppressions stay unconditional, together. The listener is bound to the
+		// trigger itself (see setup), so stopPropagation only ever blocked handlers on
+		// ancestors — never Swagger UI's own copy handler, which sits on the same element
+		// and fires either way. Making it conditional therefore bought nothing and let a
+		// trigger that resolves no text bubble to ancestor handlers it never reached before.
 		event.stopPropagation();
 
 		let currentTarget = event.currentTarget;
@@ -43,17 +48,73 @@ class CopyToClipboard {
 			text = currentTarget.value;
 		else text = currentTarget.textContent;
 
+		// Icon-only triggers carry no text of their own. In the API reference
+		// (Swagger UI) code/curl blocks keep the text in a sibling .microlight/pre,
+		// while the per-operation copy button exposes the endpoint path as data-path
+		// on .opblock-summary-path.
+		if (!text?.trim()) {
+			const block = currentTarget.closest(
+				".highlight-code, .curl-command, .request-url",
+			);
+			text = (block || currentTarget.parentElement)
+				?.querySelector(".microlight, pre, code, textarea")
+				?.textContent?.trim();
+		}
+		if (!text?.trim())
+			text = currentTarget
+				.closest(".opblock-summary")
+				?.querySelector("[data-path]")
+				?.getAttribute("data-path")
+				?.trim();
+
+		// Nothing we can read, e.g. a button whose value lives only in a JS prop.
 		if (!text) return console.warn("nothing to copy");
 
-		navigator.clipboard
-			.writeText(text)
-			.then(() => this.showTooltip())
+		this.writeText(text)
+			.then((copied) =>
+				copied ? this.showTooltip() : console.warn("copy failed"),
+			)
 			.catch((error) => console.error(error));
+	}
+	// Writes text to the clipboard. The async Clipboard API needs a secure context
+	// (HTTPS/localhost); over plain HTTP navigator.clipboard is undefined, so fall
+	// back to a hidden textarea + execCommand.
+	async writeText(text) {
+		try {
+			if (navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(text);
+				return true;
+			}
+		} catch {
+			// fall through to the legacy path
+		}
+		try {
+			const textarea = document.createElement("textarea");
+			textarea.value = text;
+			textarea.setAttribute("readonly", "");
+			textarea.style.position = "fixed";
+			textarea.style.top = "-9999px";
+			document.body.appendChild(textarea);
+			textarea.select();
+			const copied = document.execCommand("copy");
+			textarea.remove();
+			return copied;
+		} catch {
+			return false;
+		}
 	}
 	async showTooltip() {
 		const tooltip = document.createElement("span");
 		tooltip.classList.add("clipboard-notice");
-		tooltip.textContent = await I18n.translate("actions.copied_to_clipboard");
+		// A page with its own language switcher (e.g. the OpenAPI/schema reference,
+		// where the ?language= locale differs from the account UI locale) can hand us
+		// the already-localized notice via data-clipboard-notice on an ancestor, so
+		// the feedback follows the switched page language instead of the JS I18n
+		// account locale. Everywhere else we fall back to the account translation.
+		const override = this.item.closest("[data-clipboard-notice]")?.dataset
+			.clipboardNotice;
+		tooltip.textContent =
+			override?.trim() || (await I18n.translate("actions.copied_to_clipboard"));
 		document.body.appendChild(tooltip);
 
 		computePosition(this.item, tooltip, {

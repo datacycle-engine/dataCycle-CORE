@@ -8,11 +8,11 @@ module DataCycleCore
           return if concept_scheme.nil?
 
           attribute_names = attribute_names_for_concept_scheme(concept_scheme)
-          classification_ids = classification_ids_for_concept_scheme(concept_scheme)
+          concept_ids = concept_ids_for_concept_scheme(concept_scheme)
 
-          return if classification_ids.blank?
+          return if concept_ids.blank?
 
-          data_hash = attribute_names.index_with { |an| (Array.wrap(try(an)&.pluck(:id)) + classification_ids).uniq }
+          data_hash = attribute_names.index_with { |an| (Array.wrap(try(an)&.pluck(:id)) + concept_ids).uniq }
 
           set_data_hash(
             data_hash:,
@@ -28,8 +28,8 @@ module DataCycleCore
 
           return if groups.blank?
 
-          data_hash = groups.to_h do |relation, classification_ids|
-            [relation, Array.wrap(try(relation)&.pluck(:id)) - classification_ids]
+          data_hash = groups.to_h do |relation, concept_ids|
+            [relation, Array.wrap(try(relation)&.pluck(:id)) - concept_ids]
           end
 
           set_data_hash(
@@ -42,19 +42,17 @@ module DataCycleCore
         private
 
         def grouped_ccc_by_concept_scheme(concept_scheme)
-          collected_classification_contents
-            .where(classification_tree_label_id: concept_scheme.id, link_type: 'direct')
-            .includes(:concept)
+          collected_concept_contents
+            .where(concept_scheme_id: concept_scheme.id, link_type: 'direct')
             .group_by(&:relation)
-            .transform_values { |cccs| cccs.flat_map(&:concept).map(&:classification_id) }
+            .transform_values { |cccs| cccs.map(&:concept_id) }
         end
 
-        def classification_ids_for_concept_scheme(concept_scheme)
-          collected_classification_contents
+        def concept_ids_for_concept_scheme(concept_scheme)
+          collected_concept_contents
             .related # #47172: 'related' link_type, excluding hidden mappings
-            .where(classification_tree_label_id: concept_scheme.id)
-            .includes(:concept)
-            .filter_map { |ccc| ccc.concept&.classification_id }
+            .where(concept_scheme_id: concept_scheme.id)
+            .pluck(:concept_id)
             .uniq
         end
 

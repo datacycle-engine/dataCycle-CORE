@@ -7,14 +7,14 @@ module DataCycleCore
     UUID = '00000000-0000-0000-0000-000000000000'
 
     test 'perform returns early when the classification alias is missing' do
-      DataCycleCore::ClassificationAlias.stub(:find_by, nil) do
+      DataCycleCore::Concept.stub(:find_by, nil) do
         assert_nil DataCycleCore::ClassificationMappingJob.new.perform(UUID)
       end
     end
 
     test 'perform broadcasts an unlock when there is nothing to change' do
-      classification_alias = DataCycleCore::ClassificationAlias.first
-      skip 'no classification alias seeded' if classification_alias.nil?
+      concept = DataCycleCore::Concept.first
+      skip 'no classification alias seeded' if concept.nil?
 
       broadcasts = []
       # The heavy work happens in a forked child whose coverage is discarded by
@@ -23,7 +23,7 @@ module DataCycleCore
       Process.stub(:fork, ->(&_block) { 999_999 }) do
         Process.stub(:waitpid, nil) do
           ActionCable.server.stub(:broadcast, ->(name, data) { broadcasts << [name, data] }) do
-            DataCycleCore::ClassificationMappingJob.new.perform(classification_alias.id, [], [])
+            DataCycleCore::ClassificationMappingJob.new.perform(concept.id, [], [])
           end
         end
       end
@@ -31,7 +31,7 @@ module DataCycleCore
       unlock = broadcasts.find { |name, _| name == 'classification_update' }
 
       assert_equal 'unlock', unlock[1][:type]
-      assert_equal classification_alias.id, unlock[1][:id]
+      assert_equal concept.id, unlock[1][:id]
     end
 
     test 'notify_with_lock broadcasts a lock message' do

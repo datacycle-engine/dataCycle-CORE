@@ -63,7 +63,7 @@ module DataCycleCore
     private
 
     def visible_classification_tree?(tree_label, scopes)
-      Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility).intersect?(Array(scopes))
+      Array(DataCycleCore::ConceptScheme.find_by(name: tree_label)&.visibility).intersect?(Array(scopes))
     end
   end
 end

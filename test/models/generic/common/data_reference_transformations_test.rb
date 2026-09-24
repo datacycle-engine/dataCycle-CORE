@@ -821,39 +821,31 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
   end
 
   describe '#load_classifications_by_path' do
-    def classification_tree_one
-      @classification_tree_one ||= DataCycleCore::ClassificationTreeLabel.create!(name: 'CLASSIFICATION TREE ONE')
+    def concept_scheme_one
+      @concept_scheme_one ||= DataCycleCore::ConceptScheme.create!(name: 'CLASSIFICATION TREE ONE')
     end
 
-    def classification_tree_two
-      @classification_tree_two ||= DataCycleCore::ClassificationTreeLabel.create!(name: 'CLASSIFICATION TREE TWO')
+    def concept_scheme_two
+      @concept_scheme_two ||= DataCycleCore::ConceptScheme.create!(name: 'CLASSIFICATION TREE TWO')
     end
 
     before do
       subject.instance_variable_set(:@preloadable_classification_trees, nil)
       subject.clear_peloaded_mappings
 
-      classification_tree_one.create_classification_alias('A')
-      classification_tree_one.create_classification_alias('B')
-      classification_tree_one.create_classification_alias('C')
+      concept_scheme_one.create_concept('A')
+      concept_scheme_one.create_concept('B')
+      concept_scheme_one.create_concept('C')
 
-      classification_tree_two.create_classification_alias('I')
+      concept_scheme_two.create_concept('I')
     end
 
     after do
-      classification_tree_one.tap(&:reload).classification_aliases.map(&:classifications).each(&:delete_all!)
-      classification_tree_one.tap(&:reload).classification_aliases.map(&:classification_groups).each(&:delete_all!)
-      classification_tree_one.tap(&:reload).classification_aliases.delete_all!
-      classification_tree_one.tap(&:reload).classification_trees.delete_all!
-      classification_tree_one.tap(&:reload).destroy_fully!
-      @classification_tree_one = nil
+      concept_scheme_one.reload.destroy
+      @concept_scheme_one = nil
 
-      classification_tree_two.tap(&:reload).classification_aliases.map(&:classifications).each(&:delete_all!)
-      classification_tree_two.tap(&:reload).classification_aliases.map(&:classification_groups).each(&:delete_all!)
-      classification_tree_two.tap(&:reload).classification_aliases.delete_all!
-      classification_tree_two.tap(&:reload).classification_trees.delete_all!
-      classification_tree_two.tap(&:reload).destroy_fully!
-      @classification_tree_two = nil
+      concept_scheme_two.reload.destroy
+      @concept_scheme_two = nil
     end
 
     it 'should handle empty classification paths' do
@@ -867,7 +859,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
       assert_equal(1, mapping_table.size)
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
         mapping_table[['CLASSIFICATION TREE ONE', 'A']]
       )
     end
@@ -883,15 +875,15 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
       assert_equal(3, mapping_table.size)
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
         mapping_table[['CLASSIFICATION TREE ONE', 'A']]
       )
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'B'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'B'),
         mapping_table[['CLASSIFICATION TREE ONE', 'B']]
       )
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'C'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'C'),
         mapping_table[['CLASSIFICATION TREE ONE', 'C']]
       )
     end
@@ -907,15 +899,15 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
       assert_equal(3, mapping_table.size)
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
         mapping_table[['CLASSIFICATION TREE ONE', 'A']]
       )
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'B'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'B'),
         mapping_table[['CLASSIFICATION TREE ONE', 'B']]
       )
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE TWO', 'I'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE TWO', 'I'),
         mapping_table[['CLASSIFICATION TREE TWO', 'I']]
       )
     end
@@ -927,7 +919,7 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
       assert_equal(3, mapping_table.size)
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
         mapping_table[['CLASSIFICATION TREE ONE', 'A']]
       )
     end
@@ -944,11 +936,11 @@ describe DataCycleCore::Generic::Common::DataReferenceTransformations do
 
       assert_equal(4, mapping_table.size)
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE ONE', 'A'),
         mapping_table[['CLASSIFICATION TREE ONE', 'A']]
       )
       assert_equal(
-        DataCycleCore::ClassificationAlias.classification_for_tree_with_name('CLASSIFICATION TREE TWO', 'I'),
+        DataCycleCore::Concept.id_for_tree_with_name('CLASSIFICATION TREE TWO', 'I'),
         mapping_table[['CLASSIFICATION TREE TWO', 'I']]
       )
     end

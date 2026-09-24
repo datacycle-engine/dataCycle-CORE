@@ -61,8 +61,37 @@ module DataCycleCore
         cache[cache_key] = name_property_selector(include_overlay, &)
       end
 
+      # A flagged embedded (Feature::ReusableEmbedded) stays a reference, `{ 'id' => ... }`, so the
+      # duplicate links the shared record; everything else loses its id and is created anew.
       def duplicate_data_hash(data_hash)
-        data_hash.deep_reject { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
+        embedded = DataCycleCore::Thing.where(id: deep_ids(data_hash), content_type: 'embedded').index_by(&:id)
+
+        duplicate_value(data_hash, embedded)
+      end
+
+      private
+
+      def duplicate_value(value, embedded)
+        case value
+        when ::Array then value.map { |v| duplicate_value(v, embedded) }
+        when ::Hash
+          item = embedded[value['id']]
+          return value.slice('id') if item&.try(:reusable?)
+
+          copy = value.filter_map { |k, v| [k, duplicate_value(v, embedded)] unless k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }.to_h
+          # get_data_hash leaves it out, and an attribute allowing several templates cannot validate the copy without it
+          copy['template_name'] = item.template_name if item
+          copy
+        else value
+        end
+      end
+
+      def deep_ids(value)
+        case value
+        when ::Array then value.flat_map { |v| deep_ids(v) }
+        when ::Hash then value.flat_map { |k, v| k == 'id' ? Array.wrap(v) : deep_ids(v) }
+        else []
+        end
       end
     end
   end

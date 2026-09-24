@@ -58,7 +58,7 @@ class ObjectBrowser {
 		this.chosen = this.ids.slice(0);
 		this.preselectedItems = [];
 		this.selected = "";
-		this.excluded = [];
+		this.importedIds = [];
 		this.sortable;
 		this.contentId = this.$element.data("content-id");
 		this.prefix = this.$element.data("prefix");
@@ -275,7 +275,7 @@ class ObjectBrowser {
 		this.$overlay.trigger("open.zf.reveal");
 	}
 	importCompleteHandler(event, data) {
-		this.excluded = union(this.excluded, data?.ids);
+		this.importedIds = union(this.importedIds, data?.ids);
 		this.$overlay
 			.children(".items")
 			.find(`[data-id=${data.ids[0]}]`)
@@ -790,7 +790,7 @@ class ObjectBrowser {
 		this.overlayFilterForm.get(0).reset();
 		this.$overlay.find(".chosen-items-container li.item").remove();
 		this.chosen = [];
-		this.excluded = [];
+		this.importedIds = [];
 		this.page = 1;
 	}
 	reset(_event) {
@@ -909,7 +909,7 @@ class ObjectBrowser {
 			filter: this.serializeFilter(),
 			objects: this.chosen,
 			editable: this.editable,
-			excluded: this.excluded,
+			excluded: this.excludedIds(),
 			parent_id: this.parentId,
 			content_id: this.contentId,
 			content_template_name: this.templateName,
@@ -917,6 +917,15 @@ class ObjectBrowser {
 			prefix: this.prefix,
 			filter_ids: this.filteredIds(),
 		};
+	}
+	// what this overlay session imported, plus what the hosting component keeps out through
+	// data-excluded at request time, e.g. the embedded already in the form but not yet saved
+	// (EmbeddedObject#update)
+	excludedIds() {
+		return union(
+			this.importedIds,
+			castArray(parseDataAttribute(this.element.dataset.excluded) || []),
+		);
 	}
 	loadCount() {
 		this.overlayCount.html(loadingIcon());
@@ -947,7 +956,7 @@ class ObjectBrowser {
 		this.infiniteLoadingObserver.disconnect();
 
 		if (!append) {
-			this.excluded = [];
+			this.importedIds = [];
 			this.$overlay.children(".items").scrollTop(0);
 			this.$overlay.children(".items").html(loadingIcon());
 			this.loadCount();

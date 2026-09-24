@@ -16,76 +16,46 @@ module DataCycleCore
         NULL_REGEX = /^NULL$/i
 
         def index
-          @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
-
-          if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
-            @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:'dct:deleted')
-            @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
-          end
-          @classification_tree_labels = @classification_tree_labels.search(@full_text_search) if @full_text_search
-          @classification_tree_labels = apply_ordering(@classification_tree_labels)
-          @classification_tree_labels = apply_paging(@classification_tree_labels)
+          filter = permitted_params.dig(:filter, :attribute)&.to_h&.deep_symbolize_keys&.slice(*ALLOWED_FILTER_ATTRIBUTES)
+          @concept_schemes = (filter&.key?(:'dct:deleted') ? ConceptScheme::History : ConceptScheme).where(internal: false).visible('api')
+          @concept_schemes = apply_filters(@concept_schemes, filter) if filter.present?
+          @concept_schemes = @concept_schemes.search(@full_text_search) if @full_text_search
+          @concept_schemes = apply_ordering(@concept_schemes)
+          @concept_schemes = apply_paging(@concept_schemes)
         end
 
         def show
-          @classification_tree_label = ClassificationTreeLabel.find(permitted_params[:id])
+          @concept_scheme = ConceptScheme.find(permitted_params[:id])
         end
 
         def classifications
-          @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
+          @concept_scheme = ConceptScheme.find_including_history(permitted_params[:id])
+          filter = permitted_params[:filter].to_h.deep_symbolize_keys
 
-          build_concepts_search_query(@classification_tree_label.classification_aliases) do
-            @classification_aliases = apply_concept_filters(@classification_aliases, permitted_params[:filter])
+          build_concepts_search_query(concept_base_scope(filter)) do
+            @concepts = apply_concept_filters(@concepts, filter)
           end
         end
 
         def facets
-          @classification_tree_label = ClassificationTreeLabel.find(permitted_params[:classification_tree_label_id])
+          @concept_scheme = ConceptScheme.find(permitted_params[:classification_tree_label_id])
           query = build_search_query
           min_count_without_subtree = (permitted_params[:min_count_without_subtree] || permitted_params[:minCountWithoutSubtree]).to_i
-          min_count_without_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_without_subtree)
           min_count_with_subtree = (permitted_params[:min_count_with_subtree] || permitted_params[:minCountWithSubtree]).to_i
-          min_count_with_subtree = [min_count_with_subtree, min_count_without_subtree].max
-          min_count_with_subtree_sanitized = ActiveRecord::Base.connection.quote(min_count_with_subtree)
-          join_type = min_count_with_subtree.positive? || min_count_without_subtree.positive? ? 'INNER' : 'LEFT'
-          subquery = query.query.where('things.id = ccc1.thing_id AND ccc1.classification_tree_label_id = ?', permitted_params[:classification_tree_label_id]).except(*DataCycleCore::Filter::Common::Union::UNION_FILTER_EXCEPTS).select(1).to_sql
-
-          join_sql = <<~SQL.squish
-            #{join_type} JOIN LATERAL (SELECT ccc1.classification_alias_id,
-              COUNT(DISTINCT ccc1.thing_id) AS thing_count_with_subtree,
-              COUNT(DISTINCT ccc1.thing_id) filter (WHERE ccc1.link_type IN ('direct', 'related')) AS thing_count_without_subtree
-              FROM collected_classification_contents ccc1
-              WHERE ccc1.hidden = FALSE AND EXISTS (#{subquery})
-              GROUP BY ccc1.classification_alias_id
-            ) ccc ON ccc.classification_alias_id = classification_aliases.id
-                AND COALESCE(ccc.thing_count_with_subtree, 0) >= #{min_count_with_subtree_sanitized}
-                AND COALESCE(ccc.thing_count_without_subtree, 0) >= #{min_count_without_subtree_sanitized}
-          SQL
-
-          select_sql = <<~SQL.squish
-            classification_aliases.*,
-            COALESCE(ccc.thing_count_with_subtree, 0) AS thing_count_with_subtree,
-            COALESCE(ccc.thing_count_without_subtree, 0) AS thing_count_without_subtree
-          SQL
-
-          @classification_aliases = DataCycleCore::ClassificationAlias
-            .joins(join_sql)
-            .where(
-              DataCycleCore::ClassificationTree
-                .where('classification_trees.classification_alias_id = classification_aliases.id')
-                .where(classification_tree_label_id: permitted_params[:classification_tree_label_id])
-                .select(1).arel.exists
-            )
-            .select(select_sql)
+          @concepts = DataCycleCore::Concept.thing_counts_for_tree(
+            concept_scheme_id: permitted_params[:classification_tree_label_id],
+            query: query.query,
+            min_count_with_subtree:,
+            min_count_without_subtree:
+          )
 
           # unset full_text_search for facets, as it interferes with ordering and is not needed
           @full_text_search = nil
           @language = Array.wrap(permitted_params[:conceptLanguage]) if permitted_params[:conceptLanguage].present?
 
-          build_concepts_search_query(@classification_aliases) do
+          build_concepts_search_query(@concepts) do
             # conceptFilter restricts the returned concepts (the content counts stay driven by +filter+, #43008)
-            @classification_aliases = @classification_aliases.where(id: filtered_facet_concept_scope) if permitted_params[:conceptFilter].present?
+            @concepts = @concepts.where(id: filtered_facet_concept_scope) if permitted_params[:conceptFilter].present?
           end
 
           # unset classification_trees_filter to render all classifications
@@ -98,24 +68,14 @@ module DataCycleCore
           external_keys = @external_key&.split(',')&.map(&:strip)
           @external_source_id = external_params[:external_source_id]
 
-          @classification_aliases = DataCycleCore::Classification
-            .by_external_key(@external_source_id, external_keys)
-            .primary_classification_aliases
+          filter = permitted_params.dig(:filter, :attribute)&.to_h&.deep_symbolize_keys&.slice(*ALLOWED_FILTER_ATTRIBUTES)
+          @concepts = concepts_by_external_key(external_keys, deleted: filter&.key?(:'dct:deleted'))
+          @concepts = apply_filters(@concepts, filter) if filter.present?
 
-          if permitted_params.dig(:filter, :attribute).present?
-            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
-            if filter.key?(:'dct:deleted')
-              @classification_aliases = DataCycleCore::Classification
-                .by_external_key(@external_source_id, external_keys).with_deleted
-                .primary_classification_aliases.with_deleted
-            end
-            @classification_aliases = apply_filters(@classification_aliases, filter)
-          end
-
-          @classification_aliases = @classification_aliases.search(@full_text_search) if @full_text_search
-          @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
-          @classification_aliases = apply_ordering(@classification_aliases)
-          @classification_aliases = apply_paging(@classification_aliases)
+          @concepts = @concepts.search(@full_text_search) if @full_text_search
+          @concepts = @concepts.with_locale(@language) if @language.present?
+          @concepts = apply_ordering(@concepts)
+          @concepts = apply_paging(@concepts)
         end
 
         # +filter.search+/+filter.q+ may arrive as the {value, fields} hash form (allowed since #43008
@@ -188,14 +148,14 @@ module DataCycleCore
                              when :'dct:deleted'
                                'deleted_at'
                              when :'skos:broader'
-                               'parent_classification_alias_id'
+                               'parent_id'
                              when :'skos:ancestors'
                                'ancestor_ids'
                              else
                                next
                              end
             operator.each do |k, v|
-              if attribute_path == 'parent_classification_alias_id'
+              if attribute_path == 'parent_id'
                 query = apply_broader_filter(query, attribute_path, k, v)
               elsif attribute_path == 'ancestor_ids'
                 query = apply_ancestor_filter(query, attribute_path, k, v)
@@ -214,22 +174,25 @@ module DataCycleCore
           query
         end
 
+        # The broader concept is the parent of the concept's `broader` link, so the filter joins
+        # concept_links where it used to read classification_trees.parent_classification_alias_id.
         def apply_broader_filter(query, attribute_path, k, v)
+          query = query.joins(:parent_concept_link)
           flattened_v = v.flat_map { |w| w.split(',') }.map(&:strip)
           clean_ids = flattened_v.grep_v(NULL_REGEX)
           query_strings = []
 
           if k == :in
-            query_strings << "classification_trees.#{attribute_path} IN (?)" if clean_ids.present?
-            query_strings << "classification_trees.#{attribute_path} IS NULL" if flattened_v.any?(NULL_REGEX)
+            query_strings << "concept_links.#{attribute_path} IN (?)" if clean_ids.present?
+            query_strings << "concept_links.#{attribute_path} IS NULL" if flattened_v.any?(NULL_REGEX)
             where_part = query_strings.join(' OR ')
           elsif k == :notIn
-            query_strings << "classification_trees.#{attribute_path} NOT IN (?)" if clean_ids.present?
+            query_strings << "concept_links.#{attribute_path} NOT IN (?)" if clean_ids.present?
             if flattened_v.any?(NULL_REGEX)
-              query_strings << "classification_trees.#{attribute_path} IS NOT NULL"
+              query_strings << "concept_links.#{attribute_path} IS NOT NULL"
               where_part = query_strings.join(' AND ')
             else
-              query_strings << "classification_trees.#{attribute_path} IS NULL"
+              query_strings << "concept_links.#{attribute_path} IS NULL"
               where_part = query_strings.join(' OR ')
             end
           end
@@ -239,8 +202,8 @@ module DataCycleCore
 
         def apply_ancestor_filter(query, attribute_path, k, v)
           flattened_v = v.flat_map { |w| w.split(',') }.map(&:strip)
-          query = query.joins(:classification_alias_path)
-          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["classification_alias_paths.#{attribute_path} && ARRAY[?]::UUID[]", flattened_v])
+          query = query.joins(:concept_path)
+          where_part = ActiveRecord::Base.send(:sanitize_sql_array, ["concept_paths.#{attribute_path} && ARRAY[?]::UUID[]", flattened_v])
 
           if k == :in
             query.where(where_part)
@@ -249,16 +212,14 @@ module DataCycleCore
           end
         end
 
-        # Applies the concept result-set filters (attribute + full-text) from +filter+ to +scope+, swapping
-        # in the with-deleted alias scope of +@classification_tree_label+ when the filter targets
-        # +dct:deleted+. Shared by #classifications (+filter+) and #facets (+conceptFilter+, via
-        # #filtered_facet_concept_ids) so both endpoints filter concepts identically.
+        # Applies the concept result-set filters (attribute + full-text) from +filter+ to +scope+.
+        # Shared by #classifications (+filter+) and #facets (+conceptFilter+, via
+        # #filtered_facet_concept_scope) so both endpoints filter concepts identically.
         def apply_concept_filters(scope, filter)
           filter = filter.to_h.deep_symbolize_keys
 
           if filter[:attribute].present?
             attribute_filter = filter[:attribute].to_h.deep_symbolize_keys.slice(*ALLOWED_FILTER_ATTRIBUTES)
-            scope = @classification_tree_label.classification_aliases_with_deleted if attribute_filter.key?(:'dct:deleted')
             scope = apply_concept_attribute_filters(scope, attribute_filter)
           end
 
@@ -271,12 +232,33 @@ module DataCycleCore
         # Concept-id scope (within the current tree) matching +conceptFilter+, used by #facets to restrict
         # the returned concepts. Returned as a relation so it composes into +WHERE id IN (subquery)+ rather
         # than materializing every matching id into Ruby and shipping it back as a bind-heavy +IN (...)+ list.
-        # Runs the concept filters against +classification_aliases+ (which joins +classification_trees+, so
-        # skos:broader resolves) rather than against the content-count query. +reorder(nil)+ drops any
-        # default ordering, which is meaningless in an +IN+ subquery (and would otherwise be dead work).
+        # Runs the concept filters against the scheme's concepts rather than against the content-count
+        # query. +reorder(nil)+ drops any default ordering, which is meaningless in an +IN+ subquery
+        # (and would otherwise be dead work).
         def filtered_facet_concept_scope
-          apply_concept_filters(@classification_tree_label.classification_aliases, permitted_params[:conceptFilter])
+          apply_concept_filters(@concept_scheme.concepts, permitted_params[:conceptFilter])
             .reorder(nil).select(:id)
+        end
+
+        # A concept carries external_system_id and external_key itself; the pair used to sit on the
+        # classification and needed the hop to its primary alias. The route makes +external_key+
+        # optional, so an empty pair has to answer with nothing rather than with every concept of the
+        # system that carries no key.
+        def concepts_by_external_key(external_keys, deleted:)
+          model = deleted ? Concept::History : Concept
+          return model.none if @external_source_id.blank? || external_keys.blank?
+
+          model.where(external_system_id: @external_source_id, external_key: external_keys)
+        end
+
+        # Concepts have carried no deleted_at since Redmine #41458: a dct:deleted filter reads
+        # concept_histories, where concept_scheme_id survives as a plain column even once the scheme
+        # itself is gone.
+        def concept_base_scope(filter)
+          return Concept::History.where(concept_scheme_id: @concept_scheme.id) if filter.dig(:attribute, :'dct:deleted').present?
+          return Concept.none if @concept_scheme.is_a?(ConceptScheme::History)
+
+          @concept_scheme.concepts
         end
 
         # Full-text term from a concept filter, accepting both the plain-string and the {value, fields} forms.

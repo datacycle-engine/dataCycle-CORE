@@ -30,7 +30,7 @@ module DataCycleCore
     def segment(method_names = [], except_list = {}, klass = DataCycleCore::Abilities::Segments::DataAttribute)
       # captured as a local: a Proc double body runs with self bound to the double,
       # so the value has to be built outside and closed over.
-      scheme = make_double(external_source_id: 'ext-1')
+      scheme = make_double(external_system_id: 'ext-1')
       seg = klass.new(method_names, except_list)
       seg.ability = make_double(
         user: make_double(id: 'user-1', ui_locale: :de),

@@ -8,7 +8,7 @@ module DataCycleCore
           update_columns(deleted_at: nil, deleted_by: nil)
 
           content = restore_content
-          restore_classification_contents
+          restore_concept_contents
           restore_content_contents
           restore_schedules
           restore_geometries
@@ -48,9 +48,9 @@ module DataCycleCore
         content
       end
 
-      def restore_classification_contents
-        classification_content_histories.where.not(classification_id: nil).find_each do |clc_history|
-          DataCycleCore::ClassificationContent.create!(clc_history.attributes.slice(*DataCycleCore::ClassificationContent.column_names.except('id')).merge('content_data_id' => thing_id))
+      def restore_concept_contents
+        concept_content_histories.where.not(concept_id: nil).find_each do |concept_content_history|
+          DataCycleCore::ConceptContent.create!(concept_content_history.attributes.slice(*DataCycleCore::ConceptContent.column_names.except('id')).merge('content_data_id' => thing_id))
         rescue ActiveRecord::RecordNotUnique
           nil
         end

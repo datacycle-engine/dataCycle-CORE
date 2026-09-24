@@ -53,8 +53,8 @@
         :type: mixin
         :name: meta_data
       # tree_label on the property — Classification#override_or_mapped. after_save because that
-      # utility reads collected_classification_contents, which its triggers only fill once the
-      # classification_contents rows are written, so it must not run in the inline before_save pass.
+      # utility reads collected_concept_contents, which its triggers only fill once the
+      # concept_contents rows are written, so it must not run in the inline before_save pass.
       :mapped_tag:
         :label: Effective Tag
         :type: classification

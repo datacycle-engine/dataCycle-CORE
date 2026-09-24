@@ -1,6 +1,26 @@
 import { changedClassConfig } from "../helpers/observer_helpers.js";
 
 class ImageDetailEditorBase {
+	static icon = "fa-pencil";
+	static editingIcon = "fa-check";
+
+	/**
+	 * Label of the button while it is idle, and while it is editing. Separate from
+	 * +i18nNameSpace+ so an editor whose keys do not follow it can name them instead of
+	 * overriding enableEditing to relabel the button after the fact.
+	 *
+	 * +this+ is the subclass the getter is read on, which is where +i18nNameSpace+ is declared:
+	 * naming the base class here instead resolves to undefined, and the button asks for
+	 * feature.undefined.editing_button_title.
+	 */
+	static get titleKey() {
+		return `feature.${this.i18nNameSpace}.button_title`;
+	}
+
+	static get editingTitleKey() {
+		return `feature.${this.i18nNameSpace}.editing_button_title`;
+	}
+
 	constructor(button) {
 		this.button = button;
 		this.imageContainer = this.button
@@ -36,23 +56,25 @@ class ImageDetailEditorBase {
 			this.constructor.containerClassName,
 			"editing",
 		);
-		I18n.t(
-			`feature.${this.constructor.i18nNameSpace}.editing_button_title`,
-		).then((text) => {
-			this.button.innerHTML = `<i class="fa fa-check"  aria-hidden="true"></i>${text}`;
-		});
+		this.renderButtonLabel(
+			this.constructor.editingTitleKey,
+			this.constructor.editingIcon,
+		);
 	}
+
 	async disableEditing() {
 		this.button.classList.remove("editing");
 		this.imageContainer.classList.remove(
 			this.constructor.containerClassName,
 			"editing",
 		);
-		I18n.t(`feature.${this.constructor.i18nNameSpace}.button_title`).then(
-			(text) => {
-				this.button.innerHTML = `<i class="fa fa-pencil" aria-hidden="true"></i>${text}`;
-			},
-		);
+		this.renderButtonLabel(this.constructor.titleKey, this.constructor.icon);
+	}
+
+	renderButtonLabel(key, icon) {
+		I18n.t(key).then((text) => {
+			this.button.innerHTML = `<i class="fa ${icon}" aria-hidden="true"></i>${text}`;
+		});
 	}
 
 	#checkForOtherEditing(mutations) {

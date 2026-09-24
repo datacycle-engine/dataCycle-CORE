@@ -33,7 +33,7 @@ module DataCycleCore
 
           Class.new {
             def initialize(relation) = (@relation = relation)
-            def classification_aliases = @relation
+            def concepts = @relation
             def properties_for(_key) = { 'tree_label' => 'Lizenzen' }
           }.new(relation)
         end

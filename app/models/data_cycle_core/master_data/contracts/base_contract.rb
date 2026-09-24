@@ -222,7 +222,7 @@ module DataCycleCore
         end
 
         # Filter for the facets +conceptFilter+. Like +CONCEPT_FILTER+ but without +dct:deleted+: the facet
-        # count query runs on +ClassificationAlias+, whose paranoid +default_scope+ excludes deleted concepts,
+        # count query runs on +Concept+, whose paranoid +default_scope+ excludes deleted concepts,
         # so a +dct:deleted+ +conceptFilter+ could never surface them (it would be a silent no-op). Rejecting
         # it here is honest; the concept endpoints keep +dct:deleted+ via +CONCEPT_FILTER+. See Redmine #43008.
         FACET_CONCEPT_FILTER = Dry::Schema.Params do

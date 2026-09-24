@@ -77,7 +77,7 @@ module DataCycleCore
         def self.load_value_for_attribute(attribute)
           case attribute[:type]
           when 'classification'
-            DataCycleCore::Concept.includes(:concept_scheme).where(internal_name: attribute[:value], concept_scheme: { name: attribute[:tree_label] }).limit(1).pluck(:classification_id)
+            DataCycleCore::Concept.includes(:concept_scheme).where(internal_name: attribute[:value], concept_scheme: { name: attribute[:tree_label] }).limit(1).pluck(:id)
           when 'float'
             attribute[:value].to_f
           when 'integer'

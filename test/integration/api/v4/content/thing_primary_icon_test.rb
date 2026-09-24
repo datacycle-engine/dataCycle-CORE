@@ -20,8 +20,8 @@ module DataCycleCore
                 template_name: 'PrimaryIcon-Place',
                 data_hash: {
                   'name' => 'Primary Icon API Test',
-                  'primary_icon_tags' => [@tag2.classification_id],
-                  'primary_icon_maerkte' => [@markt2.classification_id]
+                  'primary_icon_tags' => [@tag2.id],
+                  'primary_icon_maerkte' => [@markt2.id]
                 }
               )
               # primary_icon_classifications is computed async; run the recompute the job would do

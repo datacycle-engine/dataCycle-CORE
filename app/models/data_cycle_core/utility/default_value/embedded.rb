@@ -33,7 +33,7 @@ module DataCycleCore
                 value[k] = DataCycleCore::Concept
                   .for_tree(tree_label)
                   .where(internal_name: v)
-                  .pluck(:classification_id)
+                  .pluck(:id)
               end
               value
             end

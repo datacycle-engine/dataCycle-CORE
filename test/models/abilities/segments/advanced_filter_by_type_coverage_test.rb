@@ -44,12 +44,12 @@ module DataCycleCore
 
     test 'name-keyed matchers dispatch through default_type with the :name key' do
       seg = segment({
-        'classification_alias_ids' => ['n1'],
+        'concept_ids' => ['n1'],
         'advanced_attributes' => ['n2'],
         'boolean' => ['n3']
       })
 
-      assert allows?(seg, 'classification_alias_ids', { data: { name: 'n1' } })
+      assert allows?(seg, 'concept_ids', { data: { name: 'n1' } })
       assert allows?(seg, 'advanced_attributes', { data: { name: 'n2' } })
       assert allows?(seg, 'boolean', { data: { name: 'n3' } })
       assert_not allows?(seg, 'boolean', { data: { name: 'other' } })

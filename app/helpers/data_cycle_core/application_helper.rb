@@ -78,7 +78,7 @@ module DataCycleCore
     end
 
     def result_count(mode, result_count, content_class)
-      if mode.in?(['classification_alias', 'ca_related', 'ca_recursive', 'container', 'external_system'])
+      if mode.in?(['concept', 'concept_related', 'concept_recursive', 'concept_scheme', 'container', 'external_system'])
         result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: active_ui_locale) : '-'
       else
         t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: active_ui_locale), locale: active_ui_locale)
@@ -89,7 +89,7 @@ module DataCycleCore
       case mode
       when 'tree'
         capture do
-          tree_entries = DataCycleCore::ClassificationTreeLabel.visible('tree_view').order(:name).map do |tree_label|
+          tree_entries = DataCycleCore::ConceptScheme.visible('tree_view').order(:name).map do |tree_label|
             [t("filter.#{tree_label.name.presence&.underscore_blanks}", default: tree_label.name, locale: active_ui_locale), tree_label.id]
           end
           tree_entries << [t('tree_view.external_systems', default: 'Externe Systeme', locale: active_ui_locale), DataCycleCore::FilterConcern::EXTERNAL_SYSTEM_TREE_ID]

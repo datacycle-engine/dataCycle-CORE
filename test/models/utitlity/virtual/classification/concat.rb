@@ -19,7 +19,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One',
-          classification_aliases: create_classification_alias_dummy([{
+          concepts: create_classification_alias_dummy([{
             id: '10000000-0000-0000-0000-000000000001',
             internal_name: 'One',
             name_i18n: {
@@ -32,7 +32,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000002',
           name: 'Two',
-          classification_aliases: create_classification_alias_dummy([{
+          concepts: create_classification_alias_dummy([{
             id: '10000000-0000-0000-0000-000000000002',
             internal_name: 'Two',
             name_i18n: {
@@ -72,7 +72,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
       my_classification_two: create_classification_dummy([{
         id: '00000000-0000-0000-0000-000000000002',
         name: 'Two',
-        classification_aliases: create_classification_alias_dummy([{
+        concepts: create_classification_alias_dummy([{
           id: '10000000-0000-0000-0000-000000000002',
           internal_name: 'Two',
           name_i18n: {
@@ -110,7 +110,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One',
-          classification_aliases: create_classification_alias_dummy([{
+          concepts: create_classification_alias_dummy([{
             id: '10000000-0000-0000-0000-000000000001',
             internal_name: 'One',
             name_i18n: {
@@ -121,7 +121,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
         }, {
           id: '00000000-0000-0000-0000-000000000002',
           name: 'Two',
-          classification_aliases: create_classification_alias_dummy([{
+          concepts: create_classification_alias_dummy([{
             id: '10000000-0000-0000-0000-000000000002',
             internal_name: 'Two',
             name_i18n: {
@@ -150,7 +150,7 @@ describe 'DataCycleCore::Utility::Virtual::Classification#concat' do
         create_classification_dummy([{
           id: '00000000-0000-0000-0000-000000000001',
           name: 'One',
-          classification_aliases: create_classification_alias_dummy([{
+          concepts: create_classification_alias_dummy([{
             id: '10000000-0000-0000-0000-000000000001',
             internal_name: 'One',
             name_i18n: {

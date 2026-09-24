@@ -5,9 +5,9 @@
   xmlns:schema="https://schema.org/Thing/">
 
   <classificationTree
-    about="<%= root_url(mode: 'tree', ctl_id: @classification_tree_label.id, reset: true) %>">
-    <id><%=@classification_tree_label.id%></id>
-    <name><%=@classification_tree_label.name%></name>
-    <url><%=xml_v1_classification_tree_url(@classification_tree_label, language: @language, api_subversion: @api_subversion)%></url>
+    about="<%= root_url(mode: 'tree', ctl_id: @concept_scheme.id, reset: true) %>">
+    <id><%=@concept_scheme.id%></id>
+    <name><%=@concept_scheme.name%></name>
+    <url><%=xml_v1_classification_tree_url(@concept_scheme, language: @language, api_subversion: @api_subversion)%></url>
   </classificationTree>
 </rdf:RDF>

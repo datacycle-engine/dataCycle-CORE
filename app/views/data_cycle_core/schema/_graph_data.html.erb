@@ -1,0 +1,27 @@
+<%# Payload for schema/dependency_graph.js: the dependency graph plus %>
+<%# every label it renders, so the component needs neither i18n nor URL templating. %>
+<%# Non-external nodes carry their finished detail path. %>
+<%# `</` is escaped because the JSON sits inside a <script> element, where an unescaped %>
+<%# `</script>` in any node id or label would close the block early. %>
+<% graph = dependency.to_graph %>
+<script type="application/json" data-graph-data>
+  <%= raw graph.merge(
+        nodes: graph[:nodes].map { |node| node[:group] == 'external' ? node : node.merge(path: schema_details_path(node[:id])) },
+        labels: {
+          main: t('data_cycle_core.schema.parts.main', locale: schema_language),
+          embedded: t('data_cycle_core.schema.parts.embedded', locale: schema_language),
+          external: t('data_cycle_core.schema.dependencies.external', locale: schema_language),
+          dependencies: t('data_cycle_core.schema.dependencies.title', locale: schema_language),
+          dependencies_one: t('data_cycle_core.schema.dependencies.node_deps.one', locale: schema_language),
+          dependencies_other: t('data_cycle_core.schema.dependencies.node_deps.other', locale: schema_language),
+          used_by: t('data_cycle_core.schema.dependencies.used_by', locale: schema_language),
+          circular: t('data_cycle_core.schema.dependencies.circular_badge', locale: schema_language),
+          more: t('data_cycle_core.schema.dependencies.more', locale: schema_language),
+          root_with_deps: t('data_cycle_core.schema.dependencies.root_groups.with_deps', locale: schema_language),
+          root_without_deps: t('data_cycle_core.schema.dependencies.root_groups.without_deps', locale: schema_language),
+          truncation_nodes: t('data_cycle_core.schema.dependencies.truncation.nodes', locale: schema_language),
+          truncation_levels: t('data_cycle_core.schema.dependencies.truncation.levels', locale: schema_language)
+        },
+        views: DataCycleCore::SchemaController::GRAPH_VIEWS.keys
+      ).to_json.gsub('</', '<\/') %>
+</script>

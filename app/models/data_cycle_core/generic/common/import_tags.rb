@@ -104,7 +104,7 @@ module DataCycleCore
                 DataCycleCore::Generic::Common::ImportFunctions.import_classification(
                   utility_object:,
                   classification_data:,
-                  parent_classification_alias: nil
+                  parent: nil
                 )
               end
             end

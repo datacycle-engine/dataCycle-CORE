@@ -89,12 +89,12 @@ module DataCycleCore
     end
 
     test 'aggregate content merges unknown classifications into universal_classifications' do
-      classification_id = DataCycleCore::Concept.for_tree('Tags').pick(:classification_id)
-      content = create_content('Computed-Common-attribute_value_from_first_existing_linked', { name: 'Entity with Aggregate 2', classification_value: [classification_id] })
+      concept_id = DataCycleCore::Concept.for_tree('Tags').pick(:id)
+      content = create_content('Computed-Common-attribute_value_from_first_existing_linked', { name: 'Entity with Aggregate 2', classification_value: [concept_id] })
       @aggregate_content.set_data_hash(data_hash: { aggregate_for: [@content1.id, content.id] })
       perform_enqueued_jobs
 
-      assert_equal [classification_id], @aggregate_content.universal_classifications.pluck(:id)
+      assert_equal [concept_id], @aggregate_content.universal_classifications.pluck(:id)
     end
   end
 end

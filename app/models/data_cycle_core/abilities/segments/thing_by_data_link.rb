@@ -12,7 +12,7 @@ module DataCycleCore
 
         def include?(content, *_args)
           if DataCycleCore::Feature::Releasable.allowed?(content)
-            DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id&.in?(Array.wrap(content.try(:release_status_id)&.pluck(:id))) &&
+            DataCycleCore::Feature::Releasable.stage_concept_id('partner')&.in?(Array.wrap(content.try(:release_status_id)&.pluck(:id))) &&
               content.valid_writable_links_by_receiver?(user)
           else
             content.valid_writable_links_by_receiver?(user)

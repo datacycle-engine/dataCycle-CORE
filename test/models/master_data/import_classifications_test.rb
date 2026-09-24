@@ -14,7 +14,7 @@ describe DataCycleCore::MasterData::Concepts::ConceptImporter do
   end
 
   def load_single_category(*names)
-    categories = DataCycleCore::ClassificationAlias.from_tree(names.first)
+    categories = DataCycleCore::Concept.from_tree(names.first)
 
     assert_not_nil(categories)
     assert_predicate(categories.size, :positive?)
@@ -220,7 +220,9 @@ describe DataCycleCore::MasterData::Concepts::ConceptImporter do
     category = load_single_category('Basic Categories', 'Basic Subcategory 1.1')
 
     assert_not_nil(category)
-    category.classification_tree.destroy
+    # the delete trigger writes concept_histories, which is where the importer looks for the keys
+    # it must not insert again
+    category.destroy
 
     # Re-import
     @importer.import

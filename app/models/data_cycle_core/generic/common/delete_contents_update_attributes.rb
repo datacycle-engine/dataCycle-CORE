@@ -78,7 +78,7 @@ module DataCycleCore
         def self.load_value_for_attribute(attribute, utility_object)
           case attribute[:type]
           when 'classification'
-            utility_object.concept_by_path(attribute[:value])&.pluck(:classification_id)
+            utility_object.concept_by_path(attribute[:value])&.pluck(:id)
           when 'float'
             attribute[:value].to_f
           when 'integer'

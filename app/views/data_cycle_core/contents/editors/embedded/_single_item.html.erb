@@ -3,7 +3,7 @@
     <%= render_attribute_editor key: o_key,
                                 prefix: embedded_key_prefix(key, index),
                                 definition: nested_definition(o_prop, local_assigns[:options]),
-                                value: embedded_attribute_value(content, object, o_key, o_prop, local_assigns[:attribute_locale], local_assigns[:translate].to_s == 'true'),
+                                value: embedded_attribute_value(content, object, o_key, o_prop, local_assigns[:attribute_locale], local_assigns[:translate].to_s == 'true', duplicated_content: local_assigns[:duplicated_content].to_s == 'true'),
                                 parameters: {
                                   options: nested_options(o_prop, local_assigns[:options]),
                                   parent: object,
@@ -12,6 +12,7 @@
                                   force_render_locales: local_assigns.dig(:force_render_locales),
                                   attribute_locale: local_assigns[:attribute_locale],
                                   duplicated_content: local_assigns[:duplicated_content],
+                                  parent_copied: local_assigns[:duplicated_content],
                                   hide_embedded: local_assigns[:hide_embedded],
                                   translate: local_assigns[:translate],
                                   allowed_locales: local_assigns[:allowed_locales],

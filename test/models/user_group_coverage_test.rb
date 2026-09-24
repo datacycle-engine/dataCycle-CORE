@@ -4,7 +4,7 @@ require 'test_helper'
 
 module DataCycleCore
   # Coverage for UserGroup class-level query helpers: the fulltext_search scope,
-  # search_columns, the classification_aliases / users overrides and to_select_options.
+  # search_columns, the concepts / users overrides and to_select_options.
   # All run as read-only queries over the seeded/empty test database.
   class UserGroupCoverageTest < DataCycleCore::TestCases::ActiveSupportTestCase
     Subject = DataCycleCore::UserGroup
@@ -17,8 +17,8 @@ module DataCycleCore
       assert_includes(Subject.search_columns, 'name')
     end
 
-    test 'classification_aliases scopes aliases to the user groups' do
-      assert_kind_of(Array, Subject.classification_aliases.to_a)
+    test 'concepts scopes aliases to the user groups' do
+      assert_kind_of(Array, Subject.concepts.to_a)
     end
 
     test 'users resolves members through the join table' do

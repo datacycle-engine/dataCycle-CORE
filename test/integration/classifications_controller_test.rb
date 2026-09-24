@@ -10,9 +10,8 @@ module DataCycleCore
       # redirect every HTML-format request in this file to the terms/privacy consent screen.
       @admin.update!(additional_attributes: (@admin.additional_attributes || {}).merge('terms_conditions_at' => Time.current, 'privacy_policy_at' => Time.current))
       sign_in(@admin)
-      @tags_label = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
-      @tags_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').first
-      @tags_tree = DataCycleCore::ClassificationTree.find_by(classification_alias_id: @tags_alias.id)
+      @tags_label = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
+      @tags_concept = DataCycleCore::Concept.for_tree('Tags').first
     end
 
     # a standard-role user, whose StoredFilter visibility is scoped to their own records (see
@@ -35,42 +34,35 @@ module DataCycleCore
       end
     end
 
-    # builds a standalone classification alias + classification + group + tree node,
-    # mirroring ClassificationsController#create, for move/merge/download fixtures.
-    def build_alias(tree_label, name, parent_alias: nil)
-      ca = DataCycleCore::ClassificationAlias.new
-      I18n.available_locales.each { |l| I18n.with_locale(l) { ca.name = name } }
-      ca.save!
-      classification = DataCycleCore::Classification.create!(name: ca.internal_name)
-      DataCycleCore::ClassificationGroup.create!(classification:, classification_alias: ca)
-      DataCycleCore::ClassificationTree.create!(
-        classification_tree_label: tree_label,
-        parent_classification_alias: parent_alias,
-        sub_classification_alias: ca
-      )
-      ca.reload
+    # builds a standalone concept, named in every locale, mirroring ClassificationsController#create,
+    # for the move/merge/download fixtures.
+    def build_concept(concept_scheme, name, parent_concept: nil)
+      concept = DataCycleCore::Concept.new(concept_scheme:, parent_concept:)
+      I18n.available_locales.each { |l| I18n.with_locale(l) { concept.name = name } }
+      concept.save!
+      concept.reload
     end
 
-    # #47172: build a classification whose PRIMARY (earliest) group lives on a throwaway home alias, so
-    # the group then attached to `mapping_alias` is a *non-primary* mapping — the only kind that is
-    # hidden by #50677. Returns that mapping group.
-    def create_mapping_group(mapping_alias, name)
-      classification = DataCycleCore::Classification.create!(name:)
-      home_alias = build_alias(@tags_label, "#{name} Home")
-      DataCycleCore::ClassificationGroup.create!(classification:, classification_alias: home_alias, created_at: 1.hour.ago)
-      DataCycleCore::ClassificationGroup.create!(classification:, classification_alias: mapping_alias)
+    # #50677 hides a mapping of a flagged scheme, and a mapping is a `related` link: it attaches its
+    # parent concept to every content its child classifies. Returns that link.
+    def create_mapping_link(parent_concept, name)
+      DataCycleCore::ConceptLink.create!(
+        parent: parent_concept,
+        child: build_concept(@tags_label, name),
+        link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED
+      )
     end
 
     # ---------- index (json) ----------
-    test 'index json by classification_tree_label_id' do
-      get classifications_path(format: :json), params: { classification_tree_label_id: @tags_label.id }
+    test 'index json by concept_scheme_id' do
+      get classifications_path(format: :json), params: { concept_scheme_id: @tags_label.id }
 
       assert_response :success
       assert response.parsed_body.key?('html')
     end
 
-    test 'index json by classification_tree_id' do
-      get classifications_path(format: :json), params: { classification_tree_id: @tags_tree.id }
+    test 'index json by concept_id' do
+      get classifications_path(format: :json), params: { concept_id: @tags_concept.id }
 
       assert_response :success
       assert response.parsed_body.key?('html')
@@ -80,26 +72,26 @@ module DataCycleCore
     # preserve_finished_jobs = false a failed job is the only row that lingers, so counting it would
     # leave the concept marked queued for good.
     test 'index reports a concept with an outstanding mapping job, but not one whose job failed' do
-      # the listed concepts are the children of the requested tree, not the tree's own alias
-      alias_id = build_alias(@tags_label, 'Queued Mapping', parent_alias: @tags_alias).id
+      # the listed concepts are the children of the requested one, not the requested concept itself
+      concept_id = build_concept(@tags_label, 'Queued Mapping', parent_concept: @tags_concept).id
       queue_row = lambda do
-        job = DataCycleCore::ClassificationMappingJob.new(alias_id)
+        job = DataCycleCore::ClassificationMappingJob.new(concept_id)
         SolidQueue::Job.create!(queue_name: job.queue_name, class_name: job.class.name, arguments: job.serialize, concurrency_key: job.concurrency_key)
       end
 
       row = queue_row.call
-      get classifications_path(format: :json), params: { classification_tree_id: @tags_tree.id }
+      get classifications_path(format: :json), params: { concept_id: @tags_concept.id }
 
-      assert_equal [alias_id], @controller.view_assigns['queue_classification_mappings']
+      assert_equal [concept_id], @controller.view_assigns['queued_concept_mappings']
 
       row.failed_with(StandardError.new('boom'))
-      get classifications_path(format: :json), params: { classification_tree_id: @tags_tree.id }
+      get classifications_path(format: :json), params: { concept_id: @tags_concept.id }
 
-      assert_empty @controller.view_assigns['queue_classification_mappings']
+      assert_empty @controller.view_assigns['queued_concept_mappings']
     end
 
-    test 'index json by mapped_classification_alias_id' do
-      get classifications_path(format: :json), params: { classification_tree_label_id: @tags_label.id, mapped_classification_alias_id: @tags_alias.id }
+    test 'index json by mapped_concept_id' do
+      get classifications_path(format: :json), params: { concept_scheme_id: @tags_label.id, mapped_concept_id: @tags_concept.id }
 
       assert_response :success
       assert response.parsed_body.key?('html')
@@ -124,11 +116,11 @@ module DataCycleCore
         tree_label: 'Tags',
         q: 'Tag',
         max: '10',
-        exclude: [@tags_alias.id],
-        exclude_tree_label: DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')&.id,
+        exclude: [@tags_concept.id],
+        exclude_tree_label: DataCycleCore::ConceptScheme.find_by(name: 'Inhaltstypen')&.id,
         with_geometry: 'false',
-        preload: ['classification_tree'],
-        'disabled_unless_any?' => 'classification_polygons'
+        preload: ['concept_scheme'],
+        'disabled_unless_any?' => 'concept_polygons'
       }
 
       assert_response :success
@@ -145,11 +137,11 @@ module DataCycleCore
     # #27657: the tooltip carries the external URI, but only for system_admin. Asserted here rather than
     # only in the helper test because the select2 endpoints build the tooltip through `helpers.`, which
     # is the one call path where the ability has to be resolved from the controller.
-    def tooltip_for(classification_alias)
-      get search_classifications_path(format: :json), params: { tree_label: 'Tags', q: classification_alias.internal_name, max: '50' }
+    def tooltip_for(concept)
+      get search_classifications_path(format: :json), params: { tree_label: 'Tags', q: concept.internal_name, max: '50' }
 
       assert_response :success
-      response.parsed_body.find { |r| r['classification_alias_id'] == classification_alias.id }&.dig('dc_tooltip').to_s
+      response.parsed_body.find { |r| r['id'] == concept.id }&.dig('dc_tooltip').to_s
     end
 
     test 'search exposes the external uri in the tooltip for a system_admin' do
@@ -157,11 +149,11 @@ module DataCycleCore
 
       assert_equal 'system_admin', system_admin.role_name
 
-      @tags_alias.update!(uri: 'https://example.com/tag-uri')
+      @tags_concept.update!(uri: 'https://example.com/tag-uri')
       sign_out @admin
       sign_in system_admin
 
-      assert_includes tooltip_for(@tags_alias), 'https://example.com/tag-uri'
+      assert_includes tooltip_for(@tags_concept), 'https://example.com/tag-uri'
     end
 
     # @admin is super_admin - the highest role below system_admin, so this proves the grant is
@@ -169,15 +161,15 @@ module DataCycleCore
     test 'search hides the external uri in the tooltip for a lower role' do
       assert_equal 'super_admin', @admin.role_name
 
-      @tags_alias.update!(uri: 'https://example.com/tag-uri')
+      @tags_concept.update!(uri: 'https://example.com/tag-uri')
 
-      assert_not_includes tooltip_for(@tags_alias), 'https://example.com/tag-uri'
+      assert_not_includes tooltip_for(@tags_concept), 'https://example.com/tag-uri'
     end
 
     # ---------- find ----------
-    test 'find by classification ids within a tree label' do
+    test 'find by concept ids within a concept scheme' do
       get find_classifications_path(format: :json), params: {
-        ids: [@tags_alias.primary_classification.id],
+        ids: [@tags_concept.id],
         tree_label: 'Tags'
       }
 
@@ -185,14 +177,14 @@ module DataCycleCore
       body = response.parsed_body
 
       assert_kind_of Array, body
-      assert(body.any? { |c| c['classification_alias_id'] == @tags_alias.id })
+      assert(body.any? { |c| c['id'] == @tags_concept.id })
     end
 
     # ---------- create ----------
     test 'create a classification tree label' do
-      assert_difference -> { DataCycleCore::ClassificationTreeLabel.count } => 1 do
+      assert_difference -> { DataCycleCore::ConceptScheme.count } => 1 do
         post classifications_path, xhr: true, params: {
-          classification_tree_label: { name: 'COV LABEL', visibility: ['show', 'edit'] }
+          concept_scheme: { name: 'COV LABEL', visibility: ['show', 'edit'] }
         }
       end
 
@@ -200,41 +192,44 @@ module DataCycleCore
       assert response.parsed_body.key?('html')
     end
 
-    test 'create a root classification alias under a tree label' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV CREATE ROOT', visibility: ['classification_administration'])
+    test 'create a root concept under a concept scheme' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV CREATE ROOT', visibility: ['classification_administration'])
 
-      assert_difference -> { DataCycleCore::ClassificationAlias.count } => 1, -> { DataCycleCore::Classification.count } => 1 do
+      # _concept_form renders the parent_concept_id hidden field for every new concept, so a root
+      # is created with it blank rather than absent - Concept.find('') would raise RecordNotFound.
+      assert_difference -> { DataCycleCore::Concept.count } => 1 do
         post classifications_path, xhr: true, params: {
-          classification_tree_label_id: label.id,
-          classification_alias: { translation: { de: { name: 'Cov Root Alias' } } }
+          concept_scheme_id: label.id,
+          parent_concept_id: '',
+          concept: { translation: { de: { name: 'Cov Root Alias' } } }
         }
       end
 
       assert_response :success
       assert response.parsed_body.key?('html')
+      assert_includes label.concepts.roots, DataCycleCore::Concept.find_by(internal_name: 'Cov Root Alias')
     end
 
-    test 'create a nested classification alias under an existing tree node' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV CREATE NESTED', visibility: ['classification_administration'])
-      parent = build_alias(label, 'Cov Parent')
-      parent_tree = DataCycleCore::ClassificationTree.find_by(classification_alias_id: parent.id)
+    test 'create a nested concept under an existing parent' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV CREATE NESTED', visibility: ['classification_administration'])
+      parent = build_concept(label, 'Cov Parent')
 
       post classifications_path, xhr: true, params: {
-        classification_tree_label_id: label.id,
-        classification_tree_id: parent_tree.id,
-        classification_alias: { translation: { de: { name: 'Cov Child Alias' } } }
+        concept_scheme_id: label.id,
+        parent_concept_id: parent.id,
+        concept: { translation: { de: { name: 'Cov Child Alias' } } }
       }
 
       assert_response :success
       assert response.parsed_body.key?('html')
     end
 
-    test 'create with an invalid alias renders an error response' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV CREATE INVALID', visibility: ['classification_administration'])
+    test 'create with an invalid concept renders an error response' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV CREATE INVALID', visibility: ['classification_administration'])
 
       post classifications_path, xhr: true, params: {
-        classification_tree_label_id: label.id,
-        classification_alias: { translation: { de: { name: '' } } }
+        concept_scheme_id: label.id,
+        concept: { translation: { de: { name: '' } } }
       }
 
       assert_response :success
@@ -243,10 +238,10 @@ module DataCycleCore
 
     # ---------- update ----------
     test 'update a classification tree label' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV UPDATE LABEL', visibility: ['classification_administration'])
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV UPDATE LABEL', visibility: ['classification_administration'])
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: label.id, name: 'COV UPDATE LABEL RENAMED' }
+        concept_scheme: { id: label.id, name: 'COV UPDATE LABEL RENAMED' }
       }
 
       assert_response :success
@@ -254,30 +249,30 @@ module DataCycleCore
       assert_equal 'COV UPDATE LABEL RENAMED', label.reload.name
     end
 
-    test 'update a classification alias and queue mappings when classification_ids change' do
-      ca = @tags_alias # the Tags tree label is mappable
-      target = DataCycleCore::Classification.create!(name: 'Cov Mapping Target')
+    test 'update a concept and queue mappings when mapped_concept_ids change' do
+      concept = @tags_concept # the Tags scheme is mappable
+      target = build_concept(@tags_label, 'Cov Mapping Target')
 
       # the update enqueues ClassificationMappingJob; perform it inline so the mapping change is
       # actually applied (and then rolled back with the test transaction).
-      assert_difference -> { ca.reload.classification_ids.count }, 1 do
+      assert_difference -> { concept.reload.mapped_concept_ids.count }, 1 do
         perform_enqueued_jobs do
           patch classifications_path, xhr: true, params: {
-            classification_alias: { id: ca.id, classification_ids: ca.classification_ids + [target.id] }
+            concept: { id: concept.id, mapped_concept_ids: concept.mapped_concept_ids + [target.id] }
           }
         end
       end
 
       assert_response :success
       assert response.parsed_body.key?('html')
-      assert_includes ca.reload.classification_ids, target.id
+      assert_includes concept.reload.mapped_concept_ids, target.id
     end
 
     test 'update with invalid data renders an error response' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV UPDATE INVALID', visibility: ['classification_administration'])
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV UPDATE INVALID', visibility: ['classification_administration'])
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: label.id, name: '' }
+        concept_scheme: { id: label.id, name: '' }
       }
 
       assert_response :success
@@ -286,21 +281,20 @@ module DataCycleCore
 
     # ---------- destroy ----------
     test 'destroy a classification tree label' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV DESTROY LABEL', visibility: ['classification_administration'])
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV DESTROY LABEL', visibility: ['classification_administration'])
 
-      delete classifications_path, xhr: true, params: { classification_tree_label_id: label.id }
+      delete classifications_path, xhr: true, params: { concept_scheme_id: label.id }
 
       assert_response :success
       assert response.parsed_body['deleted']
-      assert_nil DataCycleCore::ClassificationTreeLabel.find_by(id: label.id)
+      assert_nil DataCycleCore::ConceptScheme.find_by(id: label.id)
     end
 
     test 'destroy a classification tree node' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV DESTROY TREE', visibility: ['classification_administration'])
-      ca = build_alias(label, 'Cov Destroy Node')
-      tree = DataCycleCore::ClassificationTree.find_by(classification_alias_id: ca.id)
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV DESTROY TREE', visibility: ['classification_administration'])
+      concept = build_concept(label, 'Cov Destroy Node')
 
-      delete classifications_path, xhr: true, params: { classification_tree_id: tree.id }
+      delete classifications_path, xhr: true, params: { concept_id: concept.id }
 
       assert_response :success
       assert response.parsed_body['deleted']
@@ -314,10 +308,10 @@ module DataCycleCore
 
     # ---------- download ----------
     test 'download a classification tree label as csv' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV DOWNLOAD', visibility: ['classification_administration'])
-      build_alias(label, 'Cov Download Alias')
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV DOWNLOAD', visibility: ['classification_administration'])
+      build_concept(label, 'Cov Download Alias')
 
-      get download_classifications_path(format: :csv), params: { classification_tree_label_id: label.id }
+      get download_classifications_path(format: :csv), params: { concept_scheme_id: label.id }
 
       assert_response :success
       assert_match 'text/csv', response.media_type
@@ -325,72 +319,95 @@ module DataCycleCore
     end
 
     test 'download a classification tree label with contents and mapping variants' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV DOWNLOAD VARIANTS', visibility: ['classification_administration'], mappable: true)
-      build_alias(label, 'Cov Download Variant Alias')
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV DOWNLOAD VARIANTS', visibility: ['classification_administration'], mappable: true)
+      build_concept(label, 'Cov Download Variant Alias')
 
       ['mapping_import', 'mapping_export', 'mapping_export_inverse'].each do |specific_type|
-        get download_classifications_path(format: :csv), params: { classification_tree_label_id: label.id, specific_type: }
+        get download_classifications_path(format: :csv), params: { concept_scheme_id: label.id, specific_type: }
 
         assert_response :success
       end
 
-      get download_classifications_path(format: :csv), params: { classification_tree_label_id: label.id, include_contents: 'true' }
+      get download_classifications_path(format: :csv), params: { concept_scheme_id: label.id, include_contents: 'true' }
 
       assert_response :success
     end
 
     # ---------- move ----------
-    test 'move a classification alias after a sibling' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV MOVE', visibility: ['classification_administration'])
-      first = build_alias(label, 'Cov Move A')
-      second = build_alias(label, 'Cov Move B')
+    # Redmine #41458: move_params and merge_params underscore their keys, so the contract these
+    # actions answer to is the camelCase classification_drag_and_drop.js sends. Posting snake_case
+    # here would pass while the browser gets a 404, which is how the renamed keys shipped broken.
+    test 'move a concept after a sibling' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MOVE', visibility: ['classification_administration'])
+      first = build_concept(label, 'Cov Move A')
+      second = build_concept(label, 'Cov Move B')
+
+      assert_equal [first, second], label.concepts.roots.to_a
 
       patch move_classifications_path, xhr: true, params: {
-        classification_tree_label_id: label.id,
-        classification_alias_id: first.id,
-        previous_alias_id: second.id
+        conceptSchemeId: label.id,
+        conceptId: first.id,
+        previousConceptId: second.id
       }
 
       assert_response :success
+      assert_equal [second, first], label.concepts.roots.to_a
     end
 
-    test 'move without a classification alias id responds not found' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV MOVE MISSING', visibility: ['classification_administration'])
+    test 'move a concept under a new parent' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MOVE PARENT', visibility: ['classification_administration'])
+      parent = build_concept(label, 'Cov Move Parent')
+      child = build_concept(label, 'Cov Move Child')
 
-      patch move_classifications_path(format: :json), params: { classification_tree_label_id: label.id }
+      patch move_classifications_path, xhr: true, params: {
+        conceptSchemeId: label.id,
+        conceptId: child.id,
+        newParentConceptId: parent.id
+      }
+
+      assert_response :success
+      assert_equal [child], parent.children.reload.to_a
+    end
+
+    test 'move without a concept id responds not found' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MOVE MISSING', visibility: ['classification_administration'])
+
+      patch move_classifications_path(format: :json), params: { conceptSchemeId: label.id }
 
       assert_response :not_found
     end
 
     # ---------- merge ----------
-    test 'merge a classification alias into another' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV MERGE', visibility: ['classification_administration'])
-      source = build_alias(label, 'Cov Merge Source')
-      target = build_alias(label, 'Cov Merge Target')
+    test 'merge a concept into another' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MERGE', visibility: ['classification_administration'])
+      source = build_concept(label, 'Cov Merge Source')
+      target = build_concept(label, 'Cov Merge Target')
 
       patch merge_classifications_path, xhr: true, params: {
-        source_alias_id: source.id,
-        target_alias_id: target.id
+        sourceConceptId: source.id,
+        targetConceptId: target.id
       }
 
       assert_response :success
+      assert_not DataCycleCore::Concept.exists?(source.id)
     end
 
     # Redmine #51232: the refusal has to reach the editor as a callout, not a 500. The drag-and-drop
     # JS keys off the error payload for both the callout and for leaving the source in the tree, so
     # the 200 and the error key are what it needs.
-    test 'merge of two externally keyed aliases responds with an error message' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV MERGE EXT', visibility: ['classification_administration'])
+    test 'merge of concepts from different external systems responds with an error message' do
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MERGE EXT', visibility: ['classification_administration'])
       es = DataCycleCore::ExternalSystem.first
-      source = build_alias(label, 'Cov Ext Source')
-      target = build_alias(label, 'Cov Ext Target')
-      source.update!(external_source_id: es.id, external_key: 'COV-SOURCE-KEY')
-      target.update!(external_source_id: es.id, external_key: 'COV-TARGET-KEY')
+      other_es = DataCycleCore::ExternalSystem.create!(name: 'Cov Merge Other', identifier: 'cov-merge-other')
+      source = build_concept(label, 'Cov Ext Source')
+      target = build_concept(label, 'Cov Ext Target')
+      source.update!(external_system_id: es.id, external_key: 'COV-SOURCE-KEY')
+      target.update!(external_system_id: other_es.id, external_key: 'COV-TARGET-KEY')
       sign_in(system_admin_user)
 
       patch merge_classifications_path, xhr: true, params: {
-        source_alias_id: source.id,
-        target_alias_id: target.id
+        sourceConceptId: source.id,
+        targetConceptId: target.id
       }
 
       assert_response :success
@@ -398,21 +415,21 @@ module DataCycleCore
       assert_not source.reload.destroyed?
     end
 
-    # Redmine #51232: dropping an imported alias onto a config concept is the case an editor cleaning
+    # Redmine #51232: dropping an imported concept onto a config concept is the case an editor cleaning
     # up import duplicates actually hits. The config concept's identity is (NULL, full_path), so the
     # merge would overwrite it and the next dc:update would insert the node a second time.
     test 'merge onto a config concept responds with an error message' do
-      label = DataCycleCore::ClassificationTreeLabel.create!(name: 'COV MERGE CFG', visibility: ['classification_administration'])
+      label = DataCycleCore::ConceptScheme.create!(name: 'COV MERGE CFG', visibility: ['classification_administration'])
       es = DataCycleCore::ExternalSystem.first
-      source = build_alias(label, 'Cov Cfg Source')
-      target = build_alias(label, 'Cov Cfg Target')
-      source.update!(external_source_id: es.id, external_key: 'COV-SOURCE-KEY')
+      source = build_concept(label, 'Cov Cfg Source')
+      target = build_concept(label, 'Cov Cfg Target')
+      source.update!(external_system_id: es.id, external_key: 'COV-SOURCE-KEY')
       target.update!(external_key: 'COV MERGE CFG > Cov Cfg Target')
       sign_in(system_admin_user)
 
       patch merge_classifications_path, xhr: true, params: {
-        source_alias_id: source.id,
-        target_alias_id: target.id
+        sourceConceptId: source.id,
+        targetConceptId: target.id
       }
 
       assert_response :success
@@ -421,14 +438,14 @@ module DataCycleCore
       assert_equal 'COV MERGE CFG > Cov Cfg Target', target.reload.external_key
     end
 
-    test 'merge with a missing alias responds not found' do
-      patch merge_classifications_path(format: :json), params: { source_alias_id: SecureRandom.uuid, target_alias_id: SecureRandom.uuid }
+    test 'merge with a missing concept responds not found' do
+      patch merge_classifications_path(format: :json), params: { sourceConceptId: SecureRandom.uuid, targetConceptId: SecureRandom.uuid }
 
       assert_response :not_found
     end
 
     # ---------- link / unlink contents ----------
-    # :link_contents / :unlink_contents are granted on DataCycleCore::ClassificationTreeLabel — the
+    # :link_contents / :unlink_contents are granted on DataCycleCore::ConceptScheme — the
     # record the button's can? checks too — and @admin is the super_admin that grant belongs to.
     # Authorizing the ConceptScheme instead matched no rule, so the role being offered the action got a
     # 401 on submit. These two asserted that 401, which is how the bug survived.
@@ -480,13 +497,13 @@ module DataCycleCore
 
     # ---------- geometry ----------
     test 'geometry returns combined geojson as json' do
-      post geometry_classifications_path(format: :json), params: { id: 'frame', concepts: [@tags_alias.id] }
+      post geometry_classifications_path(format: :json), params: { id: 'frame', concepts: [@tags_concept.id] }
 
       assert_response :success
     end
 
     test 'geometry returns a turbo stream replace' do
-      post geometry_classifications_path, params: { id: 'frame', concepts: [@tags_alias.id] }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
+      post geometry_classifications_path, params: { id: 'frame', concepts: [@tags_concept.id] }, headers: { 'Accept' => 'text/vnd.turbo-stream.html' }
 
       assert_response :success
       assert_equal 'text/vnd.turbo-stream.html', response.media_type
@@ -500,7 +517,7 @@ module DataCycleCore
       assert @admin.ability.can?(:update_hidden_mappings, @tags_label) # the grant this test relies on
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: @tags_label.id, name: @tags_label.name, hidden_mappings: true }
+        concept_scheme: { id: @tags_label.id, name: @tags_label.name, hidden_mappings: true }
       }
 
       assert_response :success
@@ -511,7 +528,7 @@ module DataCycleCore
       @tags_label.update!(hidden_mappings: true)
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: @tags_label.id, name: @tags_label.name, hidden_mappings: false }
+        concept_scheme: { id: @tags_label.id, name: @tags_label.name, hidden_mappings: false }
       }
 
       assert_response :success
@@ -533,7 +550,7 @@ module DataCycleCore
       sign_in(editor)
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: @tags_label.id, name: 'Cov Tags Renamed', hidden_mappings: true }
+        concept_scheme: { id: @tags_label.id, name: 'Cov Tags Renamed', hidden_mappings: true }
       }
 
       assert_response :success
@@ -558,7 +575,7 @@ module DataCycleCore
       assert_not @admin.ability.can?(:update_change_behaviour, @tags_label)
 
       patch classifications_path, xhr: true, params: {
-        classification_tree_label: { id: @tags_label.id, name: 'Cov Tags Gated', internal: !internal_before, mappable: !mappable_before, change_behaviour: ['clear_cache'] }
+        concept_scheme: { id: @tags_label.id, name: 'Cov Tags Gated', internal: !internal_before, mappable: !mappable_before, change_behaviour: ['clear_cache'] }
       }
 
       assert_response :success
@@ -570,65 +587,65 @@ module DataCycleCore
       assert_equal 'Cov Tags Gated', @tags_label.name # the rest of the payload still applied
     end
 
-    test 'update ignores the classification alias attributes gated on an ability the user lacks' do
-      internal_before = @tags_alias.internal
+    test 'update ignores the concept attributes gated on an ability the user lacks' do
+      internal_before = @tags_concept.internal
 
-      assert_not @admin.ability.can?(:update_internal, @tags_alias)
+      assert_not @admin.ability.can?(:update_internal, @tags_concept)
 
       patch classifications_path, xhr: true, params: {
-        classification_alias: { id: @tags_alias.id, internal: !internal_before, description: 'Cov Alias Gated' }
+        concept: { id: @tags_concept.id, internal: !internal_before, description: 'Cov Alias Gated' }
       }
 
       assert_response :success
-      @tags_alias.reload
+      @tags_concept.reload
 
-      assert_equal internal_before, @tags_alias.internal
-      assert_equal 'Cov Alias Gated', @tags_alias.description # the rest of the payload still applied
+      assert_equal internal_before, @tags_concept.internal
+      assert_equal 'Cov Alias Gated', @tags_concept.description # the rest of the payload still applied
     end
 
     # :set_color is the one of these gates the shipped roles do hold — but on SubjectNotInternal, so an
-    # internal alias is where the drop is observable at all. ui_configs is dropped whole: :color is its
+    # internal concept is where the drop is observable at all. ui_configs is dropped whole: :color is its
     # only permitted sub-key.
-    test 'update ignores the classification alias color without the set_color ability' do
-      internal_alias = build_alias(@tags_label, 'Cov Gated Color')
-      internal_alias.update!(internal: true, ui_configs: { 'color' => '#aabbcc' })
+    test 'update ignores the concept color without the set_color ability' do
+      internal_concept = build_concept(@tags_label, 'Cov Gated Color')
+      internal_concept.update!(internal: true, ui_configs: { 'color' => '#aabbcc' })
 
-      # the premise: the gate is granted, and closed only because this alias is internal
-      assert @admin.ability.can?(:set_color, @tags_alias)
-      assert_not @admin.ability.can?(:set_color, internal_alias)
+      # the premise: the gate is granted, and closed only because this concept is internal
+      assert @admin.ability.can?(:set_color, @tags_concept)
+      assert_not @admin.ability.can?(:set_color, internal_concept)
 
       patch classifications_path, xhr: true, params: {
-        classification_alias: { id: internal_alias.id, ui_configs: { color: '#ff0000' }, description: 'Cov Color Gated' }
+        concept: { id: internal_concept.id, ui_configs: { color: '#ff0000' }, description: 'Cov Color Gated' }
       }
 
       assert_response :success
-      internal_alias.reload
+      internal_concept.reload
 
-      assert_equal '#aabbcc', internal_alias.color
-      assert_equal 'Cov Color Gated', internal_alias.description # the rest of the payload still applied
+      assert_equal '#aabbcc', internal_concept.color
+      assert_equal 'Cov Color Gated', internal_concept.description # the rest of the payload still applied
     end
 
     # a mapping group of a flagged tree does not attach its concept to a content any more
     test 'hidden_mappings excludes the tree\'s mapping groups from the visible scope' do
-      group = create_mapping_group(@tags_alias, 'Cov Hidden Mappings')
+      mapping = create_mapping_link(@tags_concept, 'Cov Hidden Mappings')
 
-      assert_includes DataCycleCore::ClassificationGroup.visible.ids, group.id
+      assert_includes DataCycleCore::ConceptLink.visible.ids, mapping.id
 
       @tags_label.update!(hidden_mappings: true)
 
-      assert_not_includes DataCycleCore::ClassificationGroup.visible.ids, group.id
-      # the concept's own (primary) group stays visible
-      assert_includes DataCycleCore::ClassificationGroup.visible.ids, DataCycleCore::ClassificationGroup.find_by(classification_alias_id: @tags_alias.id, classification_id: @tags_alias.primary_classification_id).id
+      assert_not_includes DataCycleCore::ConceptLink.visible.ids, mapping.id
+      # the concept's own broader link is tree structure, never a mapping, so it stays visible
+      assert_includes DataCycleCore::ConceptLink.visible.ids, @tags_concept.parent_concept_link.id
     end
 
     # ---------- stored_filter_usage (#43524) ----------
     test 'stored_filter_usage renders the stored filters that use the given classification' do
       stored_filter = DataCycleCore::StoredFilter.create!(
         name: 'Cov Usage Direct', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
 
-      get stored_filter_usage_classifications_path, params: { id: @tags_alias.id }
+      get stored_filter_usage_classifications_path, params: { id: @tags_concept.id }
 
       assert_response :success
       assert_select('.stored-filter-usage-list button', text: /#{Regexp.escape(stored_filter.name)}/)
@@ -645,14 +662,14 @@ module DataCycleCore
     test 'stored_filter_usage renders a "show all" button in the footer with every matching stored filter id and the classification_id as hidden fields' do
       first = DataCycleCore::StoredFilter.create!(
         name: 'Cov Usage A', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
       second = DataCycleCore::StoredFilter.create!(
         name: 'Cov Usage B', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
 
-      get stored_filter_usage_classifications_path, params: { id: @tags_alias.id }
+      get stored_filter_usage_classifications_path, params: { id: @tags_concept.id }
 
       assert_response :success
       assert_select('.reveal-footer form.button_to[action=?]', saved_searches_stored_filters_path)
@@ -661,7 +678,7 @@ module DataCycleCore
       assert_select('.reveal-footer input[name="ids[]"][value=?]', second.id)
       # Unlike the single-item links, "show all" is a genuine classification-restricted browse, so it
       # does carry classification_id (see StoredFiltersController#saved_searches for the chip it renders).
-      assert_select('.reveal-footer input[name="classification_id"][value=?]', @tags_alias.id)
+      assert_select('.reveal-footer input[name="classification_id"][value=?]', @tags_concept.id)
     end
 
     # #43524 (review finding): the global usage count must not leak names/links of stored filters
@@ -670,15 +687,15 @@ module DataCycleCore
       standard_user = standard_role_user
       own = DataCycleCore::StoredFilter.create!(
         name: 'Cov Own', user: standard_user, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
       others = DataCycleCore::StoredFilter.create!(
         name: 'Cov Others', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
 
       sign_in(standard_user)
-      get stored_filter_usage_classifications_path, params: { id: @tags_alias.id }
+      get stored_filter_usage_classifications_path, params: { id: @tags_concept.id }
 
       assert_response :success
       assert_select('.stored-filter-usage-list button', text: /#{Regexp.escape(own.name)}/)
@@ -690,15 +707,15 @@ module DataCycleCore
       standard_user = standard_role_user
       first = DataCycleCore::StoredFilter.create!(
         name: 'Cov Others A', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
       second = DataCycleCore::StoredFilter.create!(
         name: 'Cov Others B', user: @admin, language: ['de'],
-        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'classification_alias_ids_with_subtree', 'v' => [@tags_alias.id] }]
+        parameters: [{ 'c' => 'a', 'm' => 'i', 'n' => 'Tags', 't' => 'concept_ids_with_subtree', 'v' => [@tags_concept.id] }]
       )
 
       sign_in(standard_user)
-      get stored_filter_usage_classifications_path, params: { id: @tags_alias.id }
+      get stored_filter_usage_classifications_path, params: { id: @tags_concept.id }
 
       assert_response :success
       assert_select('.stored-filter-usage-list', count: 0)
@@ -710,9 +727,9 @@ module DataCycleCore
     end
 
     test 'stored_filter_usage renders an empty result for a classification not used by any stored filter' do
-      unused_alias = build_alias(@tags_label, 'Cov Unused Alias')
+      unused_concept = build_concept(@tags_label, 'Cov Unused Alias')
 
-      get stored_filter_usage_classifications_path, params: { id: unused_alias.id }
+      get stored_filter_usage_classifications_path, params: { id: unused_concept.id }
 
       assert_response :success
       assert_select('p.empty')

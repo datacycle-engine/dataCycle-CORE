@@ -764,11 +764,11 @@ module DataCycleCore
     # ensures the Geocoding/geocoded classification exists and returns the ids it resolves to.
     # Idempotent across re-runs.
     def create_auto_geocoded_tag
-      tree = DataCycleCore::ClassificationTreeLabel.find_by(name: TAG_TREE) ||
-             DataCycleCore::ClassificationTreeLabel.create(name: TAG_TREE, visibility: ['show', 'edit', 'api'])
-      tree.create_classification_alias({ name: TAG_ALIAS, internal: true }) if DataCycleCore::Concept.for_tree(TAG_TREE).with_internal_name(TAG_ALIAS).blank?
+      tree = DataCycleCore::ConceptScheme.find_by(name: TAG_TREE) ||
+             DataCycleCore::ConceptScheme.create(name: TAG_TREE, visibility: ['show', 'edit', 'api'])
+      tree.create_concept({ name: TAG_ALIAS, internal: true }) if DataCycleCore::Concept.for_tree(TAG_TREE).with_internal_name(TAG_ALIAS).blank?
 
-      DataCycleCore::Concept.for_tree(TAG_TREE).with_internal_name(TAG_ALIAS).pluck(:classification_id)
+      DataCycleCore::Concept.for_tree(TAG_TREE).with_internal_name(TAG_ALIAS).pluck(:id)
     end
 
     # temporarily overrides the geocode feature's address source + geo target (which auto_geocode

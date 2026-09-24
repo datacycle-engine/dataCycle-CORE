@@ -9,12 +9,12 @@ module DataCycleCore
         class ClassificationSortTest < DataCycleCore::V4::Base
           before(:all) do
             DataCycleCore::Thing.delete_all
-            @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
+            @trees = DataCycleCore::ConceptScheme.where(internal: false).visible('api').count
           end
 
           # TODO: add context test
           test 'api/v4/concept_schemes parameter sort: created' do
-            tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree_tags = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
             tree_tags.update_column(:created_at, 10.days.from_now)
@@ -80,7 +80,7 @@ module DataCycleCore
 
           # order by modified
           test 'api/v4/concept_schemes parameter sort: modified' do
-            tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree_tags = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             orig_ts = tree_tags.updated_at
 
             # DESC
@@ -162,7 +162,7 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes parameter multiple and invalid sort params' do
-            tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+            tree_tags = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
 
             tree_tags.update_column(:created_at, 10.days.from_now)
@@ -187,8 +187,8 @@ module DataCycleCore
           end
 
           test 'api/v4/concept_schemes/id/concepts parameter sort[:modified]' do
-            tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
-            classifications = DataCycleCore::ClassificationAlias.for_tree('Tags')
+            tree_id = DataCycleCore::ConceptScheme.find_by(name: 'Tags').id
+            classifications = DataCycleCore::Concept.for_tree('Tags')
             classifications_count = classifications.count
             classificaton_tag = classifications.with_name('Tag 3').first
             orig_ts = classificaton_tag.updated_at

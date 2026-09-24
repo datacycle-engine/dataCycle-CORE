@@ -1,106 +1,90 @@
 # frozen_string_literal: true
 
+# The property table is built from DataCycleCore::Schema::XlsxPropertyPresenter,
+# which walks the schema (api_name, label, type, flags, inline embedded/object
+# nesting, recursion protection). This view only *renders* those nodes into
+# spreadsheet rows; it holds no schema traversal or naming logic. (The detail
+# page uses the OpenAPI-based Schema::PropertyPresenter, whose nesting is
+# link-based and so cannot supply the inline rows the spreadsheet needs.)
+
 workbook = xlsx_package.workbook
 
+# resolve every embedded template once for the whole workbook (no N+1)
+@templates_by_name = DataCycleCore::ThingTemplate.all.index_by(&:template_name)
+
 def render_template(sheet, template)
-  rows = template.schema['properties'].map { |key, definition|
-    convert_attribute_to_row(key, definition, Set[template.template_name])
-  }.reduce([]) do |all, next_element|
-    all + (next_element.all?(Array) ? next_element : [next_element])
-  end
+  nodes = DataCycleCore::Schema::XlsxPropertyPresenter.new(template, templates_by_name: @templates_by_name).nodes
+  rows = nodes.flat_map { |node| property_rows(node) }
+
+  # a template can have zero documented properties (everything filtered out by
+  # PropertyFilter.documented?) — fall back to a single placeholder row so it
+  # still goes through the same merge/column-width styling below instead of
+  # crashing on the empty-rows math (max would be nil) or getting a bare,
+  # unstyled title cell
+  rows = [[t('data_cycle_core.schema.xlsx.no_documented_properties'), nil, nil, nil]] if rows.empty?
+
+  sheet.add_row([template.template_name], style: [sheet.styles.add_style(sz: 18)])
+
+  max_row_size = rows.map(&:size).max
 
   rows = rows.map do |row|
     first_filled_cell_index = row.find_index(&:present?)
 
-    row[0..first_filled_cell_index] + Array.new(rows.map(&:size).max - row.size) + row[(first_filled_cell_index + 1)..]
+    row[0..first_filled_cell_index] + Array.new(max_row_size - row.size) + row[(first_filled_cell_index + 1)..]
   end
 
-  sheet.add_row([template.template_name], style: [sheet.styles.add_style(sz: 18)])
-  sheet.merge_cells("A1:#{('A'.ord + rows.map(&:size).max - 1).chr}1")
+  sheet.merge_cells("A1:#{('A'.ord + max_row_size - 1).chr}1")
 
   sheet.add_row
   sheet.add_row
 
-  sheet.column_widths(*(Array.new(rows.map(&:size).max - 4, 10) + [nil, 25, 15, nil]))
+  sheet.column_widths(*(Array.new(max_row_size - 4, 10) + [nil, 25, 15, nil]))
 
   rows.each do |row|
     sheet.add_row(row)
   end
 end
 
-def convert_attribute_to_row(key, definition, visited = Set.new)
-  case definition['type']
-  when 'key'
-    convert_string_attribute_to_row(key, definition)
-  when 'datetime'
-    convert_datetime_attribute_to_row(key, definition)
-  when 'string'
-    convert_string_attribute_to_row(key, definition)
-  when 'classification'
-    convert_classification_attribute_to_row(key, definition)
-  when 'object'
-    convert_object_attribute_to_rows(key, definition, visited)
-  when 'embedded'
-    convert_embedded_attribute_to_rows(key, definition, visited)
-  when 'linked'
-    convert_linked_attribute_to_rows(key, definition)
+# One presenter node -> one or more spreadsheet rows. Leaves render as
+# [label, api_name, type, hint]; embedded/object nodes render a header row plus
+# their children, each indented one column deeper (a leading blank cell).
+def property_rows(node, depth = 0)
+  indent = Array.new(depth)
+
+  if node[:nested].present?
+    [indent + [node[:label], node[:api_name], nil, nil]] +
+      node[:nested].flat_map { |child| property_rows(child, depth + 1) }
   else
-    [definition['label'], key, definition['type'].capitalize, nil]
+    [indent + [node[:label], node[:api_name], property_type_label(node), property_hint(node)]]
   end
 end
 
-def convert_key_attribute_to_row(key, definition)
-  [definition['label'], key, 'Text', nil]
+def property_type_label(node)
+  DataCycleCore::Schema::XlsxPropertyPresenter.type_label(node[:expected_type])
 end
 
-def convert_datetime_attribute_to_row(key, definition)
-  [definition['label'], key, 'DateTime', nil]
+def property_hint(node)
+  flags = node[:flags]
+
+  return t('data_cycle_core.schema.xlsx.hint.recursive') if flags[:recursive]
+  return t('data_cycle_core.schema.xlsx.hint.classification', tree: node[:tree_label]) if flags[:classification]
+  return t('data_cycle_core.schema.xlsx.hint.linked') if flags[:linked]
+
+  nil
 end
 
-def convert_string_attribute_to_row(key, definition)
-  [definition['label'], key, 'Text', nil]
-end
+# container then entity templates, each as its own worksheet (order preserved).
+# Overlay templates are excluded so the export matches the /schema index and the
+# dependency view, which hide them too — @overlay_names is resolved once in
+# SchemaController#index so this export can never diverge from the UI.
+overlay_names = Array(@overlay_names)
 
-def convert_classification_attribute_to_row(key, definition)
-  [definition['label'], key, definition['type'].capitalize, " => siehe Klassifizierungsbaum '#{definition['tree_label']}'"]
-end
-
-def convert_object_attribute_to_rows(key, definition, visited = Set.new)
-  [[definition['label'], key, nil, nil]] + definition['properties'].map do |property_key, property_definition|
-    [nil] + convert_attribute_to_row(property_key, property_definition, visited)
-  end
-end
-
-def convert_embedded_attribute_to_rows(key, definition, visited = Set.new)
-  return [definition['label'], key, nil, ' => rekursiv'] if visited.include?(definition['template_name'])
-
-  visited += [definition['template_name']]
-  embedded_template = DataCycleCore::ThingTemplate.find_by(template_name: definition['template_name'])
-
-  # rubocop:disable-next Performance/FlatMap
-  [[definition['label'], key, nil, nil]] + embedded_template.schema['properties'].map { |property_key, property_definition|
-    nested_attributes = convert_attribute_to_row(property_key, property_definition, visited)
-
-    if nested_attributes.all?(Array)
-      nested_attributes.map { |attribute| [nil] + attribute }
-    else
-      [[nil] + nested_attributes]
+['container', 'entity'].each do |content_type|
+  DataCycleCore::Schema.templates_with_content_type(content_type)
+    .reject { |template| overlay_names.include?(template.template_name) }
+    .each do |template|
+      workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
+        render_template(sheet, template)
+      end
     end
-  }.flatten(1)
-end
-
-def convert_linked_attribute_to_rows(key, definition)
-  [definition['label'], key, nil, ' => Verknüpfung']
-end
-
-DataCycleCore::Schema.templates_with_content_type('container').each do |template|
-  workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
-    render_template(sheet, template)
-  end
-end
-
-DataCycleCore::Schema.templates_with_content_type('entity').each do |template|
-  workbook.add_worksheet(name: template.template_name.parameterize(separator: ' ', preserve_case: true).truncate(31)) do |sheet|
-    render_template(sheet, template)
-  end
 end

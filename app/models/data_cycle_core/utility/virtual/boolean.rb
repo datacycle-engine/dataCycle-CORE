@@ -8,7 +8,7 @@ module DataCycleCore
           def by_assigned_classification(content:, virtual_definition:, **_args)
             classification_path = virtual_definition.dig('virtual', 'path')
 
-            content.full_classification_aliases.any? { |c| c.full_path == classification_path }
+            content.full_concepts.any? { |c| c.full_path == classification_path }
           end
         end
       end

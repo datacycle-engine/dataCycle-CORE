@@ -66,7 +66,7 @@ module DataCycleCore
 
       # Suppliers deliver the degree as the concept's external_key or uri (odta:AIGenerated, ...).
       # Not cached beyond the single call of #mapping_table: a classification_id kept past its
-      # classification stores a classification_content nothing resolves, and Concept is readonly, so
+      # classification stores a concept_content nothing resolves, and Concept is readonly, so
       # there is no write to invalidate a cache on.
       def concept_for(degree)
         return if degree.blank?
@@ -136,7 +136,7 @@ module DataCycleCore
       # would label every translation in German.
       def data_hash(concept, name)
         {
-          DEGREE_PROPERTY => [concept.classification_id],
+          DEGREE_PROPERTY => [concept.id],
           'name' => name.presence || I18n.t('artificial_intelligence_agent.name', default: DEFAULT_NAME)
         }
       end

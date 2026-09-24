@@ -8,17 +8,17 @@ module DataCycleCore
   # area of the detail view, where super_admin and above see it marked with an icon.
   class HiddenMappingClassificationsTest < DataCycleCore::TestCases::ActionDispatchIntegrationTest
     before(:all) do
-      @source_tree = DataCycleCore::ClassificationTreeLabel.create!(name: "HiddenDetailSrc_#{SecureRandom.hex(6)}", visibility: ['show'])
-      @src = @source_tree.create_classification_alias('HIDDEN DETAIL SRC')
+      @source_tree = DataCycleCore::ConceptScheme.create!(name: "HiddenDetailSrc_#{SecureRandom.hex(6)}", visibility: ['show'])
+      @src = @source_tree.create_concept('HIDDEN DETAIL SRC')
 
-      @target_tree = DataCycleCore::ClassificationTreeLabel.create!(name: "HiddenDetailTgt_#{SecureRandom.hex(6)}", visibility: ['show'])
-      @tt = @target_tree.create_classification_alias('HIDDEN DETAIL TARGET')
-      DataCycleCore::ClassificationGroup.create!(classification: @src.primary_classification, classification_alias: @tt)
+      @target_tree = DataCycleCore::ConceptScheme.create!(name: "HiddenDetailTgt_#{SecureRandom.hex(6)}", visibility: ['show'])
+      @tt = @target_tree.create_concept('HIDDEN DETAIL TARGET')
+      DataCycleCore::ConceptLink.create!(parent: @tt, child: @src, link_type: DataCycleCore::ConceptLink::LINK_TYPE_RELATED)
       @target_tree.update!(hidden_mappings: true)
 
       @content = DataCycleCore::TestPreparations.create_content(
         template_name: 'POI',
-        data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.primary_classification.id] }
+        data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.id] }
       )
 
       @super_admin = create_user(99)
@@ -51,7 +51,7 @@ module DataCycleCore
     # effective classification): it is already displayed, so it is not repeated as a hidden mapping
     test 'a concept the content also carries visibly is not repeated in the collapsed area' do
       sign_in(@super_admin)
-      @content.set_data_hash(data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.primary_classification.id, @tt.primary_classification.id] })
+      @content.set_data_hash(data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.id, @tt.id] })
 
       get thing_path(@content)
 
@@ -59,7 +59,7 @@ module DataCycleCore
       assert_select '.tag.hidden-mapping', count: 0
       assert_select '.tag', text: /#{@tt.internal_name}/
     ensure
-      @content.set_data_hash(data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.primary_classification.id] })
+      @content.set_data_hash(data_hash: { name: 'HiddenMappingDetailProbe', universal_classifications: [@src.id] })
     end
 
     test 'an admin sees no hidden mapping at all' do

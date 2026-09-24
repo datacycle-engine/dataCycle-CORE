@@ -1,0 +1,82 @@
+---
+# [#51643] Fixture for the generic _generated companion mechanism: description_generated declares no
+# :compute: :condition:, so the transformer injects one; name_generated brings its own and keeps it.
+- :data:
+    :name: TestGenerated
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :contributor:
+        :label: Mitwirkende
+        :type: linked
+        :template_name:
+          - Person
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
+      :name_generated:
+        :label: Titel (generiert)
+        :type: string
+        :storage_location: translated_value
+        :local: true
+        :compute:
+          :module: Common
+          :method: copy
+          :fallback: false
+          :condition:
+            - :type: I18n
+              :name: locale
+              :method: equals?
+              :value: de
+          :parameters:
+            - description
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+      :description_generated:
+        :label: Beschreibung (generiert)
+        :type: string
+        :storage_location: translated_value
+        :local: true
+        :visible:
+          - show
+          - api
+        :position:
+          :before: description
+        :api:
+          :name: description
+        :compute:
+          :module: Common
+          :method: copy
+          :async: true
+          :fallback: false
+          :parameters:
+            - name
+- :data:
+    :name: TestGeneratedPlain
+    :type: object
+    :content_type: entity
+    :schema_ancestors:
+      - CreativeWork
+    :boost: 1.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :contributor:
+        :label: Mitwirkende
+        :type: linked
+        :template_name:
+          - Person
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value

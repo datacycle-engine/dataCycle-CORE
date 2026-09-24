@@ -225,12 +225,13 @@ Um beispielsweise alle Veranstaltungen im Herbst und im Winter außer den Verans
 }
 ```
 
-#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|dct:deleted\]**
+#### Aktualisierungen - **filter\[attribute\]\[dct:created|dct:modified|dc:touched|dct:deleted\]**
 
 Für einige Anwendungsfälle kann es hilfreich sein, herausfinden zu können, welche Datensätze innerhalb einer vorgegebenen Zeitspanne erstellt, geändert oder gelöscht worden sind. Zu diesem Zweck können bei allen API-Endpunkten, die sich aus statischen bzw. dynamischen Inhaltssammlungen ergeben, spezielle _Attribut-Filter_ genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden muss, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die auf dataCycle aufbauenden Anwendungen noch einmal deutlich entlastet werden können. Für diese Art der Filterung werden die folgenden Attribute unterstützt:
 
-- **dct:created**
-- **dct:modified**
+- **dct:created** — Zeitpunkt, zu dem der Inhalt in dataCycle angelegt worden ist.
+- **dct:modified** — Zeitpunkt, zu dem der Inhalt selbst zuletzt gespeichert worden ist.
+- **dc:touched** — Zeitpunkt, zu dem sich die über die Datenschnittstelle ausgelieferte Darstellung des Inhalts zuletzt geändert hat (siehe [Unterschied zwischen dct:modified und dc:touched](#unterschied-zwischen-dct-modified-und-dc-touched)).
 - **dct:deleted** (_ACHTUNG: Dieser Filter steht nur über den speziellen Endpunkt [/api/v4/things/deleted](/api/v4/things/deleted) zur Verfügung!_)
 
 Bei der Verwendung von Zeitpunkten im Rahmen eines Filterkriteriums müssen die Zeitpunkte entsprechend den Vorgaben von [RFC 3339](https://tools.ietf.org/html/rfc3339) übergeben werden, damit sie von dataCycle korrekt interpretiert werden können.
@@ -253,7 +254,22 @@ Sollen beispielsweise alle Inhalte ermittelt werden, die am [21. Oktober 2015](h
 }
 ```
 
-_Die Attribute `dct:created` bzw. `dct:modified` können bei Bedaf auch direkt bei den einzelnen Inhalten ausgegeben werden indem sie explizit beim Parameter `fields` angegeben werden._
+_Die Attribute `dct:created`, `dct:modified` bzw. `dc:touched` können bei Bedaf auch direkt bei den einzelnen Inhalten ausgegeben werden indem sie explizit beim Parameter `fields` angegeben werden._
+
+##### Unterschied zwischen dct:modified und dc:touched
+
+`dct:modified` bezieht sich ausschließlich auf den Datensatz des Inhalts. Die über die Datenschnittstelle ausgelieferte Darstellung enthält darüber hinaus aber auch Daten aus verknüpften Inhalten und aus Klassifizierungen, weshalb sie sich auch dann ändern kann, wenn der Datensatz des Inhalts selbst unberührt bleibt. Genau diese Fälle deckt `dc:touched` zusätzlich ab:
+
+- Der Inhalt selbst wird gespeichert und dabei tatsächlich verändert. In diesem Fall ändert sich auch `dct:modified`. Ein Speichervorgang, der keine Änderung bewirkt, ändert beide Zeitpunkte nicht.
+- Ein verknüpfter Inhalt ändert sich, z.B. das Bild eines Artikels oder der Veranstaltungsort einer Veranstaltung. Die Invalidierung folgt den Verknüpfungen über bis zu <%= DataCycleCore.cache_invalidation_depth %> Ebenen hinweg, sodass auch Inhalte erfasst werden, die den geänderten Inhalt nur indirekt einbinden.
+- Eine Klassifizierung ändert sich, z.B. weil sie umbenannt, im Baum verschoben, neu gemappt oder ausgeblendet wird. Davon sind alle Inhalte betroffen, die diese Klassifizierung tragen — auch jene, die sie nur über ein Mapping erreichen.
+- Die Definition der Inhaltsart wird geändert, sodass sich die Struktur der Ausgabe ändern kann.
+- Es werden Messwerte (Zeitreihen) zum Inhalt geschrieben.
+- Der Cache wird serverseitig invalidiert, z.B. im Zuge von Wartungsarbeiten oder beim Zusammenführen von Dubletten.
+
+Für die über die Datenschnittstelle ausgelieferten Inhalte ist `dc:touched` damit nie älter als `dct:modified`.
+
+**Für das inkrementelle Abholen von Änderungen ist `dc:touched` das passende Attribut**: Wird stattdessen nach `dct:modified` gefiltert, werden genau jene Inhalte übersehen, deren ausgelieferte Darstellung sich geändert hat, ohne dass der Inhalt selbst gespeichert worden ist — z.B. ein Artikel, bei dem lediglich das verknüpfte Bild ausgetauscht worden ist. Umgekehrt liefert ein Filter auf `dc:touched` mehr Treffer: Eine Änderung an einer breit verwendeten Klassifizierung kann einen Großteil des Datenbestands auf einmal betreffen, ohne dass sich an den einzelnen Inhalten fachlich etwas geändert hat.
 
 #### Termine - **filter\[attribute\]\[eventSchedule\]**
 
@@ -675,6 +691,7 @@ Die Attribute, die für die Sortierung nutzbar sind, können pro Installation in
 
 - **dct:created**
 - **dct:modified**
+- **dc:touched**
 - **name**
 - **default**
 

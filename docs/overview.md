@@ -1,6 +1,7 @@
 # Übersicht
 
 - [Klassifizierungen](/docs/classifications)
+- [Kennzeichnung der KI-Beteiligung (KI-Agent)](/docs/ai_agent)
 - [Datenschnittstelle](/docs/api)
     - [Datenschnittstelle für Klassifizierungen](/docs/api/classifications)
     - [Datenschnittstelle für Inhalte (Ad-Hoc-Datenendpunkte)](/docs/api/contents)

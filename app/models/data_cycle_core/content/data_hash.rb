@@ -108,9 +108,10 @@ module DataCycleCore
       def set_data_hash(**)
         options = DataCycleCore::Content::DataHashOptions.new(**)
 
-        # this save owns the compute.after_save deferral it creates below and consumes in the
-        # transaction; drop anything an earlier pass left behind by bailing out in between
-        reset_after_save_computed_keys
+        # this save owns the deferrals it creates below and consumes in and after the transaction;
+        # drop anything an earlier pass left behind by bailing out in between, unless this call is
+        # the nested pass of a save whose own deferrals are still pending
+        reset_deferred_computed_keys unless continuing_caller_save?
 
         # remove all keys that are not part of the schema
         options.data_hash.slice!(*writable_property_names)
@@ -181,6 +182,7 @@ module DataCycleCore
         return false if recompute_failed
 
         reload
+        enqueue_async_computed_values
         after_save_data_hash(options)
 
         true
@@ -200,15 +202,26 @@ module DataCycleCore
         # remove all additional translations, if the current embedded content only exists for a single locale
         translations = {} if single_embedded_locale?
 
+        # Every locale's changes, not the last one's: previous_datahash_changes is overwritten by
+        # each set_data_hash below, while what the locales left untouched has to be weighed against
+        # all of them. Writing 'description' in de and 'name' in en of a de/en/it content otherwise
+        # schedules it with 'name' alone, and the it companion of the German description - the
+        # cross-locale case this whole block exists for - is never recomputed.
+        changed_keys = []
+
         transaction(joinable: false, requires_new: true) do
           I18n.with_locale(locale) do
             raise ActiveRecord::Rollback unless set_data_hash(**options.to_h, data_hash: datahash, version_name: version_name&.+(" (#{I18n.locale})"))
+
+            changed_keys |= previous_datahash_changes&.keys.to_a
           end
 
           if translations.present?
             translations.each do |l, locale_hash|
               I18n.with_locale(l) do
                 raise ActiveRecord::Rollback unless set_data_hash(**options.to_h.slice(:current_user, :ui_locale, :prevent_history, :source, :force_update), data_hash: locale_hash, update_search_all: false, version_name: version_name&.+(" (#{I18n.locale})"))
+
+                changed_keys |= previous_datahash_changes&.keys.to_a
               end
             end
 
@@ -216,12 +229,13 @@ module DataCycleCore
             i18n_warnings.each_value { |w| w.delete(no_changes_key) } unless translations.keys.push(locale).all? { |l| i18n_warnings[l]&.include?(no_changes_key) }
           end
 
-          next if previous_datahash_changes.blank?
+          next if changed_keys.blank?
 
           # trigger update of translated computed properties if any translated computed with non-translated dependencies changed
-          changed_untranslatable_keys = previous_datahash_changes.keys.intersection(untranslatable_property_names)
+          changed_untranslatable_keys = changed_keys.intersection(untranslatable_property_names)
           c_keys_to_update = dependent_computed_property_names(changed_untranslatable_keys)
             .intersection(translatable_computed_property_names)
+          c_keys_to_update |= generated_companions_to_recompute(changed_keys)
           next if c_keys_to_update.blank?
 
           add_update_translated_computed_properties_job(
@@ -245,6 +259,11 @@ module DataCycleCore
 
       # The fan-out lives here rather than at the call sites so that every caller inherits it: a
       # content the export filter rejects reaches a receiver this way only.
+      #
+      # It starts from this content and from every shared embedded this save changed
+      # (Feature::ReusableEmbedded): the other parents embed the same record in their payload and
+      # would otherwise never hear of the change. One job for all of them, so the save keeps a
+      # single invalidating job - two would skip each other's rows in invalidate_all.
       # @param invalidate_related_cache [Boolean] true when nothing else invalidates the contents the
       #   fan-out re-exports, which is what makes the re-export land at all. False for a caller that
       #   invalidates them itself, and for one that wants no invalidation: a backfill re-sends a
@@ -253,7 +272,12 @@ module DataCycleCore
       def execute_update_webhooks(invalidate_related_cache: false)
         execute_webhooks(:update)
 
-        add_related_webhooks_job(invalidate: invalidate_related_cache) if cached_related_contents?
+        shared_embedded_ids = @changed_shared_embedded_ids.to_a.uniq
+        @changed_shared_embedded_ids = nil
+
+        return unless cached_related_contents? || shared_embedded_ids.any?
+
+        add_related_webhooks_job(invalidate: invalidate_related_cache, shared_embedded_ids:)
       end
 
       def execute_delete_webhooks
@@ -321,11 +345,31 @@ module DataCycleCore
         DataCycleCore::DestroyComputedPropertiesJob.perform_later(id, @destroy_id_attribute_hash)
       end
 
-      # A change carrying nothing the API renders reaches neither this content's own receivers nor
-      # the contents linking it, and a timeseries value is exactly that.
+      # A change no receiver hears about reaches neither this content's own receivers nor the
+      # contents linking it; #non_payload_property_names names which changes those are.
       def datahash_changes_trigger_webhooks?
         previous_datahash_changes.present? &&
-          previous_datahash_changes.keys.any? { |k| timeseries_property_names.exclude?(k) }
+          previous_datahash_changes.keys.difference(non_payload_property_names).any?
+      end
+
+      # [#51643] The companions of a base attribute this save changed, for every other locale.
+      #
+      # A companion is defined as "what fills the gap the editors left", and a producer may fill it
+      # from another locale - the imageDescriptionPixie translates the editorial ALT label into the
+      # languages it does not annotate. That makes the German editorial text a dependency of the
+      # English companion, which is a cross-locale dependency #flat_computed_parameters cannot
+      # express: it resolves parameters within one locale, and the async recompute above is
+      # scheduled for the locale of the save alone. Core cannot know which producer derives across
+      # locales, so it schedules every companion of a changed base attribute and lets the injected
+      # condition decide per locale - the alternative is a label that only ever catches up on the
+      # next `rake dc:update_data:computed_attributes`.
+      #
+      # @param changed_keys [Array<String>] the keys this save wrote
+      # @return [Array<String>] companion keys to recompute in the other locales
+      def generated_companions_to_recompute(changed_keys)
+        generated_property_names.select do |key|
+          changed_keys.intersect?(generated_blocking_property_names(key))
+        end
       end
 
       def add_update_translated_computed_properties_job(locales, keys)
@@ -440,7 +484,7 @@ module DataCycleCore
         when *SIMPLE_OBJECT_PROPERTY_TYPES, *PLAIN_PROPERTY_TYPES, *TABLE_PROPERTY_TYPES, *OEMBED_PROPERTY_TYPES
           save_values(key, value, properties)
         when *CLASSIFICATION_PROPERTY_TYPES
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
+          set_classification_relation_ids(value, key, properties['default_value'], properties['not_translated'])
         when *ASSET_PROPERTY_TYPES
           set_asset_id(value, key, properties['asset_type'])
         when *SCHEDULE_PROPERTY_TYPES
@@ -615,7 +659,7 @@ module DataCycleCore
             if item['datahash']&.keys&.except('id')&.any? ||
                item['translations']&.values&.any? { |v| v.keys.except('id').any? } ||
                item.keys.except('id').any?
-              upsert_content(name, item, options, translatable_property?(field_name))
+              changed_item = upsert_content(name, item, options, translatable_property?(field_name))
             end
 
             if available_update_item_keys[index] != item_id
@@ -627,6 +671,9 @@ module DataCycleCore
               upsert_relation.order_a = index
               upsert_relation.save
             end
+
+            # after the relation: a block linked and changed in the same save counts this parent too
+            remember_changed_shared_embedded(changed_item) if changed_item
 
             updated_item_keys << item_id
           else
@@ -654,6 +701,15 @@ module DataCycleCore
             check_ancestors: true
           )
         end
+      end
+
+      # A nested save writes the embedded as part of this save, and its outward side effects run
+      # from this pass (see #after_save_data_hash); what it changed in a block other contents share
+      # is kept for #execute_update_webhooks.
+      def remember_changed_shared_embedded(item)
+        return unless item.try(:shared_embedded?) && item.datahash_changes_trigger_webhooks?
+
+        (@changed_shared_embedded_ids ||= []) << item.id
       end
 
       def upsert_content(name, item, options, single_locale = false)
@@ -690,30 +746,12 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, _tree_label, default_value, not_translated, _universal)
+      # Only assigns the attribute (Attributes::ClassificationAttributes); the rows are written by
+      # the save(touch: false) that set_data_hash runs after set_template_data_hash, through autosave.
+      def set_classification_relation_ids(ids, relation_name, default_value, not_translated)
         return if not_translated && I18n.default_locale != I18n.locale && default_value.blank?
 
-        present_relation_ids = send(relation_name).pluck(:id)
-        ids = Array.wrap(ids).uniq
-
-        if DataCycleCore::DataHashService.present?(ids)
-          classification_contents.upsert_all(
-            ids.map do |classification_id|
-              {
-                classification_id:,
-                relation: relation_name,
-                updated_at: Time.zone.now
-              }
-            end,
-            unique_by: :index_classification_contents_on_unique_constraint
-          )
-        end
-
-        to_delete = present_relation_ids - ids
-
-        return if to_delete.empty?
-
-        classification_contents.where(relation: relation_name, classification_id: to_delete).delete_all
+        send(:"#{relation_name}=", ids)
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)

@@ -1,0 +1,5 @@
+en:
+  rdf:
+    ontology:
+      title: "dataCycle instance ontology"
+      comment: "RDFS/OWL ontology generated from the DataDefinitions, describing the instance-specific classes (dcls:) and their properties mapped onto schema.org/dct/odta. It is the vocabulary (TBox) behind the instance data delivered as JSON-LD."

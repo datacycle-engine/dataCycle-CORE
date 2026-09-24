@@ -6,10 +6,6 @@ module DataCycleCore
       module ImportFunctionsDataHelper
         include ImportLocaleFilter
 
-        PROPERTIES_WITH_IMPORTED_FLAG = [
-          'data_pool'
-        ].freeze
-
         # Syncs external system data to existing Thing objects without creating or updating content.
         #
         # @param utility_object [Object] the import utility object
@@ -50,9 +46,20 @@ module DataCycleCore
 
           data = post_process_data(data:, config:, utility_object:).slice(*template.importable_property_names)
           data = drop_blank_assets(data, template)
-          data = add_mongo_infos(data:, raw_data:, utility_object:)
 
+          # Hashed before #add_mongo_infos stamps the source document's key onto the data: a nested
+          # content carries its parent document's key (ImportContents.process_single_content), so a
+          # publisher Organization shared by 2,000 POIs produced 2,000 different hashes per run and
+          # was re-saved, and re-exported, for every one of them.
+          #
+          # Both properties are now frozen at the save that first wrote them: dc_mongo_key is the
+          # parent that came first rather than last, and dc_mongo_collection, which follows the
+          # step's source_type rather than anything the payload carries, keeps its old value when
+          # that source_type is renamed - Content::ExternalData#mongo_raw_data then answers nil for
+          # the admin raw-data panel until some other change re-saves the content.
           transformation_hash = Digest::SHA256.hexdigest(data.to_json)
+
+          data = add_mongo_infos(data:, raw_data:, utility_object:)
           external_key = data['external_key']
           external_source_id = utility_object.external_source.id
           external_hash = ExternalHash.find_or_initialize_by(external_key:, external_source_id:, locale: I18n.locale)
@@ -179,7 +186,7 @@ module DataCycleCore
             global_data = data.except(*content.local_property_names, 'overlay', 'id')
 
             if import_untranslatable
-              add_properties_with_imported_flag!(content, global_data)
+              add_imported_flags!(content, global_data)
             else
               # the flags belong to their (untranslatable) property, so they are left alone too
               keep_translatable_only!(global_data, content)
@@ -280,7 +287,7 @@ module DataCycleCore
           content.external_source_id = nil
           content.external_key = nil
           data_hash = {}
-          add_properties_with_imported_flag!(content, data_hash)
+          add_imported_flags!(content, data_hash)
           content.set_data_hash(data_hash:, prevent_history: !utility_object.history)
           content.save!
           true
@@ -409,11 +416,7 @@ module DataCycleCore
         end
 
         def default_classification(value:, tree_label:)
-          [
-            Classification
-              .joins(classification_groups: [{ classification_alias: [{ classification_tree: [:classification_tree_label] }] }])
-              .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
-          ].compact_blank
+          [DataCycleCore::Concept.for_tree(tree_label).with_internal_name(value).pick(:id)].compact_blank
         end
 
         def merge_default_values(config, data_hash, utility_object)
@@ -504,10 +507,11 @@ module DataCycleCore
           data
         end
 
-        def add_properties_with_imported_flag!(content, data)
-          content.properties_with_imported_flag.each do |key|
-            data["#{key}_imported"] = data.key?(key)
-          end
+        # A flag says whether this write delivered its property, so +data+ has to be a whole
+        # record, the way an import step delivers one: a partial write - a payload of 'name'
+        # alone, legal for the APIv4 push - would clear the flag of every property it left out.
+        def add_imported_flags!(content, data)
+          data.merge!(content.imported_flags { |property| data.key?(property) })
         end
 
         def change_primary_system!(content:, data:, new_external_source:)

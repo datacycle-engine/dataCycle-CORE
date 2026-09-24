@@ -148,7 +148,7 @@ module DataCycleCore
             # scope through the user's api filter (mirrors select_by_external_keys) so a UUID list
             # can only resolve content the caller may access — closes the object-level IDOR (DC-14).
             query = build_search_query.query
-              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
+              .includes(:translations, :scheduled_data, concepts: [:concept_scheme])
               .where(id: uuid)
 
             if request.format.geojson?
@@ -175,7 +175,7 @@ module DataCycleCore
             query = build_search_query
             query = query.query
               .by_external_key(@external_source_id, @external_keys)
-              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
+              .includes(:translations, :scheduled_data, concepts: [:concept_scheme])
 
             @contents = apply_paging(query)
             @pagination_url = method(:api_v4_things_select_by_external_key_url)

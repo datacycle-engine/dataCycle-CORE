@@ -72,8 +72,13 @@ module DataCycleCore
                   }
                 end
 
+                # [#47881] the generated ALT label is delivered as `description` as well; the
+                # editorial one is filled here, so it is the one the API answers with (asserted
+                # above) and the generated attribute contributes nothing of its own
+                assert_attributes(json_validate, required_attributes, ['description_generated']) { {} }
+
                 # plain attributes with transformation
-                assert_attributes(json_validate, required_attributes, ['width', 'height']) do
+                assert_attributes(json_validate, required_attributes, ['width', 'height', 'focus_point_x', 'focus_point_y']) do
                   {
                     'width' => {
                       '@id' => generate_uuid(@content.id, 'width'),
@@ -92,6 +97,12 @@ module DataCycleCore
                       'unitCode' => 'E37',
                       'unitText' => 'pixel',
                       'value' => @content.height
+                    },
+                    'dc:focusPoint' => {
+                      '@id' => generate_uuid(@content.id, 'dc:focusPoint'),
+                      '@type' => 'dc:FocusPoint',
+                      'x' => @content.focus_point_x,
+                      'y' => @content.focus_point_y
                     }
                   }
                 end
@@ -105,7 +116,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
-                    'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                    'cc:license' => @content.license_classification.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
                     'url' => @content.attribution_url,
                     'copyrightNotice' => @content.copyright_notice_computed
@@ -127,7 +138,7 @@ module DataCycleCore
                   }
                 end
 
-                assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+                assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)
                 assert_equal({ 'mandatoryLicense' => false }, json_validate)
@@ -188,8 +199,13 @@ module DataCycleCore
                   }
                 end
 
+                # [#47881] the generated ALT label is delivered as `description` as well; the
+                # editorial one is filled here, so it is the one the API answers with (asserted
+                # above) and the generated attribute contributes nothing of its own
+                assert_attributes(json_validate, required_attributes, ['description_generated']) { {} }
+
                 # plain attributes with transformation
-                assert_attributes(json_validate, required_attributes, ['width', 'height']) do
+                assert_attributes(json_validate, required_attributes, ['width', 'height', 'focus_point_x', 'focus_point_y']) do
                   {
                     'width' => {
                       '@id' => generate_uuid(@content.id, 'width'),
@@ -208,6 +224,12 @@ module DataCycleCore
                       'unitCode' => 'E37',
                       'unitText' => 'pixel',
                       'value' => @content.height
+                    },
+                    'dc:focusPoint' => {
+                      '@id' => generate_uuid(@content.id, 'dc:focusPoint'),
+                      '@type' => 'dc:FocusPoint',
+                      'x' => @content.focus_point_x,
+                      'y' => @content.focus_point_y
                     }
                   }
                 end
@@ -221,7 +243,7 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['url', 'license', 'use_guidelines', 'attribution_url', 'attribution_name', 'license_classification']) do
                   # license is overwritten by license_classification
                   {
-                    'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                    'cc:license' => @content.license_classification.first.uri,
                     'cc:useGuidelines' => @content.use_guidelines,
                     'url' => @content.attribution_url,
                     'copyrightNotice' => @content.copyright_notice_computed
@@ -243,7 +265,7 @@ module DataCycleCore
                   }
                 end
 
-                assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+                assert_classifications(json_validate, @content.concepts.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
                 assert_equal([], required_attributes)
                 assert_equal({ 'mandatoryLicense' => false }, json_validate)

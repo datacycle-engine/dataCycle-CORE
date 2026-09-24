@@ -33,7 +33,7 @@ module DataCycleCore
           }.new(size, items)
         end
 
-        def utility_object(logger:, mongo_item: Object.new, mode: :incremental)
+        def utility_object(logger:, mongo_item: Object.new)
           source = struct_double(id: '00000000-0000-0000-0000-000000000001', name: 'Import ES', identifier: 'import-es')
           src_obj = Class.new {
             def initialize(mongo_item) = (@mongo_item = mongo_item)
@@ -47,8 +47,7 @@ module DataCycleCore
             define_method(:step_label) { |_options| 'step' }
             define_method(:source_object) { src_obj }
             define_method(:source_type) { :things }
-            define_method(:mode) { mode }
-            define_method(:last_successful_try) { Time.zone.now }
+            define_method(:changed_from) { Time.zone.now }
             define_method(:external_source) { source }
             define_method(:step_name) { 'step name' }
           }.new

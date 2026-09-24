@@ -6,17 +6,17 @@ module DataCycleCore
   module Api
     module V4
       module Sort
-        # #50091: sort things by a prioritized list of classification_alias UUIDs
+        # #50091: sort things by a prioritized list of concept UUIDs
         class ClassificationTest < DataCycleCore::V4::Base
           before(:all) do
             DataCycleCore::Thing.delete_all
             @routes = Engine.routes
 
             # CC BY 4.0 is a child of CC BY in the "Lizenzen" tree; CC BY-SA 4.0 and CC0 are separate.
-            @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
-            @cc_by40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY 4.0').first
-            @cc_by_sa40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY-SA 4.0').first
-            @cc0 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC0').first
+            @cc_by = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY').first
+            @cc_by40 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY 4.0').first
+            @cc_by_sa40 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC BY-SA 4.0').first
+            @cc0 = DataCycleCore::Concept.for_tree('Lizenzen').with_name('CC0').first
 
             # minimal_poi has no embedded image, so each created content is a single top-level thing.
             create_poi = lambda do |classification_ids|
@@ -27,10 +27,10 @@ module DataCycleCore
               poi
             end
 
-            @poi_cc_by40 = create_poi.call([@cc_by40.primary_classification.id])
-            @poi_cc_by_sa40 = create_poi.call([@cc_by_sa40.primary_classification.id])
-            @poi_cc0 = create_poi.call([@cc0.primary_classification.id])
-            @poi_multi = create_poi.call([@cc_by_sa40.primary_classification.id, @cc0.primary_classification.id])
+            @poi_cc_by40 = create_poi.call([@cc_by40.id])
+            @poi_cc_by_sa40 = create_poi.call([@cc_by_sa40.id])
+            @poi_cc0 = create_poi.call([@cc0.id])
+            @poi_multi = create_poi.call([@cc_by_sa40.id, @cc0.id])
             @poi_none = create_poi.call([])
           end
 
@@ -78,16 +78,25 @@ module DataCycleCore
             assert_operator(ids.index(@poi_cc0.id), :<, ids.index(@poi_cc_by40.id), 'priority is reversed')
           end
 
+          # The rejection names the parameter it came from, like every other invalid query parameter
+          # (see api/v4/errors/errors_test.rb) - a sort key that carries an unusable argument would
+          # otherwise answer with nothing but the generic "Invalid Query Parameter" title.
           test 'api/v4/things sort dc:classification without uuids is rejected' do
             post api_v4_things_path(sort: 'dc:classification()')
 
             assert_response(:bad_request)
+            assert_equal([{
+              'source' => { 'parameter' => 'sort' },
+              'title' => 'Invalid Query Parameter',
+              'detail' => 'dc:classification requires at least one classification UUID'
+            }], response.parsed_body['errors'])
           end
 
           test 'api/v4/things sort dc:classification with invalid uuid is rejected' do
             post api_v4_things_path(sort: 'dc:classification(not-a-uuid)')
 
             assert_response(:bad_request)
+            assert_equal('dc:classification requires valid UUIDs', response.parsed_body.dig('errors', 0, 'detail'))
           end
 
           # #50091 security: a SQL-injection payload in the sort value must be rejected as a clean

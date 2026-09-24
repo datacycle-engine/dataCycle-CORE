@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-data = content.send(key).includes(:translations, :classifications)
+data = content.send(key).includes(:translations, :concepts)
 
 if data.present?
 

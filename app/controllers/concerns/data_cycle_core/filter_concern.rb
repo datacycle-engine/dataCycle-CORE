@@ -5,8 +5,8 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     DEFAULT_PAGE_SIZE = 25
-    # Sentinel used in place of a classification tree label id (`ctl_id`) to render the
-    # dashboard tree view grouped by external system instead of by classification.
+    # Sentinel used in place of a concept scheme id (`ctl_id`) to render the
+    # dashboard tree view grouped by external system instead of by concept.
     EXTERNAL_SYSTEM_TREE_ID = 'external_systems'
     PAGE_PARAMS_SCHEMA = DataCycleCore::BaseSchema.params do
       optional(:page).filled(:integer)
@@ -35,21 +35,7 @@ module DataCycleCore
       # dashboard chips: user filters live outside `parameters`, so include them via
       # #parameters_with_user_filters to keep the user/forced filter chips visible.
       @filters = @stored_filter.parameters_with_user_filters.select { |f| f.key?('c') }.each { |f| f['identifier'] = SecureRandom.hex(10) }
-      @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .where(
-          id: @filters
-            .select { |f|
-              f['t'] == 'classification_alias_ids' ||
-              (f['t'] == 'geo_filter' && f['q'] == 'geo_within_classification') ||
-              (f['t'] == 'advanced_attributes' && f['q'] == 'classification_alias_ids')
-            }
-            .pluck('v')
-            .flatten
-            .compact
-            .uniq
-        )
-        .includes(:classification_alias_path)
-        .index_by(&:id)
+      @selected_concepts = selected_concepts_by_id(@filters)
 
       query
     end
@@ -81,13 +67,7 @@ module DataCycleCore
         .to_unsafe_hash[:f]
         .presence
         &.values
-        &.reject do |f|
-          if f['v'].is_a?(Hash)
-            f['v'].all? { |_, v| v.blank? }
-          else
-            f['v'].blank?
-          end
-        end || []
+        &.reject { |f| DataCycleCore::StoredFilter.narrows_nothing?(f) } || []
     end
 
     def sort_params
@@ -104,16 +84,16 @@ module DataCycleCore
       when 'tree'
         return set_external_system_tree_variables(query:, user_filter:) if mode_params[:ctl_id] == EXTERNAL_SYSTEM_TREE_ID
 
-        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find_by(id: mode_params[:ctl_id])
+        @concept_scheme = DataCycleCore::ConceptScheme.find_by(id: mode_params[:ctl_id])
 
         # unresolvable tree context (e.g. a stale/blank ctl_id): fall back to the grid view
-        if @classification_tree_label.nil?
+        if @concept_scheme.nil?
           @mode = 'grid'
           return set_grid_variables(query:, user_filter:, watch_list:)
         end
 
         if mode_params[:con_id].present? && request.xhr?
-          @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
+          @parent_concept = DataCycleCore::Concept.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
           @contents = get_filtered_results(query:, user_filter:)
             .part_of(@container.id)
@@ -125,19 +105,13 @@ module DataCycleCore
           @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
           @total_pages = @contents.total_pages
         elsif mode_params[:ct_id].present?
-          @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
-          @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
-
-          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
-          @classification_trees = @classification_trees
-            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('"classification_aliases"."order_a"')
-            .page(page_params[:tree_page])
+          @concept = DataCycleCore::Concept.find(mode_params[:ct_id])
+          @concepts = tree_concepts(@concept.children)
 
           filtered_results = get_filtered_results(query:, user_filter:)
 
-          @contents = filtered_results.classification_alias_ids_without_subtree(@classification_tree.sub_classification_alias.id)
-          @contents_related = filtered_results.classification_alias_ids_related(@classification_tree.sub_classification_alias.id)
+          @contents = filtered_results.concept_ids_without_subtree(@concept.id)
+          @contents_related = filtered_results.concept_ids_related(@concept.id)
 
           total_count = @contents.count
           total_count_related = @contents_related.count
@@ -158,19 +132,12 @@ module DataCycleCore
           @total_count = @contents.instance_variable_set(:@total_count, total_count)
           @total_pages = @contents.total_pages
         else
-          @classification_trees = @classification_tree_label.classification_trees
-            .where(parent_classification_alias: nil)
-            .joins(:sub_classification_alias)
-          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
-          @classification_trees = @classification_trees
-            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('"classification_aliases"."order_a"')
-            .page(page_params[:tree_page])
+          @concepts = tree_concepts(@concept_scheme.concepts.roots)
           get_filtered_results(query:, user_filter:) # set default parameters for filters
         end
 
-        @tree_page = @classification_trees&.current_page
-        @tree_total_pages = @classification_trees&.total_pages
+        @tree_page = @concepts&.current_page
+        @tree_total_pages = @concepts&.total_pages
       when 'map'
         page_size = DataCycleCore.main_config.dig(:ui, :dashboard, :page, :size)&.to_i || DEFAULT_PAGE_SIZE
         @contents = get_filtered_results(query:, user_filter:, watch_list:)
@@ -183,6 +150,37 @@ module DataCycleCore
     end
 
     private
+
+    # The concepts a filter chip has to name, indexed by id: the chip prints a concept, while the
+    # filter holds ids in its `v`. PublicationsController renders the same chips and had grown its own
+    # copy of this, which then drifted - it asked for `t == 'geo_within_classification'`, a `t` no
+    # filter carries (the `t` is `geo_filter`, and only its advanced type in `q` says which geo filter
+    # it is), so a radius-filtered publications dashboard printed bare ids.
+    #
+    # @param filters [Array<Hash>] stored filter parameters, each with the `t`/`q`/`v` keys
+    # @return [Hash{String => DataCycleCore::Concept}]
+    def selected_concepts_by_id(filters)
+      DataCycleCore::Concept
+        .where(id: filters.select { |f| concept_ids_in_filter_value?(f) }.pluck('v').flatten.compact.uniq)
+        .includes(:concept_path)
+        .index_by(&:id)
+    end
+
+    # One page of dashboard tree nodes. `Inhaltstypen` hides the content types that are excluded
+    # from filtering everywhere else (see DataCycleCore.excluded_filter_classifications).
+    def tree_concepts(concepts)
+      concepts = concepts.where.not(internal_name: DataCycleCore.excluded_filter_classifications) if @concept_scheme.name == 'Inhaltstypen'
+
+      concepts
+        .includes(:concept_path, :external_system, children: :concept_path)
+        .page(page_params[:tree_page])
+    end
+
+    def concept_ids_in_filter_value?(filter)
+      filter['t'] == 'concept_ids' ||
+        (filter['t'] == 'geo_filter' && filter['q'] == 'geo_within_classification') ||
+        (filter['t'] == 'advanced_attributes' && filter['q'] == 'concept_ids')
+    end
 
     # Builds the dashboard tree view grouped by external system (the "imported from" breakdown):
     # lists the active import external systems as tree nodes. Each node's content count is loaded
@@ -248,7 +246,7 @@ module DataCycleCore
         @stored_filter = @collection if @collection.is_a?(DataCycleCore::StoredFilter)
         @watch_list = @collection if @collection.is_a?(DataCycleCore::WatchList)
         @linked_stored_filter = linked_stored_filter(@collection)
-        @classification_trees_parameters |= Array.wrap(@collection.classification_tree_labels)
+        @classification_trees_parameters |= Array.wrap(@collection.concept_scheme_ids)
         @classification_trees_filter = @classification_trees_parameters.present?
       end
 
@@ -275,7 +273,7 @@ module DataCycleCore
     def total_count(query: nil, user_filter: { scope: 'backend' })
       @count_only = true
       @target = count_only_params[:target]
-      classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
+      concept = DataCycleCore::Concept.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query:, user_filter:)
       total_count = total_count.with_geometry if @mode == 'map'
       @count_mode = count_only_params[:count_mode]
@@ -284,15 +282,14 @@ module DataCycleCore
       case @count_mode
       when 'container'
         total_count = total_count.part_of(mode_params[:con_id])
-      when 'classification_alias'
-        total_count = total_count.classification_alias_ids_without_subtree(classification_tree.sub_classification_alias.id)
-      when 'ca_related'
-        total_count = total_count.classification_alias_ids_without_subtree_with_related(classification_tree.sub_classification_alias.id)
-      when 'ca_recursive'
-        total_count = total_count.classification_alias_ids_with_subtree(classification_tree.sub_classification_alias.id)
-      when 'classification_tree_label'
-        ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
-        total_count = total_count.classification_tree_ids(ca_label.id)
+      when 'concept'
+        total_count = total_count.concept_ids_without_subtree(concept.id)
+      when 'concept_related'
+        total_count = total_count.concept_ids_without_subtree_with_related(concept.id)
+      when 'concept_recursive'
+        total_count = total_count.concept_ids_with_subtree(concept.id)
+      when 'concept_scheme'
+        total_count = total_count.concept_scheme_ids(mode_params[:ctl_id])
       when 'external_system'
         total_count = total_count.external_source([mode_params[:es_id]])
       end

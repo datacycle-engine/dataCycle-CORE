@@ -5,6 +5,12 @@
 %>
 <%= tag.div render('data_cycle_core/contents/editors/metadata/locales_list'), class: 'available-attribute-locales' if template.translatable? && I18n.available_locales&.many? && has_translatable_properties %>
 
+<%# The pixie has no step of its own: its editors belong with the attributes of the first step, the
+    eligible classification trees having no attribute in new_dialog.yml and the focus point no edit
+    field anywhere (#47879). Rendered into the first step that renders attributes at all, so a
+    project whose new_dialog.yml opens with a partial does not lose it. %>
+<% annotation_pixie_rendered = false %>
+
 <% new_dialog_config&.each_with_index do |(field_title, a_keys), index| %>
   <% if a_keys.is_a?(Hash) %>
     <% content_for(:field_set, flush:true) do %>
@@ -32,6 +38,14 @@
         )
       end
     %>
+
+      <% unless annotation_pixie_rendered %>
+        <% annotation_pixie_rendered = true %>
+        <%= render 'data_cycle_core/contents/editors/features/annotation_pixie',
+              content: template,
+              key_prefix: DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX,
+              prefix: local_assigns.dig(:options, :prefix) if DataCycleCore::Feature['AnnotationPixie']&.allowed?(template) && can?(:create, template) %>
+      <% end %>
     <% end %>
   <% end %>
 
@@ -44,3 +58,4 @@
     </fieldset>
   <% end %>
 <% end %>
+

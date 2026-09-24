@@ -10,9 +10,9 @@ module DataCycleCore
       Feature::TsQueryFulltextSearch.reload
       @things = DataCycleCore::Thing.count
       create_content('Artikel', { name: 'AAA' })
-      create_content('Artikel', { name: 'HEADLINE 1', tags: get_classification_ids('Tags', ['Tag 3']) })
-      create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
-      create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids('Tags', ['Tag 3', 'Tag 2']) })
+      create_content('Artikel', { name: 'HEADLINE 1', tags: get_concept_ids('Tags', ['Tag 3']) })
+      create_content('Artikel', { name: 'HEADLINE 2', tags: get_concept_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
+      create_content('Artikel', { name: 'HEADLINE 3', tags: get_concept_ids('Tags', ['Tag 3', 'Tag 2']) })
       create_content('Örtlichkeit', { name: 'PLACE 1' })
       create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
     end
@@ -42,6 +42,34 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: nil }).count)
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3', fields: '' }).count)
       assert_equal(2, DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search({ value: 'Tag 3' }).count)
+    end
+
+    # Canonical anchor for the rule that the dictionary is named inline rather than joined in
+    # from pg_dict_mappings -- Filter::Common::Fulltext#search_vector_prefix_match carries the
+    # reasoning. Joining it back returns exactly the same rows, only slower, so the assertions
+    # above would all still pass and these are the only tests that would notice.
+    test 'fulltext search names the dictionary inline instead of joining pg_dict_mappings' do
+      sql = DataCycleCore::Filter::Search.new(locale: [:de]).fulltext_search('Tag 3').query.to_sql
+
+      assert_includes(sql, "websearch_to_prefix_tsquery(get_dict('de')")
+      assert_not_includes(sql, 'pg_dict_mappings')
+    end
+
+    test 'fulltext search matches each locale against its own dictionary' do
+      sql = DataCycleCore::Filter::Search.new(locale: [:de, :en]).fulltext_search('Tag 3').query.to_sql
+
+      ['de', 'en'].each do |locale|
+        assert_includes(sql, "websearch_to_prefix_tsquery(get_dict('#{locale}')")
+        assert_includes(sql, %("searches"."locale" = '#{locale}'))
+      end
+      assert_not_includes(sql, 'pg_dict_mappings')
+    end
+
+    test 'fulltext sorting names the dictionary inline' do
+      sql = DataCycleCore::Filter::Search.new(locale: [:de]).sort_fulltext_search('DESC', 'Tag 3').query.to_sql
+
+      assert_includes(sql, "websearch_to_prefix_tsquery(get_dict('de')")
+      assert_not_includes(sql, 'pg_dict_mappings')
     end
 
     test 'mapping fulltext fields to tsquery weights' do

@@ -27,6 +27,39 @@ module DataCycleCore
           assert(subject.errors.any? { |e| e.include?('is invalid') })
         end
 
+        # Regression: sti_subclass_name_for strips the punctuation two template names can differ in
+        # only, so region-villach's "Angebot -" camelized onto datacycle-schema-legacy's "Angebot".
+        # The second template kept the first one's generated class, whose sti_name made the STI type
+        # condition select the first template's rows (reload raising RecordNotFound on a row the
+        # second owns) and whose classification writers were the first template's (set_data_hash
+        # raising NotImplementedError out of method_missing).
+        test 'validate_unique_model_names! flags two template names that generate one model' do
+          subject = validator(templates: [
+                                { set: 'intangibles', name: 'Angebot' },
+                                { set: 'creative_works', name: 'Angebot -' },
+                                { set: 'creative_works', name: 'Artikel' }
+                              ])
+
+          subject.validate_unique_model_names!
+
+          assert_equal 1, subject.errors.size
+          assert_includes subject.errors.first, 'intangibles.Angebot.name'
+          assert_includes subject.errors.first, '"Angebot -"'
+          assert_includes subject.errors.first, 'DataCycleCore::Thing::Angebot'
+        end
+
+        test 'validate_unique_model_names! accepts template names that still differ once transliterated' do
+          subject = validator(templates: [
+                                { set: 'creative_works', name: 'Angebot' },
+                                { set: 'creative_works', name: 'Angebotsartikel' },
+                                { set: 'creative_works', name: 'Übersetzung' }
+                              ])
+
+          subject.validate_unique_model_names!
+
+          assert_empty subject.errors
+        end
+
         test 'translatable_properties? returns false when no property is translatable' do
           assert_not validator.translatable_properties?({ 'name' => { type: :string, storage_location: 'value' } })
         end
@@ -43,14 +76,55 @@ module DataCycleCore
           assert(subject.errors.any? { |e| e.include?('not unique') })
         end
 
+        # [#51643] A compute reads its parameters before it runs, so it can only name computes that
+        # have already run: inline writes before the save, compute.after_save after it in the same
+        # request, compute.async in a later job.
+        def deferral_properties(marker_deferral, parameter_deferral)
+          {
+            'parameter' => { 'compute' => { 'module' => 'Common', 'method' => 'copy' }.merge(parameter_deferral) },
+            'plain' => { 'type' => 'string' },
+            'marker' => { 'compute' => { 'module' => 'Common', 'method' => 'copy', 'parameters' => ['parameter', 'plain'] }.merge(marker_deferral) }
+          }
+        end
+
+        test 'validate_compute_deferral_order! flags a compute whose parameter is computed later' do
+          [
+            [{}, { 'async' => true }, 'inline on async'],
+            [{}, { 'after_save' => true }, 'inline on after_save'],
+            [{ 'after_save' => true }, { 'async' => true }, 'after_save on async']
+          ].each do |marker, parameter, label|
+            subject = validator
+            subject.validate_compute_deferral_order!(deferral_properties(marker, parameter), ['base', 'Template'])
+
+            assert(subject.errors.any? { |e| e.include?('marker') && e.include?('parameter') }, "#{label} has to be reported")
+          end
+        end
+
+        test 'validate_compute_deferral_order! accepts a parameter computed no later than the compute itself' do
+          [
+            [{}, {}, 'inline on inline'],
+            [{ 'after_save' => true }, {}, 'after_save on inline'],
+            [{ 'after_save' => true }, { 'after_save' => true }, 'after_save on after_save'],
+            [{ 'async' => true }, {}, 'async on inline'],
+            [{ 'async' => true }, { 'after_save' => true }, 'async on after_save'],
+            [{ 'async' => true }, { 'async' => true }, 'async on async']
+          ].each do |marker, parameter, label|
+            subject = validator
+            subject.validate_compute_deferral_order!(deferral_properties(marker, parameter), ['base', 'Template'])
+
+            assert_empty(subject.errors, "#{label} has to pass")
+          end
+        end
+
         test 'validate_overlay_properties flags overlay properties missing from the original template' do
           subject = validator
-          subject.instance_variable_set(:@overlay_key, 'image')
           subject.instance_variable_set(:@templates, [
                                           { name: 'Original', data: { features: { overlay: { allowed: true } }, properties: { 'image' => { 'template_name' => 'OverlayTpl' }, 'extra' => {} } } }
                                         ])
 
-          subject.validate_overlay_properties({ name: 'OverlayTpl', properties: { 'phantom' => {} } }, ['base', 'OverlayTpl'])
+          DataCycleCore::Feature::Overlay.stub(:attribute_keys, ['image']) do
+            subject.validate_overlay_properties({ name: 'OverlayTpl', properties: { 'phantom' => {} } }, ['base', 'OverlayTpl'])
+          end
 
           assert(subject.errors.any? { |e| e.include?('phantom') })
         end

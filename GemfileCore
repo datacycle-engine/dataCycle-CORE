@@ -36,6 +36,11 @@ group :test do
   gem 'minitest-mock'
   gem 'minitest-hooks'
   gem 'parallel_tests', require: false
+  # reads the generated shapes back to validate delivered JSON-LD against them
+  # (rdf_shacl_conformance_test.rb); Rdf::ShapesBuilder writes them through ::RDF terms and
+  # never loads this gem. require: false because its sparql dependency patches Hash#deep_dup
+  # process-wide (see test/test_helper.rb), which must stay confined to that one test.
+  gem 'shacl', require: false
 end
 
 group :development do

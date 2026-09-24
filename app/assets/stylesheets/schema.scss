@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+// /schema styles, kept out of application.scss so the ~2.5k lines only load on the two
+// pages that use them (entrypoints/schema.js pulls this in). `settings` and `variables`
+// are declaration-only -- they carry the Foundation breakpoint() mixin and the shared
+// palette the partials use, and emit no rules, so nothing here is served twice.
+@import './settings';
+@import './variables';
+@import './modules/schema/schema';

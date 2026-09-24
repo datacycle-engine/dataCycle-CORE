@@ -1,0 +1,5 @@
+<div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map polygon"
+      data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+      data-map-bounds="<%= DataCycleCore::ConceptPolygon.where(concept_id: concept.id).to_bbox %>"
+      data-filter-layers="<%= { concept_ids: [concept.id] }.to_json %>">
+</div>

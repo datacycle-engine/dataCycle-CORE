@@ -1,11 +1,6 @@
 import BasicSelect2 from "./basic_select2";
 
 class AsyncSelect2 extends BasicSelect2 {
-	constructor(element) {
-		super(element);
-
-		this.aliasIds = this.config.aliasIds;
-	}
 	options() {
 		return Object.assign({}, this.defaultOptions, {
 			minimumInputLength: 2,
@@ -27,14 +22,7 @@ class AsyncSelect2 extends BasicSelect2 {
 		});
 
 		promise.then((data) => {
-			const newData = data.map((value) => {
-				if (this.aliasIds && value.classification_alias_id)
-					value.id = value.classification_alias_id;
-				else if (value.classification_id) value.id = value.classification_id;
-				return value;
-			});
-
-			for (const element of newData) {
+			for (const element of data) {
 				const option = new Option(element.name, element.id, true, true);
 				option.title = element.title;
 				this.$element.append(option).trigger("change");
@@ -102,16 +90,8 @@ class AsyncSelect2 extends BasicSelect2 {
 	ajaxProcessResults(data) {
 		this.select2Object.$container.removeClass("select2-loading");
 
-		const result = data.map((value) => {
-			if (this.aliasIds && value.classification_alias_id)
-				value.id = value.classification_alias_id;
-			else if (value.classification_id) value.id = value.classification_id;
-
-			return value;
-		});
-
 		return {
-			results: result,
+			results: data,
 		};
 	}
 	getQueryParamsFromSelector(queryParams) {

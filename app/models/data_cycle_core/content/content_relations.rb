@@ -19,25 +19,26 @@ module DataCycleCore
         case name
         when 'DataCycleCore::Thing'
           # deleted by FK ON DELETE CASCADE (content_data_id)
-          has_many :classification_contents, class_name: 'DataCycleCore::ClassificationContent', foreign_key: 'content_data_id'
-          has_many :classifications, through: :classification_contents
+          has_many :concept_contents, class_name: 'DataCycleCore::ConceptContent', foreign_key: 'content_data_id', autosave: true
+          has_many :concepts, through: :concept_contents
         when 'DataCycleCore::Thing::History'
-          has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History', foreign_key: 'content_data_history_id', dependent: :delete_all
-          has_many :classifications, through: :classification_content_histories
+          has_many :concept_content_histories, class_name: 'DataCycleCore::ConceptContent::History', foreign_key: 'content_data_history_id', dependent: :delete_all
+          has_many :concepts, through: :concept_content_histories
+
+          # A Thing reads its direct-plus-visibly-mapped set off collected_concept_contents, which is
+          # keyed on thing_id and so holds nothing for a history. develop reached the same set from
+          # the history's own rows (classification_content_histories -> classifications ->
+          # classification_groups.visible -> classification_aliases), and #concept_for_tree, which the
+          # history meta view calls, still expects it.
+          def full_concepts
+            own = concepts.reorder(nil).select(:id)
+            mapped = DataCycleCore::ConceptLink.related.visible.where(child_id: own).select(:parent_id)
+
+            DataCycleCore::Concept.where(id: own).or(DataCycleCore::Concept.where(id: mapped))
+          end
         end
 
-        # #47172/#50677: mappings into a tree flagged with hidden_mappings do not classify the content
-        # for display/search/sort purposes. The exclusion is applied on the classification_groups
-        # association (see ClassificationGroup.visible) instead of on classification_aliases: keeping
-        # the classification_aliases scope free of extra references lets scoped `has_many :through`
-        # preloads of it stay resolvable — e.g. PreloadService.preload(records, :classification_aliases,
-        # ClassificationAlias.for_tree(...)). A join-table condition on that scope silently defeats such a
-        # preload and makes it load classifications from every tree.
-        # Computed attributes read mappings via concept_links, not this association, so they are unaffected.
-        has_many :classification_groups, -> { visible }, through: :classifications
-        has_many :classification_aliases, -> { distinct }, through: :classification_groups
-        has_many :primary_classification_aliases, through: :classifications, source: :primary_classification_alias
-        has_many :classification_alias_paths_transitive, through: :primary_classification_aliases
+        has_many :concept_paths_transitive, through: :concepts
 
         # relation content to all other contents
         # content_contents are deleted by FK ON DELETE CASCADE (content_a_id/content_b_id)
@@ -70,7 +71,7 @@ module DataCycleCore
         has_many :assets, through: :asset_contents
 
         belongs_to :thing_template, inverse_of: :things, foreign_key: :template_name, primary_key: :template_name
-        delegate :schema, :api_schema_types, to: :thing_template
+        delegate :schema, :api_schema_types, :schema_ancestors, to: :thing_template
 
         # thing_template is static config touched on nearly every content (schema lookups, imports,
         # rendering), so a lazily-loaded record otherwise fires a query per instance. Back the
@@ -97,16 +98,16 @@ module DataCycleCore
           load_relation(relation_name: __method__, preload:)
         end
 
-        def classification_contents(preload: false)
-          return DataCycleCore::ClassificationContent.none if self <= DataCycleCore::Thing::History
+        def concept_contents(preload: false)
+          return DataCycleCore::ConceptContent.none if self <= DataCycleCore::Thing::History
 
-          load_relation(relation_name: :classification_contents, preload:)
+          load_relation(relation_name: :concept_contents, preload:)
         end
 
-        def collected_classification_contents(preload: false)
-          return DataCycleCore::CollectedClassificationContent.none if self <= DataCycleCore::Thing::History
+        def collected_concept_contents(preload: false)
+          return DataCycleCore::CollectedConceptContent.none if self <= DataCycleCore::Thing::History
 
-          load_relation(relation_name: :collected_classification_contents, preload:)
+          load_relation(relation_name: :collected_concept_contents, preload:)
         end
 
         def asset_contents(preload: false)
@@ -171,45 +172,37 @@ module DataCycleCore
         DataLink.where("#{DataLink.table_name}.id IN (#{DataLink.send(:sanitize_sql_array, [sub_queries.join(' UNION ')])})").exists?
       end
 
-      def display_classification_aliases(context)
-        if classification_aliases.loaded?
-          ca_query = classification_aliases
-          ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
-          ca_query = ca_query.includes(:classification_alias_path) unless classification_aliases.first&.association(:classification_alias_path)&.loaded?
-          ca_query.to_a.select { |ca| Array.wrap(ca.classification_tree_label&.visibility).intersect?(Array.wrap(context)) }
-        else
-          classification_aliases.includes(:classification_alias_path).in_context(context)
-        end
+      # The concepts to show for +context+ - assigned directly or reached through a visible mapping,
+      # narrowed to the schemes whose visibility covers the context. Reads the already-loaded
+      # association when there is one, so a preloaded list is not queried again.
+      def display_concepts(context)
+        return full_concepts.includes(:concept_path).in_context(context) unless full_concepts.loaded?
+
+        query = full_concepts
+        query = query.includes(:concept_scheme) unless full_concepts.first&.association(:concept_scheme)&.loaded?
+        query = query.includes(:concept_path) unless full_concepts.first&.association(:concept_path)&.loaded?
+        query.to_a.select { |c| Array.wrap(c.concept_scheme&.visibility).intersect?(Array.wrap(context)) }
       end
 
-      def assigned_classification_aliases
-        primary_classification_aliases
+      # The concepts this content carries only through a mapping. The two branches read different
+      # sources on purpose: with transitive paths on, a mapping is an ancestor reached over a
+      # `related` link type, which the path row records and full_concepts alone cannot tell apart.
+      def mapped_concepts
+        return concept_paths_transitive.mapped_concepts if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
+
+        full_concepts.where.not(id: concepts.reorder(nil).select(:id))
       end
 
-      def mapped_classification_aliases
-        if DataCycleCore::Feature::TransitiveClassificationPath.enabled?
-          classification_alias_paths_transitive.mapped_classification_aliases
-        else
-          classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
-        end
+      def concept_for_tree(scheme_name)
+        return full_concepts.includes(:concept_scheme).find_by(concept_schemes: { name: scheme_name }) unless full_concepts.loaded?
+
+        query = full_concepts
+        query = query.includes(:concept_scheme) unless full_concepts.first&.association(:concept_scheme)&.loaded?
+        query.to_a.detect { |c| c.concept_scheme&.name == scheme_name }
       end
 
-      def classification_alias_for_tree(tree_name)
-        if classification_aliases.loaded?
-          ca_query = classification_aliases
-          ca_query = ca_query.includes(:classification_tree_label) unless classification_aliases.first&.association(:classification_tree_label)&.loaded?
-          ca_query.to_a.detect { |ca| ca.classification_tree_label&.name == tree_name }
-        else
-          classification_aliases.includes(:classification_tree_label).find_by(classification_tree_labels: { name: tree_name })
-        end
-      end
-
-      def classification_aliases_for_tree(tree_name:)
-        classification_aliases.joins(:classification_tree_label).where(classification_tree_labels: { name: tree_name })
-      end
-
-      def classifications_for_tree(tree_name:)
-        classification_aliases_for_tree(tree_name:).primary_classifications
+      def concepts_for_tree(scheme_name:)
+        full_concepts.joins(:concept_scheme).where(concept_schemes: { name: scheme_name })
       end
 
       def is_related? # rubocop:disable Naming/PredicatePrefix

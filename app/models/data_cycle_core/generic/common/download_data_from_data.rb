@@ -46,11 +46,21 @@ module DataCycleCore
       #   external_id_prefix: 'prefix_'
       #   # trim_name can be used to trim the name of the data before saving to the database. It will remove leading and trailing whitespace. The default value is true.
       #   trim_name: true
+      #   # data_sorting decides WHICH item survives when several carry the same data_id: without it the $group keeps whichever reached it first, which is storage order.
+      #   # Keys are paths on the source document, values asc/desc or 1/-1, '{{ }}' evaluated as in source_filter (it can name `locale`). _id is appended last.
+      #   data_sorting:
+      #     updated_at: desc
+      #   # as an ordered list, when the order of several keys matters:
+      #   data_sorting:
+      #     - '{{ "dump.#{locale}.ChangeDate" }}': desc
+      #     - updated_at: desc
       # ```
       module DownloadDataFromData
         extend Extensions::DownloadFromData
 
         DUMP_PATH_REGEX = /\Adump\.[^.]+(\.|\z)/
+
+        SORT_DIRECTIONS = { 'asc' => 1, 'ascending' => 1, '1' => 1, 'desc' => -1, 'descending' => -1, '-1' => -1 }.freeze
 
         # Without a `data_path` this copies the whole dump.<locale> into the target collection, so it
         # used to carry the source collection's dc_step_priority along with it. [#50666] strips it on
@@ -100,6 +110,7 @@ module DataCycleCore
               data_id_prefix: nil,
               additional_data_paths: nil,
               group_to_array_paths: nil,
+              data_sorting: nil,
               attribute_whitelist: nil,
               attribute_blacklist: nil,
               source_filter: { 'seen_at' => { '$lt' => last_download } }
@@ -121,6 +132,8 @@ module DataCycleCore
           additional_paths = paths[:additional_paths]
           group_to_array_paths = paths[:group_to_array_paths]
 
+          sort_projection, sort_fields = prepare_data_sorting(options:, locale:)
+
           source_filter_stage = { full_id_path => { '$exists' => true } }.with_indifferent_access
           source_filter_stage.merge!(source_filter) if source_filter.present?
 
@@ -140,6 +153,10 @@ module DataCycleCore
                                 'external_system' => 1
                               }
                             end
+
+            # the sort values live on the source document, which the first $project drops - carried along
+            # so the $sort before the $group can still see them after the $unwind
+            project_stage.merge!(index.zero? ? sort_projection : { 'sort_values' => '$sort_values' }) if sort_fields.present?
 
             proj_match_unwind_phases << { '$project' => project_stage }
 
@@ -190,9 +207,10 @@ module DataCycleCore
             'external_system' => { '$mergeObjects' => '$external_system' }
           }
 
+          gta_sort_fields = {}
+
           if group_to_array_paths.present?
             gta_add_fields = {}
-            gta_sort_fields = {}
 
             group_to_array_paths.each do |attr|
               group_stage[attr] = { '$push' => "$data.#{attr}" }
@@ -206,9 +224,18 @@ module DataCycleCore
               }
             end
 
-            gta_sort_fields_stage = { '$sort' => gta_sort_fields } if gta_sort_fields.present?
             gta_add_fields_stage = [{ '$addFields' => gta_add_fields }] if gta_add_fields.present?
           end
+
+          # one $sort for both jobs, because a second would undo the first. data_sorting leads, or adding
+          # group_to_array_paths - which only makes the $push arrays reproducible - would change what is kept.
+          pre_group_sort_fields = sort_fields.merge(gta_sort_fields)
+
+          # set_updated_at bumps updated_at only when the document changed, so unchanged copies of one batch tie.
+          # _id breaks that: last, or it displaces the $push order; only with data_sorting, or every step gains a key.
+          pre_group_sort_fields['_id'] = 1 if sort_fields.present?
+
+          pre_group_sort_stage = { '$sort' => pre_group_sort_fields } if pre_group_sort_fields.present?
 
           pipelines = [
             {
@@ -218,7 +245,7 @@ module DataCycleCore
             {
               '$addFields' => add_fields_stage
             }
-          ] + Array.wrap(gta_sort_fields_stage) + [
+          ] + Array.wrap(pre_group_sort_stage) + [
             {
               '$group' => group_stage
             }
@@ -269,6 +296,43 @@ module DataCycleCore
           }
 
           pipelines
+        end
+
+        # Builds the $sort before the $group, which decides which item survives a shared data_id - '$first'
+        # keeps whichever arrived first, so with no sort that is storage order.
+        #
+        # Paths name the SOURCE document, so a value rides along as sort_values.k<n> until $replaceRoot.
+        #
+        # @param options [Hash] the step options; reads options[:download][:data_sorting]
+        # @param locale [String, Symbol] the imported locale a '{{ }}' key reads, as `locale` or as I18n.locale
+        # @return [Array(Hash, Hash)] the $project entry carrying the values, and the $sort fields
+        def self.prepare_data_sorting(options:, locale:)
+          sorting = options.dig(:download, :data_sorting)
+          return [{}, {}] if sorting.blank?
+
+          # checked before the evaluation below, which reports a bare scalar as a missing method on String
+          entries = Array.wrap(sorting)
+          entries.each do |entry|
+            raise ArgumentError, "invalid data_sorting entry #{entry.inspect}, expected a path => direction mapping" unless entry.is_a?(Hash)
+          end
+
+          # with_evaluated_values defaults to a binding inside Hash, where `locale` does not exist and a key
+          # naming it raises NameError - pass ours, plus I18n.with_locale for the I18n.locale spelling.
+          pairs = I18n.with_locale(locale.to_sym) { entries.with_evaluated_values(binding) }.flat_map(&:to_a)
+
+          projection = {}
+          sort_fields = {}
+
+          pairs.each_with_index do |(path, direction), index|
+            key = "k#{index}"
+            resolved = SORT_DIRECTIONS[direction.to_s.strip.downcase]
+            raise ArgumentError, "invalid data_sorting direction #{direction.inspect} for #{path.inspect}, expected one of #{SORT_DIRECTIONS.keys.inspect}" if resolved.nil?
+
+            projection[key] = "$#{path}"
+            sort_fields["sort_values.#{key}"] = resolved
+          end
+
+          [{ 'sort_values' => projection }, sort_fields]
         end
 
         def self.prepare_data_paths(options:, locale:)

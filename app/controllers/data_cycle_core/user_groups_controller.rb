@@ -92,10 +92,10 @@ module DataCycleCore
     end
 
     def user_group_params
-      ug_params = params.expect(user_group: [:name, { user_ids: [], classification_ids: [], shared_collection_ids: [], permissions: [] }])
+      ug_params = params.expect(user_group: [:name, { user_ids: [], concept_ids: [], shared_collection_ids: [], permissions: [] }])
 
       ug_params[:user_ids]&.compact_blank!
-      ug_params[:classification_ids]&.compact_blank!
+      ug_params[:concept_ids]&.compact_blank!
       ug_params[:shared_collection_ids]&.compact_blank!
       ug_params[:permissions]&.compact_blank!
 

@@ -16,9 +16,11 @@ module DataCycleCore
         @definition = permitted_params[:definition]
         template_names = Array.wrap(@definition[:template_name]).map(&:to_s).compact_blank
         stored_filter = @definition[:stored_filter]
+        # an embedded attribute browses flagged embedded, which Filter::Search excludes otherwise
+        reusable_embedded = @definition[:type] == 'embedded' && DataCycleCore::Feature::ReusableEmbedded.enabled?
         @language = Array(@definition[:linked_language] == 'same' ? permitted_params.fetch(:locale) { current_user.default_locale } : 'all')
 
-        filter = DataCycleCore::StoredFilter.new
+        filter = DataCycleCore::StoredFilter.new(include_embedded: reusable_embedded)
           .parameters_from_hash(stored_filter)
           .apply_user_filter(current_user, {
             scope: 'object_browser',
@@ -32,6 +34,7 @@ module DataCycleCore
         filter.apply_sorting_from_parameters(filters: filters, sort_params: Array.wrap(permitted_params.dig(:filter, :s, :v)))
 
         query = filter.apply
+        query = DataCycleCore::Feature::ReusableEmbedded.reusable_only(query, @content) if reusable_embedded
         query = query.where(template_name: template_names) if template_names.present? && stored_filter.blank?
         query = query.where.not(things: { id: @content.id }) unless @content.nil?
         query = query.where.not(things: { id: permitted_params[:excluded] }) if permitted_params[:excluded].present?

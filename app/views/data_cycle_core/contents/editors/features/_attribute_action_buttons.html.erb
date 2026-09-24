@@ -1,0 +1,16 @@
+<%#
+  The feature buttons of one text attribute. Each editor decides *where* they go -- the
+  .text-toolbar of a plain string, the .ql-formats of a rich text editor -- and this partial is the
+  only place that says *which*, so the next feature is added once instead of once per editor.
+
+  Every button below asks the same helpers about the same attribute, so both editors render this
+  with their own locals splatted in -- pass **local_assigns, not a hand-picked subset.
+%>
+<%= render 'data_cycle_core/contents/editors/features/ai_lector',
+           content: contextual_content(local_assigns),
+           key: key if ai_lector_allowed?(**local_assigns) %>
+
+<%= render 'data_cycle_core/contents/editors/features/image_description_pixie_button',
+           content: contextual_content(local_assigns),
+           key: key,
+           definition: definition if image_description_pixie_allowed?(**local_assigns) %>

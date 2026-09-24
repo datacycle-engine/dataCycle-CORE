@@ -8,23 +8,23 @@ module DataCycleCore
 
     def build_concepts_search_query(base_query)
       @classification_id = permitted_params[:classification_id]
-      @classification_aliases = base_query
-      @classification_aliases = @classification_aliases.includes(:classification_tree_label)
+      @concepts = base_query
+      @concepts = @concepts.includes(:concept_scheme)
 
       if @classification_id.present?
-        @classification_aliases = @classification_aliases.where(id: @classification_id)
-        raise ActiveRecord::RecordNotFound if @classification_aliases.blank?
+        @concepts = @concepts.where(id: @classification_id)
+        raise ActiveRecord::RecordNotFound if @concepts.blank?
       elsif (c_ids = permitted_params[:classification_ids] || permitted_params[:classificationIds]).present?
-        @classification_aliases = @classification_aliases.where(id: c_ids.split(','))
+        @concepts = @concepts.where(id: c_ids.split(','))
       end
 
-      @classification_aliases = @classification_aliases.includes(:classification_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
+      @concepts = @concepts.includes(:concept_polygons) if helpers.included_attribute?('geo', @fields_parameters + @include_parameters)
 
-      yield(@classification_aliases) if block_given?
+      yield(@concepts) if block_given?
 
-      @classification_aliases = @classification_aliases.with_locale(@language) if @language.present?
-      @classification_aliases = apply_ordering(@classification_aliases)
-      @classification_aliases = apply_paging(@classification_aliases)
+      @concepts = @concepts.with_locale(@language) if @language.present?
+      @concepts = apply_ordering(@concepts)
+      @concepts = apply_paging(@concepts)
     end
 
     def apply_ordering(query)
@@ -43,7 +43,7 @@ module DataCycleCore
         query = query.reorder(nil)
         query = query.order_by_similarity(full_text_search) if full_text_search.present?
         query = case query
-                when DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::ClassificationAlias.const_get(:ActiveRecord_Relation)
+                when DataCycleCore::Concept.const_get(:ActiveRecord_AssociationRelation), DataCycleCore::Concept.const_get(:ActiveRecord_Relation)
                   query.order(order_a: :asc, id: :asc)
                 else
                   query.order(updated_at: :desc, id: :asc)

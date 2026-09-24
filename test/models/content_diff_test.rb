@@ -39,10 +39,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
 
       update_hash = {
         'access' => [],
@@ -69,10 +69,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(1, DataCycleCore::Thing::History.count)
       assert_equal(1, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(3, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(3, DataCycleCore::ConceptContent::History.count)
 
       history_data = content_data.histories.first
       history_data_hash = history_data.get_data_hash
@@ -126,13 +126,13 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
     #   assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
     #   assert_equal(1, DataCycleCore::ContentContent.count)
-    #   assert_equal(2, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(2, DataCycleCore::ConceptContent.count)
     #   assert_equal(1, DataCycleCore::Place.count - template_p)
     #   assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
     #
     #   assert_equal(0, DataCycleCore::CreativeWork::History.count)
     #   assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
-    #   assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(0, DataCycleCore::ConceptContent::History.count)
     #   assert_equal(0, DataCycleCore::ContentContent::History.count)
     #   assert_equal(0, DataCycleCore::Place::History.count)
     #   assert_equal(0, DataCycleCore::Place::History::Translation.count)
@@ -165,13 +165,13 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
     #   assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
     #   assert_equal(1, DataCycleCore::ContentContent.count)
-    #   assert_equal(2, DataCycleCore::ClassificationContent.count)
+    #   assert_equal(2, DataCycleCore::ConceptContent.count)
     #   assert_equal(1, DataCycleCore::Place.count - template_p)
     #   assert_equal(1, DataCycleCore::Place::Translation.count - template_pt)
     #
     #   assert_equal(1, DataCycleCore::CreativeWork::History.count)
     #   assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-    #   assert_equal(2, DataCycleCore::ClassificationContent::History.count)
+    #   assert_equal(2, DataCycleCore::ConceptContent::History.count)
     #   assert_equal(1, DataCycleCore::ContentContent::History.count)
     #   assert_equal(1, DataCycleCore::Place::History.count)
     #   assert_equal(1, DataCycleCore::Place::History::Translation.count)
@@ -211,10 +211,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
 
       content_data.set_data_hash(data_hash: content_hash)
 
@@ -223,10 +223,10 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
 
       content_data.set_data_hash(data_hash: content_hash)
 
@@ -235,10 +235,10 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ConceptContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(0, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(0, DataCycleCore::ConceptContent::History.count)
     end
   end
 end

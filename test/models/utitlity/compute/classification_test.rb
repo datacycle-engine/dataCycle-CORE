@@ -7,10 +7,10 @@ module DataCycleCore
     module Compute
       class ClassificationTest < DataCycleCore::TestCases::ActiveSupportTestCase
         before(:all) do
-          @tag_ids = DataCycleCore::Concept.for_tree('Tags').with_name(['Tag 1', 'Tag 2']).pluck(:classification_id)
+          @tag_ids = DataCycleCore::Concept.for_tree('Tags').with_name(['Tag 1', 'Tag 2']).pluck(:id)
         end
 
-        # The override branch is pure; the mapped/hidden fallback reads collected_classification_contents
+        # The override branch is pure; the mapped/hidden fallback reads collected_concept_contents
         # and is covered end-to-end in ComputedOverrideOrMappedTest.
         test 'override_or_mapped returns the override value when it is present' do
           value = subject.override_or_mapped(
@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         test 'value resolves classifications for the configured tree and value' do
-          DataCycleCore::ClassificationAlias.stub(:classifications_for_tree_with_name, ['classification-id']) do
+          DataCycleCore::Concept.stub(:ids_for_tree_with_name, ['classification-id']) do
             value = subject.value(computed_definition: { 'compute' => { 'tree' => 'Tags', 'value' => 'Tag 1' } })
 
             assert_equal(['classification-id'], value)
@@ -133,7 +133,7 @@ module DataCycleCore
                            ))
         end
 
-        # from_linked reads collected_classification_contents throughout, so it is covered
+        # from_linked reads collected_concept_contents throughout, so it is covered
         # end-to-end in ComputedFromLinkedTest instead of unit tested here.
 
         test 'from_string_for_path returns nil for a blank tree label' do

@@ -8,89 +8,64 @@ module DataCycleCore
       'tile' => 'fa-th'
     }.freeze
 
-    # TODO: refactor
-    def get_classifications_for_name(name)
-      return if name.blank?
+    # Memoized per render: a helper instance lives for one template render, and one form asks this
+    # once per classification attribute - the annotationPixie's editors alone ask it once per
+    # eligible concept scheme, all of them for the same universal_classifications tree label.
+    def concept_scheme_has_concepts?(scheme_name)
+      cache = (@concept_scheme_has_concepts ||= {})
+      return cache[scheme_name] if cache.key?(scheme_name)
 
-      DataCycleCore::ClassificationTreeLabel
-        .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
-        .find_by(name:)
+      cache[scheme_name] = DataCycleCore::Concept.for_tree(scheme_name).exists?
     end
 
-    # TODO: refactor
-    def get_classifications_for_id(uids, tree_label = nil)
-      unless uids.nil?
-        if tree_label.nil?
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(uids)
-        else
-          allowed_classifications = get_classifications_for_name(tree_label)
-            .classification_trees
-            .map { |classification| classification.sub_classification_alias.id }
-          allowed_uids = uids.select { |uid| allowed_classifications.include?(uid) }
-          @selected_classifications = DataCycleCore::ClassificationAlias.find(allowed_uids)
-        end
-      end
-    rescue StandardError
-      logger.warn("cannot find classifications for the following ids: #{(uids || []).join(', ')}")
-      nil
+    def concept_title(concept)
+      return 'DELETED' unless concept.is_a?(DataCycleCore::Concept)
+
+      concept.internal_name.presence || concept.external_key.presence || 'NO_NAME'
     end
 
-    def classification_tree_label_has_children?(treelabel)
-      DataCycleCore::Classification
-        .includes(:classification_groups, :classification_aliases)
-        .joins(classification_aliases: [{ classification_tree: [:classification_tree_label] }])
-        .where(classification_tree_labels: { name: treelabel }).any?
+    # Read from the materialised path rather than through +concept_scheme+: the callers preload
+    # :concept_path for the full path anyway, and concept_paths.full_path_names ends with the
+    # scheme's name (e.g. {Adelberg, …, Deutschland, "Administrative Einheiten"}).
+    def concept_scheme_name(concept)
+      concept&.concept_path&.full_path_names&.last
     end
 
-    def classification_title(classification_or_alias)
-      if classification_or_alias.is_a?(DataCycleCore::Classification)
-        classification_or_alias.try(:name) || classification_or_alias.try(:external_key) || 'NO_NAME'
-      elsif classification_or_alias.is_a?(DataCycleCore::ClassificationAlias)
-        classification_or_alias.try(:internal_name) || classification_or_alias.try(:primary_classification).try(:external_key) || 'NO_NAME'
-      else
-        'DELETED'
-      end
-    end
-
-    def classification_tree_label_name(classification_alias)
-      classification_alias&.classification_alias_path&.full_path_names&.last
-    end
-
-    # #43524: display texts for the classification-usage chip on the saved-searches page - takes the
+    # #43524: display texts for the concept-usage chip on the saved-searches page - takes the
     # already-resolved record (see StoredFilter.classification_usage_record) so this stays pure
-    # presentation logic - and mirrors how a classification filter tag looks elsewhere (dimension
-    # label + selected value): [tree_label_name, classification_title], e.g. ["Inhaltstypen",
-    # "Veranstaltung"]. For a classification_tree_label (the whole tree, not a single alias) the tree
+    # presentation logic - and mirrors how a concept filter tag looks elsewhere (dimension
+    # label + selected value): [scheme_name, concept_title], e.g. ["Inhaltstypen",
+    # "Veranstaltung"]. For a concept_scheme (the whole tree, not a single concept) the scheme
     # name is still the dimension label, but there is no narrower selection, so the value falls back
-    # to a generic "all" text instead of repeating the tree name as if it were a specific selection.
+    # to a generic "all" text instead of repeating the scheme name as if it were a specific selection.
     def classification_usage_titles(record)
       case record
-      when DataCycleCore::ClassificationAlias
-        [classification_tree_label_name(record), classification_title(record)]
-      when DataCycleCore::ClassificationTreeLabel
+      when DataCycleCore::Concept
+        [concept_scheme_name(record), concept_title(record)]
+      when DataCycleCore::ConceptScheme
         [record.name, t('data_cycle_core.stored_searches.classification_usage_all', locale: active_ui_locale)]
       end
     end
 
-    def classification_path_classes(classification_alias)
-      return if classification_alias&.classification_alias_path&.full_path_names.nil?
+    def concept_path_classes(concept)
+      return if concept&.concept_path&.full_path_names.nil?
 
-      tree_label = classification_tree_label_name(classification_alias)
-      classification_alias
-        .classification_alias_path
+      scheme_name = concept_scheme_name(concept)
+      concept
+        .concept_path
         .full_path_names
-        .except(tree_label)
-        .map { |c_name| "#{tree_label}_#{c_name}".underscore_blanks }
+        .except(scheme_name)
+        .map { |c_name| "#{scheme_name}_#{c_name}".underscore_blanks }
         .join(' ')
     end
 
-    def classification_style(classification_alias)
-      return unless classification_alias&.color?
+    def concept_color_style(concept)
+      return unless concept&.color?
 
-      "--classification-color: #{classification_alias.color};"
+      "--classification-color: #{concept.color};"
     end
 
-    # Builds the tooltip markup shared by every classification representation (tags, editor labels,
+    # Builds the tooltip markup shared by every concept representation (tags, editor labels,
     # filter items, select2 options and the classifications JSON endpoints). Sections are ordered from
     # identity to detail: full path, external URI, description, translations.
     #
@@ -99,27 +74,27 @@ module DataCycleCore
     # are not always URL-shaped, some external systems store foreign ids in it. It stays plain text on
     # purpose: the shared tooltip element is not interactive, so a link would not be clickable. It is a
     # technical detail, so it is gated on :show_uri, which only system_admin holds - asked of the class
-    # rather than the record, because the section is a global capability and this helper is duck-typed.
+    # rather than the record, because the section is a global capability, not a per-concept one.
     #
-    # @param concept [DataCycleCore::Concept, DataCycleCore::ClassificationAlias, nil] duck-typed, hence try
+    # @param concept [DataCycleCore::Concept, nil] nil where a caller looks a concept up by id
     # @return [String, nil] tooltip markup for data-dc-tooltip, sanitized again client side
-    def classification_tooltip(concept)
+    def concept_tooltip(concept)
       return if concept.nil?
 
       tooltip_html = []
-      uri = concept.try(:uri)
+      uri = concept.uri
 
-      tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.try(:full_path).present?
+      tooltip_html << tag.div(concept.full_path, class: 'tag-full-path') if concept.full_path.present?
 
-      if uri.present? && can?(:show_uri, DataCycleCore::ClassificationAlias)
+      if uri.present? && can?(:show_uri, DataCycleCore::Concept)
         tooltip_html << tag.div(
-          safe_join([tag.span("#{DataCycleCore::ClassificationAlias.human_attribute_name(:uri, locale: active_ui_locale)}:", class: 'tag-uri-header'), uri], ' '),
+          safe_join([tag.span("#{DataCycleCore::Concept.human_attribute_name(:uri, locale: active_ui_locale)}:", class: 'tag-uri-header'), uri], ' '),
           class: 'tag-uri'
         )
       end
 
       I18n.with_locale(concept.first_available_locale(active_ui_locale)) do
-        tooltip_html << tag.div(sanitize(concept.description), class: 'tag-description') if concept.try(:description).present?
+        tooltip_html << tag.div(sanitize(concept.description), class: 'tag-description') if concept.description.present?
       end
 
       if concept.name_i18n.keys.many?
@@ -145,88 +120,33 @@ module DataCycleCore
       tooltip_html.compact.join('<br>')
     end
 
-    def expected_classification_alias(c)
-      c.is_a?(DataCycleCore::Classification) ? c&.primary_classification_alias : c
-    end
+    def concept_filter_items(scheme_name, order_by = nil)
+      return DataCycleCore::Concept.none if scheme_name.blank?
 
-    def expected_value_id(c, expected_type)
-      if c.is_a?(expected_type)
-        c&.id
-      elsif expected_type == DataCycleCore::Classification
-        c&.primary_classification&.id
-      else
-        c&.primary_classification_alias&.id
-      end
-    end
-
-    def classification_alias_filter_items(tree_label, order_by = nil)
-      return DataCycleCore::ClassificationAlias.none if tree_label.blank?
-
-      DataCycleCore::ClassificationAlias
-        .for_tree(tree_label)
+      DataCycleCore::Concept
+        .for_tree(scheme_name)
         .assignable
-        .includes(
-          :primary_classification, :classification_alias_path, sub_classification_alias: [
-            :primary_classification, :classification_alias_path, { sub_classification_alias: [
-              :primary_classification, :classification_alias_path, :sub_classification_alias
-            ] }
-          ]
-        )
+        .includes(:concept_path, children: [:concept_path, { children: [:concept_path, :children] }])
         .order(order_by)
     end
 
-    def async_classification_select_options(value, expected_type = DataCycleCore::ClassificationAlias)
+    def async_concept_select_options(value)
       value = Array.wrap(value).compact
 
       return options_for_select([]) if value.blank?
 
-      options_for_select(
-        value
-          .filter_map do |c|
-            ca = expected_classification_alias(c)
-            next if ca.nil?
-
-            [
-              ca.internal_name,
-              expected_value_id(c, expected_type),
-              {
-                data: {
-                  dc_tooltip: classification_tooltip(ca),
-                  full_path: ca.full_path
-                },
-                disabled: !ca.assignable
-              }
-            ]
-          end,
-        value.pluck(:id)
-      )
+      options_for_select(value.map { |c| concept_select_option(c) }, value.pluck(:id))
     end
 
-    def simple_classification_select_options(value, classification_items, expected_type = DataCycleCore::ClassificationAlias)
+    def simple_concept_select_options(value, concept_items)
       value = Array.wrap(value).compact
-      full_classification_items = (classification_items + value).uniq { |v| expected_value_id(v, expected_type) }
 
       options_for_select(
-        full_classification_items
-          &.filter_map do |c|
-            ca = expected_classification_alias(c)
-            next if ca.nil?
-
-            next if ca.classification_alias_path&.full_path_names&.last == 'Inhaltstypen' && DataCycleCore.excluded_filter_classifications.include?(ca.internal_name)
-
-            [
-              ca.internal_name,
-              expected_value_id(c, expected_type),
-              {
-                data: {
-                  dc_tooltip: classification_tooltip(ca),
-                  full_path: ca.full_path
-                },
-                disabled: !ca.assignable
-              }
-            ]
-          end,
-        value&.pluck(:id)
+        (concept_items + value)
+          .uniq(&:id)
+          .reject { |c| concept_scheme_name(c) == 'Inhaltstypen' && DataCycleCore.excluded_filter_classifications.include?(c.internal_name) }
+          .map { |c| concept_select_option(c) },
+        value.pluck(:id)
       )
     end
 
@@ -253,36 +173,47 @@ module DataCycleCore
         .tap { |h| h['class'] = "#{h['class']} #{definition.dig('ui', 'edit', 'options', 'class')}".squish }
     end
 
-    def group_key_for_ctl(ctl, es)
-      return es[ctl.external_source_id]&.name || ctl.external_source_id if ctl.external_source_id.present?
+    def group_key_for_concept_scheme(concept_scheme, external_systems)
+      return external_systems[concept_scheme.external_system_id]&.name || concept_scheme.external_system_id if concept_scheme.external_system_id.present?
 
-      es.values
+      external_systems.values
         .filter { |s|
-        ctl.name.to_s.downcase.start_with?(s.name.to_s.downcase) ||
-          ctl.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
+        concept_scheme.name.to_s.downcase.start_with?(s.name.to_s.downcase) ||
+          concept_scheme.name.to_s.downcase.start_with?(s.identifier.to_s.downcase)
       }
         .min_by { |s|
         [
-          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.name.to_s.downcase),
-          DidYouMean::Levenshtein.distance(ctl.name.to_s.downcase, s.identifier.to_s.downcase)
+          DidYouMean::Levenshtein.distance(concept_scheme.name.to_s.downcase, s.name.to_s.downcase),
+          DidYouMean::Levenshtein.distance(concept_scheme.name.to_s.downcase, s.identifier.to_s.downcase)
         ].min
-      }&.name || (ctl.name.split(' - ').many? ? ctl.name.split(' - ').first : nil)
+      }&.name || (concept_scheme.name.split(' - ').many? ? concept_scheme.name.split(' - ').first : nil)
     end
 
-    def grouped_classification_tree_labels(classification_tree_labels)
-      es = DataCycleCore::ExternalSystem.all.index_by(&:id)
+    def grouped_concept_schemes(concept_schemes)
+      external_systems = DataCycleCore::ExternalSystem.all.index_by(&:id)
 
-      classification_tree_labels
-        .group_by { |tree_label| group_key_for_ctl(tree_label, es) }
+      concept_schemes
+        .group_by { |concept_scheme| group_key_for_concept_scheme(concept_scheme, external_systems) }
         .sort_by { |group_key, _| group_key.to_s.downcase }
         .to_h
-        .transform_values { |tree_labels| tree_labels.sort_by { |ctl| ctl.name.to_s.downcase } }
+        .transform_values { |schemes| schemes.sort_by { |cs| cs.name.to_s.downcase } }
+    end
+
+    # What gravity_ui_editor.js reads off data-gravity-info: the Gravity concepts as
+    # {gravity, id, name}, the gravity taken from the fragment of the concept's uri.
+    # @return [String] JSON
+    def gravity_concepts_json
+      DataCycleCore::Concept.for_tree('Gravity').map { |concept|
+        I18n.with_locale(concept.first_available_locale) do
+          { gravity: URI(concept.uri).fragment, id: concept.id, name: concept.name }
+        end
+      }.to_json
     end
 
     def concept_scheme_ccc_count(concept_scheme, collection, link_type)
-      DataCycleCore::CollectedClassificationContent.where(
+      DataCycleCore::CollectedConceptContent.where(
         link_type:,
-        classification_tree_label_id: concept_scheme.id,
+        concept_scheme_id: concept_scheme.id,
         thing_id: collection.things.reorder(nil).select(:id)
       ).distinct.count(:thing_id)
     end
@@ -329,6 +260,22 @@ module DataCycleCore
           visibilities: visibilities
         }
       end
+    end
+
+    private
+
+    def concept_select_option(concept)
+      [
+        concept.internal_name,
+        concept.id,
+        {
+          data: {
+            dc_tooltip: concept_tooltip(concept),
+            full_path: concept.full_path
+          },
+          disabled: !concept.assignable
+        }
+      ]
     end
   end
 end

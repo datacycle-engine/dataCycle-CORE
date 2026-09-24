@@ -3,7 +3,7 @@
 <%= hidden_field_tag :table, :things %>
 <%= hidden_field_tag :scope, local_assigns[:scope] %>
 
-<% data_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name(template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants.preload(:classification_alias_path, :classifications) %>
+<% data_types = DataCycleCore::Concept.for_tree('Inhaltstypen').with_name(template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants.preload(:concept_path) %>
 
 <% if data_types.many? %>
   <div class="form-element">
@@ -12,7 +12,7 @@
       <%= select_tag "#{DataCycleCore::AttributeEditorHelper::ATTRIBUTE_FIELD_PREFIX}[data_type][]", options_for_select(data_types.map { |c|
         [
           c.name,
-          c.primary_classification&.id,
+          c.id,
           {
             title: [
               c.full_path,
@@ -22,7 +22,7 @@
               title: c.full_path
             }
           }
-        ] if c.primary_classification&.id.present? }.compact), {
+        ] }), {
         class: 'single-select',
         data: {
           tree_label: 'Inhaltstypen',

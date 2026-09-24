@@ -25,10 +25,6 @@ module DataCycleCore
         content
       end
 
-      def get_classification_ids(tree_name, *alias_names)
-        DataCycleCore::Concept.for_tree(tree_name).with_name(alias_names).pluck(:classification_id)
-      end
-
       def get_concept_ids(tree_name, *alias_names)
         DataCycleCore::Concept.for_tree(tree_name).with_name(alias_names).pluck(:id)
       end

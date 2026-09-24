@@ -7,6 +7,9 @@ module DataCycleCore
   # once the response has already been rendered (e.g. an exception raised in an
   # `after_action`), the `rescue_from` handlers must not try to render/respond
   # again. Every responder short-circuits on `performed?`.
+  #
+  # Also covers which responder StatementInvalid reaches: a stale process answers 503, a
+  # current one keeps the 400 that blames the caller.
   class ErrorHandlerTest < DataCycleCore::TestCases::ActiveSupportTestCase
     class FakeController < ActionController::API
       include ActionController::MimeResponds
@@ -42,6 +45,7 @@ module DataCycleCore
             assert_nil @controller.send(:expired_content_api_error, api_error_double)
             assert_nil @controller.send(:not_acceptable)
             assert_nil @controller.send(:too_many_requests)
+            assert_nil @controller.send(:service_unavailable)
           end
         end
       end
@@ -57,6 +61,36 @@ module DataCycleCore
       end
 
       assert_equal 1, head_calls.size
+    end
+
+    test 'a stale process answers StatementInvalid with service unavailable' do
+      head_calls = []
+
+      @controller.stub(:performed?, false) do
+        @controller.stub(:head, ->(*args) { head_calls << args }) do
+          DataCycleCore::StaleProcess.stub(:stale?, true) do
+            @controller.send(:statement_invalid, ActiveRecord::StatementInvalid.new)
+          end
+        end
+      end
+
+      assert_equal [[:service_unavailable, { 'Retry-After': DataCycleCore::StaleProcess::RETRY_AFTER }]], head_calls
+    end
+
+    test 'a current process still answers StatementInvalid as a bad request' do
+      responded = false
+
+      @controller.stub(:performed?, false) do
+        @controller.stub(:respond_to, ->(*) { responded = true }) do
+          @controller.stub(:head, ->(*) { flunk('a current process must not answer service unavailable') }) do
+            DataCycleCore::StaleProcess.stub(:stale?, false) do
+              @controller.send(:statement_invalid, ActiveRecord::StatementInvalid.new)
+            end
+          end
+        end
+      end
+
+      assert responded
     end
   end
 end

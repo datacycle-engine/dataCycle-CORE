@@ -18,12 +18,7 @@ module DataCycleCore
       def create_blocked_job(expires_at:, key: @key, arguments: @job.serialize)
         SolidQueue::Semaphore.create!(key:, value: 0, expires_at: 1.hour.from_now) unless SolidQueue::Semaphore.exists?(key:)
 
-        sq_job = SolidQueue::Job.create!(
-          queue_name: 'importers',
-          class_name: @job.class.name,
-          arguments:,
-          concurrency_key: key
-        )
+        sq_job = create_queue_row(@job, key:, arguments:)
 
         SolidQueue::BlockedExecution.find_by!(job_id: sq_job.id).tap { |blocked| blocked.update!(expires_at:) }
       end
@@ -32,12 +27,7 @@ module DataCycleCore
       # instead of blocked. This is the first job for a concurrency key, i.e. exactly the duplicate
       # a blocked-execution-only lookup cannot see.
       def create_ready_job(key: @key, arguments: @job.serialize)
-        SolidQueue::Job.create!(
-          queue_name: 'importers',
-          class_name: @job.class.name,
-          arguments:,
-          concurrency_key: key
-        )
+        create_queue_row(@job, key:, arguments:)
       end
 
       test 'extend_concurrency_lock refreshes the held semaphore even without a blocked duplicate' do
@@ -137,18 +127,47 @@ module DataCycleCore
         assert_equal job.serialize['arguments'], serialized
       end
 
-      test 'duplicate_queued? only sees a blocked duplicate, not the ready one holding the lock' do
+      test 'duplicate_waiting? leaves the waiting slot free and closes it once it is taken' do
         ready = create_ready_job
 
         assert_predicate ready, :ready?
-        assert_not @job.duplicate_queued?
+        assert_not @job.duplicate_waiting?
 
         create_blocked_job(expires_at: 1.hour.from_now)
 
-        assert_predicate @job, :duplicate_queued?
+        assert_predicate @job, :duplicate_waiting?
       end
 
-      test 'duplicate_pending? sees the ready job holding the lock, which duplicate_queued? misses' do
+      # The backlog case: SolidQueue stamps a blocked execution with concurrency_duration.from_now,
+      # so on a queue that takes days to drain every blocked row is expired and a lookup on that
+      # table finds nothing to deduplicate against.
+      test 'duplicate_waiting? still sees a blocked duplicate whose lock expired' do
+        create_ready_job
+        create_blocked_job(expires_at: 1.hour.ago)
+
+        assert_predicate @job, :duplicate_waiting?
+      end
+
+      test 'duplicate_waiting? ignores finished and permanently failed jobs' do
+        create_ready_job
+        create_queue_row(@job).update!(finished_at: Time.current)
+        create_queue_row(@job).failed_with(StandardError.new('boom'))
+
+        assert_not @job.duplicate_waiting?
+      end
+
+      test 'duplicate_waiting? ignores the job asking about itself' do
+        create_ready_job
+        @job.provider_job_id = create_queue_row(@job).id
+
+        assert_not @job.duplicate_waiting?
+      end
+
+      test 'duplicate_waiting? is false for jobs without a concurrency key' do
+        assert_not keyless_job.duplicate_waiting?
+      end
+
+      test 'duplicate_pending? sees the ready job holding the lock, which duplicate_waiting? tolerates' do
         create_ready_job
 
         assert_predicate @job, :duplicate_pending?

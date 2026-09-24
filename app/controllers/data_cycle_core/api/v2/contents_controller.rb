@@ -26,7 +26,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes({ concepts: [], translations: [] })
             .find(permitted_params[:id])
         end
 
@@ -86,7 +86,7 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).compact_blank
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids_with_subtree(classifications)
+              query = query.concept_ids_with_subtree(classifications)
             end
           end
           query

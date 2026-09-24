@@ -5,30 +5,30 @@ require 'test_helper'
 module DataCycleCore
   class ContentClassificationConceptTransformationsTest < DataCycleCore::TestCases::ActiveSupportTestCase
     before(:all) do
-      @tags = DataCycleCore::ClassificationTreeLabel.find_or_create_by!(name: 'Tags')
-      @tags.create_classification_alias('child 1')
+      @tags = DataCycleCore::ConceptScheme.find_or_create_by!(name: 'Tags')
+      @tags.create_concept('child 1')
       @tag1 = DataCycleCore::Concept.for_tree(@tags.name).find_by!(internal_name: 'child 1')
 
-      @tags2 = DataCycleCore::ClassificationTreeLabel.find_or_create_by!(name: 'Tags2')
-      @tags2.create_classification_alias('child 2')
+      @tags2 = DataCycleCore::ConceptScheme.find_or_create_by!(name: 'Tags2')
+      @tags2.create_concept('child 2')
       @tag2 = DataCycleCore::Concept.for_tree(@tags2.name).find_by!(internal_name: 'child 2')
 
-      @tags3 = DataCycleCore::ClassificationTreeLabel.find_or_create_by!(name: 'Tags3')
-      @tags3.create_classification_alias('child 3')
+      @tags3 = DataCycleCore::ConceptScheme.find_or_create_by!(name: 'Tags3')
+      @tags3.create_concept('child 3')
       @tag3 = DataCycleCore::Concept.for_tree(@tags3.name).find_by!(internal_name: 'child 3')
 
-      @universal_tags = DataCycleCore::ClassificationTreeLabel.find_or_create_by!(name: 'Universal Tags')
-      @universal_tags.create_classification_alias('uv 1')
+      @universal_tags = DataCycleCore::ConceptScheme.find_or_create_by!(name: 'Universal Tags')
+      @universal_tags.create_concept('uv 1')
       @uv1 = DataCycleCore::Concept.for_tree(@universal_tags.name).find_by!(internal_name: 'uv 1')
 
-      @dummy_tree = DataCycleCore::ClassificationTreeLabel.find_or_create_by!(name: 'DummyTree')
-      @dummy_tree.create_classification_alias('dummy 1')
+      @dummy_tree = DataCycleCore::ConceptScheme.find_or_create_by!(name: 'DummyTree')
+      @dummy_tree.create_concept('dummy 1')
       @dummy1 = DataCycleCore::Concept.for_tree(@dummy_tree.name).find_by!(internal_name: 'dummy 1')
 
-      @tag1.classification_alias.classification_ids += [@dummy1.classification_id]
-      @uv1.classification_alias.classification_ids += [@dummy1.classification_id]
+      @tag1.mapped_concept_ids += [@dummy1.id]
+      @uv1.mapped_concept_ids += [@dummy1.id]
 
-      @universal = [@dummy1.classification_id, @tag2.classification_id, @tag3.classification_id]
+      @universal = [@dummy1.id, @tag2.id, @tag3.id]
 
       @article = DataCycleCore::TestPreparations.create_content(
         template_name: 'Artikel',
@@ -43,7 +43,7 @@ module DataCycleCore
       valid = @article.mapped_concepts_to_property(concept_scheme: @tags)
 
       assert(valid)
-      assert_equal([@tag1.classification_id], @article.tags.pluck(:id))
+      assert_equal([@tag1.id], @article.tags.pluck(:id))
       assert_equal(@universal.to_set, @article.universal_classifications.pluck(:id).to_set)
       assert_equal(
         I18n.t('concept_scheme_link.version_name', data: @tags.name, locale: I18n.default_locale),
@@ -56,7 +56,7 @@ module DataCycleCore
 
       assert(valid)
       assert_equal([], @article.tags.pluck(:id))
-      assert_equal([*@universal, @uv1.classification_id].to_set, @article.universal_classifications.pluck(:id).to_set)
+      assert_equal([*@universal, @uv1.id].to_set, @article.universal_classifications.pluck(:id).to_set)
       assert_equal(
         I18n.t('concept_scheme_link.version_name', data: @universal_tags.name, locale: I18n.default_locale),
         @article.version_name
@@ -83,7 +83,7 @@ module DataCycleCore
       valid = @article.remove_concepts_by_scheme(concept_scheme: @dummy_tree)
 
       assert(valid)
-      assert_equal((@universal - [@dummy1.classification_id]).to_set, @article.universal_classifications.pluck(:id).to_set)
+      assert_equal((@universal - [@dummy1.id]).to_set, @article.universal_classifications.pluck(:id).to_set)
       assert_equal(
         I18n.t('concept_scheme_unlink.version_name', data: @dummy_tree.name, locale: I18n.default_locale),
         @article.version_name

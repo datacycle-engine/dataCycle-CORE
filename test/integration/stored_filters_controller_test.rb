@@ -12,7 +12,7 @@ module DataCycleCore
       @admin.update!(additional_attributes: (@admin.additional_attributes || {}).merge('terms_conditions_at' => Time.current, 'privacy_policy_at' => Time.current))
       sign_in(@admin)
       @filter = DataCycleCore::StoredFilter.create!(name: 'Cov Stored Filter', user: @admin, language: ['de'])
-      @tags_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').first
+      @tags_alias = DataCycleCore::Concept.for_tree('Tags').first
     end
 
     # ---------- index ----------
@@ -117,8 +117,8 @@ module DataCycleCore
       assert_select('section.stored-searches-list[data-classification-usage-ids=?]', @filter.id)
     end
 
-    test 'saved_searches html with ids and a classification_tree_label id shows the tree name as the group label and a generic "all" value' do
-      tags_label = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
+    test 'saved_searches html with ids and a concept_scheme id shows the tree name as the group label and a generic "all" value' do
+      tags_label = DataCycleCore::ConceptScheme.find_by(name: 'Tags')
 
       get saved_searches_stored_filters_path, params: { ids: [@filter.id], classification_id: tags_label.id }
 

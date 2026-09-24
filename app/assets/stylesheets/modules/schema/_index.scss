@@ -1,0 +1,1422 @@
+
+body.schema {
+  --sc-primary: #e5054e;
+  --sc-primary-hover: #c80444;
+  --sc-primary-glow: rgba(229, 5, 78, 0.08);
+  --sc-primary-muted: rgba(229, 5, 78, 0.45); // brand red, dialled back (empty counts)
+  // embedded-schema accent — a violet that complements the brand pink; drives
+  // both the "Embedded-Schema" toggle and (via a variable override) the cards
+  // shown in the embedded view, so the whole embedded schema reads in one hue.
+  --sc-embedded: #874de9;
+  --sc-embedded-hover: #7538d6;
+  --sc-embedded-glow: rgba(135, 77, 233, 0.08); // faint wash for the hover state
+  --sc-embedded-border: rgba(135, 77, 233, 0.25); // embedded-link chip border
+  --sc-embedded-shadow: rgba(135, 77, 233, 0.6); // active "Embedded-Schema" pill glow
+  --sc-bg: #fafafb;
+  --sc-card: #ffffff;
+  --sc-border: #ececec;
+  --sc-border-strong: #e0e0e0; // card hover border (a touch darker than --sc-border)
+  --sc-text: #111827;
+  --sc-heading: #1e2433;   // card title — slightly cooler/darker than body --sc-text
+  --sc-secondary: #6b7280;
+  --sc-path: #7c8698;      // card schema.org path — cooler grey than --sc-secondary
+  --sc-badge: #fff1f5;
+  --sc-icon-bg: #ffe7ef;
+
+  // card elevation, tokenised so the resting/hover shadows live in one place
+  --sc-card-shadow: 0 1px 2px rgba(17, 24, 39, 0.04), 0 4px 12px rgba(17, 24, 39, 0.03);
+  --sc-card-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+  // schema-tag colours: neutral grey by default; only interactive chips (links)
+  // carry colour — external links reuse the brand red (--sc-primary), internal
+  // links the darker --sc-primary-hover (a darker shade of the same red).
+  --sc-tag-fg: #6b7280;
+  --sc-tag-bg: #f3f4f6;
+  --sc-tag-border: #e5e7eb;
+  --sc-primary-border: rgba(229, 5, 78, 0.25);
+
+  // internal links reuse the former yellow/amber tag colour (was --flag-translated)
+  --sc-internal: #a16207;
+  --sc-internal-bg: rgba(234, 179, 8, 0.12);
+  --sc-internal-border: rgba(234, 179, 8, 0.3);
+
+  // full-bleed layout: /schema and /schema/:id span the whole viewport with a
+  // narrow, responsive side gutter (shared by the brand strip, index & detail so
+  // their left edges stay aligned). Replaces the former centred 1700px column.
+  --sc-gutter: 16px;
+  @media (min-width: 768px)  { --sc-gutter: 24px; }
+  @media (min-width: 1200px) { --sc-gutter: 32px; }
+
+  background: var(--sc-bg);
+
+  .off-canvas-content {
+    background: var(--sc-bg);
+  }
+
+  // the mockup drops the breadcrumb — the header opens straight on the H1
+  section.breadcrumb {
+    display: none;
+  }
+
+  // the app nav bar is dropped on /schema, but its red brand stripe stays at the
+  // very top, thinned to 1px (global is 5px). Scoped; other pages keep the nav.
+  > header {
+    border-top-width: 1px;
+
+    .top-bar {
+      display: none;
+    }
+  }
+
+  // ---- Brand strip (replaces the hidden nav): the instance logo rendered in
+  //      black, exactly like the /api/config/openapi viewer's .ov-brand ----
+  .schema-brand {
+    display: flex;
+    align-items: center;
+    // full-bleed: the logo's left edge lines up with the title/cards column via
+    // the shared --sc-gutter (see main.schema-index).
+    padding: 20px var(--sc-gutter) 2px;
+
+    // the app-wide `.logo` (header variant) carries a left gutter — drop it so
+    // the logo sits flush against the content column's left edge.
+    .logo { padding: 0; margin: 0; }
+
+    @media (min-width: 768px)  { padding: 22px var(--sc-gutter) 2px; }
+    @media (min-width: 1200px) { padding: 24px var(--sc-gutter) 2px; }
+  }
+
+  .schema-brand-link {
+    display: inline-flex;
+    max-width: 100%;
+  }
+
+  // recolour the (red) instance logo to black to match the openapi reference
+  // look and stay visible on the light background; transparency is preserved.
+  // A touch larger than the openapi sidebar variant — /schema has more room.
+  .schema-brand .logo img {
+    display: block;
+    // definite height (like the nav's `.logo img { height: 50px }`) — the logo
+    // SVG ships only a viewBox, no intrinsic width/height, so `height: auto` in
+    // a shrink-to-fit inline-flex link collapses it to 0. Fixing the height lets
+    // the width derive from the aspect ratio; max-width stays as a safety cap.
+    height: 2.4rem;
+    width: auto;
+    max-width: min(100%, 13rem);
+    filter: brightness(0);
+  }
+
+  // ---- Language switcher (shared by index + detail; mirrors the openapi
+  //      viewer's DE/EN toggle so /schema is translatable the same way) ----
+  .schema-locales {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 48px;
+    padding: 4px;
+    background: var(--sc-card);
+    border: 1px solid var(--sc-border);
+    border-radius: 12px;
+  }
+
+  .schema-locale {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 100%;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sc-secondary);
+    text-decoration: none;
+    transition: background-color 160ms ease, color 160ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--sc-text);
+      background: var(--sc-badge);
+      outline: none;
+    }
+
+    &.is-active {
+      color: #fff;
+      background: var(--sc-primary);
+    }
+  }
+
+  // ---- Light/dark toggle (shared by index + detail; see auto_init_components/
+  //      schema_theme_toggle.js). A plain icon button, sized to match the
+  //      DE/EN switcher (.schema-locales) it sits next to. ----
+  .schema-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    background: var(--sc-card);
+    border: 1px solid var(--sc-border);
+    border-radius: 12px;
+    color: var(--sc-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--sc-primary);
+      border-color: var(--sc-primary);
+      background: var(--sc-primary-glow);
+      outline: none;
+    }
+  }
+
+  // ==== SchemaIndex ========================================================
+  main.schema-index {
+    max-width: none; // full-bleed; side gutter via --sc-gutter
+    padding: 12px var(--sc-gutter) 56px; // mobile-first
+    color: var(--sc-text);
+
+    // ---- Header ----------------------------------------------------------
+    .schema-index__header {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 32px;
+      padding-top: 1rem;
+
+      // This is a nested <header>, so the global `header { z-index: 1007;
+      // position: relative }` rule (_structure.scss) would make it a stacking
+      // context that paints its search/XLSX/locale controls OVER the app
+      // header's watch-lists flyout (`.dropdown-pane`, z-index 1006). Reset it
+      // to a plain block so the flyout stays on top.
+      position: static;
+      z-index: auto;
+    }
+
+    .schema-index__title {
+      margin: 0;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--sc-text);
+    }
+
+    .schema-index__stats {
+      margin: 10px 0 0;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--sc-secondary);
+    }
+
+    .schema-index__actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+
+      // keep the DE/EN switcher + theme toggle aligned with the 44px search +
+      // XLSX controls (both are 48px by default; scope the override to the index)
+      .schema-locales { height: 44px; }
+      .schema-theme-toggle { width: 44px; height: 44px; }
+    }
+
+    // ---- SearchBar -------------------------------------------------------
+    .schema-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1 1 100%;
+      height: 44px;
+      margin: 0;
+      padding: 0 16px;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 12px;
+      color: var(--sc-secondary);
+      transition: border-color 180ms ease, box-shadow 180ms ease;
+
+      .fa {
+        font-size: 1rem;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        font-size: 15px;
+        color: var(--sc-text);
+        box-shadow: none;
+
+        &::placeholder {
+          color: var(--sc-secondary);
+        }
+      }
+
+      &:focus-within {
+        border-color: var(--sc-primary);
+        box-shadow: 0 0 0 4px var(--sc-primary-glow);
+      }
+    }
+
+    // ---- XLSX export button ---------------------------------------------
+    .schema-index__export {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 12px;
+      background: var(--sc-primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+
+      .fa {
+        font-size: 1rem;
+      }
+
+      &:hover,
+      &:focus-visible {
+        background: var(--sc-primary-hover);
+        box-shadow: 0 8px 24px var(--sc-primary-glow);
+        color: #fff;
+        outline: none;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+
+    // ---- FilterBar -------------------------------------------------------
+    .schema-filter {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    // the lone sort dropdown is pushed to the far right of the toolbar row
+    .schema-filter .schema-sort {
+      margin-left: auto;
+    }
+
+    // ---- Schema toggle (Hauptschema / Embedded-Schema) --------------------
+    // Two mutually-exclusive pill buttons that switch the grid between the main
+    // schema and the embedded schema. Each owns its accent — the main schema the
+    // brand red, the embedded schema a blue — and each carries a small inner
+    // count chip. Resting: white with a hairline shadow; hover: the accent border
+    // + a faint accent wash; active: filled with the accent, a soft coloured glow
+    // and a translucent-white count chip.
+    .schema-parts {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    %schema-toolbar-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 44px;
+      border: 1px solid var(--sc-border);
+      border-radius: 999px;
+      background: var(--sc-card);
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
+      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease,
+        box-shadow 160ms ease, transform 120ms ease;
+
+      &:focus-visible { outline: none; }
+      &:active { transform: translateY(0.5px); }
+    }
+
+    .schema-part {
+      @extend %schema-toolbar-pill;
+      gap: 10px;
+      padding: 0 8px 0 18px; // tighter on the right — the count chip lives there
+      color: var(--sc-text);
+
+      .schema-part__icon {
+        font-size: 13px;
+        opacity: 0.9;
+      }
+
+      // count rendered as an inner chip rather than bare text
+      .schema-part__count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 24px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: var(--sc-bg);
+        color: var(--sc-secondary);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        transition: background-color 160ms ease, color 160ms ease;
+      }
+
+      &.is-active .schema-part__count {
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
+      }
+
+      // main schema — brand red
+      &[data-schema-part="main"] {
+        &:hover,
+        &:focus-visible {
+          border-color: var(--sc-primary);
+          color: var(--sc-primary);
+          background: var(--sc-primary-glow);
+        }
+
+        &.is-active {
+          background: var(--sc-primary);
+          border-color: var(--sc-primary);
+          color: #fff;
+          box-shadow: 0 10px 22px -10px rgba(229, 5, 78, 0.6);
+
+          &:hover { background: var(--sc-primary-hover); border-color: var(--sc-primary-hover); }
+        }
+      }
+
+      // embedded schema — blue accent, distinct from the red
+      &[data-schema-part="embedded"] {
+        &:hover,
+        &:focus-visible {
+          border-color: var(--sc-embedded);
+          color: var(--sc-embedded);
+          background: var(--sc-embedded-glow);
+        }
+
+        &.is-active {
+          background: var(--sc-embedded);
+          border-color: var(--sc-embedded);
+          color: #fff;
+          box-shadow: 0 10px 22px -10px var(--sc-embedded-shadow);
+
+          &:hover { background: var(--sc-embedded-hover); border-color: var(--sc-embedded-hover); }
+        }
+      }
+
+      // dependency view — neutral dark, since it's a view spanning both schemas
+      // (pink + violet nodes) rather than a single schema hue
+      &[data-schema-part="deps"] {
+        &:hover,
+        &:focus-visible {
+          border-color: var(--sc-text);
+          color: var(--sc-text);
+        }
+
+        &.is-active {
+          background: var(--sc-text);
+          border-color: var(--sc-text);
+          color: #fff;
+          box-shadow: 0 10px 22px -10px rgba(17, 24, 39, 0.5);
+
+          &:hover { background: #000; border-color: #000; }
+        }
+      }
+    }
+
+    // ---- "Nur mit Inhalten" toggle ---------------------------------------
+    // Independent filter (combines with either schema) that drops templates with
+    // a zero thing count. Neutral by default, a dark fill when active, so it never
+    // competes with the red / blue schema buttons.
+    .schema-filter__toggle {
+      @extend %schema-toolbar-pill;
+      gap: 8px;
+      padding: 0 18px;
+      color: var(--sc-secondary);
+
+      .fa { font-size: 12px; }
+
+      &:hover,
+      &:focus-visible {
+        border-color: var(--sc-text);
+        color: var(--sc-text);
+      }
+
+      &.is-active {
+        background: var(--sc-text);
+        border-color: var(--sc-text);
+        color: #fff;
+        box-shadow: 0 10px 22px -10px rgba(17, 24, 39, 0.5);
+
+        &:hover { background: #000; border-color: #000; }
+      }
+    }
+
+    .schema-filter__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 38px;
+      padding: 0 16px;
+      border: 1px solid var(--sc-border);
+      border-radius: 999px;
+      background: var(--sc-card);
+      color: var(--sc-text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+
+      .schema-filter__count {
+        font-variant-numeric: tabular-nums;
+        color: var(--sc-secondary);
+      }
+
+      &:hover,
+      &:focus-visible {
+        border-color: var(--sc-primary);
+        color: var(--sc-primary);
+        outline: none;
+      }
+
+      &.is-active {
+        background: var(--sc-primary);
+        border-color: var(--sc-primary);
+        color: #fff;
+
+        .schema-filter__count {
+          color: rgba(255, 255, 255, 0.85);
+        }
+      }
+    }
+
+    // ---- Grid, grouped by schema.org type --------------------------------
+    // Every wrapper down to the grid is width-capped and shrink-enabled so the
+    // content can never make the page wider than the viewport.
+    .schema-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .schema-group {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+
+      &[hidden] {
+        display: none;
+      }
+    }
+
+    .schema-group__title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--sc-border);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--sc-text);
+      min-width: 0;
+    }
+
+    .schema-group__count {
+      font-size: 14px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--sc-secondary);
+    }
+
+    .schema-group__grid {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      // Fluid tracks so the grid self-arranges to the viewport — no per-breakpoint
+      // column counts to maintain. `min(100%, 340px)` is the responsive key: on a
+      // viewport narrower than 340px a single column collapses to 100% instead of
+      // forcing a 340px track that would overflow. `1fr` (never a fixed px column)
+      // lets the tracks shrink to share the row, so cards always wrap in and the
+      // grid can never exceed its container.
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      align-items: stretch; // cards have a fixed height anyway; keeps grid rows tidy if that ever changes
+    }
+
+    // ---- SchemaCard ------------------------------------------------------
+    // ([hidden] cards are handled by the body.schema-wide rule further down)
+    .schema-card {
+      // Grid items default to min-width: auto (their content's min-content size).
+      // A long, unbreakable ancestor path (nowrap) would otherwise force this
+      // track — and every column in its row — wider than 340px ("grid blowout"),
+      // which is also why the ellipsis on .schema-card__key never kicked in.
+      min-width: 0;
+    }
+
+    .schema-card__link {
+      display: flex;
+      flex-direction: column;
+      // Fixed, not min-height + row stretch: every card is the exact same size
+      // everywhere in the grid, not just within its own row.
+      height: 180px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 24px;
+      box-sizing: border-box;
+      overflow: hidden;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 18px;
+      box-shadow: var(--sc-card-shadow);
+      color: inherit;
+      text-decoration: none;
+      transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+
+      &:hover,
+      &:focus-visible {
+        transform: translateY(-3px);
+        box-shadow: var(--sc-card-shadow-hover);
+        border-color: var(--sc-border-strong);
+        outline: none;
+      }
+    }
+
+    // icon + template name aligned on one row at the top of the card
+    .schema-card__header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .schema-card__icon {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--sc-icon-bg);
+      color: var(--sc-primary);
+      font-size: 20px;
+    }
+
+    .schema-card__name {
+      flex: 1;
+      min-width: 0;
+      // Sized so long single-word names (e.g. LocationFeatureSpecification)
+      // stay on one line within the ~340px card track; the two-line clamp
+      // below remains as a safety net for anything longer still.
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--sc-heading);
+      // Clamp to two lines, ellipsis beyond — the full name stays in the title
+      // tooltip and the card height never grows with it.
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+    }
+
+    // schema.org path — secondary; single line, ellipsis beyond, so a deep
+    // type hierarchy can never make the card taller than its neighbours. The
+    // full path is available on hover via the dc-tooltip on the element.
+    .schema-card__key {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--sc-path);
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    // footer pinned to the bottom, subtle divider above, count + chevron right-aligned
+    .schema-card__footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--sc-border);
+    }
+
+    .schema-card__count {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: var(--sc-primary);
+
+      // empty templates keep the brand hue but dial it back, so a wall of zeros
+      // reads as "nothing here" without going grey/off-brand.
+      &.is-zero {
+        color: var(--sc-primary-muted);
+      }
+    }
+
+    .schema-card__chevron {
+      flex: none;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--sc-secondary);
+      transition: transform 200ms ease, color 200ms ease;
+    }
+
+    .schema-card__link:hover .schema-card__chevron,
+    .schema-card__link:focus-visible .schema-card__chevron {
+      color: var(--sc-primary);
+      transform: translateX(3px);
+    }
+
+    // Cards of the embedded schema adopt the embedded accent (violet) instead of
+    // the brand pink: redefining the accent custom properties on the card cascades
+    // to the icon, count and chevron, which all read `var(--sc-primary)`. Embedded
+    // cards only render while the embedded schema is selected, so this hue never
+    // bleeds into the main schema.
+    .schema-card[data-part="embedded"] {
+      --sc-primary: var(--sc-embedded);
+      --sc-primary-hover: var(--sc-embedded-hover);
+      --sc-primary-muted: rgba(135, 77, 233, 0.45); // zero-count, dialled back
+      --sc-icon-bg: #f0eafc; // light violet tint of the icon circle
+    }
+
+    // ---- EmptyState ------------------------------------------------------
+    .schema-index__empty {
+      padding: 64px 0;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--sc-secondary);
+
+      &[hidden] {
+        display: none;
+      }
+    }
+
+    // ---- Dependency view (per-schema connection table) -------------------
+    // Hidden until the "Abhängigkeiten" tab is active; then it replaces the card
+    // grid and the card-only controls (search, sort, content toggle) step aside.
+    // Schema colours carry into the table: pink dot = main schema, violet =
+    // embedded, grey = shared/geo target types.
+    .schema-deps { display: none; }
+
+    &.is-deps {
+      .schema-groups { display: none; }
+      [data-schema-empty] { display: none; }
+      .schema-search,
+      .schema-sort,
+      .schema-filter > .schema-filter__toggle { display: none; }
+      .schema-deps { display: block; }
+    }
+
+    .schema-deps__toolbar {
+      margin-bottom: 16px;
+    }
+
+    // ---- stat tiles (Schema-Abhängigkeiten / Verbindungen / ohne / zirkulär) ----
+    .schema-deps__tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 0 0 24px;
+    }
+
+    .schema-deps__tile {
+      // the markup follows the <dl> contract (term, then definition) while the
+      // value keeps reading first — hence the reversed column instead of a
+      // reversed source order
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      padding: 16px 20px;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 14px;
+      box-shadow: var(--sc-card-shadow);
+
+      &--primary .schema-deps__tile-value { color: var(--sc-primary); }
+    }
+
+    .schema-deps__tile-value {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--sc-heading);
+      line-height: 1.2;
+    }
+
+    .schema-deps__tile-label {
+      margin: 2px 0 0; // column-reverse: this is the gap above the label
+
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--sc-secondary);
+    }
+
+    // ---- dependency overview (interactive SVG graph + sidebar) ----
+    .schema-graph {
+      margin-bottom: 24px;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 16px;
+      box-shadow: var(--sc-card-shadow);
+      overflow: hidden;
+
+      // fullscreen keeps the card look on a plain backdrop
+      &:fullscreen {
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+
+        .schema-graph__body { flex: 1; }
+        .schema-graph__canvas { height: 100%; }
+      }
+    }
+
+    .schema-graph__header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--sc-border);
+    }
+
+    .schema-graph__titles {
+      min-width: 0;
+    }
+
+    .schema-graph__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 4px 0 0;
+      font-size: 0.78rem;
+      color: var(--sc-secondary);
+    }
+
+    // set apart from the (static) edge count: this one says the drawing is a
+    // cut-out, so it should catch the eye without shouting
+    .schema-graph__truncation:not(:empty) {
+      padding: 1px 8px;
+      border: 1px solid var(--sc-border);
+      border-radius: 999px;
+      color: var(--sc-text);
+      background: var(--sc-bg);
+    }
+
+    .schema-graph__title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--sc-heading);
+    }
+
+    .schema-graph__info {
+      margin-left: 6px;
+      color: var(--sc-secondary);
+      font-size: 0.85rem;
+      cursor: help;
+    }
+
+    .schema-graph__controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .schema-graph__root select {
+      max-width: 220px;
+    }
+
+    // ---- drawing switcher (Netzwerk / Baum / Radial) ----
+    // Segmented icon control, sized and framed like the zoom group next to it;
+    // the active drawing is filled with the brand accent.
+    .schema-graph__views {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--sc-border);
+      border-radius: 8px;
+      padding: 2px;
+
+      button {
+        width: 28px;
+        height: 28px;
+        border: 0;
+        background: transparent;
+        border-radius: 6px;
+        color: var(--sc-secondary);
+        cursor: pointer;
+
+        &:hover,
+        &:focus-visible { background: var(--sc-bg); color: var(--sc-heading); }
+
+        &.is-active {
+          background: var(--sc-primary);
+          color: #fff;
+
+          &:hover { background: var(--sc-primary-hover); }
+        }
+      }
+    }
+
+    .schema-graph__zoom {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid var(--sc-border);
+      border-radius: 8px;
+      padding: 2px;
+
+      button {
+        width: 28px;
+        height: 28px;
+        border: 0;
+        background: transparent;
+        border-radius: 6px;
+        color: var(--sc-secondary);
+        cursor: pointer;
+
+        &:hover { background: var(--sc-bg); color: var(--sc-heading); }
+      }
+
+      [data-graph-zoom-level] {
+        min-width: 44px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--sc-secondary);
+      }
+    }
+
+    .schema-graph__fullscreen {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--sc-border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--sc-secondary);
+      cursor: pointer;
+
+      &:hover { background: var(--sc-bg); color: var(--sc-heading); }
+    }
+
+    .schema-graph__legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.8rem;
+      color: var(--sc-secondary);
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+    }
+
+    .schema-graph__body {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .schema-graph__canvas {
+      flex: 1;
+      min-width: 0;
+      height: 560px;
+      cursor: grab;
+      background:
+        radial-gradient(circle, rgba(17, 24, 39, 0.045) 1px, transparent 1px) 0 0 / 22px 22px,
+        var(--sc-bg);
+
+      &.is-panning { cursor: grabbing; }
+
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+
+    .schema-graph__edge {
+      fill: none;
+      stroke: #cbd2dc;
+      stroke-width: 1.5;
+    }
+
+    .schema-graph__node {
+      cursor: pointer;
+
+      rect {
+        fill: var(--sc-card);
+        stroke: var(--sc-border-strong);
+        stroke-width: 1.25;
+      }
+
+      // keyboard focus: the <g> takes the focus, but SVG groups draw no outline —
+      // so the ring goes onto the box itself
+      &:focus { outline: none; }
+
+      &:focus-visible rect {
+        stroke: var(--sc-primary);
+        stroke-width: 2.5;
+      }
+
+      &.is-main {
+        rect { stroke: var(--sc-primary-border); fill: #fff7f9; }
+        .schema-graph__node-dot { fill: var(--sc-primary); }
+      }
+
+      &.is-embedded {
+        rect { stroke: rgba(135, 77, 233, 0.35); fill: #faf7ff; }
+        .schema-graph__node-dot { fill: var(--sc-embedded); }
+      }
+
+      &.is-external .schema-graph__node-dot { fill: var(--sc-path); }
+
+      &.is-selected rect {
+        stroke-width: 2;
+        stroke: var(--sc-primary);
+      }
+
+      &:hover rect { filter: brightness(0.985); }
+    }
+
+    .schema-graph__node-title {
+      font-size: 13px;
+      font-weight: 600;
+      fill: var(--sc-heading);
+    }
+
+    .schema-graph__node-sub {
+      font-size: 11px;
+      fill: var(--sc-secondary);
+    }
+
+    // ---- detail sidebar (selected node: dependencies + used by) ----
+    .schema-graph__sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--sc-border);
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 560px;
+    }
+
+    .schema-graph__side-head {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      strong { color: var(--sc-heading); }
+    }
+
+    .schema-graph__side-group {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--sc-badge);
+      color: var(--sc-primary);
+
+      &.is-embedded { background: rgba(135, 77, 233, 0.1); color: var(--sc-embedded); }
+      &.is-external { background: var(--sc-tag-bg); color: var(--sc-tag-fg); }
+    }
+
+    .schema-graph__side-circular {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--sc-internal-bg);
+      color: var(--sc-internal);
+    }
+
+    .schema-graph__side-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 18px 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--sc-border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--sc-heading);
+    }
+
+    .schema-graph__side-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: var(--sc-badge);
+      color: var(--sc-primary);
+    }
+
+    .schema-graph__side-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 0.85rem;
+        color: var(--sc-text);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+
+        &:hover { color: var(--sc-primary); }
+      }
+    }
+
+    .schema-graph__side-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .schema-graph__side-count {
+      font-size: 0.75rem;
+      color: var(--sc-secondary);
+    }
+
+    .schema-graph__side-more {
+      color: var(--sc-secondary);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+      .schema-graph__body { flex-direction: column; }
+
+      .schema-graph__sidebar {
+        width: auto;
+        max-height: none;
+        border-left: 0;
+        border-top: 1px solid var(--sc-border);
+      }
+
+      .schema-graph__canvas { height: 420px; }
+    }
+
+    // ---- section header: title/description + stat tiles ----
+    .schema-rel__header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding: 20px 24px;
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      border-radius: 16px;
+      box-shadow: var(--sc-card-shadow);
+    }
+
+    .schema-rel__intro {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .schema-rel__intro-icon {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--sc-icon-bg);
+      color: var(--sc-primary);
+      font-size: 20px;
+    }
+
+    .schema-rel__title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--sc-heading);
+
+      .schema-rel__title-count { color: var(--sc-secondary); font-weight: 600; }
+    }
+
+    .schema-rel__desc {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--sc-secondary);
+    }
+
+    .schema-rel__stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      margin: 0;
+    }
+
+    .schema-rel__stat {
+      min-width: 64px;
+      text-align: right;
+    }
+
+    .schema-rel__stat-value {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+      color: var(--sc-primary);
+    }
+
+    .schema-rel__stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sc-secondary);
+    }
+
+    // ---- the table: every row is the same 5-column grid so columns align ----
+    .schema-rel {
+      --rel-cols: minmax(200px, 1.6fr) 28px minmax(150px, 1fr) minmax(160px, 1.4fr) 96px;
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--sc-border);
+      border-radius: 14px;
+      background: var(--sc-card);
+      box-shadow: var(--sc-card-shadow);
+      overflow-x: auto;
+    }
+
+    .schema-rel__row {
+      display: grid;
+      grid-template-columns: var(--rel-cols);
+      align-items: center;
+      gap: 12px;
+      min-width: 620px; // keeps the columns intact; the table scrolls if narrower
+      padding: 11px 18px;
+    }
+
+    .schema-rel__cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .schema-rel__cell--arrow { justify-content: center; color: var(--sc-path); }
+    .schema-rel__cell--usage { justify-content: flex-end; }
+
+    .schema-rel__row--head {
+      border-bottom: 1px solid var(--sc-border);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--sc-secondary);
+    }
+
+    .schema-rel__group {
+      border-top: 1px solid var(--sc-border);
+
+      &:first-of-type { border-top: 0; }
+    }
+
+    // template (group) row = the <summary> of each <details>
+    .schema-rel__row--template {
+      list-style: none;
+      cursor: pointer;
+      transition: background-color 140ms ease;
+
+      &::-webkit-details-marker { display: none; }
+      &:hover { background: var(--sc-bg); }
+    }
+
+    .schema-rel__caret {
+      flex: none;
+      font-size: 12px;
+      color: var(--sc-secondary);
+      transition: transform 160ms ease;
+    }
+    .schema-rel__group[open] .schema-rel__caret { transform: rotate(90deg); }
+
+    .schema-rel__dot {
+      flex: none;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--sc-secondary);
+    }
+    .schema-rel__dot--main { background: var(--sc-primary); }
+    .schema-rel__dot--embedded { background: var(--sc-embedded); }
+    // one class per Schema::GROUPS value — the group name IS the modifier, so
+    // nothing maps 'external' onto a differently named class any more (it used to
+    // be `--shared` in CSS against `external` in Ruby)
+    .schema-rel__dot--external { background: var(--sc-path); }
+
+    .schema-rel__name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--sc-heading);
+      text-decoration: none;
+      overflow-wrap: anywhere;
+
+      &:hover { text-decoration: underline; color: var(--sc-primary); }
+    }
+
+    .schema-rel__fields {
+      flex: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sc-secondary);
+      background: var(--sc-bg);
+      padding: 1px 8px;
+      border-radius: 999px;
+    }
+
+    // connection (property) rows inside an opened group
+    .schema-rel__row--prop {
+      background: var(--sc-bg);
+      border-top: 1px solid var(--sc-border);
+
+      .schema-rel__cell--element { padding-left: 34px; } // indent under the schema name
+    }
+
+    .schema-rel__key {
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--sc-text);
+      background: var(--sc-card);
+      border: 1px solid var(--sc-border);
+      padding: 2px 8px;
+      border-radius: 7px;
+      overflow-wrap: anywhere;
+    }
+
+    .schema-rel__many {
+      flex: none;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sc-secondary);
+    }
+
+    .schema-rel__target {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--sc-text);
+      text-decoration: none;
+      overflow-wrap: anywhere;
+
+      &:hover { text-decoration: underline; color: var(--sc-primary); }
+    }
+
+    .schema-rel__cell--desc {
+      font-size: 13.5px;
+      color: var(--sc-secondary);
+    }
+
+    .schema-rel__usage {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--sc-primary);
+
+      &.is-zero { color: var(--sc-primary-muted); }
+    }
+
+    // ---- Responsive (mobile-first, matches the spec breakpoints) ---------
+    @media (min-width: 576px) {
+      .schema-group__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 768px) {
+      padding: 16px var(--sc-gutter) 64px;
+
+      .schema-index__header {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+
+      .schema-index__titles {
+        min-width: 0; // title/stats block may shrink, never force the row wider
+      }
+
+      .schema-index__actions {
+        flex: 0 1 auto;
+        // wrap the search / XLSX / DE-EN controls onto the next line when the row
+        // gets tight instead of overrunning the viewport (req: header must wrap)
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        min-width: 0;      // allow the row to shrink instead of overrunning
+        max-width: 100%;   // never wider than the content column
+      }
+
+      // shrinkable search so the actions row (search + XLSX) can never push the
+      // export button past the content column — it stays aligned with the grid
+      .schema-search { flex: 0 1 320px; min-width: 0; }
+    }
+
+    @media (min-width: 992px) {
+      .schema-group__grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (min-width: 1200px) {
+      padding: 20px var(--sc-gutter) 80px;
+
+      .schema-index__title { font-size: 56px; }
+      .schema-search { flex-basis: 420px; }
+      .schema-group__grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (min-width: 1600px) {
+      .schema-group__grid { grid-template-columns: repeat(5, 1fr); }
+    }
+  }
+}

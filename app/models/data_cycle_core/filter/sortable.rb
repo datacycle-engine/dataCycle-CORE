@@ -3,6 +3,8 @@
 module DataCycleCore
   module Filter
     module Sortable
+      include Proximity
+
       def reset_sort
         reflect(query_without_order)
       end
@@ -91,11 +93,9 @@ module DataCycleCore
       alias sort_dct_created sort_created_at
 
       def sort_translated_name(ordering)
-        locale = @locale&.first || I18n.default_locale.to_s
-
         reflect(
           query_without_order
-            .joins(sanitize_sql(['LEFT OUTER JOIN thing_translations ON thing_translations.thing_id = things.id AND thing_translations.locale = ?', locale]))
+            .joins(locale_join('thing_translations', 'thing_id', 'content'))
             .order(
               sanitized_order_string("thing_translations.content ->> 'name'", ordering, true),
               thing[:id].desc
@@ -105,11 +105,9 @@ module DataCycleCore
       alias sort_name sort_translated_name
 
       def sort_advanced_attribute(ordering, attribute_path)
-        locale = @locale&.first || I18n.default_locale.to_s
-
         reflect(
           query_without_order
-            .joins(sanitize_sql(['LEFT OUTER JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
+            .joins(locale_join('searches', 'content_data_id', 'advanced_attributes'))
             .order(
               sanitized_order_string("searches.advanced_attributes -> '#{attribute_path}'", ordering, true),
               thing[:id].desc
@@ -117,264 +115,27 @@ module DataCycleCore
         )
       end
 
-      def sort_proximity_in_time(_ordering = '', value = {})
-        date = Time.zone.now
-        if value.present? && value.is_a?(::Hash) && value['q'] == 'relative'
-          date = relative_to_absolute_date(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          date = relative_to_absolute_date(value.dig('v', 'from')) if value.dig('v', 'from', 'n').present?
-        elsif value.present? && value.is_a?(::Hash)
-          date = date_from_single_value(value.dig('in', 'min')) if value.dig('in', 'min').present?
-          date = date_from_single_value(value.dig('v', 'from')) if value.dig('v', 'from').present?
-        end
+      # Sorts by a numeric advanced_search attribute. The values sit in searches.advanced_attributes
+      # as a JSON ARRAY (walk_advanced collects the occurrences from embedded contents too), which is
+      # why sort_advanced_attribute -- which orders by the array itself -- is no good here: jsonb
+      # compares arrays by LENGTH first, so [1,2] would come before [9].
+      # Hence a reduction to a scalar per direction: DESC by the largest, ASC by the smallest
+      # element, so that "the longest" and "the shortest" both have the extreme value at the front.
+      def sort_advanced_attribute_numeric(ordering, attribute_path)
+        return self if attribute_path.blank?
 
-        date = Arel::Nodes.build_quoted(date.iso8601) unless date.is_a?(Arel::Nodes::Node)
-        reflect(
-          query_without_order
-            .order(
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'end_date')), date),
-              absolute_date_diff(cast_ts(in_json(thing[:metadata], 'start_date')), date),
-              cast_ts(in_json(thing[:metadata], 'start_date')),
-              thing[:id].desc
-            )
-        )
-      end
-
-      # TODO: get the sort value for relation dynamically via data definitions
-      def sort_by_proximity(ordering = '', value = {})
-        from_node, to_node = arel_date_from_filter_object(value['in'] || value['v']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-        return self if from_node.nil? && to_node.nil?
-
-        relation_filter = schedule_relation_filter(value, "AND schedules.relation != 'validity_range'")
-        joined_table_name = "so#{SecureRandom.hex(10)}"
-        order_parameter_join = <<~SQL.squish
-          LEFT OUTER JOIN LATERAL (
-            SELECT schedules.thing_id,
-              MIN(LOWER(so.occurrence)) AS "min_start_date"
-            FROM schedules,
-              UNNEST(schedules.occurrences_array) so(occurrence)
-            WHERE things.id = schedules.thing_id
-              AND so.occurrence && #{tstzrange(from_node, to_node, '[]').to_sql}
-              #{relation_filter}
-            GROUP BY schedules.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        SQL
+        # sanitized_ordering raises on anything but asc/desc, which covers the interpolation.
+        aggregate = sanitized_ordering(ordering) == 'desc' ? 'MAX' : 'MIN'
+        order_string = sanitize_sql([
+                                      "(SELECT #{aggregate}((e)::decimal) FROM jsonb_array_elements(searches.advanced_attributes -> ?) e WHERE jsonb_typeof(e) = 'number')",
+                                      attribute_path
+                                    ])
 
         reflect(
           query_without_order
-            .joins(sanitize_sql([order_parameter_join]))
+            .joins(locale_join('searches', 'content_data_id', 'advanced_attributes'))
             .order(
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              thing[:updated_at].desc,
-              thing[:id].desc
-            )
-        )
-      end
-
-      alias sort_by_schedule_proximity sort_by_proximity
-      alias sort_proximity_occurrence sort_by_proximity
-
-      def sort_proximity_geographic(ordering = '', value = [])
-        return self unless valid_geographic_coordinates?(value)
-
-        join_query, order_query = order_params_for_geom(value)
-        reflect(
-          query_without_order
-            .joins(join_query)
-            .order(
-              sanitized_order_string(order_query, ordering, true),
-              thing[:updated_at].desc,
-              thing[:id].desc
-            )
-        )
-      end
-
-      def sort_proximity_geographic_with(ordering = '', value = [])
-        sort_proximity_geographic(ordering, value)
-      end
-
-      def sort_proximity_occurrence_with_distance(ordering = '', value = [])
-        proximity_occurrence_with_distance(ordering, value)
-      end
-
-      def sort_proximity_in_occurrence_with_distance(ordering = '', value = [])
-        proximity_occurrence_with_distance(ordering, value, false)
-      end
-
-      def sort_proximity_in_occurrence(ordering = '', value = {})
-        proximity_in_occurrence(ordering, value, true)
-      end
-
-      def sort_proximity_in_occurrence_with_distance_pia(ordering = '', value = [])
-        proximity_occurrence_with_distance_pia(ordering, value, false)
-      end
-
-      def proximity_occurrence_with_distance_pia(ordering = '', value = [], sort_by_date = true)
-        return self if !value.is_a?(::Array) || value.first.blank?
-
-        geo = value.first
-        schedule = value.second
-        return self unless valid_geographic_coordinates?(geo)
-
-        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
-          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
-        else
-          start_date = Time.zone.now
-          end_date = 1.week.from_now.end_of_week
-        end
-
-        min_start_date = if sort_by_date
-                           'MIN(LOWER(so.occurrence))'
-                         else
-                           '1'
-                         end
-
-        joined_table_name = "sch#{SecureRandom.hex(10)}"
-        end_of_day = Time.zone.now.end_of_day
-        end_date_extended = [end_date, 1.month.from_now.end_of_month].max
-
-        # [TODO] @Samuel: check if it works as intended
-        relation_filter = schedule_relation_filter(schedule, "AND schedules.relation = 'opening_hours_specification'")
-
-        order_parameter_join = <<~SQL.squish
-          LEFT OUTER JOIN LATERAL (
-            SELECT schedules.thing_id,
-              CASE
-                WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL
-                WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(NOW(), '#{end_of_day}')) IS NOT NULL THEN 1
-                WHEN MIN(LOWER(so.occurrence)) FILTER (WHERE so.occurrence && TSTZRANGE(:start_date, :end_date)) IS NOT NULL THEN 2
-                ELSE 3
-              END as occurrence_exists,
-              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules
-            LEFT OUTER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(NOW() - INTERVAL '1 year', '#{end_date_extended}')
-            WHERE things.id = schedules.thing_id
-            #{relation_filter}
-            GROUP BY schedules.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        SQL
-
-        # join_tabel_name2 = "ohdc#{SecureRandom.hex(10)}"
-        # order_parameter_join2 = <<-SQL.squish
-        #   LEFT OUTER JOIN (
-        #     SELECT 1 AS "closed_description_exists", cc.content_a_id
-        #     FROM content_contents cc
-        #     LEFT OUTER JOIN classification_contents clc ON clc.content_data_id = cc.content_b_id
-        #     LEFT OUTER JOIN concepts c ON c.id = clc.classification_id  AND c.internal_name = 'geschlossen'
-        #     LEFT OUTER JOIN concept_schemes cs ON cs.id = c.concept_scheme_id  AND cs.name = 'Öffnungszeiten'
-        #     LEFT OUTER JOIN schedules s ON s.thing_id = cc.content_b_id AND s.relation = 'validity_schedule'
-        #     WHERE cc.relation_a = 'opening_hours_description'
-        #     AND s.occurrences && TSTZRANGE(#{"'#{start_date}'"}, #{"'#{start_date.end_of_day}'"})
-        #   ) "#{join_tabel_name2}" ON #{join_tabel_name2}.content_a_id = things.id
-        # SQL
-
-        join_geo_query, order_geo_query = order_params_for_geom(geo)
-
-        reflect(
-          query_without_order
-            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
-            .joins(join_geo_query)
-            # .joins(sanitize_sql([order_parameter_join2]))
-            .order(
-              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              # sanitized_order_string("#{join_tabel_name2}.closed_description_exists", ordering, true),
-              sanitized_order_string(order_geo_query, ordering, true),
-              thing[:updated_at].desc,
-              thing[:id].desc
-            )
-        )
-      end
-
-      def proximity_occurrence_with_distance(ordering = '', value = [], sort_by_date = true)
-        return self if !value.is_a?(::Array) || value.first.blank?
-
-        geo = value.first
-        schedule = value.second
-        return self unless valid_geographic_coordinates?(geo)
-
-        if schedule.present? && schedule.is_a?(::Hash) && (schedule['in'] || schedule['v'])
-          start_date, end_date = date_from_filter_object(schedule['in'] || schedule['v'], schedule['q'])
-        else
-          start_date = Time.zone.now
-          end_date = Time.zone.now.end_of_day
-        end
-
-        min_start_date = if sort_by_date
-                           'MIN(LOWER(so.occurrence))'
-                         else
-                           '1'
-                         end
-
-        # [TODO] @Samuel: check if it works as intended
-        relation_filter = schedule_relation_filter(schedule, "AND schedules.relation != 'validity_range'")
-
-        joined_table_name = "sch#{SecureRandom.hex(10)}"
-        order_parameter_join = <<~SQL.squish
-          LEFT OUTER JOIN LATERAL (
-            SELECT schedules.thing_id,
-              1 AS "occurrence_exists",
-              CASE WHEN MIN(LOWER(so.occurrence)) IS NULL THEN NULL ELSE #{min_start_date} END as min_start_date
-            FROM schedules
-            LEFT OUTER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = schedules.thing_id
-            #{relation_filter}
-            GROUP BY schedules.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        SQL
-
-        join_geo_query, order_geo_query = order_params_for_geom(geo)
-
-        reflect(
-          query_without_order
-            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
-            .joins(join_geo_query)
-            .order(
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              sanitized_order_string(order_geo_query, ordering, true),
-              thing[:updated_at].desc,
-              thing[:id].desc
-            )
-        )
-      end
-
-      def proximity_in_occurrence(ordering = '', value = {}, sort_by_date = true)
-        start_date, end_date = date_from_filter_object(value['in'] || value['v'], value['q']) if value.present? && value.is_a?(::Hash) && (value['in'] || value['v'])
-
-        if start_date.nil? && end_date.nil?
-          start_date = Time.zone.now
-          end_date = Time.zone.now.end_of_day
-        end
-        min_start_date = if sort_by_date
-                           'MIN(LOWER(so.occurrence))'
-                         else
-                           '1'
-                         end
-
-        # [TODO] @Samuel: check if it works as intended
-        relation_filter = schedule_relation_filter(value, "AND schedules.relation != 'validity_range'")
-
-        joined_table_name = "sch#{SecureRandom.hex(10)}"
-        order_parameter_join = <<~SQL.squish
-          LEFT OUTER JOIN LATERAL (
-            SELECT schedules.thing_id,
-              1 AS "occurrence_exists",
-              #{min_start_date} AS "min_start_date"
-            FROM schedules
-            INNER JOIN UNNEST(schedules.occurrences_array) so(occurrence) ON so.occurrence && TSTZRANGE(:start_date, :end_date)
-            WHERE things.id = schedules.thing_id
-            #{relation_filter}
-            GROUP BY schedules.thing_id
-          ) "#{joined_table_name}" ON #{joined_table_name}.thing_id = things.id
-        SQL
-
-        reflect(
-          query_without_order
-            .joins(sanitize_sql([order_parameter_join, { start_date: start_date, end_date: end_date }]))
-            .order(
-              sanitized_order_string("#{joined_table_name}.min_start_date", ordering, true),
-              sanitized_order_string("#{joined_table_name}.occurrence_exists", ordering, true),
-              thing[:updated_at].desc,
+              sanitized_order_string(order_string, ordering, true),
               thing[:id].desc
             )
         )
@@ -390,7 +151,7 @@ module DataCycleCore
         search_string = normalized_value.split.join('%')
         order_sql = <<~SQL.squish
           things.boost * (
-            8 * similarity(searches.classification_string, :search_string) +
+            8 * similarity(searches.concept_string, :search_string) +
             4 * similarity(searches.headline, :search_string) +
             2 * ts_rank_cd(searches.words, plainto_tsquery(pg_dict_mappings.dict, :search),16) +
             1 * similarity(searches.full_text, :search_string)
@@ -421,9 +182,9 @@ module DataCycleCore
 
         reflect(
           query_without_order
-            .joins(sanitize_sql(['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ? LEFT OUTER JOIN pg_dict_mappings ON pg_dict_mappings.locale = searches.locale', locale]))
+            .joins(sanitize_sql(['LEFT JOIN searches ON searches.content_data_id = things.id AND searches.locale = ?', locale]))
             .order(
-              sanitized_order_string(sanitize_sql([order_string, { q:, weights: }]), ordering, true),
+              sanitized_order_string(sanitize_sql([order_string, { q:, weights:, locale: }]), ordering, true),
               thing[:id].desc
             )
         )
@@ -466,26 +227,26 @@ module DataCycleCore
         )
       end
 
-      # #50091: order things by a prioritized list of classification_alias UUIDs.
+      # #50091: order things by a prioritized list of concept UUIDs.
       # Content tagged with the first listed UUID (or any of its descendants) comes first, etc.;
       # content matching none of them sorts last (NULLS LAST).
       def sort_dc_classification(ordering, value)
         ids = sanitized_uuid_list(value, 'dc:classification')
 
         # #50091: at least one UUID must be given -> reject empty (do NOT silently fall back like sort_type)
-        raise DataCycleCore::Error::Api::InvalidArgumentError, 'sort: dc:classification requires at least one classification UUID' if ids.blank?
+        invalid_sort_argument!('dc:classification requires at least one classification UUID', value) if ids.blank?
 
         # Aggregate the priority ONCE in a non-correlated derived table (index scan on
-        # classification_alias_id -> GROUP BY thing_id) and hash-join 1:1 to things, instead of a
+        # concept_id -> GROUP BY thing_id) and hash-join 1:1 to things, instead of a
         # per-row correlated subquery. array_position is 1-based; MIN picks the earliest-listed
-        # matching UUID. hidden = false mirrors CollectedClassificationContent.without_hidden (#47172);
+        # matching UUID. hidden = false mirrors CollectedConceptContent.without_hidden (#47172);
         # no link_type filter keeps it subtree-inclusive like the default classification filter.
         join_query = sanitize_sql([<<~SQL.squish, ids, ids])
           LEFT OUTER JOIN (
-            SELECT thing_id, MIN(array_position(ARRAY[?]::uuid[], classification_alias_id)) AS sort_position
-            FROM collected_classification_contents
+            SELECT thing_id, MIN(array_position(ARRAY[?]::uuid[], concept_id)) AS sort_position
+            FROM collected_concept_contents
             WHERE hidden = false
-              AND classification_alias_id = ANY(ARRAY[?]::uuid[])
+              AND concept_id = ANY(ARRAY[?]::uuid[])
             GROUP BY thing_id
           ) dc_classification_sort ON dc_classification_sort.thing_id = things.id
         SQL
@@ -501,6 +262,9 @@ module DataCycleCore
         )
       end
 
+      # The direction is not client input the way a sort argument is: the API derives it from the
+      # +/- sign of the sort key and the backend UI validates it against ASC/DESC, so anything else
+      # is a bug and stays an InvalidArgumentError instead of invalid_sort_argument!'s 400 detail.
       def sanitized_ordering(ordering)
         ordering = ordering&.downcase
 
@@ -537,54 +301,57 @@ module DataCycleCore
         ids = Array.wrap(value).flat_map { |v| v.to_s.split(',') }.filter_map { |v| v.strip.presence }
         invalid_ids = ids.reject(&:uuid?)
 
-        raise DataCycleCore::Error::Api::InvalidArgumentError, "Invalid UUID for sort: #{sort_key}: #{invalid_ids.join(', ')}" if invalid_ids.present?
+        invalid_sort_argument!("#{sort_key} requires valid UUIDs", invalid_ids) if invalid_ids.present?
 
         ids
       end
 
+      # Reject a sort argument the way ApiService reports every other unusable query parameter: with
+      # source.parameter 'sort' and a +detail+ (ErrorHandler#bad_request_api_error), where
+      # Error::Api::InvalidArgumentError would render its i18n title, "Invalid Query Parameter", alone.
+      #
+      # The sort parameter can carry several keys, so +detail+ names the one at fault - it is the half
+      # the client reads. The rejected value goes into the raise message and stays internal, because
+      # ActionController logs a handled exception's message but never BadRequestError#data.
+      def invalid_sort_argument!(detail, value)
+        raise DataCycleCore::Error::Api::BadRequestError.new({
+          parameter_path: 'sort',
+          type: 'invalid_parameter',
+          detail:
+        }), "sort: #{detail}, got: #{value.inspect}"
+      end
+
+      # Join onto a translated table (thing_translations, searches) as the sort source.
+      #
+      # With a requested language: exactly that language's row, as before.
+      #
+      # WITHOUT a requested language (`locale: nil`, which `language: ['all']` produces -- how MCP
+      # queries, so that counts cover every translation) it must NOT be pinned silently to the
+      # default locale: contents without a row in that one language would get a NULL sort key and
+      # could never appear in a desc top-N although they count towards `count` and an unsorted
+      # search returns them (measured in vcloud-dev: 114,698 things have an en but no de searches
+      # row). Instead a LATERAL that yields EXACTLY ONE row per thing -- the default locale
+      # preferred, otherwise the alphabetically first one present. A LATERAL rather than a join
+      # without a locale condition, because the latter would produce one result row per translation
+      # and thereby multiply contents.
+      #
+      # The alias stays the table name, so the callers' ORDER BY expressions are unchanged.
+      def locale_join(table, thing_key, column)
+        return sanitize_sql(["LEFT OUTER JOIN #{table} ON #{table}.#{thing_key} = things.id AND #{table}.locale = ?", @locale.first]) if @locale&.first.present?
+
+        sanitize_sql([<<~SQL.squish, I18n.default_locale.to_s])
+          LEFT OUTER JOIN LATERAL (
+            SELECT t.#{column}
+            FROM #{table} t
+            WHERE t.#{thing_key} = things.id
+            ORDER BY (t.locale = ?) DESC, t.locale
+            LIMIT 1
+          ) #{table} ON TRUE
+        SQL
+      end
+
       def query_without_order
         @query.reorder(nil).except(:joins)
-      end
-
-      def find_relation(value)
-        return if value.blank?
-
-        if value['relation']
-          value['relation'].to_s.underscore
-        elsif value.dig('v', 'relation')
-          value.dig('v', 'relation').to_s.underscore
-        end
-      end
-
-      def schedule_relation_filter(value, default_filter)
-        relation_value = find_relation(value)
-        return '' if relation_value == 'all'
-
-        relation = relation_value.present? && !relation_value.eql?('schedule') ? relation_value : nil
-        relation.present? ? "AND schedules.relation = #{ActiveRecord::Base.connection.quote(relation)}" : default_filter
-      end
-
-      def order_params_for_geom(value)
-        order_parameter_join = <<~SQL.squish
-          LEFT OUTER JOIN geometries ON geometries.thing_id = things.id AND geometries.is_primary = true
-        SQL
-
-        # SECURITY (DC-19): the coordinates are interpolated into a raw WKT literal inside the
-        # ORDER BY clause, which sanitized_order_string wraps in Arel.sql (trusted). Coerce both
-        # to Float so attacker-supplied sort values can never break out of the literal. Callers
-        # guard with valid_geographic_coordinates? so this only raises if validation is bypassed.
-        longitude = Float(value[0])
-        latitude = Float(value[1])
-
-        order_string = "geometries.geom_simple::geography <-> 'SRID=4326;POINT (#{longitude} #{latitude})'::geography"
-
-        return order_parameter_join, order_string
-      end
-
-      # True only when both coordinates parse as numbers. Callers return self (unsorted) on
-      # invalid input so non-numeric values never reach the interpolated literal above (DC-19).
-      def valid_geographic_coordinates?(value)
-        !Float(value&.[](0), exception: false).nil? && !Float(value&.[](1), exception: false).nil?
       end
     end
   end

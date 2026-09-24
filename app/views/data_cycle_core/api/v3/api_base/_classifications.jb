@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-classifications = classification_aliases&.map do |item|
+classifications = concepts&.map do |item|
   {
     id: item.id,
     name: item.name(locale: @language) || item.internal_name,
@@ -8,14 +8,14 @@ classifications = classification_aliases&.map do |item|
     uri: item.uri,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
-    deletedAt: item.deleted_at,
-    ancestors: item.ancestors.map do |ancestor|
+    deletedAt: item.try(:deleted_at),
+    ancestors: item.ancestors_with_concept_scheme.map do |ancestor|
       {
         id: ancestor.id,
-        name: ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name),
+        name: ancestor.is_a?(DataCycleCore::ConceptScheme) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name),
         createdAt: ancestor.created_at,
         updatedAt: ancestor.updated_at,
-        deletedAt: ancestor.deleted_at
+        deletedAt: ancestor.try(:deleted_at)
       }.compact
     end
   }.compact.deep_stringify_keys

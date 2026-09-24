@@ -40,7 +40,7 @@ module DataCycleCore
           uuid = permitted_params[:uuid] || permitted_params[:uuids]&.split(',')
           if uuid.present? && uuid.is_a?(::Array) && uuid.size.positive?
             fetched_things = DataCycleCore::Thing
-              .includes(:translations, :scheduled_data, classifications: [{ classification_aliases: [:classification_tree_label] }])
+              .includes(:translations, :scheduled_data, concepts: [:concept_scheme])
               .where(id: uuid)
             @contents = apply_paging(fetched_things)
             render json: sync_api_format(@contents) { @contents.to_sync_data }.to_json

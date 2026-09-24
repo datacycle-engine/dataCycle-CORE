@@ -8,11 +8,11 @@ module DataCycleCore
 
         def initialize(*visibilities)
           @visibilities = Array.wrap(visibilities).flatten
-          @subject = DataCycleCore::ClassificationTreeLabel
+          @subject = DataCycleCore::ConceptScheme
         end
 
         def scope
-          ['classification_tree_labels.visibility && ARRAY[?]::VARCHAR[]', visibilities]
+          ['concept_schemes.visibility && ARRAY[?]::VARCHAR[]', visibilities]
         end
 
         def include?(ctl, *_args)

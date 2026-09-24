@@ -24,11 +24,11 @@ module DataCycleCore
             return if ids.blank?
 
             sql = <<~SQL.squish
-              SELECT ST_AsText(ST_Force3D(ST_Union(classification_polygons.geom))) AS geom
+              SELECT ST_AsText(ST_Force3D(ST_Union(concept_polygons.geom))) AS geom
               FROM concepts
-                INNER JOIN classification_polygons ON classification_polygons.classification_alias_id = concepts.id
-              WHERE concepts.classification_id IN (?)
-                AND classification_polygons.geom IS NOT NULL;
+                INNER JOIN concept_polygons ON concept_polygons.concept_id = concepts.id
+              WHERE concepts.id IN (?)
+                AND concept_polygons.geom IS NOT NULL;
             SQL
 
             ActiveRecord::Base.connection

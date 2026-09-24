@@ -31,7 +31,7 @@ module DataCycleCore
 
     before(:all) do
       @external_source = DataCycleCore::ExternalSystem.find_by(identifier: 'local-system')
-      @classification_id = DataCycleCore::Concept.for_tree('Tags').with_name('Tag 3').pick(:classification_id)
+      @classification_id = DataCycleCore::Concept.for_tree('Tags').with_name('Tag 3').pick(:id)
     end
 
     def utility_object(steps_successful: true, last_successful_try: nil)

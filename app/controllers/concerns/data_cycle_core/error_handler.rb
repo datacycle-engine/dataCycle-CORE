@@ -22,7 +22,7 @@ module DataCycleCore
       rescue_from DataCycleCore::Error::Api::InvalidArgumentError, with: :bad_request
       rescue_from DataCycleCore::Error::Api::BadRequestError, with: :bad_request_api_error
       rescue_from DataCycleCore::Error::BadRequestError, with: :bad_request_error
-      rescue_from ActiveRecord::StatementInvalid, with: :bad_request if self <= ActionController::API
+      rescue_from ActiveRecord::StatementInvalid, with: :statement_invalid if self <= ActionController::API
       rescue_from DataCycleCore::Error::Api::ExpiredContentError, with: :expired_content_api_error
 
       rescue_from DataCycleCore::Error::Download::InvalidSerializationFormatError, with: :user_interface_error
@@ -139,6 +139,20 @@ module DataCycleCore
       return if performed?
 
       head :too_many_requests, { 'Retry-After': 60 }
+    end
+
+    # A column a deploy dropped or renamed reaches an API controller as StatementInvalid, where
+    # :bad_request would blame the caller for a schema this process can no longer read.
+    def statement_invalid(exception)
+      return service_unavailable if DataCycleCore::StaleProcess.stale?
+
+      bad_request(exception)
+    end
+
+    def service_unavailable
+      return if performed?
+
+      head :service_unavailable, { 'Retry-After': DataCycleCore::StaleProcess::RETRY_AFTER }
     end
 
     def not_found(exception)

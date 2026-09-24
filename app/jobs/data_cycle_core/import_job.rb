@@ -86,10 +86,14 @@ module DataCycleCore
       external_system.save!
     end
 
+    # Deliberately not the exception object itself: a Mongo::Error::PoolClearedError holds the live
+    # connection pool, and +to_yaml+ raised on the anonymous classes hanging off it with "can't dump
+    # anonymous class: #<Class:0x...>" - it raised before +save!+ ran, so the failure went unrecorded
+    # and the TypeError went on to replace the error the job had actually hit.
     def update_last_error(external_system, exception)
       external_system.data ||= {}
       external_system.data["last_#{import_type}_failed"] = true
-      external_system.data["last_#{import_type}_exception"] = exception.try(:to_yaml)
+      external_system.data["last_#{import_type}_exception"] = DataCycleCore::Error.describe(exception)
       external_system.save!
     end
   end

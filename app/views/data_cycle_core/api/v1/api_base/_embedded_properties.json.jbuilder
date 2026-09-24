@@ -8,7 +8,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 (content.embedded_property_names - options[:hidden_attributes]).each do |property|
   data = nil
   I18n.with_locale(content.first_available_locale) do
-    data = content.send(property).includes(:translations, :classifications)
+    data = content.send(property).includes(:translations, :concepts)
   end
   next if data.empty?
 

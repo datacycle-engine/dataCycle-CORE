@@ -1,5 +1,5 @@
 <div class="detail-header-info">
-  <div class="type <%= content.template_name.underscore_blanks %>" style="<%= classification_style(content.classification_alias_for_tree('Inhaltstypen')) %>">
+  <div class="type <%= content.template_name.underscore_blanks %>" style="<%= concept_color_style(content.concept_for_tree('Inhaltstypen')) %>">
     <%= render 'data_cycle_core/shared/icon', icon_type: content&.icon_type, icon_class: content&.icon_class %>
 
     <%= render 'data_cycle_core/shared/template_title', content: content, languages: [I18n.locale.to_s] %>
