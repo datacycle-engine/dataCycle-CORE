@@ -105,7 +105,7 @@ class StoredFilter {
 		this.disableForm(target);
 
 		DataCycle.httpRequest(target.href, {
-			method: "POST",
+			method: target.dataset.method ?? "GET",
 			body: {
 				last_day: lastDayChild?.dataset.day,
 				q: this.search,

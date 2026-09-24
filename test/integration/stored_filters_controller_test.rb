@@ -77,6 +77,22 @@ module DataCycleCore
       assert_no_match other.name, response.parsed_body['html']
     end
 
+    # stored_filter.js requests each load-more link with its data-method, GET by default: POST
+    # /search_history is #create and would answer the search history's page 2 with ParameterMissing,
+    # while saved_searches keeps POST for ids that can exceed the URI length limit (#43524).
+    test 'load-more links declare POST only where the route takes it' do
+      25.times { |i| DataCycleCore::StoredFilter.create!(name: "Cov Paged Filter #{i}", user: @admin, language: ['de']) }
+
+      get stored_filters_path
+
+      assert_select 'a.stored-searches-load-more-button:not([data-method])'
+
+      get saved_searches_stored_filters_path
+
+      assert_select 'a.stored-searches-load-more-button[data-method="post"]'
+      assert_select 'a.stored-searches-load-all-button[data-method="post"]'
+    end
+
     # #43524: a full-text query must narrow within the ids restriction, not replace it - otherwise
     # typing in the search box while the classification-usage chip is active would silently show
     # unrelated stored filters again.

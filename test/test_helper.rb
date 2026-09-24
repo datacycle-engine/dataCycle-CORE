@@ -149,8 +149,12 @@ require 'helpers/solid_queue_helper'
 # the same template data, so the same mutations stale it. Reset before every test to match the DB-level
 # isolation. (The ExternalSystem cache needs no reset here: nothing mutates a cached external system in
 # place, and the full suite is green without it.)
+#
+# StaleProcess fingerprints template schemas too and latches its first stale verdict, so an error in
+# a test that made such a mutation would turn every later StatementInvalid into an empty 503.
 ActiveSupport::TestCase.setup do
   DataCycleCore::ThingTemplate.reset_template_caches!
+  DataCycleCore::StaleProcess.reset!
 end
 
 # NB: nothing is prepared here at boot anymore.

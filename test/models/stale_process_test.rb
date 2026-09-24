@@ -7,17 +7,10 @@ module DataCycleCore
     ADDED_TEMPLATE_NAME = 'StaleProcessTestTemplate'
     ADDED_MIGRATION_VERSION = '99999999999999'
 
-    def setup
-      DataCycleCore::StaleProcess.reset!
-    end
-
     def teardown
       revert_templates!
       remove_added_template!
       remove_added_migration!
-      # the verdict is process state, not request state: a test leaving it latched would turn
-      # every later test's 500 into a 503
-      DataCycleCore::StaleProcess.reset!
     end
 
     test 'an unpinned process is never stale' do

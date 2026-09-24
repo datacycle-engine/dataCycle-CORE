@@ -70,7 +70,8 @@ const DataCycleHttpClient = {
 			options.headers["Content-Type"] = "application/json";
 
 		if (options.method === "GET" && options.body) {
-			url += `?${this.objectToUrlSearchParams(options.body).toString()}`;
+			const separator = url.includes("?") ? "&" : "?";
+			url += `${separator}${this.objectToUrlSearchParams(options.body).toString()}`;
 			options.body = undefined;
 		} else if (
 			options.headers["Content-Type"] === "application/json" &&
